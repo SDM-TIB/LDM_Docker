@@ -1,0 +1,222 @@
+	/* =====================================================
+   The "account masthead" bar across the top of the site
+   ===================================================== */
+
+.account-masthead {
+    background-color: #474646 !important;
+}
+/* The "bubble" containing the number of new notifications. */
+.account-masthead .account .notifications a span {
+  background-color: black !important;
+}
+/* The text and icons in the user account info. */
+.account-masthead .account ul li a {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+/* The user account info text and icons, when the user's pointer is hovering
+   over them. */
+.account-masthead .account ul li a:hover {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background-color: black !important;
+}
+
+
+/* ========================================================================
+   The main masthead bar that contains the site logo, nav links, and search
+   ======================================================================== */
+
+.masthead {
+  background-color: #989292 !important;
+}
+/* The "navigation pills" in the masthead (the links to Datasets,
+   Organizations, etc) when the user's pointer hovers over them. */
+.masthead .navigation .nav-pills li a:hover {
+  background-color: rgb(48, 48, 48) !important;
+  color: white !important;
+}
+/* The "active" navigation pill (for example, when you're on the /dataset page
+   the "Datasets" link is active). */
+.masthead .navigation .nav-pills li.active a {
+  background-color: rgb(74, 74, 74) !important;
+}
+/* The "box shadow" effect that appears around the search box when it
+   has the keyboard cursor's focus. */
+.masthead input[type="text"]:focus {
+  -webkit-box-shadow: inset 0px 0px 2px 0px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: inset 0px 0px 2px 0px rgba(0, 0, 0, 0.7) !important;
+  color: black !important;
+}
+
+
+/* ===========================================
+   The content in the middle of the front page
+   =========================================== */
+
+/* Remove the "box shadow" effect around various boxes on the page. */
+.box {
+  box-shadow: none !important;
+}
+/* Remove the borders around the "Welcome to CKAN" and "Search Your Data"
+   boxes. */
+.hero .box {
+  border: none !important;
+}
+/* Change the colors of the "Search Your Data" box. */
+.homepage .module-search .module-content {
+  color: rgb(68, 68, 68) !important;
+  background-color: white !important;
+}
+/* Change the background color of the "Popular Tags" box. */
+.homepage .module-search .tags {
+  background-color: rgb(61, 61, 61) !important;
+}
+/* Remove some padding. This makes the bottom edges of the "Welcome to CKAN"
+   and "Search Your Data" boxes line up. */
+.module-content:last-child {
+  padding-bottom: 0px !important;
+}
+.homepage .module-search {
+  padding: 0px !important;
+}
+/* Add a border line between the top and bottom halves of the front page. */
+.homepage [role="main"] {
+  border-top: 1px solid rgb(204, 204, 204) !important;
+}
+
+
+/* ====================================
+   The footer at the bottom of the site
+   ==================================== */
+
+.site-footer,
+body {
+  background-color: rgb(40, 40, 40) !important;
+}
+/* The text in the footer. */
+.site-footer,
+.site-footer label,
+.site-footer small {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+/* The link texts in the footer. */
+.site-footer a {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+
+/* ====================================
+   About Page Styles
+   ==================================== */
+
+.ldm_about_foot {
+    background-color: #4B4B4B;
+    filter: alpha(opacity = 95);
+    -ms-filter: "alpha(opacity = 95)";
+    opacity: .90;
+    background: linear-gradient(#4B4B4B,#BABABA);
+    margin-top: 20px;
+    margin-bottom: 50px;
+    padding: 20px;
+    color: #FAFAFA;
+}
+
+/* ====================================
+   Virtual Datasets Styles
+   ==================================== */
+
+.dataset-item.virtual {
+    background-color: #fafbfc;
+    position: relative;
+}
+
+.ribbon{
+  position:relative;
+  padding: 0 0.5em;
+  font-size:1em;
+  margin: 0 0 0 -0.25em;
+  line-height: 1.875em;
+  color: #e6e2c8;
+  border-radius: 0 0.156em 0.156em 0;
+  background: rgb(123, 159, 199);
+  box-shadow: -1px 2px 3px rgba(0,0,0,0.5);
+  width: 40%;
+  top: 6px;
+}
+
+.ribbon:before, .ribbon:after{
+  position:absolute;
+  content: '';
+  display: block;
+}
+
+.ribbon:before{
+  width: 0.72em;
+  height: 123%;
+  padding: 0 0 0.438em;
+  top:0;
+  left: -0.469em;
+  background:inherit;
+  border-radius: 0.313em 0 0 0.313em;
+}
+
+.ribbon:after{
+  width: 0.56em;
+  height: 0.313em;
+  background: rgba(0,0,0,0.35);
+  bottom: -15%;
+  left: -0.313em;
+  border-radius: 0.313em 0 0 0.313em;
+  box-shadow: inset -1px 2px 2px rgba(0,0,0,0.3);
+}
+
+
+
+
+
+
+
+.ribbon-corner {
+  color: white;
+}
+.ribbon-corner-wrap {
+  width: 15%;
+  height: 188px;
+  position: absolute;
+  top: -8px;
+  right: -7px;
+  overflow: hidden;
+}
+.ribbon-corner-wrap:before, .ribbon-corner-wrap:after {
+  content: "";
+  position: absolute;
+}
+.ribbon-corner-wrap:before {
+  width: 17px;
+  height: 8px;
+  right: 100px;
+  background: #4D6530;
+  border-radius: 8px 8px 0px 0px;
+}
+.ribbon-corner-wrap:after {
+  width: 8px;
+  height: 16px;
+  right: 0px;
+  top: 100px;
+  background: #4D6530;
+  border-radius: 0px 8px 8px 0px;
+}
+.ribbon-corner-ribbon6 {
+  width: 200px;
+  height: 25px;
+  line-height: 24px;
+  position: absolute;
+  top: 30px;
+  right: -50px;
+  z-index: 2;
+  overflow: hidden;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  box-shadow:0 0 0 3px #fab143,  0px 21px 5px -18px rgba(0,0,0,0.6);
+  background: #fab143;
+  text-align: center;
+}

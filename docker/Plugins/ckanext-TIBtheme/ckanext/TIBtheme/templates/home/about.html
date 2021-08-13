@@ -1,0 +1,26 @@
+{% ckan_extends %}
+{% set asset_path = h.url_for('home') %}
+
+{% block subtitle %}{{ _('About') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('About'), 'home.about' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module" role="main">
+    <div class="module-content">
+      {% block about %}
+        {% if g.site_about %}
+          {{ h.render_markdown(g.site_about) }}
+        {% else %}
+          <img id="tib_event_logo" src="{{asset_path}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
+          <h1 class="page-heading">{{ "About the Leibniz Data Manager" }}</h1>
+          {% snippet 'home/snippets/about_text.html' %}
+        {% endif %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

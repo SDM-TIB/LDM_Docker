@@ -1,0 +1,23 @@
+{% ckan_extends %}
+
+{% block header_logo %}
+	{% set url = h.url_for('home') %}
+	&nbsp;
+	&nbsp;
+	&nbsp;
+	&nbsp;
+	<a href="{{ url }}" style="text-decoration: none;">
+	&nbsp;
+	<img src="{{ url }}images/TIB_logo.png" style="margin-top:10px;max-width:30%" alt="TIB" title="TIB">
+	</a>
+{% endblock %}
+
+{% block header_site_search %}
+  <form class="section site-search simple-input" action="{% url_for controller='dataset', action='search' %}" method="get">
+    <div class="field">
+      <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+      <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search') }}" />
+      <button class="btn-search" type="submit" style="top:16px"><i class="fa fa-search"></i></button>
+    </div>
+  </form>
+{% endblock %}
