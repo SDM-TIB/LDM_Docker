@@ -61,7 +61,7 @@ write_config () {
 	"smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view" \
+    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view jupyternotebook" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE"
 #	"ckan.root_path = /ldmservice/{{LANG}}/foo"

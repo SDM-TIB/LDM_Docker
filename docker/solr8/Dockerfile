@@ -8,4 +8,4 @@ ADD ./solr8/config/* /var/solr/data/
 
 # SetUp EntryPoint
 COPY ./solr8/solr-entrypoint.sh /var/solr/data/
-ENTRYPOINT ["/var/solr/data/solr-entrypoint.sh"]
+ENTRYPOINT ["sh", "/var/solr/data/solr-entrypoint.sh"]

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "Exporter": {
+    "extra_template_pathss": [
+      ".",
+      "/usr/lib/ckan/default/src/jupyternotebook/jupyter_contrib_nbextensions/src/jupyter_contrib_nbextensions/templates"
+    ],
+    "preprocessors": [
+      "jupyter_contrib_nbextensions.nbconvert_support.CodeFoldingPreprocessor",
+      "jupyter_contrib_nbextensions.nbconvert_support.PyMarkdownPreprocessor"
+    ]
+  }
+}

@@ -53,7 +53,8 @@ RUN mkdir -p /usr/lib/ckan/default &&\
 
 # Create links to the ckan and pip commands inside the virtual environment
 RUN ln -s /usr/lib/ckan/default/bin/pip /usr/local/bin/ckan-pip && \
-    ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan
+    ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan && \
+	ln -s /usr/lib/ckan/default/bin/jupyter /usr/local/bin/jupyter
 
 #Install the recommended setuptools version and up-to-date pip:
 RUN ckan-pip install -U pip
@@ -139,6 +140,26 @@ ADD ./clean_database.sh /clean_database.sh
 
 # Define entry point file
 ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
+
+# Install Jupyternotebooks Plugin requirements
+RUN ckan-pip install notebook
+ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
+ADD ./Plugins/jupyternotebook $CKAN_HOME_L/src/jupyternotebook
+RUN ckan-pip install -e $CKAN_HOME_L/src/jupyternotebook/jupyter_notebook_nbextensions/
+RUN jupyter contrib nbextension install --user
+
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_nbconvert_config.json ~/.jupyter/jupyter_nbconvert_config.json
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_notebook_config.json ~/.jupyter/jupyter_notebook_config.json
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/common.json ~/.jupyter/nbconfig/common.json
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/notebook.json ~/.jupyter/nbconfig/notebook.json
+RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/tree.json ~/.jupyter/nbconfig/tree.json
+
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
+
+# Expose port for notebook
+EXPOSE 8000
+
 
 # Expose port for ckan
 EXPOSE 5000

@@ -96,3 +96,9 @@ The file specific viewers were implemented using CKAN (Comprehensive Knowledge A
 
 ●  Some descriptive information added to "about" page.
 
+
+
+###### \-  Version 2.2 (September 2021)
+
+●  Jupyter Notebook visualization plugin full developed by TIB were installed allowing to see and execute notebooks resources in a secure and integrated with CKAN way.
+
