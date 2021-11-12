@@ -1,3 +1,4 @@
+{% ckan_extends %}
 {#
 Displays a single of dataset.
 
@@ -18,57 +19,60 @@ Example:
 {% set title = package.title or package.name %}
 {% set notes = h.markdown_extract(package.notes, extract_length=truncate) %}
 
-{% set show_virtual_ribbon = True %}
-{% set show_source_ribbon = True %}
+{% set show_virtual_ribbon = h.tibimport_show_vdatasets_virtual_ribbon() %}
+{% set show_source_ribbon = h.tibimport_show_vdatasets_virtual_source_ribbon() %}
 
 {% block package_item %}
+
+  <li class="{{ item_class or "dataset-item" }} {{ package.type }}">
+  <div style="width:100%">
+  <div class="parent99">
+
   {% if package.type=="vdataset" %}
-  <li class="{{ item_class or "dataset-item virtual" }}">
-  {% if show_source_ribbon %}
-  <h1 class="ribbon">{{ package.repository_name }}</h1>
-  {% endif %}
-  {% if show_virtual_ribbon %}
-  <div class="ribbon-corner">
-      <div class="ribbon-corner-wrap">
-        <span class="ribbon-corner-ribbon6">Virtual</span>
-      </div>
-  </div>
-  {% endif %}
-  {% else %}
-  <li class="{{ item_class or "dataset-item" }}">
+      {% if show_source_ribbon %}
+        <h1 class="ribbon">{{ package.repository_name }}</h1>
+      {% endif %}
+
+      {% if show_virtual_ribbon %}
+          <h4 class="ribbon99">&nbsp;&nbsp;&nbsp;&nbsp;Imported&nbsp;&nbsp;&nbsp;&nbsp;</h4>
+      {% endif %}
+
   {% endif %}
 
-
-    {% block content %}
+  {% block content %}
       <div class="dataset-content">
         {% block heading %}
           <h2 class="dataset-heading">
-            {% block heading_private %}
-              {% if package.private %}
+          {% block heading_private %}
+            {% if package.private %}
                 <span class="dataset-private label label-inverse">
                     <i class="fa fa-lock"></i>
                     {{ _('Private') }}
                 </span>
-              {% endif %}
-            {% endblock %}
-            {% block heading_title %}
-		{{ h.link_to(h.truncate(title, truncate_title), h.url_for('%s.read' % package.type, id=package.name)) }}
-            {% endblock %}
-            {% block heading_meta %}
+            {% endif %}
+          {% endblock %}
+
+          {% block heading_title %}
+		    {{ h.link_to(h.truncate(title, truncate_title), h.url_for('%s.read' % package.type, id=package.name)) }}
+          {% endblock %}
+
+          {% block heading_meta %}
               {% if package.get('state', '').startswith('draft') %}
                 <span class="label label-info">{{ _('Draft') }}</span>
               {% elif package.get('state', '').startswith('deleted') %}
                 <span class="label label-danger">{{ _('Deleted') }}</span>
               {% endif %}
               {{ h.popular('recent views', package.tracking_summary.recent, min=10) if package.tracking_summary }}
-            {% endblock %}
+          {% endblock %}
           </h2>
         {% endblock %}
+
         {% block banner %}
           {% if banner %}
             <span class="banner">{{ _('Popular') }}</span>
           {% endif %}
         {% endblock %}
+
         {% block notes %}
           {% if notes %}
             <div>{{ notes|urlize }}</div>
@@ -76,22 +80,52 @@ Example:
             <p class="empty">{{ _("This dataset has no description") }}</p>
           {% endif %}
         {% endblock %}
+
       </div>
       {% block resources %}
+
+
+
         {% if package.resources and not hide_resources %}
           {% block resources_outer %}
             <ul class="dataset-resources list-unstyled">
               {% block resources_inner %}
+
+                <li>
+                  <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" class="label label-default label-{{ package.type }}-box">{{ h.tibtheme_get_dataset_type_title(package.type) }}</a>
+                </li>
                 {% for resource in h.dict_list_reduce(package.resources, 'format') %}
                 <li>
                   <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" class="label label-default" data-format="{{ resource.lower() }}">{{ resource }}</a>
                 </li>
                 {% endfor %}
               {% endblock %}
+              {% if h.tibtheme_show_object_icon_in_package_item() %}
+                <img src="{{h.url_for('home')}}images/{{ package.type }}_object.png" class="object-type" title="{{ h.tibtheme_get_dataset_type_title(package.type) }}"/>
+              {% endif %}
             </ul>
+
           {% endblock %}
         {% endif %}
       {% endblock %}
     {% endblock %}
-  </li>
+
+    </div>
+    </div>
+    </li>
+
 {% endblock %}
+
+          <ul class="dataset-resources list-unstyled">
+
+
+                <li>
+                  <a href="/vdataset/luh-wavelength-specific-behavior-of-the-western-flower-thrips" class="label label-default" data-format="zip">ZIP</a>
+                </li>
+
+                <li>
+                  <a href="/vdataset/luh-wavelength-specific-behavior-of-the-western-flower-thrips" class="label label-default" data-format="csv">CSV</a>
+                </li>
+
+
+            </ul>

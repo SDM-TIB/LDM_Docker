@@ -59,18 +59,43 @@ write_config () {
     "ckan.datastore.write_url = CKAN_DATASTORE_WRITE_URL" \
     "ckan.datastore.read_url = CKAN_DATASTORE_READ_URL" \
 	"smtp.server = postfix" \
-    "ckan.views.default_views = image_view text_view recline_view videoviewer" \
+    "ckan.views.default_views = image_view text_view recline_view videoviewer officedocs_view pdf_view" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view jupyternotebook" \
+    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE"
-#	"ckan.root_path = /ldmservice/{{LANG}}/foo"
+
+  echo "CONFIG tibimport vars"
+  ckan config-tool -s app:main $CONFIG "tibimport.show_vdatasets_virtual_ribbon = true"
+  ckan config-tool -s app:main $CONFIG "tibimport.show_vdatasets_virtual_source_ribbon = true"
+  echo "CONFIG tibimport vars DONE"
+
+  echo "CONFIG scheming vars"
+  ckan config-tool -s app:main $CONFIG "scheming.dataset_schemas = ckanext.scheming:ckan_dataset.yaml ckanext.scheming:ckan_vdataset.yaml ckanext.scheming:service.yaml"
+  echo "CONFIG scheming vars DONE"
+
+  echo "CONFIG DOI plugin"
+  ckan config-tool -s app:main $CONFIG \
+    "ckanext.doi.account_name = WUUA.LZMKBJ" \
+    "ckanext.doi.account_password = ApfLDM!21" \
+    "ckanext.doi.prefix = 10.23680" \
+    "ckanext.doi.publisher = TIB" \
+    "ckanext.doi.test_mode = true"
+  echo "CONFIG DOI plugin DONE"
+
+#  echo "CONFIG jupyternotebook vars"
+#  ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = http://services.tib.eu/ldmjupyter/notebooks/"
+#  echo "CONFIG jupyternotebook vars DONE"
+
+
+#  echo "CONFIG root_path"
+#  ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldmservice/{{LANG}}"
+#  echo "CONFIG root_path DONE"
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
 #     "ckan.plugins = stats text_view image_view recline_view resource_proxy datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface" \
   
 #  ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldmservice/{{LANG}}"
-
   
   echo "CONFIG PLUGINS DONE"
 }
@@ -88,11 +113,12 @@ if [ ! -e "$CONFIG" ]; then
   
   write_config
   echo "INITIALIZE DB"  
-  ckan -c "$CONFIG" db init  
-  echo "REBILD INDEX"  
-
-  # Rebuild index 
-  ckan search-index rebuild -c $CONFIG
+  ckan -c $CONFIG db init  
+   
+  echo "CREATE DOI TABLE IN DB"
+  ckan -c $CONFIG doi initdb
+  echo "REBUILD SEARCH-INDEX"
+  ckan -c $CONFIG search-index rebuild
   
   echo "DONE"  
 fi

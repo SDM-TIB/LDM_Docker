@@ -6,9 +6,14 @@
   {% if h.check_access('api_token_list', {'user': user['name']}) %}
     {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
   {% endif %}
+
+{# Menu item "import Datasets #}
+{#
   {% if user_dict['sysadmin'] %}
     {{ h.build_nav_icon('tibimport.import_vdatasets', _('Import Datasets'), id=user.name, icon='cloud-download') }}
   {% endif %}
+#}
+
 {% endblock %}
 
 

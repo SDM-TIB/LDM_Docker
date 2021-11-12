@@ -102,3 +102,16 @@ The file specific viewers were implemented using CKAN (Comprehensive Knowledge A
 
 ●  Jupyter Notebook visualization plugin full developed by TIB were installed allowing to see and execute notebooks resources in a secure and integrated with CKAN way.
 
+
+
+###### \-  Version 2.3 (November 2021)
+
+●  New "Services" schema was added to allow manage this kind of digital objects as descripted in DCAT specification.
+
+●  DOI creation was implemented for the current managed objects: datasets, imported datasets (virtual) and services.
+
+●  Adaptations in DCAT plugin for managing "Services".
+
+●  Changes in Main menu and interfaces were made for showing the new features propertly.
+
+●  New plugin was developed and implemented for adding new descriptions to objects using other vocabularies: DataCite, CSL, DublinCore and BibTex.

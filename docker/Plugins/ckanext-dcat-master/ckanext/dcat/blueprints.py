@@ -22,6 +22,12 @@ def read_catalog(_format=None, package_type=None):
 def read_dataset(_id, _format=None, package_type=None):
     return utils.read_dataset_page(_id, _format)
 
+def read_vdataset(_id, _format=None, package_type=None):
+    return utils.read_dataset_page(_id, _format)
+
+def read_service(_id, _format=None, package_type=None):
+    return utils.read_dataset_page(_id, _format)
+
 if toolkit.asbool(config.get(utils.ENABLE_RDF_ENDPOINTS_CONFIG, True)):
 
     # requirements={'_format': 'xml|rdf|n3|ttl|jsonld'}
@@ -30,6 +36,8 @@ if toolkit.asbool(config.get(utils.ENABLE_RDF_ENDPOINTS_CONFIG, True)):
                                      '{_format}', '<_format>'),
                       view_func=read_catalog)
     dcat.add_url_rule('/dataset/<_id>.<_format>', view_func=read_dataset)
+    dcat.add_url_rule('/vdataset/<_id>.<_format>', view_func=read_vdataset)
+    dcat.add_url_rule('/service/<_id>.<_format>', view_func=read_service)
 
 if toolkit.asbool(config.get(utils.ENABLE_CONTENT_NEGOTIATION_CONFIG)):
     dcat.add_url_rule('/', view_func=read_catalog)

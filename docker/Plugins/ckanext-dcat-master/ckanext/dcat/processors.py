@@ -28,7 +28,7 @@ RDF_PROFILES_ENTRY_POINT_GROUP = 'ckan.rdf.profiles'
 RDF_PROFILES_CONFIG_OPTION = 'ckanext.dcat.rdf.profiles'
 COMPAT_MODE_CONFIG_OPTION = 'ckanext.dcat.compatibility_mode'
 
-DEFAULT_RDF_PROFILES = ['euro_dcat_ap']
+DEFAULT_RDF_PROFILES = ['tib_dcat_ap']
 
 
 

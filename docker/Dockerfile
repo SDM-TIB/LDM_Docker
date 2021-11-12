@@ -157,6 +157,24 @@ RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/tree.json ~/.jupyt
 
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
 
+# Scheming Plugin:
+ADD ./Plugins/ckanext-scheming $CKAN_HOME_L/src/ckanext-scheming
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-scheming
+
+# TIBimport Plugin:
+ADD ./Plugins/ckanext-TIBimport $CKAN_HOME_L/src/ckanext-TIBimport
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBimport
+
+# DOI Plugin:
+ADD ./Plugins/ckanext-doi $CKAN_HOME_L/src/ckanext-doi
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-doi
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-doi/requirements.txt
+
+# TIBvocparser Plugin:
+ADD ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
+
 # Expose port for notebook
 EXPOSE 8000
 

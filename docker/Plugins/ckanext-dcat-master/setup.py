@@ -41,9 +41,8 @@ setup(
     test_rdf_exception_harvester=ckanext.dcat.tests.test_harvester:TestRDFExceptionHarvester
 
     [ckan.rdf.profiles]
-    euro_dcat_ap=ckanext.dcat.profiles:EuropeanDCATAPProfile
-    schemaorg=ckanext.dcat.profiles:SchemaOrgProfile
-
+    tib_dcat_ap=ckanext.dcat.TIB_profile:TIBDCATAPProfile
+    
     [paste.paster_command]
     generate_static = ckanext.dcat.commands:GenerateStaticDCATCommand
 

@@ -20,7 +20,65 @@
   background-color: black !important;
 }
 
+.tib_dropdown {
+    background: none !important;
+    font-weight: normal !important;
+    padding: 9px 17px !important;
+}
 
+.tib_dropdown:hover {
+    background: rgb(48, 48, 48) !important;
+    color: #fff !important;
+    font-weight: normal !important;
+}
+
+.tib_dropdown_item {
+    display: block !important;
+    width: 100%;
+    background: none;
+    color: black !important;
+    border: none;
+    text-align: left;
+    padding: 0px 8px;
+    text-decoration: none !important;
+}
+
+.tib_dropdown_item:hover {
+    background: #f2f2f2;
+
+}
+
+.tib_dropdown.active {
+    background: rgb(74, 74, 74) !important;
+    color: #fff !important;
+}
+
+.dropdown.open {
+    background: rgb(74, 74, 74) !important;
+    color: #fff !important;
+
+}
+
+.dropdown.open button, .dropdown button {
+    color: #fff !important;
+
+}
+.dropdown-toggle::after {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 0.255em;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+}
+
+.dropdown-toggle:empty::after {
+  margin-left: 0;
+}
 /* ========================================================================
    The main masthead bar that contains the site logo, nav links, and search
    ======================================================================== */
@@ -123,9 +181,36 @@ body {
 /* ====================================
    Virtual Datasets Styles
    ==================================== */
+.label-dataset-box, .label-vdataset-box, .label-service-box  {
+    font-size: 100% !important;
+    padding: 5px 8px !important;
+}
 
-.dataset-item.virtual {
+.label-dataset-box {
+    background-color: #18a8f5 !important;
+}
+
+.label-vdataset-box {
+    background-color: #f5c118 !important;
+}
+
+.label-service-box {
+    background-color: #1cd49c !important;
+}
+
+img.object-type {
+    float: right;
+    width: 26px;
+    margin-right: 20px;
+
+}
+.dataset-item.vdataset {
     background-color: #fafbfc;
+    position: relative;
+}
+
+.dataset-item.service {
+    background-color: #fafffd;
     position: relative;
 }
 
@@ -139,7 +224,7 @@ body {
   border-radius: 0 0.156em 0.156em 0;
   background: rgb(123, 159, 199);
   box-shadow: -1px 2px 3px rgba(0,0,0,0.5);
-  width: 40%;
+  width: 45%;
   top: 6px;
 }
 
@@ -169,10 +254,20 @@ body {
   box-shadow: inset -1px 2px 2px rgba(0,0,0,0.3);
 }
 
+.module.module-narrow.module-shallow.export{
+    margin-top: 10px !important;
+}
 
+.export a {
+    margin-left: 10px;
+}
 
-
-
+.bibtex_box {
+    width: 450px;
+    min-height: 240px;
+    height: auto;
+}
+/*
 
 
 .ribbon-corner {
@@ -219,4 +314,46 @@ body {
   box-shadow:0 0 0 3px #fab143,  0px 21px 5px -18px rgba(0,0,0,0.6);
   background: #fab143;
   text-align: center;
+}
+
+*/
+
+
+
+
+.parent99 {
+  overflow: hidden; /* required */
+  width: 100%;
+  position: relative; /* required  for demo*/
+  padding-left: 3%;
+}
+
+.ribbon99 {
+  margin: 0;
+  padding: 0;
+  background: #fab143;
+  color:white;
+  padding:0.2em 0;
+  position: absolute;
+  top:0;
+  right:0;
+  transform: translateX(30%) translateY(0%) rotate(45deg);
+  transform-origin: top left;
+}
+.ribbon99:before,
+.ribbon99:after {
+  content: '';
+  position: absolute;
+  top:0;
+  margin: 0 -1px; /* tweak */
+  width: 100%;
+  height: 100%;
+  background: #fab143;
+}
+.ribbon99:before {
+  right:100%;
+}
+
+.ribbon99:after {
+  left:100%;
 }

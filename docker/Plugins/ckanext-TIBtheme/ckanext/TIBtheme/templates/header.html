@@ -21,3 +21,34 @@
     </div>
   </form>
 {% endblock %}
+
+     {% block header_site_navigation %}
+     {% if h.tibtheme_is_dataset_menu_item_selected() %}
+        {% set active_item='active' %}
+     {% endif %}
+      <nav class="section navigation">
+          <ul class="nav nav-pills">
+          <li>
+              <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle tib_dropdown {{ active_item }}" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Datasets
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}dataset/">All {{ menu_item}}</a>
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}vdataset/">Imported</a>
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}service/">Services</a>
+  </div>
+</div>
+          </li>
+
+            {% block header_site_navigation_tabs %}
+              {# ('dataset.search', _('Datasets')), #}
+		{{ h.build_nav_main(
+		    ('organization.index', _('Organizations')),
+		    ('group.index', _('Groups')),
+		    ('home.about', _('About')) ) }}
+	    {% endblock %}
+        </ul>
+      </nav>
+      {% endblock %}
+
