@@ -433,3 +433,13 @@ def scheming_flatten_subfield(subfield, data):
         for k in record:
             flat[prefix + k] = record[k]
     return flat
+
+
+    # Addings from M.Brunet for LDM-TIB
+    # *********************************
+@helper
+def scheming_digital_objects_filter_title():
+    data = {'dataset': 'Local Dataset',
+            'vdataset': 'Imported Dataset',
+            'service': 'Service'}
+    return data

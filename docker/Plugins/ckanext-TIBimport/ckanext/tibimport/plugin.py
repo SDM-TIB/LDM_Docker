@@ -128,7 +128,7 @@ class TibimportPlugin(plugins.SingletonPlugin):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'tibimport')
-        toolkit.add_ckan_admin_tab(config_, 'tibimport.hello_plugin', 'Import Datasets')
+        #toolkit.add_ckan_admin_tab(config_, 'tibimport.hello_plugin', 'Import Datasets')
 
 
 

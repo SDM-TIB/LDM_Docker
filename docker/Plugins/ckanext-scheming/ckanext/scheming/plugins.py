@@ -196,6 +196,33 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
     p.implements(p.IActions)
     p.implements(p.IValidators)
 
+    p.implements(p.IFacets)
+
+    # Addings from M.Brunet for LDM-TIB
+    # *********************************
+    def dataset_facets(self, facets_dict, package_type):
+        '''Add new search facet (filter) for datasets.
+        This must be a field in the dataset (or organization or
+        group if you're modifying those search facets, just change the function).
+        '''
+        # This adds the filter at top.
+        facets_dict.update({'type': p.toolkit._('Object Type')})
+        facets_dict.move_to_end('type', last=False)
+
+        # Return the updated facet dict.
+        return facets_dict
+
+    def group_facets(self, facets_dict, group_type, package_type):
+        return facets_dict
+
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return facets_dict
+
+    # END Addings
+    # ***********
+
+
+
     SCHEMA_OPTION = 'scheming.dataset_schemas'
     FALLBACK_OPTION = 'scheming.dataset_fallback'
     SCHEMA_TYPE_FIELD = 'dataset_type'
