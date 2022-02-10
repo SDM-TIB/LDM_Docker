@@ -1,0 +1,110 @@
+
+<h3>{{ field.label }}</h3>
+
+{% set data_id = data.get("id", "") %}
+{% set dataT = h.scheming_get_local_services_for_datasets(data_id) %}
+
+{% asset 'ckanext-scheming/service_selector' %}
+
+{# This snippet creates a Dataset selection tool (DST) for the service-dataset relationship #}
+<div class="panel panel-default" data-module="scheming-tib-services-service-sel-tool">
+
+    {# DST Header and Help #}
+      <header class="panel-heading">
+          Data Services selection tool
+          <a id="btn_help_ds_sel_tool" class="btn btn-default btn_help" href="" aria-label="Help" title="Help" data-toggle="popover">
+            <span class="fa fa-question-circle" aria-hidden="true" title="Help"></span>
+            <div style="break: both"></div>
+          </a>
+          <div style="display:none" id="btn_help_ds_sel_tool_content">
+              <ul>
+                  <li><p>Select the organizations in the <br>list to show its services.</p></li>
+                  <li>Check the services one by one <br>or using the "check all/none" <br>buttons.</li>
+                  <li>Only the Services selected in the "Select Service" group will be <br>finally included in your selection.</li>
+              </ul>
+          </div>
+      </header>
+    {# DST result field #}
+    <input type="hidden" id="field-services_used_list" name="services_used_list" value="">
+
+    <div class="panel-body fields-content">
+
+
+        {# DST Organizations Filter #}
+        <div class="form-group control-medium">
+            <label class="control-label">Show by Organization</label>
+            {# Select All/none in organizations button #}
+            <a id="btn_help_ds_sel_tool_orgs" class="btn btn-default btn_check_all" href="" check_all = "true"
+             ds_sel_tool_checkall_type = "orgs" aria-label="All/None" title="check All/None" element_type="button_checkall">
+            <span class="fa fa-check-square-o" aria-hidden="true"></span>-<span class="fa fa-square-o" aria-hidden="true"></span>
+            </a>
+
+            <div class="controls ">
+                <div class="card ds_tool_filter_box">
+                    {% for org in dataT['organizations'].values() %}
+                        <div class="form-check">
+                            <input class="form-check-input ds_sel_tool_checkbox" type="checkbox" element_type="input_org" id="chk_org_{{ org['name'] }}" value="{{ org['name'] }}"
+                            ds_sel_tool_input_type="org">
+                            <label class="form-check-label ds_sel_tool_label" for="chk_org_{{ org['name'] }}">{{ org.title }}</label>
+                            {# Select All/none in each organization button #}
+                            <a id="btn_help_ds_sel_tool_org_{{ org['name'] }}" class="btn btn-default btn_check_all" href="" check_all = "true"
+                               ds_sel_tool_checkall_type = "org" aria-label="All/None" title="check All/None" element_type="button_checkall">
+                                <span class="fa fa-check-square-o" aria-hidden="true"></span>-<span class="fa fa-square-o" aria-hidden="true"></span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+
+
+        {# DST Datasets List #}
+        <label class="control-label">Select Data Services</label>
+        {# Select All/none in datasets list #}
+        <a id="btn_help_ds_sel_tool_ds" class="btn btn-default btn_check_all" href="" check_all = "true"
+                 ds_sel_tool_checkall_type = "ds" aria-label="All/None" title="check All/None" element_type="button_checkall">
+                <span class="fa fa-check-square-o" aria-hidden="true"></span>-<span class="fa fa-square-o" aria-hidden="true"></span>
+        </a>
+
+        <div class="card ds_tool_filter_box">
+          <div class="card-body">
+             {% for ds in dataT['datasets'].values() %}
+
+              {% if ds.id in dataT['selected_ds'] %}
+                    {% set disp = 'block' %}
+                    {% set chck = 'checked' %}
+              {% else %}
+                    {% set disp = 'none' %}
+                    {% set chck = '' %}
+              {% endif %}
+                <div class="form-check" id="div_{{ ds.name }}" style="display:{{ disp }}">
+                     <input class="form-check-input" type="checkbox" value="{{ ds.id }}" id="chk_{{ ds.name }}" element_type="input_ds"
+                            org="{{ ds.organization_name}}" ds_source = "{{ ds.source }}" ds_sel_tool_input_type="ds" {{ chck }}>
+                    <label class="form-check-label ds_sel_tool_label" for="chk_{{ ds.name }}">
+                        <b>{{ ds.organization }}</b> - {{ ds.title }}
+                    </label>
+                    {# Link to dataset's URL #}
+                    <a href="{{ ds.local_url }}" target="_blank">Link</a>
+                </div>
+              {% endfor %}
+          </div>
+        </div>
+
+        {# Result Box for testing - hide it in finnal version #}
+        <div
+                {% if not dataT['show_testing_box'] %}
+                style="display: none"
+                {% endif %}>
+          <p></p>
+          <p></p>
+          <p><br><br><br><br></p>
+          <div id="result" class="card ds_tool_filter_box">
+              <p>Result:</p>
+              <p id="result_p"></p>
+          </div>
+        </div>
+
+    </div>
+</div>

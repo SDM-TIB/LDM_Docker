@@ -58,8 +58,6 @@ services:
   solr:
     container_name: solr
     image: solr:8
-    environment:
-      - LOG4J_FORMAT_MSG_NO_LOOKUPS=true
     build:
       context: ./
       dockerfile: solr8/Dockerfile

@@ -80,6 +80,11 @@ dataset_fields:
   preset: hidden_value
   display_snippet: datetime_tz.html
 
+- field_name: datasets_served_list
+  label: Datasets Served
+  preset: dataset_selection_tool
+  display_snippet: datasets_in_service.html
+
 - field_name: extras
   label: Custom Fields
   repeating_subfields:

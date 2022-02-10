@@ -150,6 +150,20 @@
         "form_snippet": null,
         "display_snippet": null
       }
+    },
+    {
+      "preset_name": "dataset_selection_tool",
+      "values": {
+        "form_snippet": "dataset_selection_tool.html",
+        "display_snippet": null
+      }
+    },
+    {
+      "preset_name": "service_selection_tool",
+      "values": {
+        "form_snippet": "service_selection_tool.html",
+        "display_snippet": null
+      }
     }
   ]
 }

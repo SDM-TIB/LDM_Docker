@@ -81,6 +81,11 @@ dataset_fields:
   preset: hidden_value
   display_snippet: datetime_tz.html
 
+- field_name: services_used_list
+  label: Related Services
+  preset: service_selection_tool
+  display_snippet: services_in_dataset.html
+
 - field_name: extras
   label: Custom Fields
   repeating_subfields:

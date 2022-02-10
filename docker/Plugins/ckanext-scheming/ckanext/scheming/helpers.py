@@ -11,6 +11,13 @@ from ckantoolkit import config, _
 
 from ckanapi import LocalCKAN, NotFound, NotAuthorized
 
+from ckan.plugins import toolkit
+
+from ckanext.scheming.tib_services import get_local_datasets_for_services, get_local_services_for_datasets, get_services_for_dataset_display, \
+    get_datasets_for_service_display
+
+
+
 all_helpers = {}
 
 def helper(fn):
@@ -443,3 +450,19 @@ def scheming_digital_objects_filter_title():
             'vdataset': 'Imported Dataset',
             'service': 'Service'}
     return data
+
+@helper
+def scheming_get_local_datasets_for_services(service_id):
+    return get_local_datasets_for_services(toolkit.g.user, service_id)
+
+@helper
+def scheming_get_local_services_for_datasets(dataset_id):
+    return get_local_services_for_datasets(toolkit.g.user, dataset_id)
+
+@helper
+def scheming_get_services_for_dataset_display(ds_id):
+    return get_services_for_dataset_display(ds_id)
+
+@helper
+def scheming_get_datasets_for_service_display(service_id):
+    return get_datasets_for_service_display(service_id)

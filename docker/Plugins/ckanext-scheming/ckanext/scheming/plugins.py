@@ -8,6 +8,9 @@ from functools import wraps
 import six
 import yaml
 import ckan.plugins as p
+from ckanext.scheming import tib_services_cli
+from ckanext.scheming.model.crud import Dataset_ServiceQuery as DSQuery
+from ckanext.scheming.tib_services import update_service_dataset_relationship, add_service_data_to_dataset_show
 
 try:
     from paste.reloader import watch_file
@@ -195,11 +198,20 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
     p.implements(p.IDatasetForm, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IValidators)
+    p.implements(p.IPackageController, inherit=True)
+    p.implements(p.IClick)
 
     p.implements(p.IFacets)
 
+
     # Addings from M.Brunet for LDM-TIB
     # *********************************
+
+    ## IClick
+    def get_commands(self):
+        return tib_services_cli.get_commands()
+
+    ## IFacets
     def dataset_facets(self, facets_dict, package_type):
         '''Add new search facet (filter) for datasets.
         This must be a field in the dataset (or organization or
@@ -217,6 +229,35 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
 
     def organization_facets(self, facets_dict, organization_type, package_type):
         return facets_dict
+
+    # Datasets - Services relationship
+    # ********************************
+    ## IPackageController
+    def after_update(self, context, pkg_dict):
+        '''Dataset has been created/updated. Check type of dataset and manage the relation between datasets-services
+        '''
+        log.info("Adding service-datasets relationships to Database\n")
+
+        update_service_dataset_relationship(pkg_dict)
+
+        #return pkg_dict
+
+    ## IPackageController
+    def after_create(self, context, pkg_dict):
+        '''A new dataset/service has been created, so we need to add the dataset-service relationship to de DB.
+        NB: This is called after creation of a dataset, before resources have been
+        added, so state = draft.
+        '''
+        log.info("Adding service-datasets relationships to Database\n")
+
+        update_service_dataset_relationship(pkg_dict)
+
+    # IPackageController
+    def after_show(self, context, pkg_dict):
+        '''Add the Services details to the pkg_dict so it can be displayed.
+        '''
+
+        pkg_dict = add_service_data_to_dataset_show(pkg_dict)
 
     # END Addings
     # ***********

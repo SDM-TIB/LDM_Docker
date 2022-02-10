@@ -1,4 +1,4 @@
-FROM solr:8
+FROM solr:8.11.1
 MAINTAINER Open Knowledge
 
 RUN echo "Config Solr"

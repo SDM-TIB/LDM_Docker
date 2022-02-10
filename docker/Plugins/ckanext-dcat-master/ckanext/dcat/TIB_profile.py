@@ -1218,7 +1218,13 @@ class TIBDCATAPProfile(RDFProfile):
 
             g.add((dataset_ref, DCAT.distribution, distribution))
 
+
+
             g.add((distribution, RDF.type, DCAT.Distribution))
+
+            if dataset_dict.get('type') == 'service':
+                for service in dataset_dict['datasets_served']['results']:
+                    g.add((DCAT.Service, DCAT.servesDataset, CleanedURIRef(service['uri'])))
 
             #  Simple values
             items = [

@@ -117,10 +117,6 @@ if [ ! -e "$CONFIG" ]; then
    
   echo "CREATE DOI TABLE IN DB"
   ckan -c $CONFIG doi initdb
-  
-  echo "CREATE Services TABLE IN DB"
-  ckan -c $CONFIG scheming initdb
-  
   echo "REBUILD SEARCH-INDEX"
   ckan -c $CONFIG search-index rebuild
   

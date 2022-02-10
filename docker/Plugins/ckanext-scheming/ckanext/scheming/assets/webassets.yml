@@ -20,3 +20,21 @@ multiple_text:
       - base/main
   contents:
     - js/scheming-multiple-text.js
+
+dataset_selector:
+  filters: rjsmin
+  output: ckanext-scheming/%(version)s_tib-services-dataset-sel-tool.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/scheming-tib-services-dataset-sel-tool.js
+
+service_selector:
+  filters: rjsmin
+  output: ckanext-scheming/%(version)s_tib-services-service-sel-tool.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/scheming-tib-services-service-sel-tool.js
