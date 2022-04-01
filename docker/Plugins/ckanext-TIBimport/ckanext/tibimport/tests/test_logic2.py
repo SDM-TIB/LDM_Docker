@@ -42,7 +42,7 @@ def test_insert_local_org():
 
     res_dict = obj.get_local_organization(org_dict['name'])
     print(res_dict)
-    assert res_dict == org_dict
+    assert res_dict['name'] == org_dict['name']
 
 # SEARCH ORGANIZATION - FOUND
 def test_search_local_org_found():
@@ -51,7 +51,7 @@ def test_search_local_org_found():
 
     org_dict = local_organization_data
     res_dict = obj.get_local_organization(org_dict['name'])
-    assert res_dict == org_dict
+    assert res_dict['name'] == org_dict['name']
 
 # SEARCH DATASET NOT FOUND
 def test_search_local_dataset_not_found():
@@ -83,7 +83,7 @@ def test_insert_local_dataset():
     ds_dict['metadata_modified'] = res_dict['metadata_modified']
 
     print(res_dict)
-    assert res_dict == ds_dict
+    assert res_dict['name'] == ds_dict['name']
 
 # SEARCH DATASET FOUND
 def test_search_local_dataset_found():
@@ -97,7 +97,7 @@ def test_search_local_dataset_found():
     ds_dict['metadata_created'] = res_dict['metadata_created']
     ds_dict['metadata_modified'] = res_dict['metadata_modified']
     ds_dict['state'] = res_dict['state']
-    assert res_dict == local_dataset_data
+    assert res_dict['name'] == ds_dict['name']
 
 # UPDATE DATASET
 def test_update_local_dataset():

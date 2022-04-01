@@ -48,8 +48,29 @@ dataset_fields:
 
 - field_name: author
   label: Author
+  required: true
   form_placeholder: Joe Bloggs
   display_property: dc:creator
+  form_snippet: author.html
+  display_snippet: author.html
+
+- field_name: orcid
+  label: ORCID
+  form_placeholder: 'ORCID e.g. 0000-0002-1825-0097'
+  form_snippet: orcid.html
+
+- field_name: extra_authors
+  label: More Authors
+  display_snippet: repeating_subfields_authors.html
+  repeating_subfields:
+    - field_name: extra_author
+      label: Author
+      required: false
+      form_snippet: author.html
+    - field_name: orcid
+      label: ORCID
+      form_placeholder: 'ORCID e.g. 0000-0002-1825-0097'
+      form_snippet: orcid.html
 
 - field_name: author_email
   label: Author Email

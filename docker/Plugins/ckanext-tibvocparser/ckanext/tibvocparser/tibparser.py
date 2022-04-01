@@ -156,8 +156,47 @@ class Datacite_parser:
     # ***************
 
     # CREATORS
+    # data = {'creators': [{
+    #     'name': 'Smith, John',
+    #     'familyName': 'Smith',
+    #     'givenName': 'John',
+    #     "affiliation": [{
+    #       "name": "DataCite",
+    #       "affiliationIdentifier": "https://ror.org/04wxnsj81",
+    #       "affiliationIdentifierScheme": "ROR"
+    #     }, {
+    #       "name": "DataCite2",
+    #       "affiliationIdentifier": "https://ror.org/04wxnsj81",
+    #       "affiliationIdentifierScheme": "ROR"
+    #     }
+    #     ],
+    #     'nameIdentifiers': [
+    #         {
+    #             'nameIdentifier': '1234',
+    #             'schemeUri': 'http://orcid.org',
+    #             'nameIdentifierScheme': 'orcid',
+    #         },
+    #     ]
+    # }]}
     def _add_required_creator(self):
-        return [{'name': self.ds_dict.get('author', "Not defined")}]
+        creators = []
+        # Main creator
+        creator = {'name': self.ds_dict.get('author', "Not defined") }
+        if 'orcid' in self.ds_dict and self.ds_dict['orcid']:
+            creator['nameIdentifiers'] = self._create_orcid_object(self.ds_dict['orcid'])
+        creators.append(creator)
+        # Other creators
+        if 'extra_authors' in self.ds_dict:
+            for author in self.ds_dict['extra_authors']:
+                creator = {'name': author['extra_author']}
+                creator['nameIdentifiers'] = self._create_orcid_object(author['orcid'])
+                creators.append(creator)
+        return creators
+
+    def _create_orcid_object(self, orcid):
+        return [{'nameIdentifier': orcid,
+                 'schemeUri': 'http://orcid.org',
+                 'nameIdentifierScheme': 'orcid'}]
 
     # TITLES
     def _add_required_titles(self):
@@ -280,7 +319,7 @@ class Datacite_parser:
        resources = self.ds_dict['resources']
        total_size = 0
        for r in resources:
-           total_size += int(r['size'])
+           total_size += 0 if not r['size'] else int(r['size'])
        total_size = round((total_size / 1024)).__str__() + " kb"
 
        return {total_size}
@@ -373,7 +412,7 @@ class CSL_parser:
         data_fields['title'] = self.ds_dict.get('title')
         data_fields['issued'] = self._add_issued_field()
         data_fields['abstract'] = self.ds_dict.get('notes').replace('"', "'")
-        data_fields['author'] = [{"family": self.ds_dict.get('author')}]
+        data_fields['author'] = self._get_authors()
         data_fields['version'] = self.ds_dict.get('version')
         data_fields['type'] = self.resourceType_mapping[self.ds_dict.get('type')]
         data_fields['id'] = self.ds_dict.get('name')
@@ -381,6 +420,20 @@ class CSL_parser:
 
         return json.dumps(self._clean_empty_fields(data_fields))
 
+    def _get_authors(self):
+        authors = []
+        # Main author
+        author = {"family": self.ds_dict.get('author')}
+        if 'orcid' in self.ds_dict and self.ds_dict['orcid']:
+            author['uri'] = 'http://orcid.org/'+self.ds_dict['orcid']
+        authors.append(author)
+        # Other authors
+        if 'extra_authors' in self.ds_dict:
+            for item in self.ds_dict['extra_authors']:
+                author = {"family": item['extra_author']}
+                author['uri'] = 'http://orcid.org/' + item['orcid']
+                authors.append(author)
+        return authors
 
     def _add_issued_field(self):
         publicationDate = self.ds_dict.get('doi_date_published', None)
@@ -430,7 +483,7 @@ class DublinCore_parser:
 
         # Adding fields
         data_fields['contributors'] = [self.ds_dict['organization']['title']]
-        data_fields['creators'] = [self.ds_dict.get('author')]
+        data_fields['creators'] = self._get_authors()
         data_fields['dates'] = [self._add_dates_field()]
         data_fields['descriptions'] = [self.ds_dict.get('notes')]
         data_fields['formats'] = self._add_formats_field()
@@ -443,6 +496,18 @@ class DublinCore_parser:
         data_fields['types'] = [self.resourceType_mapping[self.ds_dict.get("type")]]
 
         return simpledc.tostring(data_fields)
+
+    def _get_authors(self):
+        authors = []
+        # Main author
+        author = self.ds_dict.get('author')
+        authors.append(author)
+        # Other authors
+        if 'extra_authors' in self.ds_dict:
+            for item in self.ds_dict['extra_authors']:
+                author = item['extra_author']
+                authors.append(author)
+        return authors
 
     def _add_dates_field(self):
         publicationDate = self.ds_dict.get('doi_date_published', None)
@@ -561,7 +626,7 @@ class BibTeX_parser:
             'ENTRYTYPE': ''}
 
         # Adding fields
-        data_fields['author'] = self.ds_dict.get('author')
+        data_fields['author'] = self._get_authors()
         data_fields['title'] = self.ds_dict.get('title')
         publication_date = self._get_publication_date()
         data_fields['month'] = publication_date[1].lower()
@@ -583,6 +648,15 @@ class BibTeX_parser:
         writer.indent = '    '  # indent entries with 4 spaces instead of one
 
         return writer.write(db)
+
+    def _get_authors(self):
+        # Main author
+        authors = self.ds_dict.get('author')
+        # Other authors
+        if 'extra_authors' in self.ds_dict:
+            for item in self.ds_dict['extra_authors']:
+                authors += " and "+item['extra_author']
+        return authors
 
     def _add_ID_field(self, ds):
         return ds['author'].replace(' ', '_').replace('.', '').replace(',', '') + "_" + ds['year']

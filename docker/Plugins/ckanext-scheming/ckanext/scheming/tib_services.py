@@ -53,21 +53,22 @@ def get_local_datasets_for_services(user, service_id, ds_list=''):
     # selected values on the front-end interface
     show_testing_box = False;
 
-    for dataset in result["results"]:
-        org_name = dataset['organization']['name']
-        if org_name not in organizations:
-            org_name_styled = org_name.replace("-", " ").title()
-            organizations.update({org_name: {'title': org_name_styled,
-                                             'name': org_name }})
-        ds_source = 'Local' if "repository_name" not in dataset  else dataset['repository_name']
-        ds_source = sources[ds_source]['id']
-        datasets.update({ dataset['name']: {'id': dataset['id'],
-                                            'name': dataset['name'],
-                                            'title': short_label(dataset['title'],70),
-                                            'source': ds_source,
-                                            'organization': short_label(org_name_styled, 25),
-                                            'organization_name': org_name,
-                                            'local_url': h.url_for('dataset.read', id=dataset['name'])}})
+    if 'results' in result:
+        for dataset in result["results"]:
+            org_name = dataset['organization']['name']
+            if org_name not in organizations:
+                org_name_styled = org_name.replace("-", " ").title()
+                organizations.update({org_name: {'title': org_name_styled,
+                                                 'name': org_name }})
+            ds_source = 'Local' if "repository_name" not in dataset  else dataset['repository_name']
+            ds_source = sources[ds_source]['id']
+            datasets.update({ dataset['name']: {'id': dataset['id'],
+                                                'name': dataset['name'],
+                                                'title': short_label(dataset['title'],70),
+                                                'source': ds_source,
+                                                'organization': short_label(org_name_styled, 25),
+                                                'organization_name': org_name,
+                                                'local_url': h.url_for('dataset.read', id=dataset['name'])}})
     data = { 'organizations': organizations,
              'sources': sources,
              'selected_ds': selected_ds,
@@ -120,21 +121,22 @@ def get_local_services_for_datasets(user, dataset_id, serv_list=''):
     # selected values on the front-end interface
     show_testing_box = False;
 
-    for dataset in result["results"]:
-        org_name = dataset['organization']['name']
-        if org_name not in organizations:
-            org_name_styled = org_name.replace("-", " ").title()
-            organizations.update({org_name: {'title': org_name_styled,
-                                             'name': org_name }})
-        ds_source = 'Local'
-        ds_source = sources[ds_source]['id']
-        datasets.update({ dataset['name']: {'id': dataset['id'],
-                                            'name': dataset['name'],
-                                            'title': short_label(dataset['title'],70),
-                                            'source': ds_source,
-                                            'organization': short_label(org_name_styled, 25),
-                                            'organization_name': org_name,
-                                            'local_url': h.url_for('dataset.read', id=dataset['name'])}})
+    if 'results' in result:
+        for dataset in result["results"]:
+            org_name = dataset['organization']['name']
+            if org_name not in organizations:
+                org_name_styled = org_name.replace("-", " ").title()
+                organizations.update({org_name: {'title': org_name_styled,
+                                                 'name': org_name }})
+            ds_source = 'Local'
+            ds_source = sources[ds_source]['id']
+            datasets.update({ dataset['name']: {'id': dataset['id'],
+                                                'name': dataset['name'],
+                                                'title': short_label(dataset['title'],70),
+                                                'source': ds_source,
+                                                'organization': short_label(org_name_styled, 25),
+                                                'organization_name': org_name,
+                                                'local_url': h.url_for('dataset.read', id=dataset['name']).replace('/dataset/', '/service/')}})
     data = { 'organizations': organizations,
              'sources': sources,
              'selected_ds': selected_ds,
@@ -151,12 +153,12 @@ def update_service_dataset_relationship(pkg_dict):
         # Delete previous values
         DSQuery.delete_dataset(package_id)
         # Insert services
-        insert_services_to_dataset(package_id, pkg_dict.get('services_used_list', []))
+        insert_services_to_dataset(package_id, pkg_dict.get('services_used_list', ""))
     elif pkg_type == 'service':
         # Delete previous values
         DSQuery.delete_service(package_id)
         # insert datasets
-        insert_datasets_to_service(package_id, pkg_dict.get('datasets_served_list', []))
+        insert_datasets_to_service(package_id, pkg_dict.get('datasets_served_list', ""))
 
 def insert_services_to_dataset(dataset_id, services_list):
     ser_list = services_list.split(',')
@@ -263,7 +265,7 @@ def get_services_for_dataset_display(ds_id):
         org_name = service['organization']['name'].replace("-", " ").title()
         service['org_name'] = short_label(org_name, 25)
         service['s_title'] = short_label(service['title'],70)
-        service['s_url'] = h.url_for('dataset.read', id=service['name'])
+        service['s_url'] = h.url_for('dataset.read', id=service['name']).replace('dataset', service['type'],1)
 
     return services['results']
 
@@ -283,7 +285,7 @@ def get_datasets_for_service_display(service_id):
         org_name = dataset['organization']['name'].replace("-", " ").title()
         dataset['org_name'] = short_label(org_name, 25)
         dataset['ds_title'] = short_label(dataset['title'],70)
-        dataset['ds_url'] = h.url_for('dataset.read', id=dataset['name'])
+        dataset['ds_url'] = h.url_for('dataset.read', id=dataset['name']).replace('dataset', dataset['type'],1)
 
     return datasets['results']
 

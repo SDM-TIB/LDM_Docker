@@ -51,6 +51,26 @@ dataset_fields:
   required: true
   form_placeholder: Joe Bloggs
   display_property: dc:creator
+  form_snippet: author.html
+  display_snippet: author.html
+
+- field_name: orcid
+  label: ORCID
+  form_placeholder: 'ORCID e.g. 0000-0002-1825-0097'
+  form_snippet: orcid.html
+
+- field_name: extra_authors
+  label: More Authors
+  display_snippet: repeating_subfields_authors.html
+  repeating_subfields:
+    - field_name: extra_author
+      label: Author
+      required: false
+      form_snippet: author.html
+    - field_name: orcid
+      label: ORCID
+      form_placeholder: 'ORCID e.g. 0000-0002-1825-0097'
+      form_snippet: orcid.html
 
 - field_name: author_email
   label: Author Email
@@ -70,16 +90,6 @@ dataset_fields:
   display_property: dc:contributor
   display_snippet: email.html
   display_email_name_field: maintainer
-
-- field_name: metadata_created
-  label: Created
-  preset: hidden_value
-  display_snippet: datetime_tz.html
-
-- field_name: metadata_modified
-  label: Last Updated
-  preset: hidden_value
-  display_snippet: datetime_tz.html
 
 - field_name: services_used_list
   label: Related Services
@@ -104,11 +114,29 @@ resource_fields:
 - field_name: name
   label: Name
   form_placeholder: eg. January 2011 Gold Prices
+  required: true
 
 - field_name: description
   label: Description
   form_snippet: markdown.html
   form_placeholder: Some useful notes about the data
+
+- field_name: auto_update
+  label: Automatic Update
+  form_snippet: resource_auto_update.html
+  required: true
+  validators: ignore_missing
+
+- field_name: auto_update_url
+  label: Update URL
+  form_placeholder: http://example.com/dataset.json
+  display_snippet: link.html
+  validators: scheming_auto_update_source ignore_missing url_validator
+
+- field_name: auto_update_last_update
+  label: Last Automatic Update
+  preset: hidden_value
+  display_snippet: datetime_translate.html
 
 - field_name: format
   label: Format

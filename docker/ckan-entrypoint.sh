@@ -61,7 +61,7 @@ write_config () {
 	"smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view recline_view videoviewer officedocs_view pdf_view" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser" \
+    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE"
 
@@ -83,8 +83,15 @@ write_config () {
     "ckanext.doi.test_mode = true"
   echo "CONFIG DOI plugin DONE"
 
+  echo "CONFIG AutoUpdate Resources plugin"
+  ckan config-tool -s app:main $CONFIG \
+    "scheming_tibupdateresources_enabled = true" \
+    "scheming_tibupdateresources_crontab_user = root" \
+    "ckan.extra_resource_fields = auto_update"
+  echo "CONFIG AutoUpdate Resources plugin DONE"
+
 #  echo "CONFIG jupyternotebook vars"
-#  ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = http://services.tib.eu/ldmjupyter/notebooks/"
+#  ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = https://service.tib.eu/ldmjupyter/notebooks/"
 #  echo "CONFIG jupyternotebook vars DONE"
 
 
@@ -94,9 +101,7 @@ write_config () {
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
 #     "ckan.plugins = stats text_view image_view recline_view resource_proxy datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface" \
-  
-#  ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldmservice/{{LANG}}"
-  
+
   echo "CONFIG PLUGINS DONE"
 }
 
@@ -126,6 +131,13 @@ if [ ! -e "$CONFIG" ]; then
   
   echo "DONE"  
 fi
+
+# Restart supervisor (CKAN WORKER)
+  echo "RESTART SUPERVISOR SERVICE - CKAN WORKER"
+#  . /usr/lib/ckan/default/bin/activate
+  supervisord
+  supervisorctl restart ckan-worker:*
+  service cron start
 
 # Get or create CKAN_SQLALCHEMY_URL
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then

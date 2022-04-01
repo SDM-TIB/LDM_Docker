@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:dct="http://purl.org/dc/terms/"
+  xmlns:vcard="http://www.w3.org/2006/vcard/ns#"
+  xmlns:dcat="http://www.w3.org/ns/dcat#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <dcat:Dataset rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a">
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/26e62ff6-0140-406b-85e4-5c9f1c6453bd">
+        <dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9610.0</dcat:byteSize>
+        <dcat:accessURL rdf:resource="https://data.uni-hannover.de/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/26e62ff6-0140-406b-85e4-5c9f1c6453bd/download/2017-12-21_vnstat-export-br0.xml"/>
+        <dcat:mediaType>application/xml</dcat:mediaType>
+        <dct:format>XML</dct:format>
+        <dct:description>vnstat --exportdb -i br0 --xml</dct:description>
+        <dct:title>Datenexport (XML)</dct:title>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <dct:identifier>2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a</dct:identifier>
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/05fdf242-6950-4aeb-85f1-b89643d63b74">
+        <dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1007.0</dcat:byteSize>
+        <dcat:mediaType>text/csv</dcat:mediaType>
+        <dct:title>test_daily.csv</dct:title>
+        <dcat:accessURL rdf:resource="https://data.uni-hannover.de/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/05fdf242-6950-4aeb-85f1-b89643d63b74/download/test_daily.csv"/>
+        <dct:description># Tagesauswertung Netzwerk-Traffic&#13;
+&#13;
+## Format&#13;
+&#13;
+d;0;1078696800;559;7433;68;557;1&#13;
+&#13;
+  * d = days, &#13;
+  * 0 = day number in database (0 is today), &#13;
+  * 1077314401 date in Unix time, &#13;
+  * 559 = rx MiB, &#13;
+  * 7433 = tx MiB, &#13;
+  * 68 = rx KiB, &#13;
+  * 557 = tx KiB &#13;
+  * 1 tells that vnStat has filled this value and it is in use.&#13;
+</dct:description>
+        <dct:format>CSV</dct:format>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <dcat:keyword>Examples</dcat:keyword>
+    <dct:description>Ein Auszug aus Netzwerkmessung&#13;
+&#13;
+DOI: http://dx.doi.org/10.25835/LUIS.2</dct:description>
+    <dct:title>Beispiel Netzwerkmessdaten</dct:title>
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/223e0389-1d10-48b2-ada9-b72c0ca57a14">
+        <dct:format>JSON</dct:format>
+        <dct:title>Datenexport (JSON)</dct:title>
+        <dcat:accessURL rdf:resource="https://data.uni-hannover.de/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/223e0389-1d10-48b2-ada9-b72c0ca57a14/download/2017-12-21_vnstat-export-br0.json"/>
+        <dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">6211.0</dcat:byteSize>
+        <dcat:mediaType>application/json</dcat:mediaType>
+        <dct:description>vnstat --exportdb -i br0 --json</dct:description>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <dcat:keyword>Beispiel</dcat:keyword>
+    <dcat:contactPoint>
+      <vcard:Organization rdf:nodeID="N3d923224efbe41f0b59a34c35f8ed7f4">
+        <vcard:fn>Reiko Kaps</vcard:fn>
+        <vcard:hasEmail rdf:resource="mailto:kaps@luis.uni-hannover.de"/>
+      </vcard:Organization>
+    </dcat:contactPoint>
+    <dcat:landingPage rdf:resource="https://data.uni-hannover.de/dataset/beispiel-netzwerkmessdaten"/>
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/94146acc-c4df-42f2-ab29-a1e4d815578d">
+        <dcat:mediaType>text/plain</dcat:mediaType>
+        <dct:format>TXT</dct:format>
+        <dcat:accessURL rdf:resource="https://data.uni-hannover.de/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/94146acc-c4df-42f2-ab29-a1e4d815578d/download/2017-12-21_vnstat-export-br0.txt"/>
+        <dct:description>**vnstat --exportdb -i br0**</dct:description>
+        <dct:title>Datenexport (Nur-Text)</dct:title>
+        <dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2704.0</dcat:byteSize>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/45c96f9c-3576-4b22-947e-41d7a4f9a083">
+        <dcat:accessURL rdf:resource="https://seafile.projekt.uni-hannover.de/d/77097dce3a4b47908dfc/"/>
+        <dct:title>Beispiel-Link</dct:title>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <dcat:keyword>Monitoring</dcat:keyword>
+    <dcat:distribution>
+      <dcat:Distribution rdf:about="https://service.tib.eu/ldmservice/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/a066fb58-f3b3-498c-ad06-fd46519bed46">
+        <dct:title>All resource data</dct:title>
+        <dcat:accessURL rdf:resource="https://data.uni-hannover.de/dataset/2ec5b8b1-eb9f-4d4e-ad05-7c64d4ec2d0a/resource/a066fb58-f3b3-498c-ad06-fd46519bed46/download/beispiel-netzwerkmessdaten-gtxbmt.zip"/>
+        <dcat:mediaType>application/zip</dcat:mediaType>
+        <dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">6183.0</dcat:byteSize>
+        <dct:format>ZIP</dct:format>
+      </dcat:Distribution>
+    </dcat:distribution>
+    <owl:versionInfo>0.1</owl:versionInfo>
+    <dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2021-10-14T10:15:53.508821</dct:modified>
+    <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2021-10-14T10:15:53.508817</dct:issued>
+    <dcat:keyword>Network</dcat:keyword>
+    <dct:publisher>
+      <foaf:Organization rdf:about="https://service.tib.eu/ldmservice/organization/d94a6c04-bd2e-41c2-a217-ea43b0aba5cd">
+        <foaf:name>LUIS</foaf:name>
+      </foaf:Organization>
+    </dct:publisher>
+  </dcat:Dataset>
+</rdf:RDF>

@@ -25,16 +25,17 @@
               </tr>
       </thead>
       <tbody>
-      {%- block resource_last_updated -%}
-        <tr>
-          <th scope="row">{{ _('Last updated') }}</th>
-          <td>{{ h.render_datetime(res.last_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
-        </tr>
-      {%- endblock -%}
+
       {%- block resource_created -%}
         <tr>
           <th scope="row">{{ _('Created') }}</th>
-          <td>{{ h.render_datetime(res.created) or _('unknown') }}</td>
+          <td>{{ h.render_datetime(res.get(_('Created'))) or _('unknown') }}</td>
+        </tr>
+      {%- endblock -%}
+      {%- block resource_last_updated -%}
+        <tr>
+          <th scope="row">{{ _('Last updated') }}</th>
+          <td>{{ h.render_datetime(res.metadata_modified) or h.render_datetime(res.revision_timestamp) or h.render_datetime(res.created) or _('unknown') }}</td>
         </tr>
       {%- endblock -%}
       {%- block resource_format -%}
@@ -43,14 +44,26 @@
           <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
         </tr>
       {%- endblock -%}
-      {% for key, value in h.format_resource_items(res.items()) %}
-          {% if key not in ('created', 'metadata modified', 'last modified', 'format', 'has views', 'id', 'package id') %}
-          <tr>
-            <th scope="row">{{ key | capitalize }}</th>
-            <td>{{ value }}</td>
-          </tr>
-          {% endif %}
-        {% endfor %}
+
+
+
+
+{% set excluded_fields = ('url','name','description','format') %}
+{%- for field in schema.resource_fields -%}
+{% if field.field_name not in excluded_fields and res.get(field.field_name)%}
+    <tr>
+        <th scope="row" class="dataset-label">{{
+          h.scheming_language_text(field.label) }}</th>
+        <td class="dataset-details"{%
+          if field.display_property %} property="{{ field.display_property
+          }}"{% endif %}>{%- snippet 'scheming/snippets/display_field.html',
+          field=field, data=res, schema=schema -%}</td>
+      </tr>
+{% endif %}
+{% endfor %}
+
+
+
     </tbody>
     </table>
   </div>

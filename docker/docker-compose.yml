@@ -20,6 +20,7 @@ services:
           - CKAN_SITE_URL=${CKAN_SITE_URL}
           - CKAN_CONFIG_L=${CKAN_CONFIG}
           - CKAN_HOME_L=${CKAN_HOME}
+          - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
           - CKAN_VER=${CKAN_VERSION}
           
     links:
@@ -57,19 +58,12 @@ services:
 
   solr:
     container_name: solr
-    image: solr:8
-    environment:
-      - LOG4J_FORMAT_MSG_NO_LOOKUPS=true
-    build:
-      context: ./
-      dockerfile: solr8/Dockerfile
+    image: ckan/ckan-solr:2.10 
     ports:
      - "8983:8983"
     volumes:
-      - data:/var/solr
-    command:
-      - solr-precreate
-      - ckan
+     - data:/var/solr
+
       
   redis:
     container_name: redis

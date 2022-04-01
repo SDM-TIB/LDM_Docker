@@ -1,3 +1,5 @@
+{% set current_lang = request.environ.CKAN_LANG %}
+
 <div role="main">
   <div class="main hero">
 
@@ -5,6 +7,20 @@
       <div class="row row1">
 
         <div class="module-content box">
+
+{% if current_lang == 'de' %}
+          <header>
+          <h1 class="page-heading">Willkommen beim TIB Data Manager</h1>
+          <p>Der TIB Data Manager Prototyp wurde entwickelt, um den Aspekt der besseren Wiederverwendbarkeit von Forschungsdaten zu unterstützen. Der Prototyp unterstützt die Verwaltung und den Zugang zu heterogenen Forschungsdatenpublikationen und hilft Forschern bei der Auswahl relevanter Datensätze für ihre jeweiligen Disziplinen.</p>
+          <p>Der Prototyp bietet derzeit folgende Funktionen zur Visualisierung von Forschungsdaten:
+          <br>·         Unterstützung von Datensammlungen und Publikationen mit unterschiedlichen Formaten.
+          <br>·         Unterschiedliche Sichten auf denselben Datensatz (2D- und 3D-Unterstützung).
+          <br>·         Visualisierung von Auto-CAD-Dateien.
+          <br>·         Jupyter Notes zur Demonstration von Live-Code.
+          <br>·         RDF-Beschreibung von Datensammlungen.
+          </p>
+          </header>
+{% else %}
           <header>
           <h1 class="page-heading">Welcome to TIB Data Manager</h1>
           <p>The TIB Data Manager prototype was developed to support the aspect of better re-usability of research data. The prototype supports the management and access to heterogeneous research data publications and assists researchers in the selection of relevant data sets for their respective disciplines.</p>
@@ -16,7 +32,7 @@
           <br>·         RDF Description of data collections.
           </p>
           </header>
-
+{% endif %}
 
           {% block search %}
             {% snippet 'home/snippets/search.html' %}

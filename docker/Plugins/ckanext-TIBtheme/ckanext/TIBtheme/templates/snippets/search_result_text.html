@@ -23,6 +23,12 @@ Example:
   {% set text_no_query = ungettext('{number} imported dataset found', '{number} imported datasets found', count) %}
   {% set text_no_query_none = _('No imported datasets found') %}
 
+{% elif type == 'service' %}
+  {% set text_query = ungettext('{number} service found for "{query}"', '{number} service found for "{query}"', count) %}
+  {% set text_query_none = _('No service found for "{query}"') %}
+  {% set text_no_query = ungettext('{number} service found', '{number} services found', count) %}
+  {% set text_no_query_none = _('No service found') %}
+
 {% elif type == 'group' %}
   {% set text_query = ungettext('{number} group found for "{query}"', '{number} groups found for "{query}"', count) %}
   {% set text_query_none = _('No groups found for "{query}"') %}

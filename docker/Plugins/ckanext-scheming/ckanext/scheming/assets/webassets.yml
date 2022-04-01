@@ -38,3 +38,12 @@ service_selector:
       - base/main
   contents:
     - js/scheming-tib-services-service-sel-tool.js
+
+autoupdate_resources:
+  filters: rjsmin
+  output: ckanext-scheming/%(version)s_tib-autoupdate-resources-sel-tool.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/scheming-tib-autoupdate-resources-sel-tool.js

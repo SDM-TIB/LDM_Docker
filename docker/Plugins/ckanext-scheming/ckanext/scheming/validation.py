@@ -165,6 +165,29 @@ def scheming_required(field, schema):
         return not_empty
     return ignore_missing
 
+@scheming_validator
+@register_validator
+def scheming_auto_update_source(field, schema):
+    """
+    not_empty if field auto_update is different from 'No' else ignore_missing
+    """
+    def validator(key, data, errors, context):
+
+
+     #   if not (key[0],key[1],'auto_update') in data:
+     #       data[(key[0], key[1], 'auto_update')] = 'None'
+
+        if (key[0],key[1],'auto_update') in data:
+            auto_update_field = str(data[(key[0],key[1],'auto_update')])
+        else:
+            auto_update_field = 'No'
+        errors2 = str(errors)
+        if auto_update_field != 'No' and data[key]=='':
+            errors[key].append(_('Automatic update is set then Update URL is required'))
+
+
+    return validator
+
 
 @scheming_validator
 @register_validator

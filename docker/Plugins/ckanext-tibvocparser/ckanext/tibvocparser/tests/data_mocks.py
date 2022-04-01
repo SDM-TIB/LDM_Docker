@@ -23,6 +23,7 @@ ckan_dataset_example = {"author": "Knoop, H., F. Ament, B. Maronga",
       "notes": "This dataset is associated with the paper Knoop et al. (2019) titled  \"A generic gust definition and detection method based on wavelet-analysis\" published in \"Advances in Science and Research (ASR)\" within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication.",
       "num_resources": 2,
       "num_tags": 6,
+      "orcid": "234234",
       "organization": {"id": "2d2ca2a7-26f5-497b-b5a4-a559a28f3042",
                        "name": "ag-palm",
                        "title": "AG PALM",
@@ -44,6 +45,12 @@ ckan_dataset_example = {"author": "Knoop, H., F. Ament, B. Maronga",
       "type": "vdataset",
       "url": "https://data.uni-hannover.de/dataset/a-generic-gust-definition-and-detection-method-based-on-wavelet-analysis",
       "version": "1",
+      "extra_authors": [
+                    {
+                        "extra_author": "otro",
+                        "orcid": "2354"
+                    }
+                ],
       "resources": [{"cache_last_updated": None,
                      "cache_url": None,
                      "created": "2019-07-09T17:27:20.908781",
@@ -101,9 +108,14 @@ ckan_dataset_example = {"author": "Knoop, H., F. Ament, B. Maronga",
 expected_datacite_xml = "<?xml version='1.0' encoding='utf-8'?>\
 <resource xmlns=\"http://datacite.org/schema/kernel-4\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.2/metadata.xsd\">\
   <identifier identifierType=\"DOI\">10.25835/0067988</identifier>\
-  <creators>\
+    <creators>\
     <creator>\
       <creatorName>Knoop, H., F. Ament, B. Maronga</creatorName>\
+      <nameIdentifier nameIdentifierScheme=\"orcid\">234234</nameIdentifier>\
+    </creator>\
+    <creator>\
+      <creatorName>otro</creatorName>\
+      <nameIdentifier nameIdentifierScheme=\"orcid\">2354</nameIdentifier>\
     </creator>\
   </creators>\
   <titles>\
@@ -148,13 +160,14 @@ expected_datacite_xml = "<?xml version='1.0' encoding='utf-8'?>\
 
 
 
-expected_csl_json =   {"publisher": "LUIS",
-                       "DOI": "10.25835/0067988",
+expected_csl_json =   {"publisher": "LUIS", "DOI": "10.25835/0067988",
                        "title": "A generic gust definition and detection method based on wavelet-analysis",
-                       "issued": {
-                           "date-parts": [["2019", "07", "10"]]},
-                       "abstract": "This dataset is associated with the paper Knoop et al. (2019) titled  'A generic gust definition and detection method based on wavelet-analysis' published in 'Advances in Science and Research (ASR)' within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication.",
-                       "author": [{"family": "Knoop, H., F. Ament, B. Maronga"}],
+                       "issued": {"date-parts": [["2019", "07", "10"]]},
+                                  "abstract": "This dataset is associated with the paper Knoop et al. (2019) titled  'A generic gust definition and detection method based on wavelet-analysis' published in 'Advances in Science and Research (ASR)' within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication.",
+                       "author": [{"family": "Knoop, H., F. Ament, B. Maronga",
+                                   "uri": "http://orcid.org/234234"},
+                                  {"family": "otro",
+                                   "uri": "http://orcid.org/2354"}],
                        "version": "1",
                        "type": "dataset",
                        "id": "luh-a-generic-gust-definition-and-detection-method-based-on-wavelet-analysis",
@@ -214,6 +227,7 @@ expected_dublincore_xml = '''<?xml version='1.0' encoding='utf-8'?>
 <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
   <dc:contributor>AG PALM</dc:contributor>
   <dc:creator>Knoop, H., F. Ament, B. Maronga</dc:creator>
+  <dc:creator>otro</dc:creator>
   <dc:date>2019-07-10</dc:date>
   <dc:description>This dataset is associated with the paper Knoop et al. (2019) titled  "A generic gust definition and detection method based on wavelet-analysis" published in "Advances in Science and Research (ASR)" within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication.</dc:description>
   <dc:format>ZIP</dc:format>
@@ -235,9 +249,9 @@ expected_dublincore_xml = '''<?xml version='1.0' encoding='utf-8'?>
 '''
 
 
-expected_bibtex_str = '''@dataset{Knoop_H_F_Ament_B_Maronga_2019,
+expected_bibtex_str = '''@dataset{Knoop_H_F_Ament_B_Maronga_and_otro_2019,
     abstract = {This dataset is associated with the paper Knoop et al. (2019) titled  "A generic gust definition and detection method based on wavelet-analysis" published in "Advances in Science and Research (ASR)" within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication.},
-    author = {Knoop, H., F. Ament, B. Maronga},
+    author = {Knoop, H., F. Ament, B. Maronga and otro},
     doi = {10.25835/0067988},
     institution = {AG PALM},
     keyword = {'Gusts', 'LES', 'LES model', 'Meteorology', 'Wavelet Analysis', 'large eddy simulation'},

@@ -63,7 +63,7 @@
     color: #fff !important;
 
 }
-.dropdown-toggle::after {
+#dropdownMenu2.dropdown-toggle::after {
   display: inline-block;
   width: 0;
   height: 0;
@@ -420,4 +420,26 @@ a.btn_check_all {
     height: 155px;
     overflow: scroll;
 }
-/* ****************************************************
+/* ********** Authors ******************************************/
+.input_author {
+    //width: 50% !important;
+}
+.input_orcid {
+    padding-left: 32px !important;
+    background-size: 18px;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position-y: 7px;
+    background-position-x: 7px;
+    background-image: url(images/orcid.svg) !important;
+    //width: 50% !important;
+    }
+
+.orcid_display_img {
+    width: 20px;
+}
+
+/* ************ update resources tool **************************/
+   label.ur_form_disabled {
+   color: #CCC;
+}

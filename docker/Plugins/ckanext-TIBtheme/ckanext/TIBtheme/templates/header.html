@@ -31,12 +31,12 @@
           <li>
               <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle tib_dropdown {{ active_item }}" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Datasets
+    {{ _('Datasets') }}
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}dataset/">All {{ menu_item}}</a>
-    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}vdataset/">Imported</a>
-    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}service/">Services</a>
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}dataset/">{{_('All')}} {{ menu_item}}</a>
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}vdataset/">{{_('Imported')}}</a>
+    <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}service/">{{_('Services')}}</a>
   </div>
 </div>
           </li>

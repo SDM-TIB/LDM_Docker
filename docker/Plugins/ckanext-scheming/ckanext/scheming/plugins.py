@@ -12,6 +12,10 @@ from ckanext.scheming import tib_services_cli
 from ckanext.scheming.model.crud import Dataset_ServiceQuery as DSQuery
 from ckanext.scheming.tib_services import update_service_dataset_relationship, add_service_data_to_dataset_show
 
+from ckanext.scheming.tib_resource_autoupdate import *
+
+
+
 try:
     from paste.reloader import watch_file
 except ImportError:
@@ -207,6 +211,11 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
     # Addings from M.Brunet for LDM-TIB
     # *********************************
 
+    # Add resources updates
+    TIB_RU_tool = TIB_resource_update_tool()
+    TIB_RU_tool.create_cronjobs()
+
+
     ## IClick
     def get_commands(self):
         return tib_services_cli.get_commands()
@@ -256,8 +265,10 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
     def after_show(self, context, pkg_dict):
         '''Add the Services details to the pkg_dict so it can be displayed.
         '''
-
-        pkg_dict = add_service_data_to_dataset_show(pkg_dict)
+        # Patch avoiding error with operations without user logged
+        # as update resources in resource autoupdate plugin
+        if 'user' in context and context['user']:
+            pkg_dict = add_service_data_to_dataset_show(pkg_dict)
 
     # END Addings
     # ***********

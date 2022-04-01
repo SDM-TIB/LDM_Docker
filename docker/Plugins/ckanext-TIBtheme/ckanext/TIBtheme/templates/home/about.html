@@ -15,7 +15,6 @@
           {{ h.render_markdown(g.site_about) }}
         {% else %}
           <img id="tib_event_logo" src="{{asset_path}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
-          <h1 class="page-heading">{{ "About the Leibniz Data Manager" }}</h1>
           {% snippet 'home/snippets/about_text.html' %}
         {% endif %}
       {% endblock %}

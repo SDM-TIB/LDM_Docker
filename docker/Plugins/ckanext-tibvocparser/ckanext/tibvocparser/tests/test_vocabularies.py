@@ -42,7 +42,7 @@ def test_Datacite_Parser():
         parser = Datacite_parser(ds_dict)
         #print("DATASET:\n", parser.ds_dict)
         res = parser.parse_to_datacite()
-        #print("DATACITE RESULT:\n", res)
+        print("DATACITE RESULT:\n", res)
         assert xmltodict.parse(res) == xmltodict.parse(expected_datacite_xml)
 
 def test_CSL_Parser():
@@ -117,7 +117,7 @@ def test_DublinCore_Parser():
     parser = DublinCore_parser(ds_dict)
     # print("DATASET:\n", parser.ds_dict)
     res = parser.parse_to_dublincore()
-    #print("DUBLINCORE RESULT:\n", res)
+    print("DUBLINCORE RESULT:\n", res)
     assert res == expected_dublincore_xml
 
 

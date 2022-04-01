@@ -15,10 +15,10 @@
 
 						{% if item.name in h.scheming_digital_objects_filter_title() %}
 							{% set label_truncated = h.scheming_digital_objects_filter_title()[item.name] %}
-							<img src="{{h.url_for('home')}}images/{{ item.name }}_object.png" class="object-type" title="{{ label_truncated }}"  style="float:left !important"/>
+							<img src="{{h.url_for('home')}}images/{{ item.name }}_object.png" class="object-type" title="{{ _(label_truncated) }}"  style="float:left !important"/>
 						{% endif %}
 
-							<span class="item-label">{{ label_truncated }}</span>
+							<span class="item-label">{{ _(label_truncated) }}</span>
 						    <span class="hidden separator"> - </span>
 						    <span class="item-count badge">{{ count }}</span>
 						</a>

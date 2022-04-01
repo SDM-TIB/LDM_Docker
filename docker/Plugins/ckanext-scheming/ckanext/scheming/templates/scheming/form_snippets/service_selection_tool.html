@@ -1,5 +1,5 @@
 
-<h3>{{ field.label }}</h3>
+<h3>{{ _(field.label) }}</h3>
 
 {% set data_id = data.get("id", "") %}
 {% set dataT = h.scheming_get_local_services_for_datasets(data_id) %}
@@ -11,16 +11,16 @@
 
     {# DST Header and Help #}
       <header class="panel-heading">
-          Data Services selection tool
-          <a id="btn_help_ds_sel_tool" class="btn btn-default btn_help" href="" aria-label="Help" title="Help" data-toggle="popover">
-            <span class="fa fa-question-circle" aria-hidden="true" title="Help"></span>
+          {{_("Data Services selection tool")}}
+          <a id="btn_help_ds_sel_tool" class="btn btn-default btn_help" href="" aria-label="Help" title="{{_('Help')}}" data-toggle="popover">
+            <span class="fa fa-question-circle" aria-hidden="true" title="{{_('Help')}}"></span>
             <div style="break: both"></div>
           </a>
           <div style="display:none" id="btn_help_ds_sel_tool_content">
               <ul>
-                  <li><p>Select the organizations in the <br>list to show its services.</p></li>
-                  <li>Check the services one by one <br>or using the "check all/none" <br>buttons.</li>
-                  <li>Only the Services selected in the "Select Service" group will be <br>finally included in your selection.</li>
+                  {{_("<li>Select the organizations in the <br>list to show its services.</li>")}}
+                  {{_("<li>Check the services one by one <br>or using the 'check all/none' <br>buttons.</li>")}}
+                  {{_("<li>Only the Services selected in the 'Select Service' group will be <br>finally included in your selection.</li>")}}
               </ul>
           </div>
       </header>
@@ -32,7 +32,7 @@
 
         {# DST Organizations Filter #}
         <div class="form-group control-medium">
-            <label class="control-label">Show by Organization</label>
+            <label class="control-label">{{_('Show by Organization')}}</label>
             {# Select All/none in organizations button #}
             <a id="btn_help_ds_sel_tool_orgs" class="btn btn-default btn_check_all" href="" check_all = "true"
              ds_sel_tool_checkall_type = "orgs" aria-label="All/None" title="check All/None" element_type="button_checkall">
@@ -61,7 +61,7 @@
 
 
         {# DST Datasets List #}
-        <label class="control-label">Select Data Services</label>
+        <label class="control-label">{{_('Select Data Services')}}</label>
         {# Select All/none in datasets list #}
         <a id="btn_help_ds_sel_tool_ds" class="btn btn-default btn_check_all" href="" check_all = "true"
                  ds_sel_tool_checkall_type = "ds" aria-label="All/None" title="check All/None" element_type="button_checkall">

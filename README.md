@@ -132,3 +132,22 @@ The file specific viewers were implemented using CKAN (Comprehensive Knowledge A
 
 ​			●  Console commands were created for creating the Data-Services tables and cleaning them.
 
+
+
+###### \-  Version 2.4 (April 2022)
+
+●  Solr was updated to the last version (8.11.1) solving the log4j security issue.
+
+●  CKAN was upgraded to the last stable version (2.9.5) to work with updated Solr propertly.
+
+●  Added translation of the tool to German language.
+
+●  Added "auto-update resources" feature, allowing to set automatic updates to resources from an URL in regular time basis (daily, weekly or monthly).
+
+●  Added "multiple authors" feature, allowing to set more than one author with ORCID data to datasets.
+
+●  Added "Data-Service / Dataset relationship" feature, allowing to set relationship between Data-Services and Datasets ("Serves to" or "is served by").
+
+●  Datasets descriptions using vocabularies (DCAT serializations, DataCite, DublinCore, CSL and BibTeX) were updated to include in the metadata the new features developed.
+
+●  User Manual was updated with corrections.
