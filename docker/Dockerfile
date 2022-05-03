@@ -1,7 +1,7 @@
 
 
 # See CKAN docs on installation from Docker Compose on usage
-FROM ubuntu
+FROM ubuntu:focal
 MAINTAINER Open Knowledge
 
 # Define environment variables
@@ -26,7 +26,6 @@ RUN apt-get -q -y update \
 		redis-server \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
-
 
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_SITE_URL
@@ -171,7 +170,7 @@ ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
 
 # Install Jupyternotebooks Plugin requirements
 # ********************************************
-RUN ckan-pip install notebook==6.4.6
+RUN ckan-pip install notebook==6.4.6 jinja2==2.10.1
 ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
 ADD ./Plugins/jupyternotebook $CKAN_HOME_L/src/jupyternotebook
 RUN ckan-pip install -e $CKAN_HOME_L/src/jupyternotebook/jupyter_notebook_nbextensions/
