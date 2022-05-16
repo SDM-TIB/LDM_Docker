@@ -22,7 +22,7 @@ services:
           - CKAN_HOME_L=${CKAN_HOME}
           - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
           - CKAN_VER=${CKAN_VERSION}
-          
+
     links:
       - db
       - solr
@@ -36,48 +36,115 @@ services:
       - pusher
       - postfix
     ports:
-      - "${CKAN_PORT}:5000"
-      - "8000:8000"
+      - "127.0.0.1:${CKAN_PORT}:5000"
+      - "127.0.0.1:8000:8000"
     env_file:
-      - .env     
-    
-#    volumes:
+      - .env
+    networks:
+      - "web"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`dm.coypu.org`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+      - "traefik.http.services.whoami.loadbalancer.server.port=5000"
+    volumes:
+      - ckan_config:${CKAN_CONFIG}
+      - ckan_home:${CKAN_HOME}
+      - ckan_storage:${CKAN_STORAGE_PATH}
 #      - ./ckan-entrypoint.sh:/ckan-entrypoint.sh 
 #      - ./Plugins/ckanext-TIBtheme:${CKAN_HOME}/src/ckanext-TIBtheme
 #      - ./Plugins/ckanext-videoviewer:${CKAN_HOME}/src/ckanext-videoviewer
 
   db:
-    build: ./postgresql-loaded/   
+    build: ./postgresql-loaded/
     container_name: db
-    image: postgresql:loaded 
+    image: postgresql:loaded
     environment:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - "web"
 
   solr:
     container_name: solr
-    image: ckan/ckan-solr:2.10 
+    image: ckan/ckan-solr:2.10
     ports:
-     - "8983:8983"
+      - "127.0.0.1:8983:8983"
     volumes:
-     - data:/var/solr
+      - data:/var/solr
+    networks:
+      - "web"
 
-      
   redis:
     container_name: redis
     image: redis:6.0.9
-  
+    networks:
+      - "web"
+
   pusher:
     container_name: datapusher
     image: clementmouchet/datapusher
     ports:
-      - "8800:8800"  
+      - "127.0.0.1:8800:8800"
+    networks:
+      - "web"
+
   postfix:
     container_name: postfix
     image: tozd/postfix:ubuntu-trusty
     ports:
-      - "25:25"
+      - "127.0.0.1:25:25"
     environment:
-       MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"  
+      MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"
+    networks:
+      - "web"
+
+
+  traefik:
+    # The official v2 Traefik docker image
+    image: "traefik:latest"
+    container_name: "traefik"
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - "--api=true"
+      - "--api.dashboard=true"
+      - "--log.level=DEBUG"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=web"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+     # use for testing only
+     # uncomment for production
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=administration@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+       - "80:80"
+       - "443:443"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.dm.coypu.org`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=user:$$aaa$$sdddddd$$dsadsöfjdkfjhg2C2/"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
+    networks:
+      - "web"
+
+networks:
+  web:
