@@ -22,7 +22,7 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
         toolkit.add_resource('fanstatic',
             'jupyternotebook')
         self.formats = ['ipynb']
-        jn_filepath_default = "/usr/lib/ckan/default/src/jupyternotebook/notebook"
+        jn_filepath_default = "/var/lib/ckan/notebook"
         jn_url_default = "http://localhost:8000/ldmjupyter/notebooks/"
         self.jn_filepath = config.get('ckan.jupyternotebooks_path', jn_filepath_default)
         self.jn_url = config.get('ckan.jupyternotebooks_url', jn_url_default)

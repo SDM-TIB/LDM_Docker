@@ -1,0 +1,21 @@
+{% extends "page.html" %}
+{% import 'macros/form.html' as form %}
+{% set current_lang = request.environ.CKAN_LANG %}
+
+{% block subtitle %}{{ _('Imprint') }}{% endblock %}
+
+{% block breadcrumb_content %}
+    <li class="active">{% link_for _('Imprint'), 'imprint' %}</li>
+{% endblock %}
+
+{% block primary %}
+<article class="module" role="main">
+    <div class="module-content">
+        <h1 class="">{{_('Imprint')}}</h1>
+            {% snippet "home/snippets/imprint.html", current_lang=current_lang %}
+    </div>
+  </article>
+
+{% endblock %}
+
+{% block secondary %}{% endblock %}

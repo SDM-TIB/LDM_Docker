@@ -1,6 +1,7 @@
 {% ckan_extends %}
 
+
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="{{h.url_for('home')}}TIBtheme.css" />
+  {% asset 'ckanext-TIBtheme/ldm-css' %}
 {% endblock %}

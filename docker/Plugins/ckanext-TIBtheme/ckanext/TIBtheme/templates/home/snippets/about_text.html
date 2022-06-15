@@ -33,7 +33,7 @@
         <a href="https://www.tib.eu/de/publizieren-archivieren/forschungsdaten" target="_blank"
            data-htmlarea-external="1">https://www.tib.eu/de/publizieren-archivieren/forschungsdaten</a>
         <p>Weitere Informationen über das LDM-Projekt finden Sie auf der <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
-           class="external-link-new-window">TIB-Webseite</a> und im <a href="https://github.com/SDM-TIB/TIB_Data_Manager" title="GitHub" target="_blank"
+           class="external-link-new-window">TIB-Webseite</a> und im <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
            class="external-link-new-window">GitHub-Repository</a>.</p>
     </p>
     <p>&nbsp;</p>
@@ -73,11 +73,12 @@
            data-htmlarea-external="1">https://www.tib.eu/en/publishing-archiving/research-data/</a>
     </p>
     <p>More info about the LDM project can be found in the <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
-           class="external-link-new-window">TIB webpage</a> and in the <a href="https://github.com/SDM-TIB/TIB_Data_Manager" title="GitHub" target="_blank"
+           class="external-link-new-window">TIB webpage</a> and in the <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
            class="external-link-new-window">GitHub</a> repository.</p>
     <p>&nbsp;</p>
 {% endif %}
 
+{% if not h.tibtheme_styled_footer_enabled():%}
 <div class="ldm_about_foot">
        <ul class="list-inline">
        <li>
@@ -86,5 +87,9 @@
        <li>
             <a target="_blank" href="http://www.leibniz-gemeinschaft.de"><img alt="Logo Leibniz-Gemeinschaft" src="{{asset_path}}images/logo_leibniz_mitglied.png"></a>
        </li>
+       <li>
+            <a target="_blank" href="https://www.dfg.de/"><img style="width: 240px" alt="Logo Deustche Forschungsgemeinschaft" src="{{asset_path}}images/dfg_logo_schriftzug_weiss_foerderung_en.gif"></a>
+       </li>
        </ul>
 </div>
+{% endif %}

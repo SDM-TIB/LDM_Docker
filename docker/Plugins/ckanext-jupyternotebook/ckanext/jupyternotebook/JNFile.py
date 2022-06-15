@@ -58,7 +58,8 @@ class JNFile:
 
     def get_notebooks_file(self):
         # Allow access to write files
-        os.chmod(self.filepath, 0o755)
+        # os.chmod(self.filepath, 0o755) Now is managed by docker volumes
+
         self.log_info("accessing_local_folder", self.filepath)
         self.log_info("writing_to_local_file", self.filefullpath)
 
@@ -68,9 +69,10 @@ class JNFile:
             self.get_notebooks_file_url()
 
         # Deny access to write files
-        if self.filefullpath != "ERROR":
-            os.chmod(self.filefullpath, 0o555)
-        os.chmod(self.filepath, 0o555)
+        # Now is managed by docker volumes
+        #if self.filefullpath != "ERROR":
+        #    os.chmod(self.filefullpath, 0o555)
+        #os.chmod(self.filepath, 0o555)
 
     def get_notebooks_file_url(self):
         file_request = False
@@ -114,8 +116,8 @@ class JNFile:
             file_request = requests.get(self.jupyternotebook_url, allow_redirects=False)
         except requests.exceptions.RequestException as e:  # This is the correct syntax
             self.log_info("restarting_notebook_server")
-            if not self.testing_env:
-                os.system(". /usr/lib/ckan/default/src/jupyternotebook/launch_jupyternotebook.sh")
+            #if not self.testing_env:
+            #    os.system(". /usr/lib/ckan/default/src/jupyternotebook/launch_jupyternotebook.sh")
             pass
 
     def log_info(self, type, data=""):
@@ -129,7 +131,7 @@ class JNFile:
                         "writing_to_local_file": "Writing to local file: " + data,
                         "writing_file_from_url_to": "Writing file from URL to file: " + data,
                         "getting_file_local": "Getting file from local folder: " + data,
-                        "restarting_notebook_server": "Restarting jupyter notebook server"
+                        "restarting_notebook_server": "Jupyter notebook server is not reachable"
                         }
             msg = msg_info[type]
             log.info(msg)

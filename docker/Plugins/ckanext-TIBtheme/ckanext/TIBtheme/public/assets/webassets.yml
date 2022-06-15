@@ -1,0 +1,43 @@
+ldm-css:
+  output: ckanext-TIBtheme/%(version)s_ldm.css
+  contents:
+    - TIBtheme.css
+
+
+new_user-js:
+  output: ckanext-TIBtheme/%(version)s_new_user.js
+  extra:
+    preload:
+      - base/main
+      - vendor/vendor
+      - vendor/bootstrap
+      - vendor/jquery
+      - vendor/jquery.ui.core
+  contents:
+    - new_user_registration.js
+
+
+cookies_alert-js:
+  output: ckanext-TIBtheme/%(version)s_cookies_alert.js
+  extra:
+    preload:
+      - base/main
+      - vendor/vendor
+      - vendor/bootstrap
+      - vendor/jquery
+      - vendor/jquery.ui.core
+  contents:
+    - cookies_alert.js
+
+
+matomo_dummy_opt-out-js:
+  output: ckanext-TIBtheme/%(version)s_matomo_dummy_opt-out.js
+  extra:
+    preload:
+      - base/main
+      - vendor/vendor
+      - vendor/bootstrap
+      - vendor/jquery
+      - vendor/jquery.ui.core
+  contents:
+    - matomo_dummy_opt-out.js

@@ -4,3 +4,4 @@ links/*
 build/*
 dist/*
 .eggs/*
+ckanext/scheming/logs/*

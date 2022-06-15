@@ -1,14 +1,32 @@
 {% ckan_extends %}
 
+
+
+{% block header_account_container_content %}
+{% if h.tibtheme_styled_header_enabled(): %}
+    <style>header div.container {
+        box-shadow: 1px 4px 8px rgba(0,0,0,0.5);
+        }
+    </style>
+    <div class="styled_header_login_bar">
+    {{ super() }}
+    </div>
+    <div style="clear: both"></div>
+    <div style="margin-bottom: -21px; clear: both;">
+        <img id="tib_event_logo" src="{{h.url_for('home')}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
+    </div>
+{% else: %}
+    {{ super() }}
+{% endif %}
+
+{% endblock %}
+
 {% block header_logo %}
 	{% set url = h.url_for('home') %}
-	&nbsp;
-	&nbsp;
-	&nbsp;
-	&nbsp;
 	<a href="{{ url }}" style="text-decoration: none;">
-	&nbsp;
-	<img src="{{ url }}images/TIB_logo.png" style="margin-top:10px;max-width:30%" alt="TIB" title="TIB">
+    	{# <img class="site-logo" src="{{ url }}images/{{h.tibtheme_get_site_logo_filename()}}" style="" alt="TIB" title="TIB"> #}
+        <img class="site-logo" src="{{h.tibtheme_get_site_logo_filename()}}" style="" alt="TIB" title="TIB">
+
 	</a>
 {% endblock %}
 
@@ -46,7 +64,8 @@
 		{{ h.build_nav_main(
 		    ('organization.index', _('Organizations')),
 		    ('group.index', _('Groups')),
-		    ('home.about', _('About')) ) }}
+		    ('home.about', _('About')),
+            ('TIBtheme.demo_page', _('Demo')) ) }}
 	    {% endblock %}
         </ul>
       </nav>

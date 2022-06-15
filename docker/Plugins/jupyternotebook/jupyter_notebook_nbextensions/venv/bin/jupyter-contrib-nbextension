@@ -1,7 +1,0 @@
-#!/home/mauricio/jupyter_notebook_nbextensions/venv/bin/python
-# EASY-INSTALL-DEV-SCRIPT: 'jupyter-contrib-nbextensions==0.5.3','jupyter-contrib-nbextension'
-__requires__ = 'jupyter-contrib-nbextensions==0.5.3'
-__import__('pkg_resources').require('jupyter-contrib-nbextensions==0.5.3')
-__file__ = '/home/mauricio/jupyter_notebook_nbextensions/scripts/jupyter-contrib-nbextension'
-with open(__file__) as f:
-    exec(compile(f.read(), __file__, 'exec'))

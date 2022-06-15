@@ -1,4 +1,4 @@
-{% set current_lang = request.environ.CKAN_LANG %}
+
 {% set alowed_lang = ["en", "de"] %}
 
 <form class="form-inline form-select lang-select" action="{% url_for 'util.internal_redirect' %}" data-module="select-switch" method="POST">

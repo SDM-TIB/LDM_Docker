@@ -1,0 +1,40 @@
+{% extends "page.html" %}
+{% import 'macros/form.html' as form %}
+{% set current_lang = request.environ.CKAN_LANG %}
+
+{% block subtitle %}{{ _('Demo') }}{% endblock %}
+
+{% block breadcrumb_content %}
+    <li class="active">{% link_for _('Demo'), 'Demo' %}</li>
+{% endblock %}
+
+{% block primary %}
+{% set url = h.url_for('home') %}
+
+<article class="module" role="main">
+    <div class="module-content">
+        <h1 class="">{{_('LDM Demo')}}</h1>
+        <p>
+            This demo presents the Leibniz Data Manager (LDM) and illustrates how Semantic Web technologies and  FAIR principles empower research data management. The demonstration shows how various digital objects are created and puts in perspective the crucial role of metadata in efficient and effective management and analysis of research data management.
+        </p>
+
+        <p><b>The <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo">demonstration</a> comprises:</b></p>
+    <ul>
+        <li>This short paper is published in the proceeding of the Extended Semantic Web Conference (ESWC 2022) in the track of poster and demos. It describes the main features of the Leibniz Data Manager,</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/39b9fecb-44e4-404a-94d2-7972cc13d9d8"><img src="{{url}}images/demo/paper.png" style="border:1px solid; margin:10px" title="Paper"/></a>
+        <li>A poster summarizing the project,</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/1110486d-819b-46b7-ad2b-76eec24d093e"><img src="{{url}}images/demo/poster.png" style="border:1px solid; width:100px; margin:10px" title="Poster"/></a>
+        <li>A short video describing the motivation of this project, and</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/da59916f-bee9-4ac8-a5b4-2d2ec4300fd2"><img src="{{url}}images/demo/motivation_video.png" style="border:1px solid; width:120px; margin:10px" title="Motivation Video"/></a>
+        <li>A video showing the LDM features.</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/c7cf21da-eaa4-438f-a2b4-a1d05aad37e6"><img src="{{url}}images/demo/demo_video.png" style="border:1px solid; width:120px; margin:10px" title="Demo Video"/></a>
+    </ul>
+
+
+        </p>
+    </div>
+  </article>
+
+{% endblock %}
+
+{% block secondary %}{% endblock %}

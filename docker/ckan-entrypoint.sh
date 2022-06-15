@@ -59,11 +59,14 @@ write_config () {
     "ckan.datastore.write_url = CKAN_DATASTORE_WRITE_URL" \
     "ckan.datastore.read_url = CKAN_DATASTORE_READ_URL" \
 	"smtp.server = postfix" \
-    "ckan.views.default_views = image_view text_view recline_view videoviewer officedocs_view pdf_view" \
+    "ckan.views.default_views = image_view text_view recline_view videoviewer officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources" \
+    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
-    "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE"
+    "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
+	"ckan.site_title = LDM" \
+	"ckan.site_logo = /images/TIB_logo.png" \
+	"ckan.favicon = /images/TIB_logo.png"
 
   echo "CONFIG tibimport vars"
   ckan config-tool -s app:main $CONFIG "tibimport.show_vdatasets_virtual_ribbon = true"
@@ -90,10 +93,23 @@ write_config () {
     "ckan.extra_resource_fields = auto_update"
   echo "CONFIG AutoUpdate Resources plugin DONE"
 
-#  echo "CONFIG jupyternotebook vars"
-#  ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = https://service.tib.eu/ldmjupyter/notebooks/"
-#  echo "CONFIG jupyternotebook vars DONE"
 
+  echo "CONFIG TIBtheme plugin"
+  ckan config-tool -s app:main $CONFIG \
+	"tibtheme.legal_notices_enabled = false" \
+	"tibtheme.show_cookies_alert = true" \
+	"tibtheme.legal_notices_TIB_terms_use_enabled = true" \
+	"tibtheme.special_conditions_LDM_enabled = true" \
+	"tibtheme.special_conditions_label = Special conditions TIB LDM" \
+	"tibtheme.data_privacy_enabled = true" \
+	"tibtheme.imprint_enabled = true" \
+	"tibtheme.accessibility_statement_enabled = true"
+  echo "CONFIG TIBtheme plugin DONE"
+
+
+  echo "CONFIG jupyternotebook vars"
+  ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = ${CKAN_JUPYTERNOTEBOOK_URL}/ldmjupyter/notebooks/"
+  echo "CONFIG jupyternotebook vars DONE"
 
 #  echo "CONFIG root_path"
 #  ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldmservice/{{LANG}}"

@@ -151,3 +151,30 @@ The file specific viewers were implemented using CKAN (Comprehensive Knowledge A
 ●  Datasets descriptions using vocabularies (DCAT serializations, DataCite, DublinCore, CSL and BibTeX) were updated to include in the metadata the new features developed.
 
 ●  User Manual was updated with corrections.
+
+
+
+###### \-  Version 2.4.1 (June 2022)
+
+●  New configuration options were added to the user's interface allowing to set title, logo and enabling/disabling "Legal Notices" features and pages.
+
+●  "Legal Notices" features and pages were added (links on the footer).
+
+●  "Matomo tracking plugin" was developed for tracking visits to the LDM online service. This feature is not enabled by default in local installation because Matomo is a commercial tool that requires licence.
+
+●  "CAD viewer plugin" was developed and implemented using ShareCAD.org free service for showing CAD 2D and 3D visualizations. 
+
+●  Docker volumes were set making the data, source code and configuration files persistent.
+
+●  Docker network was configured hiding services ports (solr, postgresdb, etc.) from external access.
+
+●  Jupyter Notebooks plugin were re-factored and Jupyter Notebook server was isolated in a Docker container.
+
+●  New examples, including resources in different formats, were added to the installer.
+
+●  A "Demo page" was added pointing to resources explaining LDM (demo-paper published on ESWC 2022, motivation video, demo video, ESWC best demo award).
+
+●  The installation manual was extended adding new procedures and explanations regarding the customization of LDM instances (CSS styles, legal notices pages content, title, logo, etc.).
+
+
+

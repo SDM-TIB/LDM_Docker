@@ -100,6 +100,7 @@ RUN mkdir -p /etc/ckan &&\
 	mkdir -p $CKAN_CONFIG_L &&\
 	mkdir -p $CKAN_STORAGE_PATH_L &&\
 	mkdir -p $CKAN_STORAGE_PATH_L/resources
+	
 RUN	chmod +x /ckan-entrypoint.sh &&\
     chown -R `whoami` $CKAN_HOME_L $CKAN_CONFIG_L &&\ 
 	chown -R `whoami` /etc/ckan &&\
@@ -125,6 +126,11 @@ ADD ./Plugins/ckanext-textview/text_view_patched.js $CKAN_HOME_L/src/ckan/ckanex
 # ***********
 ADD ./Plugins/ckanext-videoviewer $CKAN_HOME_L/src/ckanext-videoviewer
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-videoviewer
+
+# CADVIEWER
+# ***********
+ADD ./Plugins/ckanext-tib_cadviewer $CKAN_HOME_L/src/ckanext-tib_cadviewer
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_cadviewer
 
 # TIBtheme
 # ********
@@ -170,28 +176,14 @@ ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
 
 # Install Jupyternotebooks Plugin requirements
 # ********************************************
-RUN ckan-pip install notebook==6.4.6 jinja2==2.10.1
-ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
-ADD ./Plugins/jupyternotebook $CKAN_HOME_L/src/jupyternotebook
-RUN ckan-pip install -e $CKAN_HOME_L/src/jupyternotebook/jupyter_notebook_nbextensions/
-RUN ckan-pip install --ignore-installed beautifulsoup4  
-RUN ckan-pip install --ignore-installed markupsafe==2.0.1
-RUN jupyter contrib nbextension install --user
 
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_nbconvert_config.json ~/.jupyter/jupyter_nbconvert_config.json
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_notebook_config.json ~/.jupyter/jupyter_notebook_config.json
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/common.json ~/.jupyter/nbconfig/common.json
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/notebook.json ~/.jupyter/nbconfig/notebook.json
-RUN cp $CKAN_HOME_L/src/jupyternotebook/config_files/nbconfig/tree.json ~/.jupyter/nbconfig/tree.json
+ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
 
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
 
 # Setup examples
-RUN ckan-pip install pandas
-RUN ckan-pip install seaborn
 ADD ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
-ADD ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_HOME_L/src/jupyternotebook/notebook
+ADD ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH_L/notebook
 
 
 # Scheming Plugin:
@@ -226,7 +218,7 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 
 # Expose port for notebook
-EXPOSE 8000
+#EXPOSE 8000
 
 
 # Expose port for ckan
