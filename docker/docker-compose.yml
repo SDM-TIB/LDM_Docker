@@ -38,8 +38,8 @@ services:
 #      - pusher
       - postfix
       - jupyternotebook
-    ports:
-      - "${CKAN_PORT}:5000"
+    #ports:
+      #- "${CKAN_PORT}:5000"
     env_file:
       - .env
 
@@ -49,6 +49,12 @@ services:
       - ckan_storage:${CKAN_STORAGE_PATH}
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ckan.rule=Host(`dm.coypu.org`)"
+      - "traefik.http.routers.ckan.entrypoints=websecure"
+      - "traefik.http.routers.ckan.tls.certresolver=myresolver"
+      - "traefik.http.services.ckan.loadbalancer.server.port=5000"
 
   db:
     build: ./postgresql-loaded/
@@ -105,10 +111,11 @@ services:
           - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
           - CKAN_SITE_URL=${CKAN_SITE_URL}
           - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
-    image: jupyter/datascience-notebook
+    #image: jupyter/datascience-notebook
+    restart: always  
     container_name: jupyternotebook
-    ports:
-      - "8000:8000"
+    #ports:
+      #- "8000:8000"
     env_file:
       - .env  
     volumes:
@@ -116,6 +123,59 @@ services:
       - jn_config:/home/jovyan/.jupyter
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jupyternotebook.rule=Host(`dm.coypu.org`)"
+      - "traefik.http.routers.jupyternotebook.entrypoints=other"
+      - "traefik.http.routers.jupyternotebook.tls.certresolver=myresolver"
+      - "traefik.http.services.jupyternotebook.loadbalancer.server.port=8000"
+      
+      
+  traefik:
+    # The official v2 Traefik docker image
+    image: "traefik:latest"
+    container_name: "traefik"
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - "--api=true"
+      - "--api.dashboard=true"
+      - "--log.level=DEBUG"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=ldmnetwork"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.other.address=:9090"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.other.http.redirections.entryPoint.scheme=https"
+    
+      
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=other"
+      # für Testzwecke geeignet, da Let's Encrypt "rate limiting" einsetzt
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=ahmad.sakor@tib.eu"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9090:9090"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.dm.coypu.org`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=coypu:$$apr1$$BAQpmgtN$$dA6iHqhakWV.SmsARz2C2/"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
+    networks:
+      - "ldmnetwork"
   
 networks:
-  ldmnetwork:      
+  ldmnetwork:  
+    external: true

@@ -7,6 +7,8 @@ ARG CKAN_SITE_URL
 
 RUN python -m pip install --upgrade pip
 
+
+
 USER root
 
 # Create directories for nbextensions 
@@ -43,5 +45,8 @@ RUN cp /LDM_Notebooks_config/config_files/nbconfig/tree.json   /home/jovyan/.jup
 
 
 EXPOSE 8000
+
+HEALTHCHECK --interval=10s --timeout=10s --start-period=55s \
+   CMD curl -f --retry 10 --max-time 15 --retry-delay 10 --retry-max-time 60 "http://localhost:8000/ldmjupyter/tree" || exit 1   
 
 CMD ["jupyter","notebook"]
