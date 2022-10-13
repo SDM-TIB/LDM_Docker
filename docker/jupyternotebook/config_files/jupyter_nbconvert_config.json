@@ -1,7 +1,7 @@
 {
   "version": 1,
   "Exporter": {
-    "extra_template_pathss": [
+    "extra_template_paths": [
       ".",
       "/jupyter_contrib_nbextensions/src/jupyter_contrib_nbextensions/templates"
     ],

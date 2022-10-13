@@ -1,6 +1,5 @@
-FROM python:3.7
-FROM jupyter/datascience-notebook
-
+FROM python:3.8
+FROM jupyter/datascience-notebook:2022-08-01
 # Build-time variables specified by docker-compose.yml / .env
 ARG CKAN_STORAGE_PATH
 ARG CKAN_SITE_URL
@@ -22,8 +21,11 @@ RUN chown -R `whoami` /jupyter_contrib_nbextensions &&\
 	
 # Install Jupyternotebooks extensions
 # ***********************************
-
+#RUN pip install --upgrade ipykernel
+RUN pip install jupyter-latex-envs
 RUN git clone https://github.com/ipython-contrib/jupyter_contrib_nbextensions.git /jupyter_contrib_nbextensions
+WORKDIR "/jupyter_contrib_nbextensions"
+RUN git reset --hard 2248f6e15753d0eb4339215313ae21ba09cbdf74
 ADD ./readonly /jupyter_contrib_nbextensions/src/jupyter_contrib_nbextensions/nbextensions/readonly
 RUN pip install -e /jupyter_contrib_nbextensions
 

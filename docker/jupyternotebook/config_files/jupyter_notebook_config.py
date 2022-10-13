@@ -145,7 +145,7 @@ c.NotebookApp.allow_root = True
 #  
 #  Leading and trailing slashes can be omitted, and will automatically be added.
 #  Default: '/'
-c.NotebookApp.base_url = '/ldmjupyter/'
+c.NotebookApp.base_url = '/ldmjupyter'
 
 ## Specify what command to use to invoke a web browser when opening the notebook.
 #  If not specified, the default browser will be determined by the `webbrowser`
@@ -641,7 +641,7 @@ c.NotebookApp.tornado_settings = {
 
 ## Set the kernel's IP address [default localhost].
 #  See also: ConnectionFileMixin.ip
-c.KernelManager.ip = os.getenv('CKAN_SITE_URL')
+c.KernelManager.ip = '0.0.0.0'
 
 ## DEPRECATED: Use kernel_name instead.
 #  
@@ -1007,6 +1007,7 @@ c.KernelManager.ip = os.getenv('CKAN_SITE_URL')
 
 #  See also: ContentsManager.checkpoints_kwargs
 # c.FileContentsManager.checkpoints_kwargs = {}
+c.FileContentsManager.checkpoints_kwargs = {'root_dir': r'/LDM_Notebooks_config'}
 
 ## If True (default), deleting files will send them to the platform's
 #  trash/recycle bin, where they can be recovered. If False, deleting files

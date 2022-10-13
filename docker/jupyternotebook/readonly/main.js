@@ -164,10 +164,10 @@ define([
 
         //alert("here");
     // send message to jupyternotebooks CKAN plugin
-    window.parent.window.postMessage(
-        {'func':'show_jupyter_notebooks_iframe','params':['show_iframe_ok']},
-        'http://localhost:5000'
-    );
+    //window.parent.window.postMessage(
+    //    {'func':'show_jupyter_notebooks_iframe','params':['show_iframe_ok']},
+    //    'http://localhost:5000'
+    //);
 
 
     }
