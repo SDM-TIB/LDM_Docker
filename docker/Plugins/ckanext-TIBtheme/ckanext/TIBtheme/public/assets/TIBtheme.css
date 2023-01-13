@@ -288,6 +288,10 @@ img.object-type {
   box-shadow: inset -1px 2px 2px rgba(0,0,0,0.3);
 }
 
+.ribbon.rdr {
+  background: #a62055;
+}
+
 .module.module-narrow.module-shallow.export{
     margin-top: 10px !important;
 }
@@ -300,6 +304,11 @@ img.object-type {
     width: 450px;
     min-height: 240px;
     height: auto;
+}
+
+.ribbon.png {
+  background: #009c8f;
+  width: 55%;
 }
 /*
 

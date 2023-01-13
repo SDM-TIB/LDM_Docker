@@ -1,0 +1,71 @@
+
+{% set current_lang = request.environ.CKAN_LANG %}
+{% set instance_name = h.tibtheme_default_instance_name() %}
+
+{% if current_lang == 'de' %}
+
+    <h1 class="page-heading">{{ "Über den Leibniz-Datenmanager" }}</h1>
+    <p>Der <strong>Leibniz Data Manager (LDM)</strong> ist eine quelloffene und kostenlose webbasierte Anwendung für das Forschungsdatenmanagement (FDM).
+        Der LDM bietet verschiedene Distributionen an, um den spezifischen Anforderungen verschiedener Kunden gerecht zu werden, z.B.
+        Instituten und Forschungsgruppen, die RDM in verschiedenen wissenschaftlichen Disziplinen betreiben.
+    </p>
+    <p>Der Prototyp bietet derzeit die folgenden Funktionen zur Visualisierung von Forschungsdaten:</p>
+    <ul><li>Unterstützung von Datensammlungen und Publikationen mit unterschiedlichen Formaten</li>
+        <li>Unterschiedliche Sichten auf denselben Datensatz (2D- und 3D-Unterstützung)</li>
+        <li>Visualisierung von Auto-CAD-Dateien</li>
+        <li>Jupyter Notes zur Demonstration von Live-Code</li>
+        <li>RDF Beschreibung von Datensammlungen</li>
+    </ul>
+    <p>Die dateispezifischen Viewer wurden mit Hilfe von CKAN-Plugins (Comprehensive Knowledge Archive Network) implementiert, um bestehende Viewer für die in der
+        CKAN-Instanz enthaltenen Datensätze darzustellen.</p>
+
+        {%- if instance_name -%}
+           <p><b>Dies ist eine LDM-Instanz für: {{instance_name}}.</b></p>
+        {%- endif -%}
+
+    <p>Weitere LDM-Instanzen sind verfügbar:
+        <ul>
+            <li><a href="https://service.tib.eu/ldmservice" target="_blank">Leibniz Data Manager (TIB)</a> .</li>
+        </ul>
+    </p>
+
+    <p>Weitere Informationen über das LDM-Projekt finden Sie auf der <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
+           class="external-link-new-window">TIB-Webseite</a> und den zuletzt aktualisierten Code im <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
+           class="external-link-new-window">GitHub-Repository</a>.</p>
+        <p>Bitte kontaktieren Sie uns unter <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a>,
+            wenn Sie Kommentare oder Fragen haben.</p>
+    <p>&nbsp;</p>
+
+{% else %}
+    <h1 class="page-heading">{{ "About the Leibniz Data Manager" }}</h1>
+    <p>The&nbsp;<strong>Leibniz Data Manager (LDM)</strong>&nbsp;is an open source and free web-based application
+        for Research Data Management (RDM). LDM delivers different distributions to best fit the specific
+        requirements of various customers, e.g., institutes and research groups performing RDM in various
+        scientific disciplines.
+    </p>
+    <p>The prototype currently offers the following functions for the visualization of research data:</p>
+    <ul><li>Supports data collections and publications&nbsp; with different formats</li>
+        <li>Different views on the same data set (2D and 3D support)</li>
+        <li>Visualization of Auto CAD files</li>
+        <li>Jupyter Notes for demonstrating live code</li>
+        <li>RDF Description of data collections</li>
+    </ul>
+    <p>The file specific viewers were implemented using CKAN (Comprehensive Knowledge Archive Network) plugins
+        to render existing viewers for the datasets included in the CKAN instance.</p>
+
+        {%- if instance_name -%}
+           <p><b>This is an instance of the tool installed for: {{instance_name}}.</b></p>
+        {%- endif -%}
+
+    <p>Other instances of the tool are available:
+        <ul>
+            <li><a href="https://service.tib.eu/ldmservice" target="_blank">Leibniz Data Manager (TIB)</a> .</li>
+        </ul>
+    </p>
+    <p>More info about the LDM project can be found on the <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
+           class="external-link-new-window">TIB webpage</a> and the last updated code in the <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
+           class="external-link-new-window">GitHub</a> repository.</p>
+
+    <p>Please, contact us at <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a> if you have comments or questions.</p>
+    <p>&nbsp;</p>
+{% endif %}

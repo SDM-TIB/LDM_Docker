@@ -1,4 +1,4 @@
-{% extends "page.html" %}
+ {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 {% set current_lang = request.environ.CKAN_LANG %}
 
@@ -13,14 +13,43 @@
 
 <article class="module" role="main">
     <div class="module-content">
-        <h1 class="">{{_('LDM Demo')}}</h1>
+
+        {% if current_lang=='de':%}
+        <h1 class="">LDM-Demo</h1>
+
+        <p>
+            Diese Demo präsentiert den Leibniz Data Manager (LDM) und veranschaulicht, wie Semantic-Web-Technologien und die FAIR-Prinzipien das Forschungsdatenmanagement unterstützen.
+            Das Demo zeigt, wie verschiedene digitale Objekte erstellt werden und verdeutlicht die entscheidende Rolle von Metadaten für eine effiziente und effektive Verwaltung sowie
+            Analyse von Forschungsdaten.
+        </p>
+
+        <p><b>Die <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo">Demonstration</a> umfasst:</b></p>
+    <ul>
+        <li>Dieser kurze Beitrag wurde im Proceeding der Extended Semantic Web Conference (ESWC 2022) in der Rubrik Poster und Demos veröffentlicht. Er beschreibt die Hauptfunktionen vom Leibniz Data Manager,</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/39b9fecb-44e4-404a-94d2-7972cc13d9d8"><img src="{{url}}images/demo/paper.png" style="border:1px solid; margin:10px" title="Paper"/></a>
+        <li>Ein Poster mit einer Zusammenfassung des Projekts,</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/1110486d-819b-46b7-ad2b-76eec24d093e"><img src="{{url}}images/demo/poster.png" style="border:1px solid; width:100px; margin:10px" title="Poster"/></a>
+        <li>Ein kurzes Video, das die Motivation für dieses Projekt beschreibt, und</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/da59916f-bee9-4ac8-a5b4-2d2ec4300fd2"><img src="{{url}}images/demo/motivation_video.png" style="border:1px solid; width:120px; margin:10px" title="Motivation Video"/></a>
+        <li>Ein Video, das die Funktionen des LDM zeigt.</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/c7cf21da-eaa4-438f-a2b4-a1d05aad37e6"><img src="{{url}}images/demo/demo_video.png" style="border:1px solid; width:120px; margin:10px" title="Demo Video"/></a>
+       <li>Ein Jupyter-Notebook, das die Verwendung der LDM-API (CKAN) erklärt, für Entwickler, die Code schreiben wollen, der mit LDM-Instanzen und deren Daten interagiert.</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/example-ldm-api-implementation"><img src="{{url}}images/demo/API_JupyterNotebook.png" style="border:1px solid; width:120px; margin:10px" title="Demo Video"/></a>
+    </ul>
+
+
+        <p>Bitte kontaktieren Sie uns unter <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a>, wenn Sie Kommentare oder Fragen haben.</p>
+
+    {% else: %}
+        <h1 class="">LDM Demo</h1>
+
         <p>
             This demo presents the Leibniz Data Manager (LDM) and illustrates how Semantic Web technologies and  FAIR principles empower research data management. The demonstration shows how various digital objects are created and puts in perspective the crucial role of metadata in efficient and effective management and analysis of research data management.
         </p>
 
         <p><b>The <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo">demonstration</a> comprises:</b></p>
     <ul>
-        <li>This short paper is published in the proceeding of the Extended Semantic Web Conference (ESWC 2022) in the track of poster and demos. It describes the main features of the Leibniz Data Manager,</li>
+        <li>This short paper is published in the proceedings of the <a href="https://2022.eswc-conferences.org/accepted-papers/">Extended Semantic Web Conference (ESWC 2022)</a> in the track of poster and demos. It describes the main features of the Leibniz Data Manager,</li>
             <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/39b9fecb-44e4-404a-94d2-7972cc13d9d8"><img src="{{url}}images/demo/paper.png" style="border:1px solid; margin:10px" title="Paper"/></a>
         <li>A poster summarizing the project,</li>
             <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/1110486d-819b-46b7-ad2b-76eec24d093e"><img src="{{url}}images/demo/poster.png" style="border:1px solid; width:100px; margin:10px" title="Poster"/></a>
@@ -28,10 +57,15 @@
             <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/da59916f-bee9-4ac8-a5b4-2d2ec4300fd2"><img src="{{url}}images/demo/motivation_video.png" style="border:1px solid; width:120px; margin:10px" title="Motivation Video"/></a>
         <li>A video showing the LDM features.</li>
             <a href="https://service.tib.eu/ldmservice/dataset/ldm-demo/resource/c7cf21da-eaa4-438f-a2b4-a1d05aad37e6"><img src="{{url}}images/demo/demo_video.png" style="border:1px solid; width:120px; margin:10px" title="Demo Video"/></a>
+        <li>A Jupyter Notebook explaining the use of the LDM’s API (CKAN), for developers who want to write code that interacts with LDM instances and their data.</li>
+            <a href="https://service.tib.eu/ldmservice/dataset/example-ldm-api-implementation"><img src="{{url}}images/demo/API_JupyterNotebook.png" style="border:1px solid; width:120px; margin:10px" title="Demo Video"/></a>
     </ul>
 
 
-        </p>
+        <p>Please, contact us at <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a> if you have comments or questions.</p>
+
+    {% endif %}
+
     </div>
   </article>
 

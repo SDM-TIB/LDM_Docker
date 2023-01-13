@@ -35,7 +35,7 @@
     {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
     {% set is_url = data.image_url and data.image_url.startswith('http') %}
 
-    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL')) }}
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture')+" (JPG, PNG, GIF)", url_label=_('Profile picture URL')) }}
 
 
 
@@ -53,7 +53,7 @@
       {% set sc_label = _('Ich akzeptiere die <a href="'+h.url_for('home')+'special_conditions_LDM" target="_blank" style="color:red">Nutzungsbedingungen TIB LDM</a>') %}
       {% set dataprotection_label = _('Mit der Verarbeitung meiner hier angegebenen personenbezogenen Daten durch die \
         Technische Informationsbibliothek (TIB) bin ich einverstanden. Die Daten werden ausschließlich gemäß der <a href="'+h.url_for('home')+'data_privacy" target="_blank" \
-        style="color:red">Datenschutzerklärung</a> sowie dem <a href="https://tib.eu/infoblatt-datenschutz" \
+        style="color:red">Datenschutzerklärung</a> sowie dem <a href="'+h.url_for('home')+'assets/LeibnizDataManager_InformationsblattDatenschutz.pdf" \
         target="_blank" style="color:red">Infoblatt Datenschutz</a> verarbeitet, um die Dienstleistungen der Portale der \
         TIB zu erbringen.') %}
 
@@ -63,7 +63,7 @@
     {% set sc_label = _('I accept the <a href="'+h.url_for('home')+'special_conditions_LDM" target="_blank" style="color:red">Special Conditions TIB LDM</a>') %}
     {% set dataprotection_label = _('I agree to the processing of my personal data provided here by Technische \
         Informationsbibliothek (TIB). In accordance with the <a href="'+h.url_for('home')+'data_privacy" target="_blank" \
-        style="color:red">data protection declaration</a> as well as the <a href="https://tib.eu/infoblatt-datenschutz" \
+        style="color:red">data protection declaration</a> as well as the <a href="'+h.url_for('home')+'assets/LeibnizDataManager_InformationsblattDatenschutz.pdf" \
         target="_blank" style="color:red">info sheet data protection</a>, the data is processed exclusively by TIB in order \
         to provide services of our portals.') %}
     {% endif %}

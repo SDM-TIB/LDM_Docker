@@ -12,9 +12,9 @@
     <tbody>
 
 {%- if pkg_dict['extras']==[] -%}
-{%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'license_id', 'owner_org', 'extras', 'orcid'] -%}
+{%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'owner_org', 'extras', 'orcid'] -%}
 {% else %}
-{%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'license_id', 'owner_org', 'extras', 'orcid' ] -%}
+{%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'owner_org', 'extras', 'orcid' ] -%}
 {%- endif -%}
 
 
@@ -61,7 +61,6 @@
     BLOCK ADITIONAL INFO FOR VIRTUAL DATASETS ONLY
     **********************************************
 #}
-
       <tr>
         <th scope="row" class="dataset-label">Imported on</th>
         <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_created) }}</td>
@@ -74,7 +73,7 @@
   {%- for field in schema.dataset_fields -%}
     {%- if field.field_name not in exclude_fields
         and field.display_snippet is not none
-        and pkg_dict[field.field_name]!=''-%}
+        and pkg_dict[field.field_name] -%}
       <tr>
         <th scope="row" class="dataset-label">{{
           h.scheming_language_text(field.label) }}</th>

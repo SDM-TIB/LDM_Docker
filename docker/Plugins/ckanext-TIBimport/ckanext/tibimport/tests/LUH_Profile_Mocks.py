@@ -456,10 +456,10 @@ luh_datasets_and_resources_keys =  {'dataset_keys':
                                     'resource_keys': ['mimetype', 'cache_url', 'hash', 'description',
                                                       'name', 'format', 'url', 'cache_last_updated',
                                                       'package_id', 'created', 'state', 'mimetype_inner',
-                                                      'last_modified', 'position', 'revision_id',
+                                                      'last_modified', 'position',
                                                       'url_type', 'id', 'resource_type', 'size',
                                                       'downloadall_datapackage_hash',
-                                                      'downloadall_metadata_modified']}
+                                                      'downloadall_metadata_modified','metadata_modified']}
 
 luh_resources_formats = ['ZIP', 'ASCII', 'CSV', 'TXT', 'JSON', 'XML',
                          '', 'PNG', '.csv', 'TAR', 'SHP', '.tiff', 'TIFF',

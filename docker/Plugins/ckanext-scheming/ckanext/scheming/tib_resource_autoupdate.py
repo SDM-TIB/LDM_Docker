@@ -188,7 +188,8 @@ class TIB_resource_update_tool:
     def create_cronjobs(self):
 
         cron = CronTab(user=self.crontab_user)
-        cron.remove_all()
+        for job in cron.find_comment('tib_update_resource'):
+            cron.remove(job)
 
         if self.update_enabled:
             command_base = self.ckan_virtual_env_path+'python3 ' + self.root_path + 'run_resource_update.py -t '
@@ -199,6 +200,7 @@ class TIB_resource_update_tool:
                 job.env['home_path'] = self.home_ur
                 for c in cronjob['crontab_commands']:
                     eval('job'+c)
+
 
         cron.write()
 

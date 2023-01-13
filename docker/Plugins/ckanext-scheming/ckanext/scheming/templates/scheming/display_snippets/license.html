@@ -1,0 +1,6 @@
+
+{% if data['license_id'] != data['license_title'] and data['license_title']: %}
+    {{ data['license_id' ]}}: {{data['license_title'] }}
+{% else %}
+    {{ data['license_id' ]}}
+{% endif %}

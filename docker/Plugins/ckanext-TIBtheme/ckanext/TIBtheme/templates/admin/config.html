@@ -45,6 +45,14 @@
       {{ form.select('tibtheme.accessibility_statement_enabled', id='field-accessibility-statement-enabled', label=_('Show Accessibility Link'), options=true_false_op, selected=data['tibtheme.accessibility_statement_enabled'], error=error) }}
 
     </div>
+
+    <div class="panel panel-default" style="padding:6px">
+      <header class="panel-heading" >{{_('Automatic update of imported Datasets')}} </header>
+      <p>&nbsp;</p>
+      {% set cj = h.tibimport_create_cronjobs() %}
+      {{ form.select('tibimport.updatedatasets_enabled', id='field-updatedatasets_enabled', label=_('Update imported Datasets'), options=true_false_op, selected=data['tibimport.updatedatasets_enabled'], error=error) }}
+
+    </div>
       {% endblock %}
 
 

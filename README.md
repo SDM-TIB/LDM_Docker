@@ -178,3 +178,18 @@ The file specific viewers were implemented using CKAN (Comprehensive Knowledge A
 
 
 
+###### \-  Version 2.4.2 (January 2023)
+
+●  Added Dataset's importation from RADAR (https://www.radar-service.eu).
+
+●  Added Dataset's importation from PANGEA (https://www.pangaea.de/).
+
+●  Added automatic and periodic updates to imported Datasets (LUH, RADAR and PANGEA).
+
+●  Added notification system performing and sending emails reports of automatic operations.
+
+●  Solved security vulnerability in creation/edition of users.
+
+●  Added Example Dataset with a Jupyter Notebook running live code and demonstrating the use of LDM's API to perform the main frequent tasks as: User Creation, Dataset creation, edition and search, Resource creation, etc.
+
+●  The LDM's Manual was updated including LDM's configuration options and detailed information regarding DOI Generation in LDM.

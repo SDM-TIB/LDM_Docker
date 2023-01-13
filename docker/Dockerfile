@@ -114,6 +114,10 @@ RUN ln -s /usr/lib/ckan/default/src/ckan/ckan/config/who.ini $CKAN_CONFIG_L/who.
 
 # Note: config file ($CKAN_CONFIG_L/ckan.ini) is generated in ./ckan-entrypoint.sh
 
+# Replace fixed files solving User images uploads bug
+ADD ./user_img_bug/create.py $CKAN_HOME_L/src/ckan/ckan/logic/action/create.py
+ADD ./user_img_bug/update.py $CKAN_HOME_L/src/ckan/ckan/logic/action/update.py
+
 
 # SetUp custom plugins
 # ********************
@@ -136,11 +140,6 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_cadviewer
 # ********
 ADD ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
-
-# Setup german translations
-RUN cp $CKAN_HOME_L/src/ckanext-TIBtheme/ckanext/TIBtheme/i18n/de/LC_MESSAGES/ckan.po /usr/lib/ckan/default/src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.po
-RUN cp $CKAN_HOME_L/src/ckanext-TIBtheme/ckanext/TIBtheme/i18n/de/LC_MESSAGES/ckan.mo /usr/lib/ckan/default/src/ckan/ckan/i18n/de/LC_MESSAGES/ckan.mo
-
 
 
 # DCAT
@@ -184,6 +183,7 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
 # Setup examples
 ADD ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
 ADD ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH_L/notebook
+ADD ./LDM_examples_files/RESOURCES/storage $CKAN_STORAGE_PATH_L/storage
 
 
 # Scheming Plugin:
@@ -216,6 +216,12 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-doi/requirements.txt
 ADD ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
+
+# TIBNOTIFY Plugin
+# ****************
+ADD ./Plugins/ckanext-TIBnotify $CKAN_HOME_L/src/ckanext-TIBnotify
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBnotify
+
 
 # Expose port for notebook
 #EXPOSE 8000

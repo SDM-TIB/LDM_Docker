@@ -61,7 +61,7 @@ write_config () {
 	"smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view recline_view videoviewer officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer" \
+    "ckan.plugins = stats text_view image_view recline_view resource_proxy officedocs_view webpage_view videoviewer TIBtheme dcat dcat_json_interface pdf_view scheming_datasets tibimport jupyternotebook tibvocparser scheming_tibupdateresources tib_cadviewer" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
 	"ckan.site_title = LDM" \
@@ -69,20 +69,32 @@ write_config () {
 	"ckan.favicon = /images/TIB_logo.png"
 
   echo "CONFIG tibimport vars"
-  ckan config-tool -s app:main $CONFIG "tibimport.show_vdatasets_virtual_ribbon = true"
-  ckan config-tool -s app:main $CONFIG "tibimport.show_vdatasets_virtual_source_ribbon = true"
+  ckan config-tool -s app:main $CONFIG \
+	"tibimport.show_vdatasets_virtual_ribbon = true" \
+	"tibimport.show_vdatasets_virtual_source_ribbon = true" \
+    "tibimport.updatedatasets_enabled = false" \
+	"tibimport.updatedatasets_crontab_user = root"
+	
   echo "CONFIG tibimport vars DONE"
+
+  echo "CONFIG tibnotify vars"
+  ckan config-tool -s app:main $CONFIG \
+	"TIBnotify.mail_to = email@example.com" \
+	"TIBnotify.sysadmin_name = LDM-Sysadmin" \
+    "TIBnotify.sysadmin_email = admin@example.com" 
+  echo "CONFIG tibnotify vars DONE"
 
   echo "CONFIG scheming vars"
   ckan config-tool -s app:main $CONFIG "scheming.dataset_schemas = ckanext.scheming:ckan_dataset.yaml ckanext.scheming:ckan_vdataset.yaml ckanext.scheming:service.yaml"
   echo "CONFIG scheming vars DONE"
 
   echo "CONFIG DOI plugin"
+  echo "DOI plugin DESACTIVATED by default"
   ckan config-tool -s app:main $CONFIG \
-    "ckanext.doi.account_name = WUUA.LZMKBJ" \
-    "ckanext.doi.account_password = ApfLDM!21" \
-    "ckanext.doi.prefix = 10.23680" \
-    "ckanext.doi.publisher = TIB" \
+    "ckanext.doi.account_name = WUUA.XXXXXX" \
+    "ckanext.doi.account_password = PASSXXXX" \
+    "ckanext.doi.prefix = 10.XXXX" \
+    "ckanext.doi.publisher = PUBXXX" \
     "ckanext.doi.test_mode = true"
   echo "CONFIG DOI plugin DONE"
 
@@ -106,6 +118,11 @@ write_config () {
 	"tibtheme.accessibility_statement_enabled = true"
   echo "CONFIG TIBtheme plugin DONE"
 
+  echo "CONFIG GERMAN TRANSLATIONS"
+  ckan config-tool -s app:main $CONFIG \
+	"ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-TIBtheme/ckanext/TIBtheme/i18n/" \
+	"ckan.i18n.extra_locales = de"
+  echo "CONFIG GERMAN TRANLATIONS DONE"
 
   echo "CONFIG jupyternotebook vars"
   ckan config-tool -s app:main $CONFIG "ckan.jupyternotebooks_url = ${CKAN_JUPYTERNOTEBOOK_URL}/ldmjupyter/notebooks/"
@@ -136,8 +153,8 @@ if [ ! -e "$CONFIG" ]; then
   echo "INITIALIZE DB"  
   ckan -c $CONFIG db init  
    
-  echo "CREATE DOI TABLE IN DB"
-  ckan -c $CONFIG doi initdb
+#  echo "CREATE DOI TABLE IN DB"
+#  ckan -c $CONFIG doi initdb
   
   echo "CREATE Services TABLE IN DB"
   ckan -c $CONFIG scheming initdb

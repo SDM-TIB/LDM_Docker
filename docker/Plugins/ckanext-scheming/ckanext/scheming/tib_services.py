@@ -43,7 +43,11 @@ def get_local_datasets_for_services(user, service_id, ds_list=''):
     sources = {'Local': {'name': 'Local',
                          'id': 'local'},
                'Leibniz University Hannover': {'name': 'Leibniz University Hannover',
-                                               'id': 'LUH'}
+                                               'id': 'LUH'},
+               'RADAR (Research Data Repository)': {'name': 'RADAR',
+                         'id': 'RDR'},
+               'PANGEA (Data Publisher for Earth & Environmental Science)': {'name': 'PANGEA',
+                         'id': 'PNG'}
                }
     selected_ds = DSQuery.read_datasets_for_service(service_id)
 
@@ -55,6 +59,12 @@ def get_local_datasets_for_services(user, service_id, ds_list=''):
 
     if 'results' in result:
         for dataset in result["results"]:
+            log.error(dataset["name"])
+
+            # Avoid error on datasets without org
+            if dataset['organization'] is None:
+                continue
+
             org_name = dataset['organization']['name']
             if org_name not in organizations:
                 org_name_styled = org_name.replace("-", " ").title()

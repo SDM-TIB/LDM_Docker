@@ -1,0 +1,20 @@
+{% extends "page.html" %}
+
+
+{% block subtitle %}{{ _('Oauth2 results') }}{% endblock %}
+
+{% block breadcrumb_content %}
+    {# <li class="active">{% link_for _('Oauth2 Results'), 'imprint' %}</li> #}
+{% endblock %}
+
+{% block primary %}
+<article class="module" role="main">
+    <div class="module-content">
+        <h1 class="">{{_('Oauth2 results')}}</h1>
+            {{ summary_log }}
+    </div>
+  </article>
+
+{% endblock %}
+
+{% block secondary %}{% endblock %}

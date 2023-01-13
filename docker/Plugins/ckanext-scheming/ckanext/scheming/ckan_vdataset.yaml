@@ -29,6 +29,7 @@ dataset_fields:
 - field_name: license_id
   label: License
   form_snippet: license.html
+  display_snippet: license.html
   help_text: License definitions and additional information can be found at http://opendefinition.org/
 
 - field_name: owner_org
@@ -129,6 +130,34 @@ dataset_fields:
   label: Related Services
   preset: service_selection_tool
   display_snippet: services_in_dataset.html
+
+- field_name: publishers
+  label: Publishers
+  display_snippet: repeating_subfields_publishers.html
+  repeating_subfields:
+    - field_name: publisher
+      label: Publisher
+      required: false
+
+- field_name: production_year
+  label: Production Year
+
+- field_name: publication_year
+  label: Publication Year
+
+- field_name: resource_type
+  label: Resource Type
+
+- field_name: subject_areas
+  label: Subject Areas
+  display_snippet: repeating_subfields_subjectareas.html
+  repeating_subfields:
+    - field_name: subject_area_name
+      label: Subject Area Name
+      required: false
+    - field_name: subject_area_additional
+      label: Additional Subject Area Name
+      required: false
 
 - field_name: extras
   label: Custom Fields

@@ -64,6 +64,11 @@ def is_matomo_plugin_enabled():
     m_enabled = toolkit.asbool(config.get('tib_matomo.enabled', False))
     m_installed = 'tib_matomo' in config.get('ckan.plugins', "")
     return m_installed and m_enabled
+def is_TIBservice_instance():
+    return toolkit.asbool(config.get('tibtheme.is_TIBservice_instance', False))
+
+def default_instance_name():
+    return config.get('tibtheme.default_instance_name', "")
 
 
 # *********************
@@ -74,6 +79,17 @@ def demo():
 
     return toolkit.render(
         'home/demo.html',
+        extra_vars={
+        }
+    )
+# ****************************
+
+# LDM REGISTER PAGE
+# *****************
+def ldm_register():
+
+    return toolkit.render(
+        'home/ldm_register.html',
         extra_vars={
         }
     )
@@ -146,7 +162,8 @@ class TibthemePlugin(plugins.SingletonPlugin):
             'tibtheme.data_privacy_enabled': [ignore_missing, boolean_validator],
             'tibtheme.imprint_enabled': [ignore_missing, boolean_validator],
             'tibtheme.accessibility_statement_enabled':[ignore_missing, boolean_validator],
-        })
+            'tibimport.updatedatasets_enabled': [ignore_missing, boolean_validator],
+})
 
         return schema
 
@@ -174,6 +191,8 @@ class TibthemePlugin(plugins.SingletonPlugin):
                 'tibtheme_data_privacy_enabled': data_privacy_enabled,
                 'tibtheme_imprint_enabled': imprint_enabled,
                 'tibtheme_accessibility_statement_enabled': accessibility_statement_enabled,
+                'tibtheme_is_TIBservice_instance': is_TIBservice_instance,
+                'tibtheme_default_instance_name': default_instance_name,
                 }
      # IBlueprint
     def get_blueprint(self):
@@ -189,6 +208,7 @@ class TibthemePlugin(plugins.SingletonPlugin):
             (u'/special_conditions_LDM', 'special_conditions_LDM', special_conditions_LDM),
             (u'/data_privacy', 'data_privacy', data_privacy),
             (u'/demo', 'demo_page', demo),
+            (u'/LDM-register', 'ldm_register', ldm_register),
 
         ]
         for rule in rules:

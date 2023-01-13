@@ -5497,3 +5497,18 @@ msgid "Show Imprint Link"
 msgstr "Impressum Link anzeigen"
 msgid "Show Accessibility Link"
 msgstr "Link zur Barrierefreiheit anzeigen"
+
+#: ckanext-TIBtheme/ckanext/TIBtheme/templates/admin/config.html:59
+msgid "Automatic update of imported Datasets"
+msgstr "Automatische Aktualisierung von importierten Datasets"
+msgid "Update imported Datasets"
+msgstr "Aktualisieren importierter Datensätze"
+
+#: ckanext-LDMoauth2/ckanext/ldmoauth2/templates/user/login.html
+msgid "Or Log in using..."
+msgstr "Oder melden Sie sich an mit..."
+msgid "Log in with Gitlab"
+msgstr "Mit Gitlab anmelden"
+
+msgid "Invalid image file"
+msgstr "ungültige Bilddatei"

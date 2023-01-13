@@ -631,6 +631,7 @@ class BibTeX_parser:
         publication_date = self._get_publication_date()
         data_fields['month'] = publication_date[1].lower()
         data_fields['year'] = publication_date[0]
+
         data_fields['publisher'] = self.ds_dict.get('doi_publisher', "")
         data_fields['doi'] = self.ds_dict.get('doi', "")
         data_fields['url'] = self.ds_dict.get('url_resource', "")
@@ -664,10 +665,13 @@ class BibTeX_parser:
     def _get_publication_date(self):
 
         publicationDate = self.ds_dict.get('doi_date_published', None)
-        if not publicationDate:
+        if publicationDate is None:
             publicationDate = self.ds_dict.get('metadata_created')
-
-        return render_datetime(publicationDate, date_format='%Y %b %d').split()
+        elif len(publicationDate) == 4: # is only year
+            p_date = [publicationDate, ""]
+        else:
+            p_date = render_datetime(publicationDate, date_format='%Y %b %d').split()
+        return p_date
 
     def _add_keywords_field(self):
         # SUBJECTS
