@@ -19,7 +19,9 @@
 {% endblock %}
 
 {% block package_additional_info %}
-{{ super() }}
+{% if h.is_doi_plugin_enabled(): %}
+  {{ super() }}
+{% endif %}
   {% snippet "scheming/package/snippets/additional_info.html",
     pkg_dict=pkg, dataset_type=dataset_type, schema=schema %}
 

@@ -465,3 +465,8 @@ def scheming_get_services_for_dataset_display(ds_id):
 def scheming_get_datasets_for_service_display(service_id):
     return get_datasets_for_service_display(service_id)
 
+
+@helper
+def is_doi_plugin_enabled():
+    doi_installed = 'doi' in config.get('ckan.plugins', "")
+    return doi_installed

@@ -288,7 +288,7 @@ def get_datasets_for_service_display(service_id):
     if ds_list:
         datasets = get_local_datasets_for_services_data(toolkit.g.user, service_id, ds_list)
 
-    if not datasets['results']:
+    if "results" not in datasets:
         return []
 
     for dataset in datasets["results"]:
