@@ -1045,7 +1045,7 @@ def user_create(context, data_dict):
     # Patch image file tipe bug
     if upload.filename and upload.filename[-3:].lower() not in ['gif', 'png', 'jpg', 'jpeg']:
         errors.update({_('Profile picture'): [_("Invalid image file")]})
-    elif data_dict['image_url'] and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg', 'jpeg']:
+    elif 'image_url' in data_dict and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg', 'jpeg']:
         errors.update({_('Profile picture'): [_("Invalid image file")]})
 
     if errors:

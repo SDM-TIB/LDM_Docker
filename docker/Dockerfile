@@ -62,30 +62,17 @@ RUN ckan-pip install --upgrade pip
 RUN ckan-pip install setuptools==44.1.0
 
 
+
 #Install the CKAN source code into your virtualenv.
 #RUN ckan-pip install -e 'git+https://github.com/ckan/ckan.git@$CKAN_VER#egg=ckan[requirements]'
 RUN git clone --branch $CKAN_VER https://github.com/ckan/ckan.git $CKAN_HOME_L/src/ckan
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckan/
+
+ADD ./requirements.txt $CKAN_HOME_L/src/ckan/requirements.txt
 RUN ckan-pip install --upgrade -r $CKAN_HOME_L/src/ckan/requirements.txt
 
-# Add customized TIB requirements files
-ADD ./TIB-dev-requirements.txt $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
-ADD ./TIB-requirements.txt $CKAN_HOME_L/src/ckan/TIB-requirements.txt
-
-# ONLY FOR CLIENT MODE: "Only for Development/Debug mode" area in this document must be commented
-# and in ./ckan-entrypoint.sh SET "debug" to false: 
-# Line: ckan config-tool "$CONFIG" -s DEFAULT -e "debug = false"
-# ***********************************************************************************************
-#RUN ckan-pip install --upgrade -r $CKAN_HOME_L/src/ckan/TIB-requirements.txt
-# ***********************************************************************************************
-
-# ONLY FOR DEVELOPMENT/DEBUG MODE: "Only for Client mode" area in this document must be commented
-# and in ./ckan-entrypoint.sh SET "debug" to true 
-# Line: ckan config-tool "$CONFIG" -s DEFAULT -e "debug = true"
-# ***********************************************************************************************
+ADD ./dev-requirements.txt $CKAN_HOME_L/src/ckan/dev-requirements.txt
 RUN ckan-pip install --upgrade -r $CKAN_HOME_L/src/ckan/dev-requirements.txt
-RUN ckan-pip install --upgrade -r $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
-# ***********************************************************************************************
 
 
 #Reactivate your virtualenv to ensure taking changes
