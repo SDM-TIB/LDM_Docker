@@ -1,0 +1,2 @@
+{{ h.render_datetime(data[field.field_name], date_format='%d %B, %Y, %H:%M %p (UTC%z)')
+    or  h.render_datetime(data[field.field_name].split('T')[0]) or data[field.field_name]}}

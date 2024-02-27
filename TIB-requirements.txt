@@ -1,0 +1,3 @@
+# TIB Data Manager requirements
+pylons==1.0.3
+

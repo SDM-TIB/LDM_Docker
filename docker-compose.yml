@@ -1,0 +1,126 @@
+
+version: "3"
+
+volumes:
+  ckan_config:
+  ckan_home:
+  ckan_storage:
+  pg_data:
+  solr_data:
+  jn_config:
+
+services:
+  ckan:
+    container_name: ckan
+    image: ckan
+    build:
+      context: ./
+      args:
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
+          - CKAN_CONFIG_L=${CKAN_CONFIG}
+          - CKAN_HOME_L=${CKAN_HOME}
+          - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
+          - CKAN_VER=${CKAN_VERSION}
+
+    links:
+      - db
+      - solr
+      - redis
+#      - pusher
+#      - postfix
+      - jupyternotebook
+      
+    depends_on:
+      - db
+      - solr
+      - redis
+#      - pusher
+#      - postfix
+      - jupyternotebook
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+
+    volumes:
+      - ckan_config:${CKAN_CONFIG}
+      - ckan_home:${CKAN_HOME}
+      - ckan_storage:${CKAN_STORAGE_PATH}
+    networks:
+      - ldmnetwork
+
+
+  db:
+    build: ./postgresql-loaded/
+    container_name: db
+    image: postgresql:loaded
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#    ports:
+#      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - ldmnetwork
+      
+  solr:
+    container_name: solr
+    build: 
+      context: ./solr/
+    image: ckan/ckan-solr:2.10
+#    ports:
+#      - "8983:8983"
+    volumes:
+     - solr_data:/var/solr
+    networks:
+      - ldmnetwork
+
+  redis:
+    container_name: redis
+    image: redis:6.0.9
+    networks:
+      - ldmnetwork
+ 
+ # pusher:
+ #   container_name: datapusher
+ #   image: clementmouchet/datapusher
+ #   ports:
+ #     - "8800:8800"
+ 
+#  postfix:
+#    container_name: postfix
+#    image: tozd/postfix:ubuntu-trusty
+#    ports:
+#      - "25:25"
+#    environment:
+#       MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"
+#    networks:
+#      - ldmnetwork    
+
+  jupyternotebook:
+    build: 
+      context: ./jupyternotebook/
+      args:
+          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
+    image: jupyter/datascience-notebook
+    container_name: jupyternotebook
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  
+    volumes:
+      - ckan_storage:${CKAN_STORAGE_PATH}:ro
+      - jn_config:/home/jovyan/.jupyter
+    networks:
+      - ldmnetwork
+
+      
+      
+
+networks:
+  ldmnetwork:  
+    external: true

@@ -1,0 +1,28 @@
+{% set fields = data[field.field_name] %}
+
+{% block subfield_display %}
+<dl class="scheming-subfield-list">
+  {% for field_data in fields %}
+
+
+            <dt class="dataset-label">
+              {# h.scheming_language_text(subfield.label) #}
+            </dt>
+            {% if field_data['subject_area_name']: %}
+                <dd>
+                    {{ _("Name:") }}
+                    {{ field_data['subject_area_name'] }}
+                </dd>
+            {% endif %}
+
+            {% if field_data['subject_area_additional']: %}
+            <dd>
+                {{ _("Additional:") }}
+                {{ field_data['subject_area_additional'] }}
+            </dd>
+            {% endif %}
+            <p></p>
+
+  {% endfor %}
+</dl>
+{% endblock %}

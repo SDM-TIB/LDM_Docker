@@ -1,0 +1,35 @@
+{#
+
+As we have DOIs we need to keep the landing page
+
+Add DataCite DOI data to the additional_info section
+
+#}
+
+
+{% ckan_extends %}
+
+{% block package_resources %}
+
+    {% if pkg.state == 'deleted' %}
+        <p class="empty"><i class="fa fa-warning-sign"></i> This dataset has been deleted.</p>
+    {% else %}
+        {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+    {% endif %}
+
+{% endblock %}
+
+{% block package_tags %}
+
+    {% if pkg.state != 'deleted' %}
+        {% snippet "package/snippets/tags.html", tags=pkg.tags %}
+    {% endif %}
+
+{% endblock %}
+
+{% block package_additional_info %}
+    {% if pkg.doi %}
+        {% snippet "doi/snippets/package_citation.html", pkg_dict=pkg %}
+    {% endif %}
+
+{% endblock %}

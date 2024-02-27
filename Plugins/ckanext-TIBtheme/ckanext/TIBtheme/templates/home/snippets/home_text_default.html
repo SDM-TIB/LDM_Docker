@@ -1,0 +1,58 @@
+
+{% set current_lang = request.environ.CKAN_LANG %}
+{% set instance_name = h.tibtheme_default_instance_name() %}
+
+{% if current_lang == 'de' %}
+          <header>
+          <h1 class="page-heading">Willkommen beim Leibniz Data Manager (
+
+    {%- if instance_name -%}
+                {{instance_name}}-
+              {%- endif -%}Instanz)</h1>
+
+              <p>Der <strong>Leibniz Data Manager (LDM)</strong> ist eine quelloffene und kostenlose webbasierte Anwendung
+                  für das Forschungsdatenmanagement (RDM).</p>
+
+              {%- if instance_name -%}
+                <p>Dies ist eine LDM-Instanz für: {{instance_name}}.</p>
+              {%- endif -%}
+
+          </h1>
+          <p>Der Leibniz Data Manager (LDM) wurde entwickelt, um den Aspekt der besseren Wiederverwendbarkeit von Forschungsdaten für
+              Forschungsvorhaben zu fördern. Der Prototyp unterstützt die Verwaltung und den Zugang zu heterogenen Forschungsdatenpublikationen
+              und hilft Forschern bei der Auswahl relevanter Datensätze für ihre jeweiligen Disziplinen.</p>
+          <p>Der Prototyp bietet derzeit folgende Funktionen zur Visualisierung von Forschungsdaten:
+          <br>·         Unterstützung von Datensammlungen und Publikationen mit unterschiedlichen Formaten.
+          <br>·         Unterschiedliche Sichten auf denselben Datensatz (2D- und 3D-Unterstützung).
+          <br>·         Visualisierung von Auto-CAD-Dateien.
+          <br>·         Jupyter Notes zur Demonstration von Live-Code.
+          <br>·         RDF-Beschreibung von Datensammlungen.
+          </p>
+          </header>
+{% else %}
+          <header>
+          <h1 class="page-heading">Welcome to the Leibniz Data Manager (
+              {%- if instance_name -%}
+                {{instance_name}}-
+              {%- endif -%}instance)</h1>
+
+              <p>The&nbsp;<strong>Leibniz Data Manager (LDM)</strong>&nbsp;is an open source and free web-based application
+        for Research Data Management (RDM).</p>
+              {%- if instance_name -%}
+                <p>This is an instance of the tool installed for: {{instance_name}}.</p>
+              {%- endif -%}
+
+
+         <p>LDM was developed to support the aspect of better re-usability of research data for scientific projects.
+                The prototype fosters the management and access to heterogeneous research data publications and assists researchers
+                in the selection of relevant data sets for their respective disciplines.</p>
+          <p>The prototype currently offers the following functions for the visualization of research data:
+          <br>·         Supports data collections and publications with different formats.
+          <br>·         Different views on the same data set (2D and 3D support).
+          <br>·         Visualization of Auto CAD files.
+          <br>·         Jupyter Notes for demonstrating live code.
+          <br>·         RDF Description of data collections.
+          </p>
+          </header>
+
+{% endif %}

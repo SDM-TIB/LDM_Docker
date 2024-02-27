@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+
+
+{% block primary_content %}
+  {{ super() }}
+<p></p>
+<div class="panel panel-default">
+  <div class="panel-heading">{{ _('Or Log in using...') }}</div>
+
+    <button class="btn btn-danger" style="padding:12px; margin:20px" onclick="window.location.href='{{h.url_for('home')}}oauth2/login/gitlab'">
+        <img src="{{h.url_for('home')}}images/gitlab_logo.png" width="30" /> {{ _('Log in with Gitlab') }}
+    </button></div>
+
+{% endblock %}

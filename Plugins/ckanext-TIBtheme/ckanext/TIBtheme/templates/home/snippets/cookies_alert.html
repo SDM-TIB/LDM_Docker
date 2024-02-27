@@ -1,0 +1,15 @@
+
+<div id="cookieAcceptBar" class="cookieAcceptBar">
+    {% if current_lang=='de':%}
+               Bevor Sie auf unserer Website surfen, akzeptieren Sie bitte unsere
+                <a href="{{ h.url_for('home') }}data_privacy#cookies">Cookie-Politik</a><br>
+              <button id="cookieAcceptBarConfirm" class="cookieAcceptBarButton btn btn-success">
+                Akzeptieren und schließen
+              </button>
+    {% else: %}
+              Before browse our site, please accept our <a href="{{ h.url_for('home') }}data_privacy#cookies">cookies policy</a><br>
+              <button id="cookieAcceptBarConfirm" class="cookieAcceptBarButton btn btn-success">
+                Accept and close this alert
+              </button>
+    {% endif %}
+</div>

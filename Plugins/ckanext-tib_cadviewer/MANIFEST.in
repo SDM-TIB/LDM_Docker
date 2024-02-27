@@ -1,0 +1,4 @@
+include README.rst
+include LICENSE
+include requirements.txt
+recursive-include ckanext/tib_cadviewer *.html *.json *.js *.less *.css *.mo
