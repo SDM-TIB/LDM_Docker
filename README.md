@@ -141,4 +141,4 @@ post_logout_url = /ldm_coypu/ldmservice/user/logged_out
 
 ## 6. Final Step
 
-Enjoy your setup and have fun with your LDM Service!
+That's it. You made it :D
