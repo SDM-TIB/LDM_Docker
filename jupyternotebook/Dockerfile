@@ -29,7 +29,7 @@ RUN git reset --hard 2248f6e15753d0eb4339215313ae21ba09cbdf74
 ADD ./readonly /jupyter_contrib_nbextensions/src/jupyter_contrib_nbextensions/nbextensions/readonly
 RUN pip install -e /jupyter_contrib_nbextensions
 
-RUN jupyter contrib nbextension install --user 
+RUN jupyter contrib nbextension install --user
 
 # Copy Jupyternotebooks configuration files
 # *****************************************
@@ -46,4 +46,4 @@ RUN cp /LDM_Notebooks_config/config_files/nbconfig/tree.json   /home/jovyan/.jup
 
 EXPOSE 8000
 
-CMD ["jupyter","notebook","--allow-root"]
+CMD ["jupyter","notebook"]

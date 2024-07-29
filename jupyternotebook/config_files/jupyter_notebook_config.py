@@ -509,7 +509,7 @@ c.NotebookApp.token = ''
 #  Default: {}
 c.NotebookApp.tornado_settings = {
     'headers': { 
-    'Content-Security-Policy': 'frame-ancestors self '+os.getenv('CKAN_SITE_URL')
+    'Content-Security-Policy': 'frame-ancestors self https://service.tib.eu'
     }
 }
 
@@ -641,7 +641,7 @@ c.NotebookApp.tornado_settings = {
 
 ## Set the kernel's IP address [default localhost].
 #  See also: ConnectionFileMixin.ip
-c.KernelManager.ip = '0.0.0.0'
+#c.KernelManager.ip = os.getenv('CKAN_SITE_URL')
 
 ## DEPRECATED: Use kernel_name instead.
 #  
