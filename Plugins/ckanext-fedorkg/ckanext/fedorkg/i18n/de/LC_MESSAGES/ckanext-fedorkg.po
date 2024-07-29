@@ -1,0 +1,123 @@
+# German translations for ckanext-fedorkg.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the ckanext-fedorkg
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-fedorkg 0.4.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-06-13 15:50+0200\n"
+"PO-Revision-Date: 2024-04-08 13:44+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: ckanext/fedorkg/controller.py:26
+msgid "Need to be system administrator to administer."
+msgstr "Nur Systemadministratoren haben hier Zugriff."
+
+#: ckanext/fedorkg/controller.py:42
+msgid "The query is malformed. Please, check your syntax."
+msgstr "Die Anfrage ist fehlerhaft. Bitte überprüfen Sie Ihre Syntax."
+
+#: ckanext/fedorkg/controller.py:47
+msgid "The query cannot be answer by the federation of FedORKG."
+msgstr "Die Anfrage kann nicht von der FedORKG-Föderation beantwortet werden."
+
+#: ckanext/fedorkg/controller.py:57
+msgid "The default query and its name are required."
+msgstr "Die Standardanfrage und ihr Name sind erforderlich."
+
+#: ckanext/fedorkg/controller.py:63
+msgid "There was an error when deleting {kg} from the federation!"
+msgstr "Beim Entfernen von {kg} aus der Föderation ist ein Fehler aufgetreten."
+
+#: ckanext/fedorkg/controller.py:65
+msgid "Successfully removed {kg} from the federation!"
+msgstr "{kg} wurde erfolgreich von der Föderation entfernt."
+
+#: ckanext/fedorkg/controller.py:72
+#, fuzzy
+msgid "There was an error when adding {kg} from the federation!"
+msgstr "Beim Hinzufügen von {kg} zur Föderation ist ein Fehler aufgetreten."
+
+#: ckanext/fedorkg/controller.py:74
+#, fuzzy
+msgid "Successfully added {kg} from the federation!"
+msgstr "{kg} wurde erfolgreich zur Föderation hinzugefügt."
+
+#: ckanext/fedorkg/templates/admin.jinja2:14
+#: ckanext/fedorkg/templates/admin.jinja2:18
+msgid "Default Query"
+msgstr "Standardanfrage"
+
+#: ckanext/fedorkg/templates/admin.jinja2:17
+msgid "Default Query Name"
+msgstr "Name der Standardanfrage"
+
+#: ckanext/fedorkg/templates/admin.jinja2:17
+msgid "default query name"
+msgstr "Name der Standardanfrage"
+
+#: ckanext/fedorkg/templates/admin.jinja2:21
+msgid "Set default query"
+msgstr "Standardanfrage festlegen"
+
+#: ckanext/fedorkg/templates/admin.jinja2:21
+msgid "Update"
+msgstr "Aktualisieren"
+
+#: ckanext/fedorkg/templates/admin.jinja2:26
+msgid "Knowledge Graphs in the Federation"
+msgstr "Wissensgraphen in der Föderation"
+
+#: ckanext/fedorkg/templates/admin.jinja2:30
+msgid "Knowledge Graph"
+msgstr "Wissensgraph"
+
+#: ckanext/fedorkg/templates/admin.jinja2:41
+msgid "Remove knowledge graph from the federation"
+msgstr "Entferne Wissensgraph aus der Föderation"
+
+#: ckanext/fedorkg/templates/admin.jinja2:52
+msgid "URL of the SPARQL endpoint"
+msgstr "URL des SPARQL-Endpunkts"
+
+#: ckanext/fedorkg/templates/admin.jinja2:55
+msgid "Add knowledge graph to the federation"
+msgstr "Füge Wissensgraph zur Föderation hinzu"
+
+#: ckanext/fedorkg/templates/admin.jinja2:72
+msgid ""
+"<p>Configuration options to manage the FedORKG instance.</p> "
+"<p><strong>Default Query Name:</strong> The title of the tab in the "
+"SPARQL query editor holding the default query.</p> <p><strong>Default "
+"Query:</strong> The default query shown in the SPARQL query editor.</p> "
+"<p><strong>Knowledge Graphs in the Federation:</strong> Mange the "
+"knowledge graphs that are included in the federation of FedORKG. Keep in "
+"mind that only included knowledge graphs can be queried.</p>"
+msgstr ""
+"<p>Konfigurationsoptionen zur Verwaltung der FedORKG-Instanz.</p> "
+"<p><strong>Name der Standardanfrage:</strong> Der Name der Registerkarte "
+"im SPARQL Anfrage-Editor, die die Standardabfrage enthält.</p> "
+"<p><strong>Standardanfrage:</strong> Die Standardanfrage, die im SPARQL "
+"Anfrage-Editor angezeigt wird.</p> <p><strong>Wissensgraphen in der "
+"Föderation:</strong> Verwaltung der Wissensgraphen, die in der Föderation"
+" von FedORKG integriert sind. Beachten Sie, dass nur enthaltene "
+"Wissensgraphen angefragt werden können.</p>"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:16
+msgid ""
+"You can use the SPARQL query editor below to run SPARQL queries over a "
+"federation of open research knowledge graphs."
+msgstr ""
+"Der untenstehende SPARQL Anfrage-Editor kann genutzt werden, um SPARQL "
+"Anfragen über eine Föderation von Wissensgraphen auszuführen."
+

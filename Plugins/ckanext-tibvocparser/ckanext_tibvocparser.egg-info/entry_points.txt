@@ -1,0 +1,7 @@
+
+        [ckan.plugins]
+        tibvocparser=ckanext.tibvocparser.plugin:TibvocparserPlugin
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
+    

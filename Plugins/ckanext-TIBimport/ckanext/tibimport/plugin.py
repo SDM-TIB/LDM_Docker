@@ -106,51 +106,64 @@ def TIB_update_imported_datasets_luh():
     objparser = LUH_CKAN_API_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
     objimporter.import_datasets()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
 
 def TIB_update_imported_datasets_radar():
     objparser = RADAR_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
     objimporter.import_datasets()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
 
 def TIB_update_imported_datasets_pangea():
     objparser = PANGEA_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
     objimporter.import_datasets()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
 
 
 # Function adding background jobs
-def add_imported_datasets_update(type):
+def add_imported_datasets_update(_type):
 
-    msg = type
+    msg = _type
     # Create CKAN's background jobs
     objparser = LUH_CKAN_API_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
 
     bk_jobs = objimporter.get_background_jobs()
 
-    if type in bk_jobs: # luh or radar
-        toolkit.enqueue_job(eval(bk_jobs[type]['method']), title=bk_jobs[type]['title'], queue='tib_ur')
-        msg = type + " update enqueued"
+    if _type in bk_jobs: # luh or radar
+        toolkit.enqueue_job(eval(bk_jobs[_type]['method']), title=bk_jobs[_type]['title'], queue='tib_ur')
+        msg = _type + " update enqueued"
 
+    html = u'''<!DOCTYPE html>
+        <html>
+            <head>
+                <title>Adding importation to worker</title>
+            </head>
+            <body>Adding importation from '''+msg+'''</body>
+        </html>'''
 
-    return toolkit.render(
-        'importer_result.html',
-        extra_vars={
-            u'summary_log': msg
-        }
-    )
+    return render_template_string(html)
 
 
 def send_importation_update_notification(summary):
-    send_notify_func = toolkit.config.get('pylons.h').get('tibnotify_send_importation_update_notification', None)
-    try:
-        send_notify_func(summary)
-    except TypeError:
-        log.info("Error sending notification Email. TIBnotify plugin not installed.")
+    # send_notify_func = toolkit.config.get('pylons.h').get('tibnotify_send_importation_update_notification', None)
+    if is_TIBNotify_plugin_enabled():
+        try:
+            from ckanext.tibnotify.TIBnotify import LDM_Notify
+            objnotify = LDM_Notify()
+            objnotify.send_importation_update_notification(summary)
+            # h.tibnotify_send_importation_update_notification(summary)
+        except ImportError as e:
+            log.error("Error sending notification Email. TIBnotify plugin not installed."+str(e))
 
 
-
-
+def is_TIBNotify_plugin_enabled():
+    plugins = config.get('ckan.plugins', [])
+    return 'tibnotify' in plugins
 
 def helper_not_here():
     u'''A simple template with a helper that doesn't exist. Rendering with a
@@ -262,7 +275,7 @@ class TibimportPlugin(plugins.SingletonPlugin):
             (u'/import_vdatasets_luh', u'import_vdatasets_luh', import_vdatasets_luh),
             (u'/import_vdatasets_rdr', u'import_vdatasets_rdr', import_vdatasets_rdr),
             (u'/import_vdatasets_png', u'import_vdatasets_png', import_vdatasets_png),
-            (u'/tib_add_imported_datasets_update/<type>', u'tib_importation_update', add_imported_datasets_update),
+            ('/tib_add_imported_datasets_update/<_type>', u'tib_importation_update', add_imported_datasets_update),
             (u'/helper_not_here', u'helper_not_here', helper_not_here),
             (u'/helper', u'helper_here', helper_here),
             (u'/flask_request', u'flask_request', flask_request),

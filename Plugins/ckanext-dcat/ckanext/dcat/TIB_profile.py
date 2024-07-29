@@ -1055,7 +1055,7 @@ class TIBDCATAPProfile(RDFProfile):
             g.bind(prefix, namespace)
 
         if dataset_dict.get('type') == 'service':
-            g.add((dataset_ref, RDF.type, DCAT.Service))
+            g.add((dataset_ref, RDF.type, DCAT.DataService))
         else:
             g.add((dataset_ref, RDF.type, DCAT.Dataset))
 
@@ -1144,7 +1144,9 @@ class TIBDCATAPProfile(RDFProfile):
                     creator = DCT.Agent
                     self.g.add((creator_ref, DCT.Agent, creator))
                     self.g.add((creator_ref, FOAF.Name, Literal(author['extra_author'])))
-                    orcid = author['orcid']
+                    orcid = ''
+                    if 'orcid' in author:
+                        orcid = author['orcid']
                     if orcid:
                         orcid_uri = CleanedURIRef("http://orcid.org/" + orcid)
                         self.g.add((creator_ref, DCT.identifier, orcid_uri))

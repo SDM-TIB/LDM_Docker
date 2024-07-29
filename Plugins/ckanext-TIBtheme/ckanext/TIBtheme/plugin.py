@@ -70,6 +70,13 @@ def is_TIBservice_instance():
 def default_instance_name():
     return config.get('tibtheme.default_instance_name', "")
 
+def get_dataset_authors_string(dataset_dict):
+    author_str = ""
+    if 'author' in dataset_dict:
+        author_str = dataset_dict['author']
+    for author in dataset_dict.get('extra_authors', []):
+        author_str += ", " + author['extra_author']
+    return  author_str
 
 # *********************
 
@@ -193,6 +200,7 @@ class TibthemePlugin(plugins.SingletonPlugin):
                 'tibtheme_accessibility_statement_enabled': accessibility_statement_enabled,
                 'tibtheme_is_TIBservice_instance': is_TIBservice_instance,
                 'tibtheme_default_instance_name': default_instance_name,
+                'tibtheme_get_dataset_authors_string': get_dataset_authors_string,
                 }
      # IBlueprint
     def get_blueprint(self):

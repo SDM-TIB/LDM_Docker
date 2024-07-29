@@ -5,7 +5,8 @@ from crontab import CronTab
 from ckan.common import config
 from ckan.common import _
 import ckan.common
-import ckan.lib.base as base
+from flask import render_template
+import ckan.lib.helpers as h
 
 import socket
 from time import time
@@ -16,6 +17,9 @@ from email.mime.text import MIMEText
 from email.header import Header
 from email import utils
 
+from jinja2 import Template
+
+from datetime import datetime
 import logging
 
 log = logging.getLogger(__name__)
@@ -29,12 +33,16 @@ class LDM_Notify:
 
     def __init__(self):
         # CKAN config
+        self.templates_path = '/usr/lib/ckan/default/src/ckanext-TIBnotify/ckanext/tibnotify/templates/'
+        self.site_url = self.get_site_url()
+        self.site_logo_filename = self.get_site_logo_filename()
+
         self.ckan_mail_from = config.get('smtp.mail_from', 'Sender not specified')
         self.ckan_reply_to = config.get('smtp.reply_to', 'not@defined.email')
 
         # TIBnotify config
         self.TIBnotify_sysamdin_name = config.get('TIBnotify.sysadmin_name', 'LDM-Sysadmin')
-        self.TIBnotify_sysamdin_email = config.get('TIBnotify.sysadmin_email', 'mauricio.brunet@tib.eu')
+        self.TIBnotify_sysamdin_email = config.get('TIBnotify.sysadmin_email', 'noreply.ldm@tib.eu')
         self.TIBnotify_mail_from_name = config.get('TIBnotify.mail_from', 'LDM')
         self.TIBnotify_mail_to = config.get('TIBnotify.mail_to', 'notifications@LDM')
 
@@ -47,10 +55,10 @@ class LDM_Notify:
         self.ckan_notifications_enabled = ckan.common.asbool(
             config.get('ckan.activity_streams_email_notifications', False))
         self.config_cronjobs()
+        self.clean_cronjobs()
         if self.ckan_notifications_enabled:
             self.create_cronjobs()
-        else:
-            self.clean_cronjobs()
+
 
     def config_cronjobs(self):
         # ┌───────────── minute(0 - 59)
@@ -75,7 +83,7 @@ class LDM_Notify:
         self.root_path = '/usr/lib/ckan/default/src/ckanext-TIBnotify/ckanext/tibnotify/'
         self.background_jobs = {
             'ckan_emails':
-                {'title': 'update_datasets_luh',
+                {'title': 'ckan_notifications',
                  'comment': "LDM_check_ckan_notifications",
                  'crontab_commands': [".setall('0 * * * *')"]}
         }
@@ -92,7 +100,6 @@ class LDM_Notify:
     def create_cronjobs(self):
 
         cron = CronTab(user=self.crontab_user)
-        self.clean_cronjobs()
 
         if self.ckan_notifications_enabled:
 
@@ -109,9 +116,12 @@ class LDM_Notify:
     def send_importation_update_notification(self, summary):
 
         subject = "Importation Update - " + summary.get('Repository_name', 'Not Found')
-        body_html = base.render(
-            'emails/importation_update_notification.html',
-            extra_vars={'summary': summary})
+        extras = {'site_url': self.site_url,
+                  'site_logo_filename': self.site_logo_filename,
+                  'date_and_time_now': self.get_date_and_time_now(),
+                  'schema_status_to_txt': self.schema_status_to_txt(summary['SCHEMA_REPORT']['status_ok'])}
+
+        body_html = self.render_template_using_jinja('emails/importation_update_notification_worker.html', summary, extras)
 
         attachments = [summary.get('LOG_file', '')]
 
@@ -154,33 +164,29 @@ class LDM_Notify:
 
     def _set_attachments(self, attachments, msg):
         for f in attachments or []:
-            with open(f, "rb") as fil:
-                part = MIMEApplication(
-                    fil.read(),
-                    Name=basename(f)
-                )
-            # After the file is closed
-            part['Content-Disposition'] = 'attachment; filename="%s"' % basename(f)
-            msg.attach(part)
+            try:
+                with open(f, "rb") as fil:
+                    part = MIMEApplication(
+                        fil.read(),
+                        Name=basename(f)
+                    )
+                # After the file is closed
+                part['Content-Disposition'] = 'attachment; filename="%s"' % basename(f)
+                msg.attach(part)
+            except FileNotFoundError as e:
+                log.exception("File " + f + str(e))
 
         return msg
 
     def _smtp_send_email(self, mail_from, recipient_email, msg):
         # Send the email using Python's smtplib.
-        if 'smtp.test_server' in config:
-            # If 'smtp.test_server' is configured we assume we're running tests,
-            # and don't use the smtp.server, starttls, user, password etc. options.
-            smtp_server = config['smtp.test_server']
-            smtp_starttls = False
-            smtp_user = None
-            smtp_password = None
-        else:
-            smtp_server = config.get('smtp.server', 'localhost')
-            smtp_starttls = ckan.common.asbool(config.get('smtp.starttls'))
-            smtp_ssl = ckan.common.asbool(config.get('smtp.ssl', False))
-            smtp_user = config.get('smtp.user')
-            smtp_password = config.get('smtp.password')
-            smtp_port = config.get('smtp.port', 25)
+
+        smtp_server = config.get('smtp.server', 'localhost')
+        smtp_starttls = ckan.common.asbool(config.get('smtp.starttls'))
+        smtp_ssl = ckan.common.asbool(config.get('smtp.ssl', False))
+        smtp_user = config.get('smtp.user', '')
+        smtp_password = config.get('smtp.password', '')
+        smtp_port = config.get('smtp.port', 25)
 
         try:
             if smtp_ssl:
@@ -193,23 +199,20 @@ class LDM_Notify:
                                   % (smtp_server, e))
 
         try:
-            # Identify ourselves and prompt the server for supported features.
-            smtp_connection.ehlo()
 
             # If 'smtp.starttls' is on in CKAN config, try to put the SMTP
             # connection into TLS mode.
             if smtp_starttls:
-                if smtp_connection.has_extn('STARTTLS'):
+                try:
                     smtp_connection.starttls()
-                    # Re-identify ourselves over TLS connection.
-                    smtp_connection.ehlo()
-                else:
-                    raise MailerException("SMTP server does not support STARTTLS")
+                except Exception as e:
+                    raise MailerException("SMTP server does not support STARTTLS. "+str(e))
+
+            # Identify ourselves and prompt the server for supported features.
+            smtp_connection.ehlo()
 
             # If 'smtp.user' is in CKAN config, try to login to SMTP server.
             if smtp_user:
-                assert smtp_password, ("If smtp.user is configured then "
-                                       "smtp.password must be configured as well.")
                 smtp_connection.login(smtp_user, smtp_password)
 
             smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
@@ -246,7 +249,32 @@ class LDM_Notify:
         # send email
         self._smtp_send_email(sender_email, recipient_email, msg)
 
-#
+    def render_template_using_jinja(self, template_name, summary={}, extras={}):
+
+        with open(self.templates_path + template_name) as file_:
+            template = Template(file_.read())
+        return template.render(summary=summary, extras=extras)
+
+    def get_site_url(self):
+        '''Return the value of the ckan.site_url value from CKAN configuration.
+        '''
+        return config.get('ckan.site_url')
+
+
+    def get_site_logo_filename(self):
+        return config.get('ckan.site_logo', self.site_url + '/images/TIB_logo.png')
+
+
+    def get_date_and_time_now(self):
+        # dd/mm/YY H:M:S
+        return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+
+    def schema_status_to_txt(self, status_value):
+        if status_value:
+            return "OK"
+        return "ERROR"
+    #
 #
 # def _mail_recipient(recipient_name, recipient_email,
 #                     sender_name, sender_url, subject,

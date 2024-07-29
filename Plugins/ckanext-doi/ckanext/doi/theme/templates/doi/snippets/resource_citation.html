@@ -17,7 +17,7 @@ Renders a citation for a resource
                     {% set auth_date = pkg_dict.metadata_created %}
                 {% endif %}
                 <p>
-                    {{ pkg_dict['author'] }} ({{ h.render_datetime(auth_date, date_format='%Y') }}). {{_('Dataset')}}: {{ pkg_dict['title'] }}.
+                    {{ h.tibtheme_get_dataset_authors_string(pkg_dict) }} ({{ h.render_datetime(auth_date, date_format='%Y') }}). {{_('Dataset')}}: {{ pkg_dict['title'] }}.
                     {{_('Resource')}}: {{ res['name'] }}.
                     {% if site_title %}
                         {{ site_title }}.

@@ -17,7 +17,7 @@ Renders a citation for a package
                 {% set auth_date = pkg_dict.metadata_created %}
             {% endif %}
             <p>
-                {{ pkg_dict['author'] }} ({{ h.render_datetime(auth_date, date_format='%Y') or pkg_dict.doi_date_published}}). {{_('Dataset')}}: {{ pkg_dict['title'] }}.
+                {{ h.tibtheme_get_dataset_authors_string(pkg_dict) }} ({{ h.render_datetime(auth_date, date_format='%Y') or pkg_dict.doi_date_published}}). {{_('Dataset')}}: {{ pkg_dict['title'] }}.
                 {% if site_title %}
                     {{ site_title }}.
                 {% endif %}

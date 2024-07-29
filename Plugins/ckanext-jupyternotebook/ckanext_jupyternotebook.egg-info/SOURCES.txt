@@ -12,6 +12,7 @@ ckanext/jupyternotebook/public/css/jupyternotebook_plugin.css
 ckanext/jupyternotebook/public/css/loading.css
 ckanext/jupyternotebook/templates/jupyternotebook_form.html
 ckanext/jupyternotebook/templates/jupyternotebook_view.html
+ckanext/jupyternotebook/templates/package/snippets/resource_view_embed.html
 ckanext/jupyternotebook/tests/__init__.py
 ckanext/jupyternotebook/tests/test_JNFile.py
 ckanext/jupyternotebook/tests/test_plugin.py

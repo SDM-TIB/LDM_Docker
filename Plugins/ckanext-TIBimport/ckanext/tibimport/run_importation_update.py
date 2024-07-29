@@ -5,7 +5,7 @@ from datetime import datetime
 
 print("Start script")
 
-cron = CronTab(user='mauricio')
+cron = CronTab(user='root')
 job = cron.find_comment('tib_update_imported_datasets')
 
 #print(job)
@@ -20,9 +20,10 @@ args = parser.parse_args()
 
 type = args.t
 
-valid_types = ['LUH','RADAR']
+valid_types = ['luh','radar','pangea']
 if type in valid_types:
     url = home_path + '/tib_add_imported_datasets_update/' + type
+    print("calling url:"+ url)
     contents = urllib.request.urlopen(url).read()
 
 print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))

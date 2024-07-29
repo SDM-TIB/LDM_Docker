@@ -1,0 +1,7 @@
+
+        [ckan.plugins]
+        tibnotify=ckanext.tibnotify.plugin:TibnotifyPlugin
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
+    

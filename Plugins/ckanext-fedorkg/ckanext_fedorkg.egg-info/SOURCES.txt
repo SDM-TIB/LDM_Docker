@@ -1,0 +1,13 @@
+README.md
+setup.py
+ckanext/__init__.py
+ckanext/fedorkg/__init__.py
+ckanext/fedorkg/helpers.py
+ckanext/fedorkg/plugin.py
+ckanext/fedorkg/views.py
+ckanext_fedorkg.egg-info/PKG-INFO
+ckanext_fedorkg.egg-info/SOURCES.txt
+ckanext_fedorkg.egg-info/dependency_links.txt
+ckanext_fedorkg.egg-info/entry_points.txt
+ckanext_fedorkg.egg-info/namespace_packages.txt
+ckanext_fedorkg.egg-info/top_level.txt

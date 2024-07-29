@@ -1,0 +1,87 @@
+{% set fields = data[field.field_name] %}
+
+{% block subfield_display %}
+<dl class="scheming-subfield-list">
+  {% for field_data in fields %}
+
+
+            <dt class="dataset-label">
+              {# h.scheming_language_text(subfield.label) #}
+            </dt>
+
+            {% if field_data['title']: %}
+                <dd>
+                    <b>{{ _("Title:") }}</b>
+                    {{ field_data['title'] }}
+                </dd>
+            {% endif %}
+
+
+            {% if field_data['identifier']: %}
+                <dd>
+                    <b>{{ _("Identifier:") }}</b>
+                    {% if field_data['identifier_type'] == 'DOI'%}
+                        <a target="_blank" href="https://doi.org/{{field_data['identifier']}}">
+                            {{ field_data['identifier'] }}
+                        </a>
+                    {% else %}
+                    {{ field_data['identifier'] }}
+                    {% endif %}
+                </dd>
+            {% endif %}
+
+            {% if field_data['identifier_type']: %}
+            <dd>
+                <b>{{ _("Type:") }}</b>
+                {{ field_data['identifier_type'] }}
+            </dd>
+            {% endif %}
+
+            {% if field_data['relation_type']: %}
+            <dd>
+                <b>{{ _("Relation:") }}</b>
+                {{ field_data['relation_type'] }}
+            </dd>
+            {% endif %}
+
+            {% if field_data['year']: %}
+                <dd>
+                    <b>{{ _("Year:") }}</b>
+                    {{ field_data['year'] }}
+                </dd>
+            {% endif %}
+
+            {% if field_data['source']: %}
+                <dd>
+                    <b>{{ _("Source:") }}</b>
+                    {{ field_data['source'] }}
+                </dd>
+            {% endif %}
+
+            {% if field_data['authors']: %}
+            {% set authors_list = field_data['authors'].split(',')%}
+            {% set emails_list = field_data['email_authors'].split(',')%}
+            {% set orcid_list = field_data['orcid_authors'].split(',')%}
+                <dd>
+                    <b>{{ _("Authors:") }}</b>
+                {% for author in authors_list %}
+                        {% if emails_list[loop.index-1]%}
+                        <a target="_blank" href="mailto:{{emails_list[loop.index-1]}}">{{- authors_list[loop.index-1] -}}</a>
+                        {% else %}
+                        {{- authors_list[loop.index-1] -}}
+                        {% endif %}
+
+                        {% if orcid_list[loop.index-1] -%}
+                        <a target="_blank" href="https://orcid.org/{{orcid_list[loop.index-1]}}"><img src="{{h.url_for('home')}}images/orcid.svg" class="orcid_display_img"/></a>
+                        {%- endif -%}
+                        {%- if (loop.index) == authors_list|length -%}.
+                        {% else %},{% endif %}
+
+                {% endfor %}
+                </dd>
+            {% endif %}
+
+            <p></p>
+  {% endfor %}
+</dl>
+{% endblock %}

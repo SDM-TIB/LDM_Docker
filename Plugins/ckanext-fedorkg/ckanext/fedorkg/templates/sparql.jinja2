@@ -1,0 +1,25 @@
+{% extends "page.html" %}
+
+{% block breadcrumb_content %}
+    <li class="active"><a href="{{ h.url_for('fedorkg.query_editor') }}">FedORKG</a></li>
+{% endblock %}
+
+{% block secondary %}{% endblock %}
+
+{% block primary_content %}
+    <script>
+        const default_query = "{{ default_query|safe }}",
+              default_query_name = "{{ default_query_name }}";
+    </script>
+    {% asset 'fedorkg/query' %}
+    <div class="mb-4 mt-4 mx-2" id="content-wrap">
+        {% trans %}You can use the SPARQL query editor below to run SPARQL queries over a federation of open research knowledge graphs.{% endtrans %}
+        <div class="mt-2" id="yasgui"></div>
+    </div>
+
+    <footer id="footer">
+        <div class="footer"><a href="https://github.com/SDM-TIB/ckanext-fedorkg" target="_blank">FedORKG</a>&nbsp;v{{ fedorkg_version }}</div>
+        <div class="footer">is powered by</div>
+        <div class="footer"><a href="https://github.com/SDM-TIB/DeTrusty" target="_blank">DeTrusty</a>&nbsp;v{{ detrusty_version }}</div>
+    </footer>
+{% endblock %}

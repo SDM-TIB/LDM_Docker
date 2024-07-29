@@ -9,14 +9,18 @@
       name="{{ field.field_name }}"
       value="{{ element }}"
       class="form-control"
-      {{ form.attributes(field.form_attrs if 'form_attrs' in field else {}) }} />
+      {{ form.attributes(field.form_attrs if 'form_attrs' in field else {}) }}
+      data-stored-value="{{ element }}" />
     <a class="btn btn-default btn-multiple-remove" name="multiple-remove" href="javascript:;"
       >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
-      {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
+    {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
   </li>
 {% endmacro %}
 
 {%- set values = data.get(field.field_name, []) or ([''] * field.get('form_blanks', 1)) -%}
+{%- if values is string -%}
+  {%- set values = [values] -%}
+{%- endif -%}
 
 {% call form.input_block(
   'field-' + field.field_name,
@@ -40,7 +44,7 @@
     {% endif %}
 
     <div class="control-medium">
-      <a href="javascript:MultipleText.multiple_add('{{ field.field_name }}');" class="btn btn-link"
+      <a href="javascript:;" name="multiple-add" data-field-name="{{ field.field_name }}" class="btn btn-link"
         >{% block add_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add') }}{% endblock %}</a>
     </div>
   </fieldset>

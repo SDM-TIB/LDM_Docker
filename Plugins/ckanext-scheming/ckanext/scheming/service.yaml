@@ -42,6 +42,21 @@ dataset_fields:
   display_property: foaf:homepage
   display_snippet: link.html
 
+- field_name: defined_in
+  label: Defined In
+  form_placeholder: https://doi.org/10.48550/arXiv.2008.07176
+  display_property: datacite:isDescribedBy
+  display_snippet: link.html
+
+- field_name: citation
+  label: Citation
+  preset: multiple_text
+  display_property: schema:citation
+  
+- field_name: link_orkg
+  label: Link to ORKG
+  display_snippet: link.html  
+
 - field_name: version
   label: Version
   validators: ignore_missing unicode package_version_validator
@@ -90,6 +105,55 @@ dataset_fields:
   display_property: dc:contributor
   display_snippet: email.html
   display_email_name_field: maintainer
+
+- field_name: version_note
+  label: Version Note
+  validators: ignore_missing unicode package_version_validator
+  form_placeholder: 'Initial version.'
+
+- field_name: language
+  label: Language
+  form_placeholder: 'e.g. English'
+
+- field_name: landing_page
+  label: Homepage
+  form_placeholder: 'e.g. https://www.google.com/'
+
+- field_name: accrualPeriodicity
+  label: Update Frequency
+  form_placeholder: 'e.g. monthly'
+
+- field_name: conformsTo
+  label: Conforms to Standard
+  form_placeholder: 'e.g. Link to Standards model'
+
+- field_name: access_rights
+  label: Access Rights
+  form_placeholder: 'e.g. Public, Private, etc.'
+
+- field_name: page
+  label: Description Page
+  form_placeholder: 'e.g. Link to dataset description'
+
+- field_name: spatial
+  label: Location
+  form_placeholder: 'e.g. location (country, etc.) where the dataset takes place'
+
+- field_name: spatial_resolution
+  label: Location Area
+  form_placeholder: 'e.g. physical area'
+
+- field_name: temporal_resolution
+  label: Period of Time
+  form_placeholder: 'e.g. length of time the dataset covers'
+
+- field_name: start_date
+  label: Start Date
+  form_placeholder: 'e.g. start date of the time period'
+
+- field_name: end_date
+  label: End Date
+  form_placeholder: 'e.g. end date of the time period'
 
 - field_name: datasets_served_list
   label: Datasets Served
@@ -140,3 +204,15 @@ resource_fields:
 - field_name: format
   label: Format
   preset: resource_format_autocomplete
+
+- field_name: rights
+  label: Distribution Rights
+  form_placeholder: 'e.g. '
+
+- field_name: language
+  label: Language
+  form_placeholder: 'e.g. English'
+
+- field_name: media
+  label: Media Type
+  form_placeholder: 'e.g. Files, Compress files, Videos, etc.'

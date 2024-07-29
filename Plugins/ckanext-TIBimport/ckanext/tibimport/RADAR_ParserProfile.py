@@ -31,6 +31,9 @@ class RADAR_ParserProfile(DatasetParser):
         self.ns2 = '{http://radar-service.eu/schemas/descriptive/radar/v09/radar-dataset}'
         self.ns3 = '{http://radar-service.eu/schemas/descriptive/radar/v09/radar-elements}'
 
+        # Set to True to force update of all datasets
+        self.force_update = False
+
         # Total of datasets available in RADAR
         self.total_radar_datasets = 0
 
@@ -308,6 +311,51 @@ class RADAR_ParserProfile(DatasetParser):
         #     <ns3:relatedIdentifiers>
         #         <ns3:relatedIdentifier relatedIdentifierType="DOI" relationType="IsSupplementTo">10.1029/2021GL094581</ns3:relatedIdentifier>
         #     </ns3:relatedIdentifiers>
+        # Types =
+        # - ARK
+        # - arXiv
+        # - bibcode
+        # - DOI
+        # - EAN13
+        # - EISSN
+        # - Handle
+        # - IGSN
+        # - ISBN
+        # - ISSN
+        # - ISTC
+        # - LISSN
+        # - LSID
+        # - PMID
+        # - PURL
+        # - UPC
+        # - URL
+        # - URN
+        # Relation Types:
+        # - IsCitedBy
+        # - Cites
+        # - IsSupplementTo
+        # - IsSupplementedBy
+        # - IsContinuedBy
+        # - Continues
+        # - HasMetadata
+        # - Is MetadataFor
+        # - IsNewVersionOf
+        # - IsPreviousVersionOf
+        # - IsPartOf
+        # - HasPart
+        # - IsReferencedBy
+        # - References
+        # - IsDocumentedBy
+        # - Documents
+        # - IsCompiledBy
+        # - Compiles
+        # - IsVariantFormOf
+        # - IsOriginalFormOf
+        # - IsIdenticalTo
+        # - IsReviewedBy
+        # - Reviews
+        # - IsDerivedFrom
+        # - IsSourceOf
         path_from_radardataset = ns3 + 'relatedIdentifiers/' + ns3 + 'relatedIdentifier'
         ds_result['metadata']['radarDataset']['relatedIdentifiers'] = self._find_metadata_in_record(record, path_from_radardataset, 'relatedIdentifier')
 
@@ -488,6 +536,9 @@ class RADAR_ParserProfile(DatasetParser):
 
         ldm_dict['resource_type'] = resource_type_txt
 
+        # related identifiers
+        ldm_dict = self._get_radar_related_identifiers(radar_metadata, ldm_dict)
+
         return ldm_dict
 
 
@@ -543,6 +594,8 @@ class RADAR_ParserProfile(DatasetParser):
             # create ckan tag dict
             # some cases are ; separated list of tags
             tag = tag.replace(';', ',')
+            # some cases are "·" separated list of tags
+            tag = tag.replace('·', ',')
             if ',' in tag: # some cases are comma separated list of tags
                 for t in tag.split(','):
                     t = self._adjust_tag(t)
@@ -571,6 +624,9 @@ class RADAR_ParserProfile(DatasetParser):
         tag = tag.replace("/", "-") # some tags have / chars
         tag = "".join(c for c in tag if c in PERMITTED_CHARS)  # some tags has no permitted chars
         tag = tag.strip()
+        # In CKAN tags minimum lenght is 2
+        if len(tag) < 2:
+            tag = ''
         return tag
 
     def _get_radar_publishers(self, radar_metadata, ldm_dict):
@@ -602,6 +658,25 @@ class RADAR_ParserProfile(DatasetParser):
             s_areas_list.append(s_area_dict)
         if s_areas_list:
             ldm_dict['subject_areas'] = s_areas_list
+
+        return ldm_dict
+
+    def _get_radar_related_identifiers(self, radar_metadata, ldm_dict):
+
+        r_identifiers = radar_metadata.get('relatedIdentifiers', [])
+        r_identifiers_list = []
+
+        for r_id in r_identifiers:
+            identifier = self._get_radar_value(r_id, ['relatedIdentifier', 'relatedIdentifier'])
+            id_type = self._get_radar_value(r_id, ['relatedIdentifiers', 'relatedIdentifierType'])
+            id_relation = self._get_radar_value(r_id, ['relatedIdentifiers', 'relationType'])
+            # create ckan related identifiers dict
+            r_identifier_dict = { "identifier": identifier,
+                            "identifier_type": id_type,
+                            "relation_type": id_relation}
+            r_identifiers_list.append(r_identifier_dict)
+        if r_identifiers_list:
+            ldm_dict['related_identifiers'] = r_identifiers_list
 
         return ldm_dict
 
@@ -882,6 +957,9 @@ class RADAR_ParserProfile(DatasetParser):
 
 
     def should_be_updated(self, local_dataset, remote_dataset):
+
+        if self.force_update:
+            return True
 
         result = False
         exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'tags']

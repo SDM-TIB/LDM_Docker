@@ -2,8 +2,13 @@
    The "account masthead" bar across the top of the site
    ===================================================== */
 
+.module-search{
+	padding-bottom: 4px !important;
+	margin-bottom:10px;
+}
+
 .account-masthead {
-    background-color: #b9afaf !important;
+    background-color: #29AB87 !important;
 }
 /* The "bubble" containing the number of new notifications. */
 .account-masthead .account .notifications a span {
@@ -82,9 +87,23 @@
 /* ========================================================================
    The main masthead bar that contains the site logo, nav links, and search
    ======================================================================== */
-
+.box{
+border-radius:22px !important;
+background-color:#ffffffab !important;
+margin-bottom: 18px;
+}
+.module-heading{
+border-radius:22px !important;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-top: 45px;
+    /* background: #eee url("../../base/images/bg.png"); */
+    background-color: #29AB87 !important;
+  }
+}
 .masthead {
-  background-color: #989292 !important;
+  background-color: #40826D !important;
 }
 /* The "navigation pills" in the masthead (the links to Datasets,
    Organizations, etc) when the user's pointer hovers over them. */
@@ -104,17 +123,28 @@
   box-shadow: inset 0px 0px 2px 0px rgba(0, 0, 0, 0.7) !important;
   color: black !important;
 }
-.main {
+/* .main {
   border-bottom: 1px solid white !important;
 }
-
+ */
 /* ===========================================
    The content in the middle of the front page
    =========================================== */
 
 /* Remove the "box shadow" effect around various boxes on the page. */
+.search-giant input
+{
+	border-color:transparent !important;
+}
+.search-giant
+{
+	margin-bottom: 5px !important;
+}
 .box {
   box-shadow: none !important;
+}
+.card.box{
+	padding-top:12px;
 }
 /* Remove the borders around the "Welcome to CKAN" and "Search Your Data"
    boxes. */
@@ -124,7 +154,8 @@
 /* Change the colors of the "Search Your Data" box. */
 .homepage .module-search .module-content {
   color: rgb(68, 68, 68) !important;
-  background-color: white !important;
+  background-color: #ffffffab !important;
+  border-radius:22px !important;
 }
 /* Change the background color of the "Popular Tags" box. */
 .homepage .module-search .tags {
@@ -132,17 +163,26 @@
 }
 /* Remove some padding. This makes the bottom edges of the "Welcome to CKAN"
    and "Search Your Data" boxes line up. */
-.module-content:last-child {
+/* .module-content:last-child {
   padding-bottom: 0px !important;
-}
-.homepage .module-search {
+} */
+/* .homepage .module-search {
   padding: 0px !important;
-}
+} */
 /* Add a border line between the top and bottom halves of the front page. */
-.homepage [role="main"] {
+/* .homepage [role="main"] {
   border-top: 1px solid rgb(204, 204, 204) !important;
+} */
+.homepage{
+	background-color:#29AB87 !important;
 }
-
+@media (min-width: 768px) {
+  .hero {
+    background: url("../../images/background-tile.png");
+	background-position:bottom;
+	background-size: cover;
+  }
+}
 /* ====================================
    The header at the top of the site
    ==================================== */
@@ -156,7 +196,7 @@
 
 .site-logo {
       margin-top:10px;
-      max-width: 140px !important;
+      max-width: 80px !important;
 }
 
 .header_ldm_logo_bar {
@@ -173,6 +213,7 @@ header div.container {
 .site-footer,
 body {
     background: #b9afaf url("../../../base/images/bg.png");
+	background-color:#296f56;
 }
 /* The text in the footer. */
 .site-footer,
@@ -239,14 +280,50 @@ img.object-type {
 
 }
 .dataset-item.vdataset {
-    background-color: #fafbfc;
     position: relative;
 }
 
 .dataset-item.service {
-    background-color: #fafffd;
     position: relative;
 }
+
+.dataset-item {
+    border-bottom: 1px dotted #444b42 !important;
+    border-radius:22px;
+}
+
+
+.wrapper{
+	background-color:#ffffffab !important;
+}
+
+@media (min-width: 768px) {
+  .wrapper:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 25%;
+    border-right: 1px dotted #444b42;
+    z-index: 1;
+  }
+
+.toolbar .breadcrumb a {
+  color: #e1e1e1;
+}
+
+.tag-list{
+	background-color:#40826D;
+	border-radius:22px;
+}
+.page-header{
+background-color:transparent;
+}
+
+
+
 
 .ribbon{
   position:relative;

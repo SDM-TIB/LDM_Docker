@@ -27,6 +27,11 @@ class LDM_DatasetImport:
         self.crontab_user = config.get('tibimport.updatedatasets_crontab_user', "root")
         self.home_ur = config.get('ckan.site_url', "http://localhost:5000")
         self.update_enabled = toolkit.asbool(config.get('tibimport.updatedatasets_enabled', False))
+        if ds_parser is None:
+            default_log_path = '/usr/lib/ckan/default/src/ckanext-TIBimport/ckanext/tibimport/logs/'
+            self.log_file_path = config.get('tibimport.log_file_path', default_log_path)
+        else:
+            self.log_file_path = ds_parser.log_file_path
         self.config_cronjobs()
 
         # CKAN's API Actions
@@ -38,6 +43,7 @@ class LDM_DatasetImport:
         self.action_package_delete = toolkit.get_action('package_delete')
         self.action_organization_create = toolkit.get_action('organization_create')
         self.action_organization_delete = toolkit.get_action('organization_delete')
+        self.action_organization_update = toolkit.get_action('organization_update')
 
         # Allow unauthorized ejecution
         toolkit.auth_allow_anonymous_access(self.action_package_show)
@@ -46,8 +52,13 @@ class LDM_DatasetImport:
         toolkit.auth_allow_anonymous_access(self.action_package_update)
         toolkit.auth_allow_anonymous_access(self.action_package_delete)
         toolkit.auth_allow_anonymous_access(self.action_organization_create)
+        toolkit.auth_allow_anonymous_access(self.action_organization_update)
         toolkit.auth_allow_anonymous_access(self.action_organization_delete)
 
+        # Set to True to force organization's updates
+        self.force_organization_update = False
+        # Set to True to force organization update just once (Ex. Some profiles assign all datasets to the same Org)
+        self.force_organization_update_only_once = False
 
     # AUTOUPDATE IMPORTED DATASETS
     # ****************************
@@ -74,17 +85,17 @@ class LDM_DatasetImport:
                        {'title': 'update_datasets_luh',
                         'method': 'TIB_update_imported_datasets_luh',
                         'comment': "TIB_update_imported_datasets_luh",
-                        'crontab_commands': [".setall('0 0 2 * *')"]},
+                        'crontab_commands': [".setall('0 0 14 * *')"]},
                    'radar':
                        {'title': 'update_datasets_radar',
                         'method': 'TIB_update_imported_datasets_radar',
                         'comment': "TIB_update_imported_datasets_radar",
-                        'crontab_commands': [".setall('0 0 3 * *')"]},
+                        'crontab_commands': [".setall('0 1 14 * *')"]},
                    'pangea':
                        {'title': 'update_datasets_pangea',
                         'method': 'TIB_update_imported_datasets_pangea',
                         'comment': "TIB_update_imported_datasets_pangea",
-                        'crontab_commands': [".setall('0 0 4 * *')"]}
+                        'crontab_commands': [".setall('0 2 14 * *')"]}
                    }
 
     def get_background_jobs(self):
@@ -99,23 +110,12 @@ class LDM_DatasetImport:
         if self.update_enabled:
             command_base = self.ckan_virtual_env_path+'python3 ' + self.root_path + 'run_importation_update.py -t '
             # Define cronjobs
-            for key, cronjob in self.background_jobs.items():
-                # Ensure self.ds_parser is not None before proceeding
-                if self.ds_parser is not None:
-                    command = command_base + key + " >> " + self.ds_parser.log_file_path + "crontab_log.txt 2>&1"
-                    job = cron.new(command=command, comment="tib_update_imported_datasets")
-                    job.env['home_path'] = self.home_ur
-                    for c in cronjob['crontab_commands']:
-                        # Safely evaluate job attributes or methods
-                        try:
-                            eval('job'+c)
-                        except Exception as e:
-                            # Handle or log the exception as needed
-                            print(f"An error occurred: {e}")
-                else:
-                    # Handle the case where self.ds_parser is None, e.g., log an error or set a default path
-                    print("self.ds_parser is None, unable to construct command")
-
+            for key,cronjob in self.background_jobs.items():
+                command = command_base + key + " >> " + self.log_file_path + "crontab_log.txt 2>&1"
+                job = cron.new(command=command, comment="tib_update_imported_datasets")
+                job.env['home_path'] = self.home_ur
+                for c in cronjob['crontab_commands']:
+                    eval('job'+c)
 
 
         cron.write()
@@ -187,6 +187,13 @@ class LDM_DatasetImport:
         context = {'model': model, 'session': model.Session, 'ignore_auth': True, 'user': 'admin'}
         self.action_organization_create(context, org_dict)
 
+    def update_organization(self, ds_dict):
+        # https://docs.ckan.org/en/2.9/api/#ckan.logic.action.update.organization_update
+        context = {'model': model, 'session': model.Session, 'ignore_auth': True, 'user': 'admin'}
+
+        context['return_id_only'] = True
+        self.action_organization_update(context, ds_dict)
+
     def delete_organization(self, name):
         # https://docs.ckan.org/en/2.9/api/#ckan.logic.action.delete.organization_delete
         org_dict = {"id": name}
@@ -225,7 +232,7 @@ class LDM_DatasetImport:
             self._insert_update_skip_dataset(ds)
 
         # For testing just 10
-        #for x in range(10):
+        #for x in range(50):
         #    self._insert_update_skip_dataset(remote_datasets[x])
         #self._insert_update_skip_dataset(remote_datasets[3])
         self.set_log_info(self.ds_parser.get_summary_log())
@@ -256,6 +263,9 @@ class LDM_DatasetImport:
         else:
             # Update Dataset
             # use local id
+            # Organization could change and need to be inserted first
+            self._insert_skip_organization(remote_dataset['organization'])
+
             remote_dataset['id'] = dataset['id']
             self.update_dataset(remote_dataset)
             self.ds_parser.increment_modified_log()
@@ -270,6 +280,14 @@ class LDM_DatasetImport:
             org_insert_dict = self.ds_parser.get_organization(org_dict['name'])
             self.insert_organization(org_insert_dict)
             self.set_log_info("Organization: " + org_insert_dict['name'] + " Inserted")
+        elif self.force_organization_update:
+            # Update Organization
+            org_insert_dict = self.ds_parser.get_organization(org_dict['name'])
+            org_insert_dict['id'] = org_dict['name']
+            self.update_organization(org_insert_dict)
+            self.set_log_info("Organization: " + org_insert_dict['name'] + " Updated")
+            if self.force_organization_update_only_once:
+                self.force_organization_update = False
         else:
             self.set_log_info("Organization: " + org_dict['name'] + " Skiped - Already exists")
 

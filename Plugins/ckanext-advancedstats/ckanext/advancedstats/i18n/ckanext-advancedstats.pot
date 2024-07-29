@@ -1,0 +1,63 @@
+# Translations template for ckanext-advancedstats.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the ckanext-advancedstats
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-advancedstats 0.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-06-20 14:24+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:6
+msgid "{0} statistics"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:13
+msgid "dataset"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:13
+msgid "datasets"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:20
+msgid "organization"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:20
+msgid "organizations"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:27
+msgid "group"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:27
+msgid "groups"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:33
+msgid "resource"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:33
+msgid "resources"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:38
+msgid "Jupyter notebook"
+msgstr ""
+
+#: ckanext/advancedstats/templates/home/snippets/stats.html:38
+msgid "Jupyter notebooks"
+msgstr ""

@@ -1,6 +1,8 @@
 {% ckan_extends %}
 
-{% set placeholder = _(placeholder.replace('vdatasets', 'imported datasets')) %}
+{% if placeholder: %}
+  {% set placeholder = _(placeholder.replace('vdatasets', 'imported datasets')) %}
+{% endif %}
 
   {% block search_input %}
     <div class="input-group search-input-group">

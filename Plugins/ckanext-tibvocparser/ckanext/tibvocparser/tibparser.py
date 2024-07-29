@@ -189,7 +189,8 @@ class Datacite_parser:
         if 'extra_authors' in self.ds_dict:
             for author in self.ds_dict['extra_authors']:
                 creator = {'name': author['extra_author']}
-                creator['nameIdentifiers'] = self._create_orcid_object(author['orcid'])
+                if 'orcid' in author:
+                    creator['nameIdentifiers'] = self._create_orcid_object(author['orcid'])
                 creators.append(creator)
         return creators
 
@@ -431,7 +432,8 @@ class CSL_parser:
         if 'extra_authors' in self.ds_dict:
             for item in self.ds_dict['extra_authors']:
                 author = {"family": item['extra_author']}
-                author['uri'] = 'http://orcid.org/' + item['orcid']
+                if 'orcid' in item:
+                    author['uri'] = 'http://orcid.org/' + item['orcid']
                 authors.append(author)
         return authors
 
@@ -664,10 +666,10 @@ class BibTeX_parser:
 
     def _get_publication_date(self):
 
-        publicationDate = self.ds_dict.get('doi_date_published', None)
-        if publicationDate is None:
+        publicationDate = self.ds_dict.get('doi_date_published', "")
+        if publicationDate == "":
             publicationDate = self.ds_dict.get('metadata_created')
-        elif len(publicationDate) == 4: # is only year
+        if len(publicationDate) == 4: # is only year
             p_date = [publicationDate, ""]
         else:
             p_date = render_datetime(publicationDate, date_format='%Y %b %d').split()

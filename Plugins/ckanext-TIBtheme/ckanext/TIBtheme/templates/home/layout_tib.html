@@ -7,6 +7,11 @@
       <div class="row row1">
 
         <div class="module-content box">
+		
+		{% block search %}
+            {% snippet 'home/snippets/search.html' %}
+          {% endblock %}
+  
 
         {% if h.tibtheme_is_TIBservice_instance() %}
           {% snippet 'home/snippets/home_text_TIB.html' %}
@@ -14,10 +19,7 @@
           {% snippet 'home/snippets/home_text_default.html' %}
         {% endif %}
 
-          {% block search %}
-            {% snippet 'home/snippets/search.html' %}
-          {% endblock %}
-
+          
         </div>
         <div class="col-md-6 col2">
         </div>

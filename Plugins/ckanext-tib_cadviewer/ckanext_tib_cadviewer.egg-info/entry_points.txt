@@ -1,0 +1,7 @@
+
+        [ckan.plugins]
+        tib_cadviewer=ckanext.tib_cadviewer.plugin:TibCadviewerPlugin
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
+    

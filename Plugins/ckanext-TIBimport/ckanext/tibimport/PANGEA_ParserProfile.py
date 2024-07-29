@@ -9,17 +9,17 @@ import ckan.lib.helpers as h
 class PANGEA_ParserProfile(DatasetParser):
     '''
 
-    A class defined to access PANGEA's Datasets
-    using the PANGEA's harvesting tool https://ws.pangaea.de/oai/ and parsing the retrieved
+    A class defined to access PANGAEA's Datasets
+    using the PANGAEA's harvesting tool https://ws.pangaea.de/oai/ and parsing the retrieved
     data to dataset_dic as needed by the LDM
 
-    PANGEA Harvesting tool docs: https://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
+    PANGAEA Harvesting tool docs: https://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
 
     '''
 
     def __init__(self):
-        self.repository_name = "PANGEA (Data Publisher for Earth & Environmental Science)"
-        # Website: www.pangea.de
+        self.repository_name = "PANGAEA (Data Publisher for Earth & Environmental Science)"
+        # Website: www.pangaea.de
 
         self.dataset_title_prefix = "png-"
         # Ex. https://ws.pangaea.de/oai/provider?verb=ListRecords&metadataPrefix=pan_md&set=topicAgriculture
@@ -33,12 +33,15 @@ class PANGEA_ParserProfile(DatasetParser):
         # Searching for "Agriculture" Datasets
         self.pangea_ListRecords_url += '&set=topicAgriculture'
 
+        # Set to True to force update of all datasets
+        self.force_update = False
+
         # Schema values
         self.ns0 = '{http://www.openarchives.org/OAI/2.0/}'
         self.ns2 = '{http://www.pangaea.de/MetaData}'
-        self.pangea_schema_version = "2021-12-01"
+        self.pangea_schema_version = "2023-01-12"
 
-        # Total of datasets available in PANGEA
+        # Total of datasets available in PANGAEA
         self.total_pangea_datasets = 0
 
         # schema validation report
@@ -50,7 +53,7 @@ class PANGEA_ParserProfile(DatasetParser):
 
     def get_all_datasets_dicts(self):
         '''
-             Using PANGEA's "ListRecords" list get a list of dictionaries with the complete Dataset's
+             Using PANGAEA's "ListRecords" list get a list of dictionaries with the complete Dataset's
              metadata inside.
              Notice: "ListRecords" retrieves results in XML format and by blocks (pages). Uses "ResumptionToken" to
              continue listing the following records.
@@ -71,7 +74,7 @@ class PANGEA_ParserProfile(DatasetParser):
 
     def get_datasets_list(self, ds_list=[], resumption_token=''):
         '''
-            Uses the PANGEA HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
+            Uses the PANGAEA HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
 
             Returns: a list of datasets or an empty list
             Notice: the dictionaries contains metadata NOT in CKAN's schema
@@ -188,14 +191,14 @@ class PANGEA_ParserProfile(DatasetParser):
         # METADATA - AUTHOR
         #     <ns2:citation id="dataset786524">
         #         <ns2:author id="dataset.author42192">
-        #             <ns2:lastName>Colacevich</md:lastName>
-        #             <ns2:firstName>Andrea</md:firstName>
-        #             <ns2:eMail>colacevich2@unisi.it</md:eMail>
+        #             <ns2:lastName>Colacevich</ns2:lastName>
+        #             <ns2:firstName>Andrea</ns2:firstName>
+        #             <ns2:eMail>colacevich2@unisi.it</ns2:eMail>
         #         </ns2:author>
         #         <ns2:author id="dataset.author42193">
-        #             <ns2:lastName>Caruso</md:lastName>
-        #             <ns2:firstName>Tancredi</md:firstName>
-        #             <sn2:orcid>0000-0002-3607-9609</md:orcid>
+        #             <ns2:lastName>Caruso</ns2:lastName>
+        #             <ns2:firstName>Tancredi</ns2:firstName>
+        #             <sn2:orcid>0000-0002-3607-9609</ns2:orcid>
         #         </ns:author>
         #     </ns2:citation>
         path_from_pangeadataset = ns2 + 'citation/' + ns2 + 'author'
@@ -208,6 +211,13 @@ class PANGEA_ParserProfile(DatasetParser):
         #     </ns2:citation>
         path_from_pangeadataset = ns2 + 'citation/' + ns2 + 'title'
         ds_result['metadata']['pangeaDataset']['title'] = self._find_metadata_in_record_simple(record, path_from_pangeadataset)
+
+        # METADATA URI
+        #    <ns2:citation id="dataset786524">
+        #         <ns2:URI>pangaea.de:doi:10.1594/PANGAEA.786524</ns2:URI>
+        #     </ns2:citation>
+        path_from_pangeadataset = ns2 + 'citation/' + ns2 + 'URI'
+        ds_result['metadata']['pangeaDataset']['URI'] = self._find_metadata_in_record_simple(record, path_from_pangeadataset)
 
         # METADATA YEAR
         #    <ns2:citation id="dataset786524">
@@ -251,9 +261,9 @@ class PANGEA_ParserProfile(DatasetParser):
 
         # METADATA - LICENSE
         #<ns2:license id="license101">
-        #     <ns2:label>CC-BY-3.0</md:label>
-        #     <ns2:name>Creative Commons Attribution 3.0 Unported</md:name>
-        #     <ns2:URI>https://creativecommons.org/licenses/by/3.0/</md:URI>
+        #     <ns2:label>CC-BY-3.0</ns2:label>
+        #     <ns2:name>Creative Commons Attribution 3.0 Unported</ns2:name>
+        #     <ns2:URI>https://creativecommons.org/licenses/by/3.0/</ns2:URI>
         #</ns2:license>"
         path_from_pangeadataset = ns2 + 'license'
         subfields = [ns2 + 'label', ns2 + 'name', ns2 + 'URI']
@@ -270,9 +280,57 @@ class PANGEA_ParserProfile(DatasetParser):
 
         # METADATA KEYWORDS
         # <ns2:keywords>
-        #   <md:keyword id="keywords.term539" type="fromDatabase">ipy</ns2:keyword>
+        #   <ns2:keyword id="keywords.term539" type="fromDatabase">ipy</ns2:keyword>
         ds_result['metadata']['pangeaDataset']['keywords'] = self._find_keywords_in_record(record)
 
+        # METADATA - supplementTo
+        # <ns2:supplementTo id="ref36829">
+        #         <ns2:author id="ref36829.author42192">
+        #             <ns2:lastName>Colacevich</ns2:lastName>
+        #             <ns2:firstName>Andrea</ns2:firstName>
+        #             <ns2:eMail>colacevich2@unisi.it</ns2:eMail>
+        #         </ns2:author>
+        #         <ns2:author id="ref36829.author42193">
+        #             <ns2:lastName>Caruso</ns2:lastName>
+        #             <ns2:firstName>Tancredi</ns2:firstName>
+        #             <ns2:orcid>0000-0002-3607-9609</ns2:orcid>
+        #         </ns2:author>
+        #         <ns2:year>2009</ns2:year>
+        #         <ns2:title>Photosynthetic pigments in soils from northern Victoria Land (continental Antarctica) as proxies for soil algal community structure and function</ns2:title>
+        #         <ns2:source id="ref36829.journal14918" relatedTermIds="34058" type="journal">Soil Biology and Biochemistry</ns2:source>
+        #         <ns2:volume>41(10)</ns2:volume>
+        #         <ns2:URI>https://doi.org/10.1016/j.soilbio.2009.07.020</ns2:URI>
+        #         <ns2:pages>2105-2114</ns2:pages>
+        #     </ns2:supplementTo>
+        path_from_pangeadataset = ns2 + 'citation/' + ns2 + 'supplementTo'
+        subfields = [ns2 + 'title', ns2 + 'source', ns2 + 'URI', ns2 + 'volume', ns2 + 'pages', ns2 + 'year', ns2 + 'author']
+        subsubfields_target = [ns2 + 'author']
+        subsubfields = [ns2+'lastName', ns2+'firstName', ns2+'eMail', ns2+'orcid']
+        ds_result['metadata']['pangeaDataset']['supplementTo'] = self._find_metadata_in_record_three_levels(record,
+                                                                                          path_from_pangeadataset,
+                                                                                          'supplementTo', subfields, subsubfields_target, subsubfields)
+       # METADATA - reference
+        # <ns2:reference dataciteRelType="References" group="210" id="ref103803" relationType="Related to" relationTypeId="12" typeId="ref" >
+        #     <ns2:author id="ref103803.author74988" >
+        #         <ns2:lastName>Puy</ns2:lastName>
+        #         <ns2:firstName>Arnald</ns2:firstName>
+        #         <ns2:eMail>apuy@princeton.edu</ns2:eMail>
+        #         <ns2:orcid>0000-0001-9469-2156</ns2:orcid>
+        #     </ns2:author>
+        #     <ns2:prepubStatus>in press</ns2:prepubStatus>
+        #     <ns2:title>Current models underestimate future irrigated areas</ns2:title>
+        #     <ns2:source id="ref103803.journal6096" relatedTermIds="33974" type="journal" >Geophysical Research Letters</ns2:source>
+        #     <ns2:URI>https://doi.org/10.1029/2020GL087360</ns2:URI>
+        # </ns2:reference>
+
+        path_from_pangeadataset = ns2 + 'reference'
+        subfields = [ns2 + 'title', ns2 + 'source', ns2 + 'journal', ns2 + 'type',
+                     ns2 + 'URI', ns2 + 'volume', ns2 + 'pages', ns2 + 'year', ns2 + 'author']
+        subsubfields_target = [ns2 + 'author']
+        subsubfields = [ns2+'lastName', ns2+'firstName', ns2+'eMail', ns2+'orcid']
+        ds_result['metadata']['pangeaDataset']['reference'] = self._find_metadata_in_record_three_levels(record,
+                                                                                          path_from_pangeadataset,
+                                                                                          'reference', subfields, subsubfields_target, subsubfields)
         return ds_result
 
     def _get_pangea_setSpecs(self, record):
@@ -356,6 +414,39 @@ class PANGEA_ParserProfile(DatasetParser):
                     list_result.append(dict_result)
         return list_result
 
+    def _find_metadata_in_record_three_levels(self, record, path, metadata_name, subfields=[], subsubfields_target=[], subsubfields=[]):
+
+        target = './' + self.ns0 + 'metadata/' + self.ns2 + 'MetaData/' + path
+        metadata = record.findall(target)
+        list_result = []
+
+        for value in metadata:
+            result = {}
+            if not subfields:
+                result[metadata_name] = {metadata_name: value.text}
+                result.update(value.attrib)
+                list_result.append(result)
+            else:
+                dict_result = {metadata_name: {}}
+                for field in subfields:
+                    elem = value.find('./' + field)
+                    name = field.split('}',1)[1]
+
+                    if field in subsubfields_target:
+                        path_from_pangeadataset = path + '/' + field
+                        dict_result[metadata_name][name+'s'] = self._find_metadata_in_record(record, path_from_pangeadataset,
+                                                                                                        name, subsubfields)
+
+                    elif elem != None and elem.attrib:
+                        dict_result[metadata_name][name] = {name: elem.text}
+                        dict_result[metadata_name][name].update(elem.attrib)
+                    elif elem != None:
+                        dict_result[metadata_name][name] = elem.text
+
+                if dict_result[metadata_name]:
+                    list_result.append(dict_result)
+        return list_result
+
     def parse_PANGEA_RECORD_DICT_to_LDM_CKAN_DICT(self, pangea_dict):
 
         ldm_dict = self._get_LDM_vdataset_template()
@@ -372,7 +463,11 @@ class PANGEA_ParserProfile(DatasetParser):
 
         ldm_dict['doi'] = identifier
         ldm_dict['doi_date_published'] = publication_year
-        ldm_dict['url'] = 'https://doi.org/' + identifier
+
+        url = self._get_pangea_value(pangea_metadata, ['URI'])
+        if not url:
+            url = 'https://doi.org/' + identifier
+        ldm_dict['url'] = url
 
         # Creation date
         ldm_dict['source_metadata_created'] = publication_year
@@ -417,6 +512,12 @@ class PANGEA_ParserProfile(DatasetParser):
             resource_type_txt = resource
 
         ldm_dict['resource_type'] = resource_type_txt
+
+        # Related identifiers from "supplementTo"
+        ldm_dict = self._get_pangea_related_identifiers_supplementTo(pangea_metadata, ldm_dict)
+
+        # Related identifiersfrom "reference"
+        ldm_dict = self._get_pangea_related_identifiers_reference(pangea_metadata, ldm_dict)
 
         return ldm_dict
 
@@ -496,6 +597,78 @@ class PANGEA_ParserProfile(DatasetParser):
 
         return ldm_dict
 
+    def _get_pangea_related_identifiers_supplementTo(self, pangea_metadata, ldm_dict):
+        return self._get_pangea_related_identifiers(pangea_metadata, ldm_dict, 'IsSupplementTo')
+
+    def _get_pangea_related_identifiers_reference(self, pangea_metadata, ldm_dict):
+        return self._get_pangea_related_identifiers(pangea_metadata, ldm_dict, 'References')
+
+
+    def _get_pangea_related_identifiers(self, pangea_metadata, ldm_dict, ref_type):
+
+        if ref_type == 'IsSupplementTo':
+            r_identifiers = pangea_metadata.get('supplementTo', [])
+            search_field = 'supplementTo'
+        elif ref_type == 'References':
+            r_identifiers = pangea_metadata.get('reference', [])
+            search_field = 'reference'
+
+        r_identifiers_list = []
+
+        for r_id in r_identifiers:
+            identifier = self._get_pangea_value(r_id, [search_field, 'URI'])
+            id_type = 'DOI'
+            id_relation = ref_type
+            title = self._get_pangea_value(r_id, [search_field, 'title'])
+            source = self._get_pangea_value(r_id, [search_field, 'source', 'source'])
+            # if source:
+            #     source = source.get('source', '')
+            year = self._get_pangea_value(r_id, [search_field, 'year'])
+
+            authors_list = self._get_pangea_value(r_id, [search_field, 'authors'])
+            author_res = self._get_authors_data_from_related_identifiers(authors_list)
+
+            # create ckan related identifiers dict
+            r_identifier_dict = {"identifier": identifier,
+                                 "identifier_type": id_type,
+                                 "relation_type": id_relation,
+                                 "title": title,
+                                 "year": year,
+                                 "authors": author_res['authors'],
+                                 "orcid_authors": author_res['orcid_authors'],
+                                 "email_authors": author_res['email_authors'],
+                                 "source": source}
+
+            r_identifiers_list.append(r_identifier_dict)
+        if r_identifiers_list:
+            if 'related_identifiers' in ldm_dict and len(ldm_dict['related_identifiers']):
+                ldm_dict['related_identifiers'] += r_identifiers_list
+            else:
+                ldm_dict['related_identifiers'] = r_identifiers_list
+
+        return ldm_dict
+
+    def _get_authors_data_from_related_identifiers(self, authors_list):
+
+        author_res = ''
+        orcid_author_res = ''
+        email_author_res = ''
+
+        for author in authors_list:
+            author_dict = author['author']
+            if author_res:
+                author_res += ','
+                orcid_author_res += ','
+                email_author_res += ','
+            author_res += author_dict.get('lastName', '') + ' ' + author_dict.get('firstName', '')
+            orcid_author_res += author_dict.get('orcid', '')
+            email_author_res += author_dict.get('eMail', '')
+
+        return {"authors": author_res,
+                "orcid_authors": orcid_author_res,
+                "email_authors": email_author_res}
+
+
     def _get_pangea_value(self, pangea_metadata, list_fields=[]):
         ''' Returns the value in pangea's metadata dict referenced by
         the path in list_fields parameter '''
@@ -509,7 +682,10 @@ class PANGEA_ParserProfile(DatasetParser):
                 if not isinstance(mt_dict, dict):
                     value = mt_dict
             else:
-                value = mt_dict.get(field, "")
+                if not isinstance(mt_dict, dict):
+                    value = mt_dict
+                else:
+                    value = mt_dict.get(field, "")
 
         return value
 
@@ -523,7 +699,7 @@ class PANGEA_ParserProfile(DatasetParser):
             "type": "vdataset",
             "source_metadata_created": "",
             "source_metadata_modified": "",
-            "owner_org": "pangea",
+            "owner_org": "pangaea",
             "author": "",
             "author_email": "",
         #     "creator_user_id": "17755db4-395a-4b3b-ac09-e8e3484ca700",
@@ -671,7 +847,7 @@ class PANGEA_ParserProfile(DatasetParser):
 
     def check_current_schema(self):
         '''
-            Using the PANGEA harvesting tool determine if the current schema is matching the schema implemented.
+            Using the PANGAEA harvesting tool determine if the current schema is matching the schema implemented.
             Returning a dict with the results of comparing the metadata schema used in the code
             with the metadata schema retrieved by remote servers
 
@@ -722,8 +898,8 @@ class PANGEA_ParserProfile(DatasetParser):
 
     def get_organization(self, name='radar'):
         '''
-            In PANGEA Datasets are not related to a specific organization.
-            PANGEA's imported datasets allways belongs to PANGEA organization in LDM.
+            In PANGAEA Datasets are not related to a specific organization.
+            PANGAEA's imported datasets allways belongs to PANGAEA organization in LDM.
 
             Returns: a dictionary with the organization's metadata
         '''
@@ -738,7 +914,7 @@ class PANGEA_ParserProfile(DatasetParser):
 
         org_dict = {
         "approval_status": "approved",
-        "description": "PANGEA (Data Publisher for Earth & Environmental Science): The information system PANGAEA is "
+        "description": "PANGAEA (Data Publisher for Earth & Environmental Science): The information system PANGAEA is "
                        "operated as an Open Access library aimed at archiving, publishing and distributing georeferenced "
                        "data from earth system research. PANGAEA guarantees long-term availability (greater than 10 years) "
                        "of its content. PANGAEA is open to any project, institution, or individual scientist to use or to "
@@ -746,13 +922,13 @@ class PANGEA_ParserProfile(DatasetParser):
                        "and models/simulations. Citability, comprehensive metadata descriptions, interoperability of data "
                        "and metadata, a high degree of structural and semantic harmonization of the data inventory as "
                        "well as the commitment of the hosting institutions ensures FAIRness of archived data.",
-        "display_name": "PANGEA",
+        "display_name": "PANGAEA",
         "image_display_url": "pangea-logo.png",
         "image_url": "pangea-logo.png",
         "is_organization": True,
-        "name": "pangea",
+        "name": "pangaea",
         "state": "active",
-        "title": "PANGEA (Agriculture)",
+        "title": "PANGAEA (Agriculture)",
         "type": "organization",
         }
         return org_dict
@@ -775,6 +951,9 @@ class PANGEA_ParserProfile(DatasetParser):
 
 
     def should_be_updated(self, local_dataset, remote_dataset):
+
+        if self.force_update:
+            return True
 
         result = False
         exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'tags']
@@ -856,10 +1035,10 @@ class PANGEA_ParserProfile(DatasetParser):
         self.logger.message = ""
 
         def infos_searching_ds(data):
-            self.logger.message = "Searching Datasets in PANGEA's harvesting tool."
+            self.logger.message = "Searching Datasets in PANGAEA's harvesting tool."
 
         def error_API(data):
-            self.logger.message = "Error Connecting PANGEA's harvesting tool: " + data
+            self.logger.message = "Error Connecting PANGAEA's harvesting tool: " + data
 
         def error_api_data(data):
             self.logger.message = "Error retrieving data from API: " + data
@@ -871,7 +1050,7 @@ class PANGEA_ParserProfile(DatasetParser):
             self.logger.message = "Metadata found with name: " + data
 
         def infos_searching_org(data):
-            self.logger.message = "Searching Organizaion in PANGEA API. Name: " + data
+            self.logger.message = "Searching Organizaion in PANGAEA API. Name: " + data
 
         def infos_org_found(data):
             self.logger.message = "Organization found: " + data

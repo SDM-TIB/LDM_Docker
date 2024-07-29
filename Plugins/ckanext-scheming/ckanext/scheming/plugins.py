@@ -14,7 +14,7 @@ from ckanext.scheming.tib_services import update_service_dataset_relationship, a
 
 from ckanext.scheming.tib_resource_autoupdate import *
 
-
+import requests
 
 try:
     from paste.reloader import watch_file
@@ -46,12 +46,15 @@ from ckantoolkit import (
 from ckanext.scheming import helpers, validation, logic, loader
 from ckanext.scheming.errors import SchemingException
 
+
 ignore_missing = get_validator('ignore_missing')
 not_empty = get_validator('not_empty')
 convert_to_extras = get_converter('convert_to_extras')
 convert_from_extras = get_converter('convert_from_extras')
 
 DEFAULT_PRESETS = 'ckanext.scheming:presets.json'
+
+STOP_UPDATE = True
 
 log = logging.getLogger(__name__)
 
@@ -247,7 +250,13 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         '''
         log.info("Adding service-datasets relationships to Database\n")
 
-        update_service_dataset_relationship(pkg_dict)
+        global STOP_UPDATE
+        log.info(str(STOP_UPDATE))
+        if STOP_UPDATE:
+            update_service_dataset_relationship(pkg_dict)
+            self.connecting_LDM_to_ORKG(context,pkg_dict)
+        else:
+            STOP_UPDATE = True
 
         #return pkg_dict
 
@@ -260,6 +269,7 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         log.info("Adding service-datasets relationships to Database\n")
 
         update_service_dataset_relationship(pkg_dict)
+        self.connecting_LDM_to_ORKG(context,pkg_dict)
 
     # IPackageController
     def after_show(self, context, pkg_dict):
@@ -269,6 +279,63 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         # as update resources in resource autoupdate plugin
         if 'user' in context and context['user']:
             pkg_dict = add_service_data_to_dataset_show(pkg_dict)
+
+    def connecting_LDM_to_ORKG(self,context,pkg_dict):
+        global STOP_UPDATE
+        STOP_UPDATE = False
+        log.info(str(STOP_UPDATE))
+        package_id = pkg_dict.get('id')
+        doi = pkg_dict['defined_in']
+        orkg = get_paper_link_by_doi(doi)
+        pkg = model.Package.get(package_id)
+        if orkg == "" or orkg == None:
+            new_value = "" 
+        else:
+            #self._save_to_package_extra(package_id, 'Link to ORKG', orkg)
+            new_value = orkg
+
+        pkg_dict = toolkit.get_action('package_show')(context, {'id': package_id})
+
+        # Update the specific field value
+        pkg_dict['link_orkg'] = new_value
+        log.info(pkg_dict)
+        log.info(new_value)
+        # Call package_update to update the package
+        updated_package = toolkit.get_action('package_update')(context, pkg_dict)
+
+    def _save_to_package_extra(self, package_id, key, value):
+        # Create or update a custom field in the package_extra table
+        package_extra = model.Session.query(model.PackageExtra).filter_by(
+            package_id=package_id, key=key).first()
+        if package_extra:
+            package_extra.value = value
+        else:
+            package_extra = model.PackageExtra(
+                package_id=package_id,
+                key=key,
+                value=value
+            )
+            model.Session.add(package_extra)
+
+        model.Session.commit()
+
+    def delete_custom_value(self, context, data_dict):
+        package_id = data_dict.get('package_id')
+        key = 'Link to ORKG'
+
+        if not package_id or not key:
+            raise toolkit.ValidationError('package_id and key are required')
+
+        package_extra = model.Session.query(model.PackageExtra).filter_by(
+            package_id=package_id, key=key).first()
+
+        if package_extra:
+            model.Session.delete(package_extra)
+            model.Session.commit()
+            return {'success': True, 'message': 'Custom value removed successfully.'}
+        else:
+            return {'success': False, 'message': 'Custom value not found.'}
+        
 
     # END Addings
     # ***********
@@ -710,3 +777,29 @@ def _expand_schemas(schemas):
 
         out[name] = schema
     return out
+
+def get_paper_link_by_doi(doi):
+    
+    if "https://doi.org/" in doi:
+        doi = doi.replace("https://doi.org/","")
+    search_url = f"https://www.orkg.org/orkg/api/papers?doi={doi}"
+
+    response = requests.get(search_url)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            paper_id = data["content"][0]['id']
+            paper_url = f"https://www.orkg.org/orkg/paper/{paper_id}"
+            log.info(paper_url)
+            if paper_url == "https://www.orkg.org/orkg/paper/R1000":
+                return ""
+            else:
+                return paper_url
+        else:
+            print("Paper not found in ORKG.")
+            return None
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
