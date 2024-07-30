@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block page %}
+    {% asset 'datacomparison/main' %}
+
+    {% block comparison %}{% endblock %}
+
+    <div class="total-rows" id="totalRows"></div>
+
+    <!-- Tab links -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(this, 'table')" id="defaultOpen">Table</button>
+        <button class="tablinks" onclick="openTab(this, 'graph')">Graph</button>
+    </div>
+
+    <!-- Tab content -->
+    <div id="table" class="tabcontent">
+        <div class="container flex py-6">
+            <table id="comparison-table" class="display" style="width: 100%;"></table>
+        </div>
+    </div>
+    <div id="graph" class="tabcontent">
+        <div class="container flex py-6">
+            <div class="w-3/4 py-3 mr-4">
+                <div id="guidingText" class="dx-guiding-text">Select chart type, group column (abscissa x-axis), and series (ordinate y-axis) on the right-hand side panel.</div>
+                <div id="gd"></div>
+            </div>
+            <div class="w-1/4">
+                <div class="text-left chart-builder">
+                    <form class="p-3" id="chartBuilder">
+                        <div class="flex flex-wrap">
+                            <div class="w-full mb-3">
+                                <label class="text-white font-bold text-xs" for="chartType">Chart Type</label>
+                                <div class="relative">
+                                    <select class="w-full mt-1 py-2 px-2 pr-8 block border rounded border-gray-200 leading-tight bg-gray-200 focus:outline-none focus:bg-white focus:border-gray-500" id="chartType" name="chartType" required>
+                                        <option value="line">line</option>
+                                        <option value="scatter">scatter</option>
+                                        <option value="bar">bar</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="w-full mb-3">
+                                <label class="text-white font-bold text-xs" for="xAxis">Group Column</label>
+                                <div class="relative">
+                                    <select class="w-full mt-1 py-2 px-2 pr-8 block border rounded border-gray-200 leading-tight bg-gray-200 focus:outline-none focus:bg-white focus:border-gray-500" id="xAxis" name="xAxis" required></select>
+                                </div>
+                            </div>
+                            <div class="w-full">
+                                <label class="text-white font-bold text-xs" for="yAxis">Series</label>
+                                <div id="yAxis" role="group"></div>
+                            </div>
+                            <div class="w-full mb-3">
+                                <label class="block font-bold text-white">
+                                    <input class="ml-0 mr-2 leading-tight" type="checkbox" id="logScale" name="logScale" value="log">
+                                    <span class="text-xs">Use log scale for y-axis</span>
+                                </label>
+                            </div>
+                            <div class="w-full mt-2 mb-3">
+                                <div class="flex justify-center">
+                                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Generate chart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <div class="data-explorer" id="data-explorer-comparison" data-datapackage="{{ h.dump_json({ "api": api, "resources": resources }) }}"> </div>
+
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block custom_styles %}{% endblock %}
