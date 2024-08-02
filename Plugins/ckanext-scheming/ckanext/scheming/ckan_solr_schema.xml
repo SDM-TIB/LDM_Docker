@@ -169,7 +169,7 @@ attribute with the form `ckan-X.Y` -->
 	<field name="extra_authors" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="publishers" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="subject_areas" type="string" indexed="true" stored="true" multiValued="true"/>
-
+    <field name="related_identifiers" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="false"/>
 

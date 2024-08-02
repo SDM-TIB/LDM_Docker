@@ -70,7 +70,7 @@ def get_local_datasets_for_services(user, service_id, ds_list=''):
                 org_name_styled = org_name.replace("-", " ").title()
                 organizations.update({org_name: {'title': org_name_styled,
                                                  'name': org_name }})
-            ds_source = 'Local' if "repository_name" not in dataset  else dataset['repository_name']
+            ds_source = 'Local' if "repository_name" not in dataset or not dataset['repository_name'] else dataset['repository_name']
             ds_source = sources[ds_source]['id']
             datasets.update({ dataset['name']: {'id': dataset['id'],
                                                 'name': dataset['name'],
@@ -204,7 +204,11 @@ def add_services_data_to_dataset(ds_dict):
 
     services = []
     if serv_list:
-        services = get_local_services_for_datasets_data(toolkit.g.user, ds_id, serv_list)
+        try:
+            user = toolkit.g.user
+        except:
+            user = 'admin'
+        services = get_local_services_for_datasets_data(user, ds_id, serv_list)
 
     if services:
         ds_dict['services'] = {}
@@ -231,7 +235,12 @@ def add_datasets_served_to_service(serv_dict):
 
     dsets = []
     if ds_list:
-        dsets = get_local_datasets_for_services_data(toolkit.g.user, service_id, ds_list)
+        try:
+            user = toolkit.g.user
+        except:
+            user = 'admin'
+
+        dsets = get_local_datasets_for_services_data(user, service_id, ds_list)
 
     if dsets:
         serv_dict['datasets_served'] = {}
