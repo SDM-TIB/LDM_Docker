@@ -7,7 +7,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
-  jn_config:
+  jupyterhub_data:
 
 services:
   ckan:
@@ -29,7 +29,7 @@ services:
       - redis
 #      - pusher
 #      - postfix
-      - jupyternotebook
+      - jupyterhub
       
     depends_on:
       - db
@@ -37,7 +37,7 @@ services:
       - redis
 #      - pusher
 #      - postfix
-      - jupyternotebook
+      - jupyterhub
     ports:
       - "5000:5000"
     env_file:
@@ -99,22 +99,25 @@ services:
 #    networks:
 #      - ldmnetwork    
 
-  jupyternotebook:
+  jupyterhub:
+    container_name: jupyterhub
     build: 
-      context: ./jupyternotebook/
+      context: ./jupyterhub/
       args:
-          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
-          - CKAN_SITE_URL=${CKAN_SITE_URL}
           - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
-    image: jupyter/datascience-notebook
-    container_name: jupyternotebook
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
+    image: my_jupyterhub
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py
+      - jupyterhub_data:/srv/jupyterhub/data
+      - ckan_storage:${CKAN_STORAGE_PATH}:rw
     ports:
       - "8000:8000"
+      - "6000:6000"
     env_file:
-      - .env  
-    volumes:
-      - ckan_storage:${CKAN_STORAGE_PATH}:ro
-      - jn_config:/home/jovyan/.jupyter
+      - .env
     networks:
       - ldmnetwork
 

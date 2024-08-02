@@ -1,4 +1,4 @@
-FROM jupyterhub/jupyterhub:4.1.5
+FROM jupyterhub/jupyterhub:4.1.6
 ARG CKAN_STORAGE_PATH
 ARG CKAN_SITE_URL
 
