@@ -5,28 +5,19 @@
 
     <div class="container">
       <div class="row row1">
-
         <div class="module-content box">
-		
-		{% block search %}
+          {% block search %}
             {% snippet 'home/snippets/search.html' %}
           {% endblock %}
-  
-
-        {% if h.tibtheme_is_TIBservice_instance() %}
-          {% snippet 'home/snippets/home_text_TIB.html' %}
-        {% else %}
-          {% snippet 'home/snippets/home_text_default.html' %}
-        {% endif %}
-
-          
+          {% block stats %}
+            {% snippet 'home/snippets/stats.html' %}
+          {% endblock %}
         </div>
         <div class="col-md-6 col2">
         </div>
       </div>
     </div>
   </div>
-
   <div class="main">
     <div class="container">
       <div class="row row2">
@@ -44,3 +35,4 @@
     </div>
   </div>
 </div>
+

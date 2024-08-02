@@ -287,9 +287,19 @@ img.object-type {
     position: relative;
 }
 
+.feature {
+  margin-bottom: 10px;
+}
+
 .dataset-item {
     border-bottom: 1px dotted #444b42 !important;
     border-radius:22px;
+}
+
+.dataset-item:last-of-type {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 
@@ -604,3 +614,24 @@ a.btn_check_all {
 }
 
 /**************************************************/
+
+/* arrow glyph for showing collapsible panels */
+.panel-heading .accordion-arrow-toggle:before {
+   font-family: FontAwesome;
+   content: "\f078";
+   float: right;
+   color: silver;
+   padding-top: 15px;
+}
+
+.panel-heading .accordion-arrow-toggle.collapsed:before {
+   content: "\f054";
+   color: silver;
+   padding-top: 15px;
+}
+
+/* sets the link to the width of the entire panel title */
+.panel-title > a {
+   display: block;
+}
+
