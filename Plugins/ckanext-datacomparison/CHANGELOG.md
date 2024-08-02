@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.5.2 - 2024-07-29
+- Update dependencies
+
 # v0.5.1 - 2024-05-24
 - Update the label of the button for chart generation
 

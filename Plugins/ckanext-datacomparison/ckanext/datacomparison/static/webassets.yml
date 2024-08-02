@@ -1,7 +1,7 @@
 main-css:
   output: datacomparison/%(version)s_datacomparison.css
   contents:
-    - css/dataTables-2.0.4.min.css
+    - css/dataTables-2.1.2.min.css
     - css/searchBuilder.dataTables-1.7.1.min.css
     - css/datacomparison-custom.css
 
@@ -12,10 +12,10 @@ main:
       - vendor/jquery
       - datacomparison/main-css
   contents:
-    - js/dataTables-2.0.4.min.js
+    - js/dataTables-2.1.2.min.js
     - js/dataTables.searchBuilder-1.7.1.min.js
-    - js/papaparse-5.0.2.min.js
-    - js/plotly.2.32.0.min.js
+    - js/papaparse-5.4.1.min.js
+    - js/plotly-2.34.0.min.js
     - js/dataexplorer.js
 
 comparison:
