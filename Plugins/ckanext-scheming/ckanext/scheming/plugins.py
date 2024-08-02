@@ -298,8 +298,8 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
 
         # Update the specific field value
         pkg_dict['link_orkg'] = new_value
-        log.info(pkg_dict)
-        log.info(new_value)
+        #log.info(pkg_dict)
+        #log.info(new_value)
         # Call package_update to update the package
         updated_package = toolkit.get_action('package_update')(context, pkg_dict)
 
@@ -788,7 +788,7 @@ def get_paper_link_by_doi(doi):
 
     if response.status_code == 200:
         data = response.json()
-        if data:
+        if data["content"] != []:
             paper_id = data["content"][0]['id']
             paper_url = f"https://www.orkg.org/orkg/paper/{paper_id}"
             log.info(paper_url)
@@ -797,9 +797,9 @@ def get_paper_link_by_doi(doi):
             else:
                 return paper_url
         else:
-            print("Paper not found in ORKG.")
+            log.info("Paper not found in ORKG.")
             return None
     else:
-        print(f"Error: {response.status_code}")
+        log.info(f"Error: {response.status_code}")
         return None
 

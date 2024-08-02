@@ -1,0 +1,14 @@
+{% ckan_extends %}
+
+{% block export_info %}
+{% set pubby_url = h.ldmsparql_get_pubby_URL_for_dataset(pkg) %}
+{% if pubby_url %}
+<section class="module module-narrow module-shallow export">
+      <h2 class="module-heading"><i class="fa fa-share-square-o"></i> {{_('Linked Metadata')}}</h2>
+      <p class="module-content">
+        <a target="_blank" href="{{pubby_url}}" class="btn btn-info" role="button"><img src="{{h.url_for('home')}}/images/linked_data.png" width="20" /> See Linked Metadata (Pubby)</a>
+      </p>
+    </section>
+{% endif %}
+{{ super() }}
+{% endblock %}

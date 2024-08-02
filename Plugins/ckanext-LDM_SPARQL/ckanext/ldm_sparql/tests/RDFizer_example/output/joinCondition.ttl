@@ -1,0 +1,125 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix iasis: <http://project-iasis.eu/vocab/> .
+@base <http://project-iasis.eu/> .
+
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/Chromosome/chr1> a iasis:chr.
+<http://project-iasis.eu/BioType/processed_transcript> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/processed_transcript> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/processed_transcript> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/transcribed_unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/unprocessed_pseudogene> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/miRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/miRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+
+<http://project-iasis.eu/BioType/lincRNA> a iasis:BioType.
+		iasis:isRelatedTo <http://project-iasis.eu/Chromosome/chr1>.
+

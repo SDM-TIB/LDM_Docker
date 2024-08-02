@@ -164,6 +164,13 @@
         "form_snippet": "service_selection_tool.html",
         "display_snippet": null
       }
+    },
+    {
+      "preset_name": "readonly_form",
+      "values": {
+        "form_snippet": "readonly_form.html",
+        "display_snippet": "link.html"
+      }
     }
   ]
 }
