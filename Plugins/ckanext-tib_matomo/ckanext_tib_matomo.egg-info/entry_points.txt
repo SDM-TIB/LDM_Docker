@@ -1,7 +1,0 @@
-
-        [ckan.plugins]
-        tib_matomo=ckanext.tib_matomo.plugin:TibMatomoPlugin
-
-        [babel.extractors]
-        ckan = ckan.lib.extract:extract_ckan
-    

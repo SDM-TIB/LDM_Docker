@@ -1,7 +1,0 @@
-
-        [ckan.plugins]
-        fedorkg=ckanext.fedorkg.plugin:FedORKG
-
-        [babel.extractors]
-        ckan = ckan.lib.extract:extract_ckan
-    

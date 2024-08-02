@@ -1,4 +1,0 @@
-
-        [ckan.plugins]
-            doi=ckanext.doi.plugin:DOIPlugin
-        
