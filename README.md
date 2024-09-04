@@ -1,6 +1,6 @@
 # The Leibniz Data Manager (LDM)
 
-The Leibniz Data Manager (LDM) is an open source and free web-based application for Research Data Management (RDM). LDM delivers different distributions to best fit the specific requirements of various customers, e.g., institutes and research groups performing RDM in various scientific disciplines. The LDM distributions are designed, maintained, and curated by  TIB  and  L3S.
+The Leibniz Data Manager (LDM) is an open source and free web-based application for Research Data Management (RDM). LDM delivers different distributions to best fit the specific requirements of various customers, e.g., institutes and research groups performing RDM in various scientific disciplines. The LDM distributions are designed, maintained, and curated by  [TIB](https://www.tib.eu/en/)  and  [L3S](https://www.l3s.de/en).
 
 The prototype currently offers the following functions for the visualization of research data:
 
@@ -15,9 +15,9 @@ The RDM arelated concepts, the LDM distributions, and the deployment methods are
 
 Besides the Leibniz Data Manager, TIB provides further services around research data management for institutions and researchers. This includes a DOI service, support in choosing the right repositories, and in publishing and archiving research data, as well as training and advisory services. Please refer to our homepage for a full service description: https://www.tib.eu/en/publishing-archiving/research-data/
 
-More info about the LDM project can be found on the TIB webpage and the last updated code in the GitHub repository.
+More info about the LDM project can be found on the [TIB webpage](https://projects.tib.eu/datamanager/).
 
-Please, contact us at service.ldm@tib.eu if you have comments or questions.
+Please, contact us at [service.ldm@tib.eu](service.ldm@tib.eu) if you have comments or questions.
 
 
 # LDM Features
