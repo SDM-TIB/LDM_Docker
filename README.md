@@ -26,6 +26,5 @@ Please, contact us at service.ldm@tib.eu if you have comments or questions.
 
 
 ## Wikidata Explorer Feature
-With this feature the user is able to extend CSV datasets with existing information in the Wikidata KG. The tool applies entity linking to all concepts in the same column and enable the user to use the extracted entities to extend the dataset. Here below is a demo video of how the tool works:
+With this feature the user is able to extend CSV datasets with existing information in the Wikidata KG. The tool applies entity linking to all concepts in the same column and enable the user to use the extracted entities to extend the dataset. Here below is a demo video of how the tool works: [Video](https://service.tib.eu/ldmservice/dataset/66e93a29-1dc3-48a3-9611-02c29e221cec/resource/fa0b0487-fee8-43f6-a7bc-23657e8e5f53/download/ldm-falcon.mp4)
 
-<iframe width="560" height="315" src="[https://service.tib.eu/ldmservice/dataset/66e93a29-1dc3-48a3-9611-02c29e221cec/resource/fa0b0487-fee8-43f6-a7bc-23657e8e5f53/download/ldm-falcon.mp4](https://service.tib.eu/ldmservice/dataset/66e93a29-1dc3-48a3-9611-02c29e221cec/resource/fa0b0487-fee8-43f6-a7bc-23657e8e5f53/download/ldm-falcon.mp4)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
