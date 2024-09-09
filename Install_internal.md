@@ -104,7 +104,12 @@ Update the `.env` file in the root directory where the LDM Docker files are loca
 
 ```dotenv
 CKAN_SITE_URL=https://service.tib.eu/ldm_coypu/ldmservice/
+# JupyterHub variables
 CKAN_JUPYTERNOTEBOOK_URL=https://service.tib.eu/ldm_coypu/ldmjupyter/
+CKAN_JUPYTERHUB_BASE_URL=/ldm_coypu/ldmjupyter
+CKAN_NETWORK=ldmnetwork
+CKAN_STORAGE_NOTEBOOK=/data/LDM_Installer/LDM_Docker_Server_Installed/docker/LDM_data/docker_ckan_storage/notebook
+CKAN_API_JUPYTERHUB=http://jupyterhub:6000
 ```
 
 ## 3. CKAN Entry Point Configuration
