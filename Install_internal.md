@@ -112,6 +112,8 @@ CKAN_STORAGE_NOTEBOOK=/data/LDM_Installer/LDM_Docker_Server_Installed/docker/LDM
 CKAN_API_JUPYTERHUB=http://jupyterhub:6000
 ```
 
+Note: DeTrusty expects the source description file to be named _rdfmts.json_ and located in ${CKAN_STORAGE_PATH}/fedorkg.
+
 ## 3. CKAN Entry Point Configuration
 
 Adjust the CKAN configuration to match your instance URL:
