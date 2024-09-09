@@ -24,7 +24,7 @@ def get_data_from_api():
     response = requests.get(API_URL+'/get_user')
     if response.status_code == 200:
         data = response.json()
-        print(data)
+        log.info(data)
         return data['user']
     else:
         print('Failed to retrieve data from API')
@@ -96,9 +96,17 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
         url_type = data_dict['resource'].get('url_type')
 
         session_id = generate_session_id()
-        # log.info(session_id)
+        log.info(session_id)
         if session_id in dict_user_session.values():
             user = get_user_id(session_id)
+            running_users = requests.get(API_URL+'/running_user')
+            running_users_list = running_users.json()
+            log.info(running_users_list)
+            if user in running_users_list:
+                dict_user_session.pop(user)
+                user = get_data_from_api()
+                dict_user_session[user] = session_id
+
         else:
             user = get_data_from_api()
             if user is None:
@@ -107,6 +115,7 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
             dict_user_session[user] = session_id
         jn_url = self.url_nb+"user/" + user + "/notebooks/"
         log.info(dict_user_session)
+        log.info(jn_url)
         # jn_url = "http://localhost:8000/user/" + get_data_from_api() + "/notebooks/"
         self.file = JNFile(filename, resource_id, resource_date, self.jn_filepath, jn_url, url_type)
         # self.file = JNFile(filename, resource_id, resource_date, self.jn_filepath, self.jn_url, url_type)
