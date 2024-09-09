@@ -1,11 +1,9 @@
 from dockerspawner import DockerSpawner
-# from nativeauthenticator import NativeAuthenticator
 import os
 import sys
 from tornado import web, gen
-# from subprocess import check_call
 from traitlets import Unicode
-from jupyterhub.auth import Authenticator  # DummyAuthenticator #Authenticator
+from jupyterhub.auth import Authenticator
 from urllib.parse import urlparse
 import requests
 
@@ -23,23 +21,11 @@ def get_guest_list():
     return user_list
 
 
-def remove_user_from_ckan(username):
-    ckan_url = 'http://ckan:6500/rm_session_user'
-    data = {'username': username}
-
-    response = requests.post(ckan_url, json=data)
-
-    if response.status_code == 200:
-        print('Session removed successfully from CKAN user_session dictionary')
-    else:
-        print('Failed to remove session from CKAN user_session dictionary')
-
-
 c.Authenticator.auto_login = True
 c.JupyterHub.allow_named_servers = True
 
 c.JupyterHub.bind_url = 'http://localhost:8000'
-c.JupyterHub.base_url = '/ldmjupyter'
+c.JupyterHub.base_url = os.getenv('CKAN_JUPYTERHUB_BASE_URL')
 
 
 class DummyAuthenticator(Authenticator):
@@ -66,7 +52,6 @@ class DummyAuthenticator(Authenticator):
         return username
 
 
-# c.JupyterHub.authenticator_class = NativeAuthenticator #CustomNativeAuthenticator  #NativeAuthenticator
 c.JupyterHub.authenticator_class = DummyAuthenticator
 
 c.GenericOAuthenticator.enable_auth_state = True
@@ -74,7 +59,7 @@ c.Spawner.http_timeout = 300
 c.JupyterHub.log_level = 'DEBUG' # 'WARN'
 c.JupyterHub.hub_ip = '0.0.0.0'
 
-c.DockerSpawner.network_name = 'ldmnetwork'
+c.DockerSpawner.network_name = os.getenv('CKAN_NETWORK')
 
 c.DockerSpawner.remove = True
 c.DockerSpawner.stop = True
@@ -87,7 +72,7 @@ class GuestDockerSpawner(DockerSpawner):
     def start(self):
         if self.user.name in self.user_list:
             # add team volume to volumes
-            self.volumes['/data/LDM_Installer/LDM_Docker_Server_Installed/docker/LDM_data/docker_ckan_storage/notebook'] = {
+            self.volumes[os.getenv('CKAN_STORAGE_NOTEBOOK')] = {
             # self.volumes['/var/lib/docker/volumes/docker_ckan_storage/_data/notebook'] = {
                 # self.volumes['/var/lib/ckan/notebook'] = {
                 'bind': self.notebook_dir, #'/home/shared',
@@ -106,26 +91,22 @@ class GuestDockerSpawner(DockerSpawner):
                 'mode': 'ro',  # or ro for read-only; rw
             }
             # self.notebook_dir = '/home/shared'
-        return super().start()
+        return super().start() #return super().start()
 
 
 c.JupyterHub.spawner_class = GuestDockerSpawner  # DockerSpawner
 # c.NativeAuthenticator.create_system_users = True
 
-# c.Spawner.args = ['--NotebookApp.tornado_settings={"headers":{"Content-Security-Policy": "frame-ancestors * self 0.0.0.0:5000"}}']
-# c.JupyterHub.tornado_settings = { 'headers': { 'Content-Security-Policy': "frame-ancestors * self 0.0.0.0:5000"} }
-# self host_ip:port
+
 c.Spawner.args = ['--NotebookApp.tornado_settings={"headers":{"Content-Security-Policy": "frame-ancestors *;"}}']
 c.JupyterHub.tornado_settings = {'headers': {'Content-Security-Policy': "frame-ancestors *;"}}
 
 
-# notebook_dir = os.environ.get('CKAN_STORAGE_PATH') +'/notebook' #or '/home/jovyan/work'
 notebook_dir = '/home/jovyan/work'
 c.DockerSpawner.notebook_dir = notebook_dir  # 'LDM_examples_files/RESOURCES/jupyternotebooks/notebook'
 
-# c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
 
-c.DockerSpawner.image = "jupyter/datascience-notebook:2023-10-20"
+c.DockerSpawner.image = "jupyter/datascience-notebook:latest"
 c.Spawner.mem_limit = '1G'
 # Persistence
 c.JupyterHub.db_url = "sqlite:///data/jupyterhub.sqlite"
@@ -148,9 +129,8 @@ c.JupyterHub.services = [
         'command': [
             sys.executable,
             '-m', 'jupyterhub_idle_culler',
-            '--timeout=180',
-#            '--cull-every=120', # Check every x minutes
-#            '--cull-users', # Cull users
+            '--timeout=1200',
+            '--cull-users', # Cull users
 #            '--remove-users' # Remove users
         ],
     },
@@ -169,10 +149,11 @@ c.JupyterHub.load_roles = [
     }
 ]
 
+# c.DockerSpawner.post_stop_hook = GuestDockerSpawner.post_stop_hook
+
 # Shutdown user servers on logout
 c.JupyterHub.shutdown_on_logout = True
 
-# c.Application.log_level = 'INFO'
 
 # http://localhost:8000/hub/authorize
 # http://localhost:8000/user/myadmin/lab

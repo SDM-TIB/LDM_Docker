@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 # Set the URL of your JupyterHub instance
 url_nb = os.getenv('CKAN_JUPYTERNOTEBOOK_URL')
 hub_url = url_nb + 'hub/api/users'
-# hub_url = 'http://ldm01.develop.service.tib.eu:8000/ldmjupyter/hub/api/users'
 # Set the API token for authentication
 api_token = '71da5210caf07e63a778c1a9f014c3b1c60de0688c1095dd423a3e9f39d313ab'
 path_file = 'guest_list.txt'
@@ -42,9 +41,9 @@ def get_running_users():
             running_users = [user['name'] for user in users_info if user.get('server', {})]
             log.info(running_users)
         except json.JSONDecodeError as e:
-            print("Failed to parse JSON response:", e)
+            log.info("Failed to parse JSON response:", e)
     else:
-        print("Failed to retrieve user information. Status code:", response.status_code)
+        log.info("Failed to retrieve user information. Status code: %s", response.status_code)
         return []
     return running_users
 
@@ -56,6 +55,7 @@ def get_free_user():
     set_b = set(running_list)
     # Retrieve elements from set A that are not in set B
     result = set_a - set_b
+    log.info(result)
     if len(result) > 0:
         return result.pop()
     return None
