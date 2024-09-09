@@ -3,7 +3,7 @@ import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.model as model
 from DeTrusty.Decomposer import Decomposer
-from ckan.common import request, config #, current_user
+from ckan.common import request, config
 from ckan.plugins import toolkit
 
 DEFAULT_QUERY_KEY = 'ckanext.fedorkg.query'
@@ -47,7 +47,7 @@ class FedORKGController:
                             msg = toolkit._('The query cannot be answer by the federation of FedORKG.')
                         else:
                             logic.get_action(u'config_option_update')({
-                                u'user': 'admin'  # current_user.name
+                                u'user': toolkit.c.user
                             }, {
                                 DEFAULT_QUERY_KEY: query.replace('\n', '\\n'),
                                 DEFAULT_QUERY_NAME_KEY: query_name

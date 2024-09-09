@@ -16,7 +16,8 @@ class FedORKG(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.IBlueprint, inherit=True)
     p.implements(p.ITemplateHelpers)
     p.implements(p.ITranslation)
-#    p.implements(p.IConfigDeclaration)
+    if toolkit.check_ckan_version(min_version='2.10'):
+        p.implements(p.IConfigDeclaration)
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
@@ -27,6 +28,10 @@ class FedORKG(p.SingletonPlugin, DefaultTranslation):
         else:
             icon = 'search'
         toolkit.add_ckan_admin_tab(config_, 'fedorkg_admin.admin', 'FedORKG', icon=icon)
+        if config_.get(DEFAULT_QUERY_NAME_KEY, None) is None:
+            config_[DEFAULT_QUERY_NAME_KEY] = 'Covered Concepts'
+        if config_.get(DEFAULT_QUERY_KEY, None) is None:
+            config_[DEFAULT_QUERY_KEY] = 'SELECT DISTINCT ?c WHERE { ?s a ?c }'
 
     def get_blueprint(self):
         return views.get_blueprints()
