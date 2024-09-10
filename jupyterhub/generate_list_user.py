@@ -7,7 +7,7 @@ def generate_list_user(*args):
     max_val, file_path = int(args[0]), args[1]
     list_user = ["guest" + str(i) + "\n" for i in range(0, max_val)]
 
-    # Write the user name to the file
+    # Write the username to the file
     with open(file_path, "w") as file:
         file.writelines(list_user)
 
