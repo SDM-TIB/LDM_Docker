@@ -141,6 +141,11 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-videoviewer
 ADD ./Plugins/ckanext-tib_cadviewer $CKAN_HOME_L/src/ckanext-tib_cadviewer
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_cadviewer
 
+# ckanext-tib_matomo
+# ***********
+ADD ./Plugins/ckanext-tib_matomo $CKAN_HOME_L/src/ckanext-tib_matomo
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
+
 # TIBtheme
 # ********
 ADD ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
@@ -165,22 +170,50 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-pdfview
 # ******************
 ADD ./Plugins/ckanext-falcon $CKAN_HOME_L/src/ckanext-falcon
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-falcon
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-falcon/requirements.txt
+
+# advancedstats Plugin:
+# ******************
+ADD ./Plugins/ckanext-advancedstats $CKAN_HOME_L/src/ckanext-advancedstats
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-advancedstats
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-advancedstats/requirements.txt
+
+# datacomparison Plugin:
+# ******************
+ADD ./Plugins/ckanext-datacomparison $CKAN_HOME_L/src/ckanext-datacomparison
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-datacomparison
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-datacomparison/requirements.txt
+
+# Dwgviewer Plugin:
+# ******************
+ADD ./Plugins/ckanext-dwgviewer $CKAN_HOME_L/src/ckanext-dwgviewer
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-dwgviewer
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dwgviewer/requirements.txt
+
+# Fedorkg Plugin:
+# ******************
+ADD ./Plugins/ckanext-fedorkg $CKAN_HOME_L/src/ckanext-fedorkg
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-fedorkg
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-fedorkg/requirements.txt
 
 
 # LDMoAuth Plugin:
 # ******************
 ADD ./Plugins/ckanext-LDMoauth2 $CKAN_HOME_L/src/ckanext-LDMoauth2
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDMoauth2
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDMoauth2/requirements.txt
 
 # MS and OpenOffice docs viewer
 # ***************************** 
 ADD ./Plugins/ckanext-officedocs $CKAN_HOME_L/src/ckanext-officedocs
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-officedocs
 
+
 # KG Creation Plugin:
 # ******************
 ADD ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDM_SPARQL/requirements.txt
 
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
@@ -225,6 +258,12 @@ RUN chown -R `whoami` /var/log/ckan
 # *****************
 ADD ./Plugins/ckanext-TIBimport $CKAN_HOME_L/src/ckanext-TIBimport
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBimport
+
+
+# ckanext-TIBnotify Plugin:
+# *****************
+ADD ./Plugins/ckanext-TIBnotify $CKAN_HOME_L/src/ckanext-TIBnotify
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBnotify
 
 # DOI Plugin:
 # ***********

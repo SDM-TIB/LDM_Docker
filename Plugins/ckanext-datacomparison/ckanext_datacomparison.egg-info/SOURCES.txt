@@ -1,0 +1,11 @@
+README.md
+setup.py
+ckanext/__init__.py
+ckanext/datacomparison/__init__.py
+ckanext/datacomparison/plugin.py
+ckanext_datacomparison.egg-info/PKG-INFO
+ckanext_datacomparison.egg-info/SOURCES.txt
+ckanext_datacomparison.egg-info/dependency_links.txt
+ckanext_datacomparison.egg-info/entry_points.txt
+ckanext_datacomparison.egg-info/namespace_packages.txt
+ckanext_datacomparison.egg-info/top_level.txt
