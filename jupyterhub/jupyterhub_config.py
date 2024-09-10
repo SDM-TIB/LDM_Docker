@@ -4,8 +4,9 @@ import sys
 from tornado import web, gen
 from traitlets import Unicode
 from jupyterhub.auth import Authenticator
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 import requests
+import re
 
 
 path_file = 'guest_list.txt'
@@ -44,12 +45,25 @@ class DummyAuthenticator(Authenticator):
     def authenticate(self, handler, data):
         # Get the request URI
         uri = handler.request.uri
-        # Parse the URI to extract the username
+
+        # Parse the URI to extract the query string
         parsed_uri = urlparse(uri)
         # example parsed_uri: ParseResult(scheme='', netloc='', path='/hub/login', params='', query='next=%2Fhub%2Fuser%2Fguest1%2Fnotebooks%2F31614c67-8577-4cef-bd55-a6a18d58d02c_2022-12-27t112011140519.ipynb', fragment='')
-        parts = parsed_uri.query.split('%2F')
-        username = parts[4]  # username is the four part of the path
-        return username
+        query_params = parse_qs(parsed_uri.query)
+
+        # Extract the 'next' parameter from the query string
+        next_param = query_params.get('next', [None])[0]
+
+        if next_param:
+            # Use regex to find '/user/<username>/' pattern
+            match = re.search(r'/user/([^/]+)/', next_param)
+            if match:
+                username = match.group(1)
+                return username
+            else:
+                return None
+        else:
+            return None
 
 
 c.JupyterHub.authenticator_class = DummyAuthenticator
