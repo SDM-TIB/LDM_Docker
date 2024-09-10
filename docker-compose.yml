@@ -8,6 +8,7 @@ volumes:
   pg_data:
   solr_data:
   jupyterhub_data:
+  kg_data:
 
 services:
   ckan:
@@ -22,7 +23,6 @@ services:
           - CKAN_HOME_L=${CKAN_HOME}
           - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
           - CKAN_VER=${CKAN_VERSION}
-
     links:
       - db
       - solr
@@ -49,7 +49,6 @@ services:
       - ckan_storage:${CKAN_STORAGE_PATH}
     networks:
       - ldmnetwork
-
 
   db:
     build: ./postgresql-loaded/
@@ -121,9 +120,18 @@ services:
     networks:
       - ldmnetwork
 
-      
-      
+  ldm_kg:
+    container_name: ldm_kg
+    image: kemele/virtuoso:7-stable
+    restart: always
+    ports:
+      - "8890:8890"
+    volumes:
+      - kg_data:/data
+    networks:
+      - ldmnetwork
 
 networks:
   ldmnetwork:  
     external: true
+
