@@ -251,7 +251,7 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         log.info("Adding service-datasets relationships to Database\n")
 
         global STOP_UPDATE
-        log.info(str(STOP_UPDATE))
+        #log.info(str(STOP_UPDATE))
         if STOP_UPDATE:
             update_service_dataset_relationship(pkg_dict)
             self.connecting_LDM_to_ORKG(context,pkg_dict)
@@ -283,10 +283,13 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
     def connecting_LDM_to_ORKG(self,context,pkg_dict):
         global STOP_UPDATE
         STOP_UPDATE = False
-        log.info(str(STOP_UPDATE))
+        #log.info(str(STOP_UPDATE))
         package_id = pkg_dict.get('id')
         doi = pkg_dict['defined_in']
-        orkg = get_paper_link_by_doi(doi)
+        if doi != "" or doi != None:
+            orkg = get_paper_link_by_doi(doi)
+        else:
+            orkg = ""
         pkg = model.Package.get(package_id)
         if orkg == "" or orkg == None:
             new_value = "" 
@@ -297,11 +300,12 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         pkg_dict = toolkit.get_action('package_show')(context, {'id': package_id})
 
         # Update the specific field value
-        pkg_dict['link_orkg'] = new_value
-        #log.info(pkg_dict)
-        #log.info(new_value)
-        # Call package_update to update the package
-        updated_package = toolkit.get_action('package_update')(context, pkg_dict)
+        if pkg_dict['link_orkg'] != new_value:
+            pkg_dict['link_orkg'] = new_value
+            #log.info(pkg_dict)
+            #log.info(new_value)
+            # Call package_update to update the package
+            updated_package = toolkit.get_action('package_update')(context, pkg_dict)
 
     def _save_to_package_extra(self, package_id, key, value):
         # Create or update a custom field in the package_extra table
@@ -791,7 +795,7 @@ def get_paper_link_by_doi(doi):
         if data["content"] != []:
             paper_id = data["content"][0]['id']
             paper_url = f"https://www.orkg.org/orkg/paper/{paper_id}"
-            log.info(paper_url)
+            #log.info(paper_url)
             if paper_url == "https://www.orkg.org/orkg/paper/R1000":
                 return ""
             else:
@@ -802,4 +806,3 @@ def get_paper_link_by_doi(doi):
     else:
         log.info(f"Error: {response.status_code}")
         return None
-

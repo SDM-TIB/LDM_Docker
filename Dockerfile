@@ -177,6 +177,10 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDMoauth2
 ADD ./Plugins/ckanext-officedocs $CKAN_HOME_L/src/ckanext-officedocs
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-officedocs
 
+# KG Creation Plugin:
+# ******************
+ADD ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)

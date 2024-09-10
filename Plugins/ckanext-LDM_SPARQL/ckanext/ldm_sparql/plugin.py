@@ -6,6 +6,8 @@ from ckanext.ldm_sparql.Virtuoso_Util import Virtuoso_Util
 from ckan.model.group import Group
 from ckan.plugins.interfaces import IDomainObjectModification
 
+import logging
+log = logging.getLogger(__name__)
 # HELPERS
 # *******
 def get_virtuoso_endpoint_URL():
@@ -77,15 +79,23 @@ class LdmSparqlPlugin(plugins.SingletonPlugin):
     def edit(self, org):
         # This is called even in Dataset change and in that case
         # the organization metadata can't be changed
-        virtuoso_util = Virtuoso_Util()
-        virtuoso_util.update_organization_in_graph(org.id)
+        try:
+            organization = toolkit.get_action('organization_show')(data_dict={'id': org.id})
+            virtuoso_util = Virtuoso_Util()
+            virtuoso_util.update_organization_in_graph(org.id)
+        except toolkit.ObjectNotFound:
+            pass
 
     def create(self, org):
 
         # This is called even in Dataset change and in that case
         # the organization metadata can't be changed
-        virtuoso_util = Virtuoso_Util()
-        virtuoso_util.create_organization_in_graph(org.id)
+        try:
+            organization = toolkit.get_action('organization_show')(data_dict={'id': org.id})
+            virtuoso_util = Virtuoso_Util()
+            virtuoso_util.create_organization_in_graph(org.id)
+        except toolkit.ObjectNotFound:
+            pass
 
     def get_helpers(self):
         '''Register the show_object_icon_in_package_item() function above as a template
