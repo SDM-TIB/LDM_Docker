@@ -235,9 +235,9 @@ ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
 
 # Setup examples
-#ADD ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
-#ADD ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH_L/notebook
-#ADD ./LDM_examples_files/RESOURCES/storage $CKAN_STORAGE_PATH_L/storage
+ADD ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
+ADD ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH_L/notebook
+ADD ./LDM_examples_files/RESOURCES/storage $CKAN_STORAGE_PATH_L/storage
 
 
 # Scheming Plugin:

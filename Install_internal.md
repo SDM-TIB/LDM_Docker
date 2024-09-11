@@ -131,8 +131,14 @@ Adjust the CKAN configuration to match your instance URL:
 ```bash
 ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldm_coypu/ldmservice/{{LANG}}"
 ```
+## 4. Examples files
 
-## 4. Docker Containers Management
+All URLs in the exmaple SQL [file](https://github.com/SDM-TIB/LeibnizDataManager/blob/main/postgresql-loaded/ckan_examples.sql) should be updated/replaced
+
+https://service.tib.eu/ldmservice/ 
+should be replaced with the new domain
+
+## 5. Docker Containers Management
 
 Make sure that you have Docker and docker-compose installed
 Build and start all containers with the following command:
@@ -141,7 +147,7 @@ Build and start all containers with the following command:
 docker-compose up -d --build
 ```
 
-## 5. Configuration File Update
+## 6. Configuration File Update
 
 After all containers are up and running, you need to edit the `who.ini` file. Ensure you replace the path to Docker volumes if it has been changed.
 
@@ -156,6 +162,6 @@ post_login_url = /ldm_coypu/ldmservice/user/logged_in
 post_logout_url = /ldm_coypu/ldmservice/user/logged_out
 ```
 
-## 6. Final Step
+## 7. Final Step
 
 That's it. You made it :D

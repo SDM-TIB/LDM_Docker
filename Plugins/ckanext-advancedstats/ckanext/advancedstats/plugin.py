@@ -9,7 +9,7 @@ from ckan.lib.plugins import DefaultTranslation
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 log = getLogger(__name__)
-sparql = SPARQLWrapper('https://labs.tib.eu/sdm/ldm_kg/sparql')
+sparql = SPARQLWrapper('http://ldm_kg:8890/sparql')
 sparql.setReturnFormat(JSON)
 sparql.setQuery('SELECT (COUNT(*) AS ?count) WHERE { ?s ?p ?o }')
 
