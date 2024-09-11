@@ -99,14 +99,6 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
         log.info(session_id)
         if session_id in dict_user_session.values():
             user = get_user_id(session_id)
-            running_users = requests.get(API_URL+'/running_user')
-            running_users_list = running_users.json()
-            log.info(running_users_list)
-            if user in running_users_list:
-                dict_user_session.pop(user)
-                user = get_data_from_api()
-                dict_user_session[user] = session_id
-
         else:
             user = get_data_from_api()
             if user is None:
