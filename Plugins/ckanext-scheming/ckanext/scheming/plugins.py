@@ -794,9 +794,9 @@ def get_paper_link_by_doi(doi):
         data = response.json()
         if data["content"] != []:
             paper_id = data["content"][0]['id']
-            paper_url = f"https://www.orkg.org/orkg/resource/{paper_id}"
+            paper_url = f"http://orkg.org/orkg/resource/{paper_id}"
             #log.info(paper_url)
-            if paper_url == "https://www.orkg.org/orkg/resource/R1000":
+            if paper_url == "http://orkg.org/orkg/resource/R1000":
                 return ""
             else:
                 return paper_url
