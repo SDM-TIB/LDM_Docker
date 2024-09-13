@@ -81,6 +81,9 @@
     <script>
 
 function saveExtendedData() {
+	const saveButton = document.getElementById('saveExtendedDataButton');
+    saveButton.disabled = true;
+	saveButton.style.backgroundColor = 'black';
     const table = document.getElementById('valuesTable');
 
     // Extract the headers
@@ -117,11 +120,15 @@ function saveExtendedData() {
             window.location.href = resourceUrl.split('/download/')[0];
         } else {
             alert("Error saving data!");
+			saveButton.disabled = false;
+			saveButton.style.backgroundColor = '#007bff';
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred. Please try again.');
+		saveButton.disabled = false;
+		saveButton.style.backgroundColor = '#007bff';
     });
 }
 
