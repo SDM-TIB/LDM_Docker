@@ -21,27 +21,28 @@ oauth2_helper = LDMoauth2Controller(toolkit.g)
 def ldmoauth2_login(profile_name):
 
     remote_app = oauth2_helper.get_remote_app(profile_name)
-    log.debug("PF: "+profile_name)
-    log.debug("remote_app:"+str(remote_app))
+  #  log.debug("PF: "+profile_name)
+  #  log.debug("remote_app:"+str(remote_app))
     # check remote app
     if remote_app is None:
         return render_error_page("Error accessing remote app:"+profile_name)
 
-    # check if already logged in
-    if oauth2_helper.check_oauth2_logged_in(session):
-        # redirect to normal login
-        return redirect(toolkit.url_for('user.login'))
+    # check if already logged in.
+    # if oauth2_helper.check_oauth2_logged_in(session):
+    #     # redirect to normal login
+    #     return redirect(toolkit.url_for('user.login'))
 
     # Not logged in oauth -> go to login page
     return remote_app.authorize(callback=oauth2_helper.get_callback_url(profile_name))
 
 def ldmoauth2_callback(profile_name):
-
+    global session
     remote_app = oauth2_helper.get_remote_app(profile_name)
     if remote_app is None:
         render_error_page("Error accessing remote app:"+profile_name)
 
     resp = remote_app.authorized_response()
+   # log.debug("RES: " + str(resp))
     if resp is None:
         summary = 'Access denied: reason=%s error=%s' % (
             request.args['error'],
@@ -49,8 +50,16 @@ def ldmoauth2_callback(profile_name):
         )
         return render_error_page(summary)
 
-    # Access allowed
-    session[profile_name+'_token'] = (resp['access_token'], '')
+    # Access allowed - save data to session
+    session[profile_name + '_token'] = (resp['access_token'], '')
+    user_data_profile = remote_app.get('user').data
+  #  log.debug("USER: " + str(user_data_profile))
+    user_data_ckan = oauth2_helper.convert_user_data_to_ckan_user_dict(profile_name, user_data_profile)
+
+    # Update session values
+    access_token = (resp['access_token'], '')
+    session = oauth2_helper.update_session_from_ckan_user_data(profile_name, access_token, user_data_ckan, session)
+
     return redirect(toolkit.url_for('user.login'))
 
 def ldmoauth2_logout(profile_name):
@@ -102,24 +111,27 @@ class Ldmoauth2Plugin(plugins.SingletonPlugin):
 
     # IAuthenticator
     def login(self):
+
         # check if is already logged in using oauth2
-        if oauth2_helper.check_oauth2_logged_in(session):
-            c.user = oauth2_helper.logged_user_name
-            c.userobj =  oauth2_helper.logged_user
+        result = oauth2_helper.check_oauth2_logged_in(session)
+      #  log.debug("LOGIN: " + str(result))
+      #  log.debug("SESSION:" + str(session))
+        if result['logged_in']:
+            c.user = result['user_name']
+            c.userobj =  oauth2_helper.get_local_user(c.user)
+
+          #  log.debug("LOGGED USER:" + str(c.user))
 
             return h.redirect_to(controller='dashboard', action='index')
-        log.debug("LOGGED USER:"+str(oauth2_helper.logged_user))
+
 
     def identify(self):
-        if oauth2_helper.logged_user_name:
-            c.user = oauth2_helper.logged_user_name
+
+        if 'LDMoa2_user_name' in session and session['LDMoa2_user_name']:
+            c.user = session['LDMoa2_user_name']
 
 
     def logout(self):
-        for profile_name in oauth2_helper.profiles:
-            token_name = profile_name+'_token'
-            if token_name in session:
-                del session[token_name]
-            log.debug("LOGGING OUT - "+profile_name)
-        oauth2_helper.logged_user = None
-        oauth2_helper.logged_user_name = ''
+        global session
+        session = oauth2_helper.clean_session_on_logout(session)
+        log.debug("LOGGING OUT")

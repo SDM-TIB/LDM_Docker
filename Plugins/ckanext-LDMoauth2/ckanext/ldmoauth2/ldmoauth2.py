@@ -24,8 +24,6 @@ class LDMoauth2Controller:
         self.site_url = config.get("ckan.site_url", 'http://localhost:5000')
         self.oauth = OAuth(flask_app)
         self.profiles = self._get_oauth2_profiles()
-        self.logged_user = None
-        self.logged_user_name = ''
 
         # CKAN actions over users
         self.action_user_show = toolkit.get_action('user_show')
@@ -83,13 +81,18 @@ class LDMoauth2Controller:
         if profile_name == 'gitlab':
             return self._gitlab_convert_user_data_to_ckan_dict(user_data)
 
+    def create_ckan_user_dict_from_session_data(self, profile_name, session):
+        if profile_name == 'gitlab':
+            return self._gitlab_create_ckan_user_dict_from_session_data(session)
+
 
     # CKAN USERS MANIPULATION
     # ***********************
 
     def get_local_user(self, user_name):
         # https://docs.ckan.org/en/2.9/api/#ckan.logic.action.get.user_show
-
+        # Logging added to check user retrieval process
+        log.debug(f"Attempting to retrieve local user: {user_name}")
         params = {'id': user_name}
         context = {'model': model, 'session': model.Session, 'ignore_auth': True}
         #context['return_id_only'] = False
@@ -99,11 +102,14 @@ class LDMoauth2Controller:
             #self.set_log_info("XXXXXXXX " + str(context) + " ZZZZZZZ" + str(params))
             #toolkit.auth_allow_anonymous_access(self.action_package_show)
             result = self.action_user_show(context, params)
+            log.debug(f"Attempting to retrieve local user: {user_name} worked")
         except NotFound as e:
+            log.debug(f"Attempting to retrieve local user: {user_name} failed")
             return {}
         return result
 
     def get_local_user_obj_by_email(self, email):
+        log.debug(f"Attempting to retrieve local user by email: {email}")
         return User.by_email(email)
 
     def get_local_user_obj_by_name(self, name):
@@ -113,21 +119,34 @@ class LDMoauth2Controller:
     def create_user(self, usr_dict):
         # https://docs.ckan.org/en/2.9/api/#ckan.logic.action.create.user_create
         context = {'model': model, 'session': model.Session, 'ignore_auth': True, 'user': 'admin'}
+        log.debug(f"Attempting to create user: {usr_dict}")
 
         try:
             self.action_user_create(context, usr_dict)
+            log.debug("User creation successful")
         except ValidationError as e:
+            log.error(f"User creation failed: {e.error_summary}")
+            raise
             return {'success': False, 'error': str(e.error_summary)}
-
         return {'success': True}
 
     def _gitlab_convert_user_data_to_ckan_dict(self, gitlab_user_data):
-
-        ckan_user_dict = {"name": gitlab_user_data["username"]+'_gitlab',
+        username = gitlab_user_data["username"]+'_gitlab'
+        username = username.lower()
+        ckan_user_dict = {"name": username,
                           "fullname": gitlab_user_data["name"],
                           "email": gitlab_user_data["email"],
                           "password": self._generate_random_string(12)
                           }
+        return ckan_user_dict
+
+    def _gitlab_create_ckan_user_dict_from_session_data(self, gitlab_session):
+
+        ckan_user_dict = {"name": gitlab_session['LDMoa2_user_name'],
+                          "fullname": gitlab_session['LDMoa2_user_fullname'],
+                          "email": gitlab_session['LDMoa2_user_email'],
+                          "password": self._generate_random_string(12)
+                              }
         return ckan_user_dict
 
     def delete_user(self, usr_dict):
@@ -141,44 +160,76 @@ class LDMoauth2Controller:
         result_str = ''.join(random.choice(letters) for i in range(length))
         return result_str
 
-    def check_oauth2_logged_in(self, session):
+    def check_oauth2_logged_in(self, session_data):
+        # Logging added to check the login status and user creation process
+        log.debug("Checking OAuth2 login status")
 
         for profile_name in self.profiles:
             if profile_name == 'gitlab':
-                if profile_name + '_token' in session:  # logged in on oauth
 
-                    remote_app = self.get_remote_app(profile_name)
-                    user_data_profile = remote_app.get('user').data
-                    user_data_ckan = self.convert_user_data_to_ckan_user_dict(profile_name, user_data_profile)
+                user_name = session_data.get('LDMoa2_user_name', '')
+                user_email = session_data.get('LDMoa2_user_email', '')
+                user_fullname = session_data.get('LDMoa2_user_fullname', '')
 
-                    user_name = user_data_ckan.get("name", '')
-                    user_email = user_data_ckan.get("email", '')
+                result = {"logged_in": False,
+                          "user_name": user_name,
+                          "user_email": user_email,
+                          "user_fullname": user_fullname
+                }
 
+                if profile_name + '_token' in session_data:  # logged in on oauth
+
+                  #  log.debug("ENTRA" + str(session_data['gitlab_token']))
                     # check if user XXX_gitlab exists in LDM
                     user = self.get_local_user(user_name)
                     if user:
-                        self.logged_user = user # login with this user
-                        self.logged_user_name = user_name
-                        return True
+                        result['logged_in'] = True
+                        return result
 
                     # else check if user exist with email
                     user = self.get_local_user_obj_by_email(user_email)
                     if user:
-                        user_name = user[0].name
-                        self.logged_user = self.get_local_user(user_name) # login with this user
-                        self.logged_user_name = user_name
-                        return True
+                        result['logged_in'] = True
+                        result['user_name'] = user[0].name
+                        result['user_fullname'] = user[0].fullname
+                        return result
 
                     #  else create new user
-                    resp = self.create_user(user_data_ckan)
-                    if resp['success']:
-                        user = self.get_local_user(user_name)
-                        self.logged_user = user
-                        self.logged_user_name = user_name
-                        return True
-                    else:
-                        self.logged_user = None
-                        self.logged_user_name = ''
-                        return False
+                    if user_name and user_email:
+                        user_data_ckan = self.create_ckan_user_dict_from_session_data(profile_name, session_data)
+                       # log.debug("USER DATA ON CREATION: " + str(user_data_ckan))
+                        resp = self.create_user(user_data_ckan)
+                       # log.debug("RESP USER CREATION: " + str(resp))
 
-            return False
+                        if resp['success']:
+                            result['logged_in'] = True
+
+                        return result
+
+            return {"logged_in": False}
+
+    def update_session_from_ckan_user_data(self, profile_name, access_token, user_data_ckan, session_data):
+
+        session_data[profile_name + '_token'] = access_token
+        session_data['LDMoa2_user_name'] = user_data_ckan['name']
+        session_data['LDMoa2_user_fullname'] = user_data_ckan['fullname']
+        session_data['LDMoa2_user_email'] = user_data_ckan['email']
+
+        return session_data
+
+    def clean_session_on_logout(self, session_data):
+        # delete tokens
+        for profile_name in self.profiles:
+            p_name = profile_name + '_token'
+            if p_name in session_data:
+                del session_data[p_name]
+
+        # delete users
+        if 'LDMoa2_user_name' in session_data:
+            del session_data['LDMoa2_user_name']
+        if 'LDMoa2_user_fullname' in session_data:
+            del session_data['LDMoa2_user_fullname']
+        if 'LDMoa2_user_email' in session_data:
+            del session_data['LDMoa2_user_email']
+
+        return session_data
