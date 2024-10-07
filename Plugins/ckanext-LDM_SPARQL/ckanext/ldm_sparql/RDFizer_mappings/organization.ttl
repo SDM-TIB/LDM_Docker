@@ -22,7 +22,7 @@
     rml:iterator "$";
   ];
   rr:subjectMap [
-    rr:template "https://service.tib.eu/ldmservice/organization/{name}";
+    rr:template "https://research.tib.eu/ldm/organization/{name}";
     rr:class vcard:Organization;
   ];
   rr:predicateObjectMap [

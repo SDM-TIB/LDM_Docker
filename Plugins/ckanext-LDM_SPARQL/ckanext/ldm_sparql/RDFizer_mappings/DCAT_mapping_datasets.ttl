@@ -60,6 +60,13 @@
   ];
 
   rr:predicateObjectMap [
+    rr:predicate dcat:distribution;
+    rr:objectMap [
+      rr:template "https://research.tib.eu/ldm/{resources[*].id}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
     rr:predicate dct:issued;
     rr:objectMap [
       rr:datatype xsd:dateTime;
@@ -251,26 +258,6 @@ rr:predicateObjectMap [
     rr:predicate vcard:hasEmail;
     rr:objectMap [
       rml:reference "author_email"
-    ]
-  ].
-
-
-<#KeywordsMappingLink> a rr:TriplesMap;
-  rml:logicalSource [
-    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
-    rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.tags[*]";
-  ];
-
-  rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{doi}";
-    rr:class dcat:Dataset;
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate dcat:keyword;
-    rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{id}"
     ]
   ].
 

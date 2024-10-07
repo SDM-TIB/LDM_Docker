@@ -77,9 +77,16 @@
   ];
 
   rr:predicateObjectMap [
+    rr:predicate dcat:distribution;
+    rr:objectMap [
+      rr:template "https://research.tib.eu/ldm/{resources[*].id}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
     rr:predicate dct:publisher;
     rr:objectMap [
-      rr:template "{domain}/organization/{organization.name}"
+      rr:template "https://research.tib.eu/ldm/organization/{organization.name}"
     ]
   ];
 
