@@ -356,6 +356,7 @@ class Virtuoso_Util:
 
         # get org_dictionary
         org_dict = self.get_LDM_local_organization(org_id)
+        org_dict["domain"] = os.environ.get('CKAN_SITE_URL')
         # get organization id
         org_id = self._get_organization_id_from_org_dict(org_dict)
         #print("\n\nORG URL: ", org_id)

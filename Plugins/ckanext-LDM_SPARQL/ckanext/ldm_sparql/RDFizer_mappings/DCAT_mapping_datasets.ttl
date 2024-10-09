@@ -85,7 +85,7 @@
   rr:predicateObjectMap [
     rr:predicate dct:publisher;
     rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/organization/{organization.name}"
+      rr:template "{domain}/organization/{organization.name}"
     ]
   ];
 
@@ -294,24 +294,6 @@ rr:predicateObjectMap [
     ]
   ].
 
-<#distributionsMapping> a rr:TriplesMap;
-  rml:logicalSource [
-    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
-    rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.resources[*]";
-  ];
-
-  rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{doi}";
-    rr:class dcat:Dataset;
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate dcat:distribution;
-    rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{id}"
-    ]
-  ].
 
 <#DistributionMapping> a rr:TriplesMap;
   rml:logicalSource [
@@ -497,5 +479,22 @@ rr:predicateObjectMap [
     rr:predicate owl:sameAS;
     rr:objectMap [
       rr:template "{orcid}";
+    ]
+  ].
+
+<#Organization> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$";
+  ];
+  rr:subjectMap [
+    rr:template "{domain}/organization/{organization.name}";
+    rr:class vcard:Organization;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate pro:owner;
+    rr:objectMap [
+      rr:template "https://research.tib.eu/ldm/{id}";
     ]
   ].

@@ -324,7 +324,7 @@ class RDFizer_Util:
         organization_name = organization_dict.get('name', None)
         if organization_name is None:
             return
-
+        organization_dict["domain"] = os.environ.get('CKAN_SITE_URL')
         if organization_dict:
             log.info("Converting Dataset to N3: " + organization_name)
 
@@ -342,7 +342,7 @@ class RDFizer_Util:
             self.RDFizer_set_config(rdfizer_config)
 
             #organization_dict = self.preprocess_dataset_dict(organization_dict)
-            log.info(organization_dict)
+            #log.info(organization_dict)
 
             # save dataset as temporal file
             self.write_dataset_dict_to_json_file(temp_json_file, organization_dict)

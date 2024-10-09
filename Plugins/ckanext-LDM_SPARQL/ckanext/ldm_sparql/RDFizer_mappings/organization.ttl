@@ -22,19 +22,13 @@
     rml:iterator "$";
   ];
   rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/organization/{name}";
+    rr:template "{domain}/organization/{name}";
     rr:class vcard:Organization;
   ];
   rr:predicateObjectMap [
     rr:predicate rdfs:label;
     rr:objectMap [
       rml:reference "name";
-    ]
-  ];
-  rr:predicateObjectMap [
-    rr:predicate pro:owner;
-    rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{id}";
     ]
   ];
    rr:predicateObjectMap [
