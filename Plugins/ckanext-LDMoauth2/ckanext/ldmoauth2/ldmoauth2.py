@@ -120,6 +120,9 @@ class LDMoauth2Controller:
         # https://docs.ckan.org/en/2.9/api/#ckan.logic.action.create.user_create
         context = {'model': model, 'session': model.Session, 'ignore_auth': True, 'user': 'admin'}
         log.debug(f"Attempting to create user: {usr_dict}")
+        
+        if 'image_url' not in usr_dict:
+            usr_dict['image_url']=''
 
         try:
             self.action_user_create(context, usr_dict)
