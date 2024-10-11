@@ -1,80 +1,99 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-
-from flask import Blueprint, redirect, jsonify, request
-from ckan.common import session
-from ckan.common import c
+from flask import Blueprint, redirect, request, session, make_response
+from ckan.common import g, config
 from ckanext.ldmoauth2.ldmoauth2 import LDMoauth2Controller
+import ckan.model as model
+import ckan.logic as logic
+from ckan.lib import base
 import ckan.lib.helpers as h
+from flask import current_app
 
 from logging import getLogger
 log = getLogger(__name__)
 
-oauth2_helper = LDMoauth2Controller(toolkit.g)
+oauth2_helper = LDMoauth2Controller()
 
-
-# ROUTES
-# ******
-
-
+def set_repoze_user(user_id):
+    '''Set the repoze.who cookie to match a given user_id'''
+    if 'repoze.who.plugins' in request.environ:
+        rememberer = request.environ['repoze.who.plugins']['friendlyform']
+        identity = {'repoze.who.userid': user_id}
+        headers = rememberer.remember(request.environ, identity)
+        return headers
+    return None
 
 def ldmoauth2_login(profile_name):
-
     remote_app = oauth2_helper.get_remote_app(profile_name)
-  #  log.debug("PF: "+profile_name)
-  #  log.debug("remote_app:"+str(remote_app))
-    # check remote app
+    log.debug("PF: "+profile_name)
+    log.debug("remote_app:"+str(remote_app))
+    
     if remote_app is None:
-        return render_error_page("Error accessing remote app:"+profile_name)
+        return base.render('error_page.html', extra_vars={'error_summary': "Error accessing remote app:"+profile_name})
 
-    # check if already logged in.
-    # if oauth2_helper.check_oauth2_logged_in(session):
-    #     # redirect to normal login
-    #     return redirect(toolkit.url_for('user.login'))
+    # Check if already logged in
+    if g.user:
+        return toolkit.redirect_to(controller='dashboard', action='index')
 
-    # Not logged in oauth -> go to login page
     return remote_app.authorize(callback=oauth2_helper.get_callback_url(profile_name))
 
 def ldmoauth2_callback(profile_name):
-    global session
     remote_app = oauth2_helper.get_remote_app(profile_name)
     if remote_app is None:
-        render_error_page("Error accessing remote app:"+profile_name)
+        return base.render('error_page.html', extra_vars={'error_summary': "Error accessing remote app:"+profile_name})
 
     resp = remote_app.authorized_response()
-   # log.debug("RES: " + str(resp))
-    if resp is None:
-        summary = 'Access denied: reason=%s error=%s' % (
-            request.args['error'],
-            request.args['error_description']
+    if resp is None or resp.get('access_token') is None:
+        error_summary = 'Access denied: reason=%s error=%s' % (
+            request.args.get('error', 'Unknown'),
+            request.args.get('error_description', 'Unknown')
         )
-        return render_error_page(summary)
+        return base.render('error_page.html', extra_vars={'error_summary': error_summary})
 
-    # Access allowed - save data to session
-    session[profile_name + '_token'] = (resp['access_token'], '')
-    user_data_profile = remote_app.get('user').data
-  #  log.debug("USER: " + str(user_data_profile))
-    user_data_ckan = oauth2_helper.convert_user_data_to_ckan_user_dict(profile_name, user_data_profile)
+    # Store token in session
+    session[profile_name+'_token'] = (resp['access_token'], '')
+    
+    try:
+        # Get user info from OAuth provider
+        user_data = remote_app.get('user').data
+        log.debug("User data from OAuth provider: %s", user_data)
+        
+        # Convert user data to CKAN user dict
+        user_dict = oauth2_helper.convert_user_data_to_ckan_user_dict(profile_name, user_data)
+        log.debug("Converted user dict: %s", user_dict)
+        
+        # Check if user exists
+        context = {'ignore_auth': True, 'model': model, 'session': model.Session}
+        try:
+            user = toolkit.get_action('user_show')(context, {'id': user_dict['name']})
+            log.info("Existing user found: %s", user['name'])
+        except toolkit.ObjectNotFound:
+            # Create the user
+            log.info("Creating new user: %s", user_dict['name'])
+            user = toolkit.get_action('user_create')(context, user_dict)
+        
+        # Set the repoze.who cookie
+        headers = set_repoze_user(user['name'])
+        
+        # Set user in Flask's global object
+        g.user = user['name']
+        g.userobj = model.User.by_name(user['name'])
 
-    # Update session values
-    access_token = (resp['access_token'], '')
-    session = oauth2_helper.update_session_from_ckan_user_data(profile_name, access_token, user_data_ckan, session)
+        # Redirect to user dashboard
+        response = make_response(redirect(h.url_for(controller='dashboard', action='index')))
+        if headers:
+            for header, value in headers:
+                response.headers.add(header, value)
+        return response
 
-    return redirect(toolkit.url_for('user.login'))
+    except Exception as e:
+        log.error('Error in OAuth callback: %s', str(e), exc_info=True)
+        return base.render('error_page.html', extra_vars={'error_summary': "Error processing OAuth callback: " + str(e)})
 
 def ldmoauth2_logout(profile_name):
-    del session[profile_name+'_token']
-    return redirect(toolkit.url_for('home.index'))
-
-
-# end ROUTES
-
-def render_error_page(summary):
-    return toolkit.render('oauth2_result.html',
-                          extra_vars={u'summary_log': summary})
-
-
-
+    if profile_name+'_token' in session:
+        del session[profile_name+'_token']
+    return toolkit.redirect_to('user.logout')
 
 class Ldmoauth2Plugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
@@ -82,27 +101,20 @@ class Ldmoauth2Plugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthenticator, inherit=True)
 
     # IConfigurer
-
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic',
-            'ldmoauth2')
+        toolkit.add_resource('fanstatic', 'ldmoauth2')
 
     # IBlueprint
-
     def get_blueprint(self):
-        u'''Return a Flask Blueprint object to be registered by the app.'''
-
-        # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
         blueprint.template_folder = u'templates'
-        # Add plugin url rules to Blueprint object
-
-        rules = [(u'/oauth2/login/<profile_name>', u'ldmoauth2_login', ldmoauth2_login),
-                 (u'/oauth2/callback/<profile_name>', u'ldmoauth2_callback', ldmoauth2_callback),
-                 (u'/oauth2/logout/<profile_name>', u'ldmoauth2_logout', ldmoauth2_logout)
-
+        
+        rules = [
+            (u'/oauth2/login/<profile_name>', u'ldmoauth2_login', ldmoauth2_login),
+            (u'/oauth2/callback/<profile_name>', u'ldmoauth2_callback', ldmoauth2_callback),
+            (u'/oauth2/logout/<profile_name>', u'ldmoauth2_logout', ldmoauth2_logout)
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)
@@ -110,28 +122,32 @@ class Ldmoauth2Plugin(plugins.SingletonPlugin):
         return blueprint
 
     # IAuthenticator
-    def login(self):
-
-        # check if is already logged in using oauth2
-        result = oauth2_helper.check_oauth2_logged_in(session)
-      #  log.debug("LOGIN: " + str(result))
-      #  log.debug("SESSION:" + str(session))
-        if result['logged_in']:
-            c.user = result['user_name']
-            c.userobj =  oauth2_helper.get_local_user(c.user)
-
-          #  log.debug("LOGGED USER:" + str(c.user))
-
-            return h.redirect_to(controller='dashboard', action='index')
-
-
     def identify(self):
+        user = getattr(g, 'user', None)
+        if user:
+            if not isinstance(user, model.User):
+                user = model.User.by_name(user)
+            g.user = user
+            g.userobj = user
 
-        if 'LDMoa2_user_name' in session and session['LDMoa2_user_name']:
-            c.user = session['LDMoa2_user_name']
-
+    def login(self):
+        # This method is called when the login button is clicked
+        pass
 
     def logout(self):
-        global session
-        session = oauth2_helper.clean_session_on_logout(session)
-        log.debug("LOGGING OUT")
+        for profile_name in oauth2_helper.profiles:
+            if profile_name+'_token' in session:
+                del session[profile_name+'_token']
+        g.user = None
+        g.userobj = None
+
+    def authenticate(self, environ, identity):
+        if not ('repoze.who.identity' in environ or identity):
+            return None
+        
+        user = environ.get('repoze.who.identity', {}).get('repoze.who.userid')
+        if user:
+            g.user = user
+            g.userobj = model.User.by_name(user)
+
+        return user
