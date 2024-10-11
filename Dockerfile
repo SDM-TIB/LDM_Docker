@@ -215,6 +215,12 @@ ADD ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDM_SPARQL/requirements.txt
 
+# Showcase Plugin:
+# ******************
+ADD ./Plugins/ckanext-showcase $CKAN_HOME_L/src/ckanext-showcase
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-showcase
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-showcase/dev-requirements.txt
+
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
 ADD ./reload_database.sh /reload_database.sh
