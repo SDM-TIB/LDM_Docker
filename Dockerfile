@@ -197,6 +197,13 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-fedorkg
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-fedorkg/requirements.txt
 
 
+# Showcase Plugin:
+# ******************
+ADD ./Plugins/ckanext-showcase $CKAN_HOME_L/src/ckanext-showcase
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-showcase
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-showcase/requirements.txt
+
+
 # LDMoAuth Plugin:
 # ******************
 ADD ./Plugins/ckanext-LDMoauth2 $CKAN_HOME_L/src/ckanext-LDMoauth2
@@ -214,12 +221,6 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-officedocs
 ADD ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDM_SPARQL/requirements.txt
-
-# Showcase Plugin:
-# ******************
-ADD ./Plugins/ckanext-showcase $CKAN_HOME_L/src/ckanext-showcase
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-showcase
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-showcase/dev-requirements.txt
 
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
