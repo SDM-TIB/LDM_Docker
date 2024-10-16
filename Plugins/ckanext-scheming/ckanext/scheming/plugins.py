@@ -285,27 +285,28 @@ class SchemingDatasetsPlugin(p.SingletonPlugin, DefaultDatasetForm,
         STOP_UPDATE = False
         #log.info(str(STOP_UPDATE))
         package_id = pkg_dict.get('id')
-        doi = pkg_dict['defined_in']
-        if doi != "" or doi != None:
-            orkg = get_paper_link_by_doi(doi)
-        else:
-            orkg = ""
-        pkg = model.Package.get(package_id)
-        if orkg == "" or orkg == None:
-            new_value = "" 
-        else:
-            #self._save_to_package_extra(package_id, 'Link to ORKG', orkg)
-            new_value = orkg
+        if "defined_in" in pkg_dict:
+            doi = pkg_dict['defined_in']
+            if doi != "" or doi != None:
+                orkg = get_paper_link_by_doi(doi)
+            else:
+                orkg = ""
+            pkg = model.Package.get(package_id)
+            if orkg == "" or orkg == None:
+                new_value = "" 
+            else:
+                #self._save_to_package_extra(package_id, 'Link to ORKG', orkg)
+                new_value = orkg
 
-        pkg_dict = toolkit.get_action('package_show')(context, {'id': package_id})
+            pkg_dict = toolkit.get_action('package_show')(context, {'id': package_id})
 
-        # Update the specific field value
-        if pkg_dict['link_orkg'] != new_value:
-            pkg_dict['link_orkg'] = new_value
-            #log.info(pkg_dict)
-            #log.info(new_value)
-            # Call package_update to update the package
-            updated_package = toolkit.get_action('package_update')(context, pkg_dict)
+            # Update the specific field value
+            if pkg_dict['link_orkg'] != new_value:
+                pkg_dict['link_orkg'] = new_value
+                #log.info(pkg_dict)
+                #log.info(new_value)
+                # Call package_update to update the package
+                updated_package = toolkit.get_action('package_update')(context, pkg_dict)
 
     def _save_to_package_extra(self, package_id, key, value):
         # Create or update a custom field in the package_extra table

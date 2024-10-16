@@ -22,7 +22,7 @@
     rml:iterator "$";
   ];
   rr:subjectMap [
-    rr:template "{domain}/organization/{name}";
+    rr:template "{kg_domain}/organization/{name}";
     rr:class vcard:Organization;
   ];
   rr:predicateObjectMap [

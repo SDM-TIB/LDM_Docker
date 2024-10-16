@@ -233,10 +233,10 @@ class Virtuoso_Util:
         data = self.rdfizer_obj.get_DCAT_RDF_raw_data(ds_name)
 
         sql = f"INSERT " + "{" + data + "}"
+        #log.info(sql)
         res = self.execute_sparql_sentence(sql, True)
-        #print("\n\nSQL INSERT: ", sql)
         if not res:
-            log.error("ERROR inserting dataset: "+ds_name)
+            log.error("ERROR inserting dataset: "+ ds_name)
         return res
 
     def delete_dataset_from_graph(self, ds_name):
@@ -252,7 +252,7 @@ class Virtuoso_Util:
             aux = dataset_id.split('/')
             ds_type = aux[-2]
             dataset_id = aux[-1]
-        ldm_prefix = "ldm: <https://research.tib.eu/ldm/>"
+        ldm_prefix = "ldm: <" + os.environ.get('CKAN_KG_DOMAIN') + ">"
 
         # Delete Dataset's Resources
         sql = (f"PREFIX {ldm_prefix}\

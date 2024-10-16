@@ -32,6 +32,7 @@ class RDFizer_Util:
         # RDFizer config
         self.RDFizer_default_dataset_mapping = "DCAT_mapping_datasets.ttl"
         self.RDFizer_default_dataservice_mapping = "DCAT_mapping_dataservices.ttl"
+        self.RDFizer_default_showcase_mapping = "DCAT_mapping_showcases.ttl"
 
         if not mapping_file:
             mapping_file = self.RDFizer_default_dataset_mapping
@@ -206,8 +207,11 @@ class RDFizer_Util:
         # returns in descriptions causes error
         dataset_dict['notes'] = dataset_dict['notes'].replace('\n', '')
         dataset_dict['notes'] = dataset_dict['notes'].replace('\r', '')
-        dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\n', '')
-        dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\r', '')
+        if "organization" in dataset_dict:
+            dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\n', '')
+            dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\r', '')
+        dataset_dict['kg_domain'] = os.environ.get('CKAN_KG_DOMAIN')
+        log.info(dataset_dict)
 
         # Dataset-Dataservice relationships
         # "datasets_served_list": "d1beaa8b-bba9-4f5f-b85e-644e339faac2,1abefb2e-6a83-4004-b7db-74c34b545d2e",
@@ -230,7 +234,8 @@ class RDFizer_Util:
                 result_list.append({'url': url, 'related_ds_url': related_ds_url})
             dataset_dict["datasets_served_list"] = result_list
 
-        dataset_dict["organization"]["organization_url"] = self._get_organization_url_from(dataset_dict)
+        if "organization" in dataset_dict:
+            dataset_dict["organization"]["organization_url"] = self._get_organization_url_from(dataset_dict)
 
         return dataset_dict
     def _clean_whitespaces(self, target_str):
@@ -302,6 +307,8 @@ class RDFizer_Util:
             mapping_file = self.RDFizer_default_dataset_mapping
             if dataset_dict.get('type', '') == 'service':
                 mapping_file = self.RDFizer_default_dataservice_mapping
+            elif dataset_dict.get('type', '') == 'showcase':
+                mapping_file = self.RDFizer_default_showcase_mapping
             self.RDFizer_mapping_file = self.RDFizer_mapping_path + '/' + mapping_file
 
             self.RDFizer_set_config(rdfizer_config)
@@ -324,7 +331,7 @@ class RDFizer_Util:
         organization_name = organization_dict.get('name', None)
         if organization_name is None:
             return
-        organization_dict["domain"] = os.environ.get('CKAN_SITE_URL')
+        organization_dict["kg_domain"] = os.environ.get('CKAN_KG_DOMAIN')
         if organization_dict:
             log.info("Converting Dataset to N3: " + organization_name)
 

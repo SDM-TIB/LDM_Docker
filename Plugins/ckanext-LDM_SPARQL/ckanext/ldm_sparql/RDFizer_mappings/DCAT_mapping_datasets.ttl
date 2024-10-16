@@ -27,7 +27,7 @@
   ];
 
   rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{id}";
+    rr:template "{kg_domain}/{id}";
     rr:class dcat:Dataset;
   ];
 
@@ -62,7 +62,7 @@
   rr:predicateObjectMap [
     rr:predicate dcat:distribution;
     rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{resources[*].id}"
+      rr:template "{kg_domain}/{resources[*].id}"
     ]
   ];
 
@@ -234,7 +234,7 @@ rr:predicateObjectMap [
   ];
 
   rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{id}";
+    rr:template "{kg_domain}/{id}";
     rr:class dcat:Dataset;
     
   ];
@@ -269,7 +269,7 @@ rr:predicateObjectMap [
   ];
 
   rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{id}";
+    rr:template "{kg_domain}/{id}";
     rr:class skos:Concept;
   ];
 
@@ -303,7 +303,7 @@ rr:predicateObjectMap [
   ];
 
   rr:subjectMap [
-    rr:template "https://research.tib.eu/ldm/{id}";
+    rr:template "{kg_domain}/{id}";
     rr:class dcat:Distribution
   ];
 
@@ -405,24 +405,6 @@ rr:predicateObjectMap [
     ]
   ].
 
-<#Organization> a rr:TriplesMap;
-  rml:logicalSource [
-    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
-    rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$";
-  ];
-  rr:subjectMap [
-    rr:template "https://service.tib.eu/ldmservice/organization/{organization.organization_name}";
-    rr:class vcard:Organization;
-  ];
-  rr:predicateObjectMap [
-    rr:predicate pro:owner;
-    rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{id}";
-    ]
-  ].
-
-
 <#Author> a rr:TriplesMap;
   rml:logicalSource [
     rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
@@ -495,6 +477,6 @@ rr:predicateObjectMap [
   rr:predicateObjectMap [
     rr:predicate pro:owner;
     rr:objectMap [
-      rr:template "https://research.tib.eu/ldm/{id}";
+      rr:template "{kg_domain}/{id}";
     ]
   ].
