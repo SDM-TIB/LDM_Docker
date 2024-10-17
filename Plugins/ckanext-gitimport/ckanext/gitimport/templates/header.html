@@ -1,0 +1,18 @@
+{% ckan_extends %}
+
+{% block header_site_navigation %}
+    {{ super() }}
+    <nav class="section navigation">
+        <ul class="nav nav-pills">
+            <li>
+                <button type="button" id="githubLinkButton" class="btn btn-primary">
+                    GitHub Import
+                </button>
+            </li>
+        </ul>
+    </nav>
+    
+    {% asset "gitimport/get_dataset_js" %}
+    {% asset "gitimport/gitimport_js" %}
+
+{% endblock %}

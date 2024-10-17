@@ -1,0 +1,24 @@
+get_dataset_js:
+  contents:
+    - js/get_dataset.js
+  output: gitimport/%(version)s_get_dataset.js
+  extra:
+    preload:
+      - base/main
+
+
+gitimport_js:
+  contents:
+    - js/gitimport.js
+  output: gitimport/%(version)s_gitimport.js
+  extra:
+    preload:
+      - base/main
+
+imgs_css:
+  contents:
+  - css/imgs.css
+  output: gitimport/%(version)s_imgs.css
+  extra:
+    preload:
+      - base/main
