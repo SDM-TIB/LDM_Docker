@@ -635,3 +635,13 @@ a.btn_check_all {
    display: block;
 }
 
+.notes.embedded-content img {
+  max-width: 100%;   
+  height: auto;          
+  margin: 0 auto;    
+}
+
+.notes.embedded-content img {
+  padding: 5px;     
+  box-sizing: border-box;
+}
