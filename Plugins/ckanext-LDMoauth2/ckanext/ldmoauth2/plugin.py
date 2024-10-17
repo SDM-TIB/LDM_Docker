@@ -32,8 +32,9 @@ def ldmoauth2_login(profile_name):
         return base.render('error_page.html', extra_vars={'error_summary': "Error accessing remote app:"+profile_name})
 
     # Check if already logged in
+    dashboard_url = config.get("ckan.site_url", 'http://localhost:5000')+config.get("ckan.post_url", 'http://localhost:5000')+'/dashboard/'
     if g.user:
-        return toolkit.redirect_to(controller='dashboard', action='index')
+        return toolkit.redirect_to(dashboard_url)
 
     return remote_app.authorize(callback=oauth2_helper.get_callback_url(profile_name))
 
@@ -78,9 +79,11 @@ def ldmoauth2_callback(profile_name):
         # Set user in Flask's global object
         g.user = user['name']
         g.userobj = model.User.by_name(user['name'])
+        
+        dashboard_url = config.get("ckan.site_url", 'http://localhost:5000')+config.get("ckan.post_url", 'http://localhost:5000')+'/dashboard/'
 
         # Redirect to user dashboard
-        response = make_response(redirect(h.url_for(controller='dashboard', action='index')))
+        response = make_response(redirect(dashboard_url))
         if headers:
             for header, value in headers:
                 response.headers.add(header, value)
