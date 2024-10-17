@@ -8,6 +8,7 @@ import string
 import re
 import ckan.lib.helpers as h
 import hashlib
+import os
 
 
 
@@ -15,7 +16,7 @@ log = logging.getLogger(__name__)
 
 class LDMoauth2Controller:
     def __init__(self):
-        self.site_url = config.get("ckan.site_url", 'http://localhost:5000')
+        self.site_url = config.get("ckan.site_url", 'http://localhost:5000')+config.get("ckan.post_url", 'http://localhost:5000')
         self.oauth = OAuth()
         self.profiles = self._get_oauth2_profiles()
 
@@ -41,7 +42,7 @@ class LDMoauth2Controller:
             return session.get('gitlab_token')
 
         profiles['gitlab']['remote_app'] = gitlab_remote_app
-        profiles['gitlab']['callback_url'] = self.site_url + '/oauth2/callback/gitlab'
+        profiles['gitlab']['callback_url'] = self.site_url + 'oauth2/callback/gitlab'
 
         return profiles
 
