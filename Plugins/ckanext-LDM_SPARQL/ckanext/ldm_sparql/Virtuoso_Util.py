@@ -232,8 +232,8 @@ class Virtuoso_Util:
 
         data = self.rdfizer_obj.get_DCAT_RDF_raw_data(ds_name)
 
-        sql = f"INSERT " + "{" + data + "}"
-        #log.info(sql)
+        sql = f"INSERT " + "{\n" + data + "}"
+        log.info(sql)
         res = self.execute_sparql_sentence(sql, True)
         if not res:
             log.error("ERROR inserting dataset: "+ ds_name)

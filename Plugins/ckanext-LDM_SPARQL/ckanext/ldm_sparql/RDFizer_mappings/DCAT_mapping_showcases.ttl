@@ -67,25 +67,37 @@
       rr:datatype xsd:dateTime;
       rml:reference "metadata_modified"
     ]
+  ].
+
+  <#DatasetMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.resources[*]";
+  ];
+
+  rr:subjectMap [
+    rr:template "{kg_domain}/{data_id}";
+    rr:class dcat:DataService;
   ];
 
   rr:predicateObjectMap [
     rr:predicate dcat:distribution;
     rr:objectMap [
-      rr:template "{kg_domain}/{resources[*].id}"
+      rr:template "{kg_domain}/{id}"
     ]
   ].
 
 
-<#ExtraAuthors> a rr:TriplesMap;
+<#Keywords> a rr:TriplesMap;
   rml:logicalSource [
     rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.extra_authors[*]";
+    rml:iterator "$.tags[*]";
   ];
 
   rr:subjectMap [
-    rr:template "{kg_domain}/{doi}";
+    rr:template "{url}";
     rr:class ldmc:Showcase;
     
   ];
@@ -117,14 +129,14 @@
   rr:predicateObjectMap [
     rr:predicate owl:sameAs;
     rr:objectMap [
-      rr:template "{wikidata}"
+      rr:template "{wikidata_link}"
     ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate owl:sameAs;
     rr:objectMap [
-      rr:template "{dbpedia}"
+      rr:template "{dbpedia_link}"
     ]
   ].
 

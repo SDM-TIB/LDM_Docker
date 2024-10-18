@@ -77,13 +77,6 @@
   ];
 
   rr:predicateObjectMap [
-    rr:predicate dcat:distribution;
-    rr:objectMap [
-      rr:template "{kg_domain}/{resources[*].id}"
-    ]
-  ];
-
-  rr:predicateObjectMap [
     rr:predicate dct:publisher;
     rr:objectMap [
       rr:template "{kg_domain}/organization/{organization.name}"
@@ -262,15 +255,34 @@
     ]
   ].
 
-<#ExtraAuthors> a rr:TriplesMap;
+<#DatasetMapping> a rr:TriplesMap;
   rml:logicalSource [
     rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.extra_authors[*]";
+    rml:iterator "$.resources[*]";
   ];
 
   rr:subjectMap [
-    rr:template "{kg_domain}/{doi}";
+    rr:template "{kg_domain}/{data_id}";
+    rr:class dcat:DataService;
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:distribution;
+    rr:objectMap [
+      rr:template "{kg_domain}/{id}"
+    ]
+  ].
+
+<#Keywords> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "/usr/lib/ckan/default/src/ckanext-LDM_SPARQL/ckanext/ldm_sparql/temp/temp.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.tags[*]";
+  ];
+
+  rr:subjectMap [
+    rr:template "{url}";
     rr:class dcat:DataService;
     
   ];
@@ -302,14 +314,14 @@
   rr:predicateObjectMap [
     rr:predicate owl:sameAs;
     rr:objectMap [
-      rr:template "{wikidata}"
+      rr:template "{wikidata_link}"
     ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate owl:sameAs;
     rr:objectMap [
-      rr:template "{dbpedia}"
+      rr:template "{dbpedia_link}"
     ]
   ].
 
@@ -462,7 +474,7 @@
     rml:iterator "$";
   ];
   rr:subjectMap [
-    rr:template "{url_base_authors}{author}";
+    rr:template "{kg_domain}/{author}";
     rr:class pro:Author;
   ];
   rr:predicateObjectMap [
@@ -492,7 +504,7 @@
   ];
 
   rr:subjectMap [
-    rr:template "{url_base_authors}{extra_author}";
+    rr:template "{kg_domain}/{extra_author}";
     rr:class pro:Author;
   ];
   rr:predicateObjectMap [

@@ -180,6 +180,7 @@ class RDFizer_Util:
                         # url is overlapping dataset url
                         data_instance['resource_url'] = self._get_resource_url_from(data_instance)
                         data_instance['download_url'] = data_instance['url']
+                        data_instance['data_id'] = dataset_dict["id"]
                         if 'size' in data_instance and not data_instance['size']:
                             data_instance['size'] = ''
                         # descriptions causing errors
@@ -202,6 +203,7 @@ class RDFizer_Util:
                             data_instance['orcid'] = self._search_orcid(data_instance['extra_author'])
                         data_instance['url_base_authors'] = dataset_dict['url_base_authors']
                     # For all
+                    data_instance['kg_domain'] = os.environ.get('CKAN_KG_DOMAIN')
                     data_instance['url'] = url
 
         # returns in descriptions causes error
@@ -210,6 +212,7 @@ class RDFizer_Util:
         if "organization" in dataset_dict:
             dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\n', '')
             dataset_dict['organization']['description'] = dataset_dict['organization']['description'].replace('\r', '')
+                
         dataset_dict['kg_domain'] = os.environ.get('CKAN_KG_DOMAIN')
         log.info(dataset_dict)
 
@@ -247,10 +250,11 @@ class RDFizer_Util:
 
 
     def _get_dataset_url_from(self, dataset_dict):
-        if self.ViruosoEndpointEnabled:
-            url = self.pubbyURL + dataset_dict['id']
-        else:
-            url = self.home_url + "/" + dataset_dict['type'] + "/" + dataset_dict['id']
+        """if self.ViruosoEndpointEnabled:
+                                    url = os.environ.get('CKAN_KG_DOMAIN') + dataset_dict['id']
+                                else:
+                                    url = os.environ.get('CKAN_KG_DOMAIN') + "/" + dataset_dict['type'] + "/" + dataset_dict['id']"""
+        url = os.environ.get('CKAN_KG_DOMAIN') + dataset_dict['id']
         return url
 
     def _get_organization_url_from(self, dataset_dict):
