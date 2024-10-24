@@ -167,7 +167,7 @@ attribute with the form `ckan-X.Y` -->
 
     <field name="_version_" type="string" indexed="true" stored="true"/>
 	<field name="extra_authors" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="extra_contrsibs" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="extra_contribs" type="string" indexed="true" stored="true" multiValued="true"/>
   	<field name="extra_topics" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="*_date" type="date" indexed="true" stored="true" multiValued="false"/>
