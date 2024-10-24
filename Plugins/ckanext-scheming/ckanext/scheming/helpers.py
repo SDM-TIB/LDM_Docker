@@ -446,7 +446,9 @@ def scheming_flatten_subfield(subfield, data):
 def scheming_digital_objects_filter_title():
     data = {'dataset': 'Local Dataset',
             'vdataset': 'Imported Dataset',
-            'service': 'Service'}
+            'service': 'Service',
+            'github': 'GitHub'            
+           }
     return data
 
 @helper
