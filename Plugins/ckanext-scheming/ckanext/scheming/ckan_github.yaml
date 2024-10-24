@@ -1,0 +1,135 @@
+scheming_version: 2
+dataset_type: github
+about: The default CKAN dataset schema with github metadata
+about_url: http://github.com/ckan/ckanext-scheming
+
+
+dataset_fields:
+
+- field_name: github_repo
+  label: Repository Name
+  preset: title
+  form_placeholder:  e.g. Org/Repo
+
+- field_name: name
+  label: URL
+  preset: dataset_slug
+  form_placeholder: eg. my-dataset
+  
+- field_name: notes
+  label: README
+  form_snippet: markdown.html
+  form_placeholder: Fetch you README.md here 
+
+- field_name: github_owner
+  label: Repository Owner
+  form_placeholder: Owner of the GitHub repository
+
+- field_name: github_contributor
+  label: Contributor
+  form_placeholder: The user name of the contributor
+  display_property: dc:creator
+  form_snippet: contributor.html
+  display_snippet: text.html
+
+- field_name: extra_contribs
+  label: More Contributors
+  display_snippet: repeating_subfields_contribs.html
+  repeating_subfields:
+    - field_name: extra_contrib
+      label: Contributor
+      form_placeholder: The user name of the contributor
+      form_snippet: text.html
+
+- field_name: github_author
+  label: Author
+  form_placeholder: The full name of the Author
+  display_property: dc:creator
+  form_snippet: author.html
+  display_snippet: author.html
+
+
+- field_name: extra_authors
+  label: More Authors
+  display_snippet: repeating_subfields_authors.html
+  repeating_subfields:
+    - field_name: extra_author
+      label: Author
+      form_placeholder: The full name of the Author
+      required: false
+      form_snippet: author.html
+
+- field_name: owner_org
+  label: Organization
+  required: true
+  preset: dataset_organization
+
+- field_name: github_description
+  label: Repository Description
+  form_snippet: markdown.html
+  form_placeholder: Description of the GitHub repository
+
+- field_name: license
+  label: License
+  form_placeholder: License information of the dataset
+
+- field_name: pb_doi
+  label: DOI
+  form_placeholder: DOI of the digital object
+
+# - field_name: video
+#   label: Video
+#   form_placeholder: Link to a video related to the dataset
+
+# - field_name: binder_url
+#   label: Binder URL
+#   form_placeholder: Link to the Binder environment
+
+
+- field_name: repository_topics
+  label: Repository Topic
+  form_placeholder: Topic or tag related to the repository
+  display_property: dc:creator
+  form_snippet: topic.html
+  display_snippet: text.html
+
+- field_name: extra_topics
+  label: More Topics
+  display_snippet: repeating_subfields_topics.html
+  repeating_subfields:
+    - field_name: extra_topic
+      label: Repository Topic
+      form_placeholder: Topic or tag related to the repository
+      form_snippet: text.html
+
+- field_name: repository_stars
+  label: Repository Stars
+  form_placeholder: Number of stars the repository has
+
+- field_name: repository_forks
+  label: Repository Forks
+  form_placeholder: Number of forks the repository has
+
+- field_name: programming_language
+  label: Programming Language
+  form_placeholder: Primary programming language used in the repository
+  
+resource_fields:
+- field_name: url
+  label: URL
+  preset: resource_url_upload
+  
+- field_name: name
+  label: Name
+  form_placeholder: eg. January 2011 Gold Prices
+
+- field_name: description
+  label: Description
+  form_snippet: markdown.html
+  form_placeholder: Some useful notes about the data
+
+- field_name: format
+  label: Format
+  preset: resource_format_autocomplete
+  
+  
