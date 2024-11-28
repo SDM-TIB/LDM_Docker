@@ -1,20 +1,4 @@
-query-css:
-  output: fedorkg/%(version)s_fedorkg.css
-  filter: cssrewrite
-  contents:
-    - css/yasgui-4.2.28.min.css
-    - css/fedorkg-custom.css
-
-query:
-  output: fedorkg/%(version)s_fedorkg.js
-  extra:
-    preload:
-      - fedorkg/query-css
-  contents:
-    - js/yasgui-4.2.28.min.js
-    - js/fedorkg-query.js
-
 admin:
-  output: fedorkg/%(version)s_fedorkg_admin.css
+  output: jupyternotebook/%(version)s_jupyternotebook_admin.css
   contents:
-    - css/fedorkg-admin.css
+    - css/jupyternotebook-admin.css
