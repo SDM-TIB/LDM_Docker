@@ -10,7 +10,7 @@ RUN pip install --no-cache \
     flask
 
 COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
-COPY guest_list.txt /srv/jupyterhub/guest_list.txt
+# COPY guest_list.txt /srv/jupyterhub/guest_list.txt
 COPY jupyterhub_api.py /srv/jupyterhub/jupyterhub_api.py
 COPY api.py /srv/jupyterhub/api.py
 

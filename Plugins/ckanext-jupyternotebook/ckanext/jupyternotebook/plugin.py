@@ -8,26 +8,27 @@ import requests
 from ckan.common import request
 from hashlib import sha256
 import os
+import ckanext.jupyternotebook.views as views
 
 logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
 ignore_empty = plugins.toolkit.get_validator('ignore_empty')
 
-
-API_URL = os.getenv('CKAN_API_JUPYTERHUB') #'http://jupyterhub:6000'  #os.environ.get('CKAN_STORAGE_PATH') url_nb = os.getenv('CKAN_JUPYTERNOTEBOOK_URL')
+API_URL = os.getenv(
+    'CKAN_API_JUPYTERHUB')  # 'http://jupyterhub:6000'  #os.environ.get('CKAN_STORAGE_PATH') url_nb = os.getenv('CKAN_JUPYTERNOTEBOOK_URL')
 
 dict_user_session = dict()
 
 
 def get_data_from_api():
-    response = requests.get(API_URL+'/get_user')
+    response = requests.get(API_URL + '/get_user')
     if response.status_code == 200:
         data = response.json()
         log.info(data)
         return data['user']
     else:
-        print('Failed to retrieve data from API')
+        log.error('Failed to retrieve data from API')
 
 
 def generate_session_id():
@@ -55,25 +56,53 @@ def remove_session_to_user(user):
         dict_user_session.pop(user)
 
 
+def get_jupyterhub_env_variable(variable_name, default=''):
+    """
+    Retrieve a JupyterHub-related environment variable.
+
+    :param variable_name: Name of the environment variable
+    :param default: Default value if environment variable is not set
+    :return: Value of the environment variable or default
+    """
+    return os.getenv(variable_name, default)
+
+
 class JupyternotebookPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer, inherit=True)
     plugins.implements(plugins.IResourceView, inherit=True)
+    plugins.implements(plugins.IBlueprint, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers)
     url_nb = os.getenv('CKAN_JUPYTERNOTEBOOK_URL')
+
     # IResourceView
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic',
-                             'jupyternotebook')
+        # toolkit.add_resource('fanstatic', 'jupyternotebook')
+        toolkit.add_resource('static', 'jupyternotebook')
+        if toolkit.check_ckan_version(min_version='2.10'):
+            icon = 'magnifying-glass'
+        else:
+            icon = 'fa fa-file-code-o'  # 'search'
+        toolkit.add_ckan_admin_tab(config_, 'jupyternotebook_admin.admin', 'JupyterHub', icon=icon)
         self.formats = ['ipynb']
         jn_filepath_default = "/var/lib/ckan/notebook"
         # jn_filepath_default = "/var/lib/docker/volumes/docker_ckan_storage/_data/notebook"
-        jn_url_default = self.url_nb+"user/" + get_data_from_api() + "/notebooks/"  # "http://localhost:8000/user/guest1/notebooks/" # "http://localhost:8000/ldmjupyter/notebooks/"
+        jn_url_default = self.url_nb + "user/" + get_data_from_api() + "/notebooks/"  # "http://localhost:8000/user/guest1/notebooks/" # "http://localhost:8000/ldmjupyter/notebooks/"
         self.jn_filepath = config.get('ckan.jupyternotebooks_path', jn_filepath_default)
-        self.jn_url = jn_url_default  #config.get('ckan.jupyternotebooks_url', jn_url_default)
+        self.jn_url = jn_url_default  # config.get('ckan.jupyternotebooks_url', jn_url_default)
 
         # dict_user_session[user] = session_id
+
+    def get_blueprint(self):
+        return views.get_blueprints()
+
+    def get_helpers(self):
+        # Register the helper function here
+        return {
+            'get_jupyterhub_env_variable': get_jupyterhub_env_variable
+        }
 
     def info(self):
         return {'name': 'jupyternotebook',
@@ -102,17 +131,20 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
         else:
             user = get_data_from_api()
             if user is None:
+                toolkit.h.flash_success(toolkit._('Sorry, there is not more free JupyterHub user, wait few minutes please.'))
+                # Return the new template when no users are available
                 data_dict['nb_file'] = "ERROR"
-                return 'jupyternotebook_view.html'
+                data_dict['home_url'] = h.url_for('home')
+                return 'jupyterhub_no_users.html'
             dict_user_session[user] = session_id
-        jn_url = self.url_nb+"user/" + user + "/notebooks/"
+        jn_url = self.url_nb + "user/" + user + "/notebooks/"
         log.info(dict_user_session)
         log.info(jn_url)
         # jn_url = "http://localhost:8000/user/" + get_data_from_api() + "/notebooks/"
         self.file = JNFile(filename, resource_id, resource_date, self.jn_filepath, jn_url, url_type)
         # self.file = JNFile(filename, resource_id, resource_date, self.jn_filepath, self.jn_url, url_type)
         data_dict['nb_file'] = self.file
-        #data_dict['nb_file'].filefullpath = "ERROR"
+        # data_dict['nb_file'].filefullpath = "ERROR"
         return 'jupyternotebook_view.html'
 
     def form_template(self, context, data_dict):

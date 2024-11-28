@@ -13,13 +13,15 @@ path_file = 'guest_list.txt'
 api_token = '71da5210caf07e63a778c1a9f014c3b1c60de0688c1095dd423a3e9f39d313ab'
 
 
-def get_guest_list():
-    user_list = []
-    with open(path_file, 'r') as file:
-        for line in file:
-            # Remove leading and trailing whitespace and add the user to the list
-            user_list.append(line.strip())
-    return user_list
+
+def get_guest_list(n):
+    """
+    Generate the lis of users with the maximum number of concurrent users allowed.
+
+    :param n: maximal amount of guest users
+    :return: list of all the users
+    """
+    return ["guest" + str(i) for i in range(0, int(n))]
 
 
 c.Authenticator.auto_login = True
@@ -81,7 +83,7 @@ c.DockerSpawner.stop = True
 
 # === Create a docker volume for the guest user with read-only privilege ===
 class GuestDockerSpawner(DockerSpawner):
-    user_list = get_guest_list()
+    user_list = get_guest_list(os.getenv('CKAN_JUPYTERHUB_USER'))
 
     def start(self):
         if self.user.name in self.user_list:
@@ -95,9 +97,9 @@ class GuestDockerSpawner(DockerSpawner):
             # self.notebook_dir = '/home/shared'
             # Set resource limits: memory and CPU
             self.extra_host_config = {
-                "mem_limit": "1G",  # Set memory limit to 1GB
+                "mem_limit": os.getenv('CKAN_JUPYTERHUB_MEMORY_LIMIT'),  # Set memory limit to xG
                 "cpu_period": 100000,  # Set CPU period to 100ms
-                "cpu_quota": 50000  # Set CPU quota to 50ms (half a core)
+                "cpu_quota": int(os.getenv('CKAN_JUPYTERHUB_PERCENTAGE_CPU')) * 1000  # Set CPU quota to x (x of a core)
             }
         else:
             self.volumes['jupyterhub-user-{username}'] = {
@@ -131,7 +133,7 @@ c.JupyterHub.db_url = "sqlite:///data/jupyterhub.sqlite"
 
 # Enable user registration
 #c.Authenticator.allowed_users = set(get_guest_list() + ['myadmin'])
-c.Authenticator.allowed_users = set(get_guest_list())
+c.Authenticator.allowed_users = set(get_guest_list(os.getenv('CKAN_JUPYTERHUB_USER')))
 
 
 c.JupyterHub.services = [
@@ -143,7 +145,7 @@ c.JupyterHub.services = [
         'command': [
             sys.executable,
             '-m', 'jupyterhub_idle_culler',
-            '--timeout=1200',
+            '--timeout=' + os.getenv('CKAN_JUPYTERHUB_TIMEOUT'),
             '--cull-users', # Cull users
 #            '--remove-users' # Remove users
         ],

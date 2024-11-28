@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+
+{% import 'macros/form.html' as form %}
+
+{% block primary_content_inner %}
+    {% asset 'jupyternotebook/admin' %}
+
+
+    <h2>{% trans %}JupyterHub Setup{% endtrans %}</h2>
+    <div>
+        <form method="POST" action="{{ h.url_for('jupyternotebook_admin.admin') }}">
+            {{ form.input('ckanext.jupyternotebook.timeout', label=_('Time out of JupyterHub container'), value=timeout, placeholder=_(h.get_jupyterhub_env_variable('CKAN_JUPYTERHUB_TIMEOUT', '30')), is_required=true) }}
+
+            {{ form.input('ckanext.jupyternotebook.max_user', label=_('Maximum number of concurrent JupyterHub users'), value=max_user, placeholder=_(h.get_jupyterhub_env_variable('CKAN_JUPYTERHUB_USER', '100')), is_required=true)}}
+
+            {{ form.input('ckanext.jupyternotebook.cpu', label=_('Allowed percentage of a CPU Core for the container'), value=cpu, placeholder=_(h.get_jupyterhub_env_variable('CKAN_JUPYTERHUB_PERCENTAGE_CPU', '50')), is_required=true)}}
+
+            {{ form.input('ckanext.jupyternotebook.memory', label=_('Memory limit of JupyterHub container'), value=memory, placeholder=_(h.get_jupyterhub_env_variable('CKAN_JUPYTERHUB_MEMORY_LIMIT', '1G')), is_required=true) }}
+
+            <input type="hidden" name="action" value="default_setup">
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" title="{% trans %}Save JupyterHub settings{% endtrans %}">{% trans %}Update{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block secondary_content %}
+    <div class="module module-narrow module-shallow">
+        <h2 class="module-heading">
+            <i class="fa fa-info-circle"></i>
+            JupyterHub Configuration
+        </h2>
+        <div class="module-content">
+            {% trans %}
+                <p>Configuration options to manage the JupyterHub plugin.</p>
+                <p><strong>Time out:</strong> Set the timeout duration for JupyterHub sessions (timeout in seconds).</p>
+                <p><strong>Amount of users:</strong> Configure the maximum number of concurrent users allowed.</p>
+                <p><strong>Allowed Percentage of a CPU Core:</strong> Set the percentage of CPU core allocated to each container.</p>
+                <p><strong>Memory limit:</strong> Sets a limit on the amount of memory that the container can use.</p>
+            {% endtrans %}
+        </div>
+    </div>
+{% endblock %}
+

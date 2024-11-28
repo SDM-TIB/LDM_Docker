@@ -1,0 +1,65 @@
+.yasgui .autocompleteWrapper,
+.yasgui .controlbar,
+.yasqe .yasqe_buttons .yasqe_share {
+  display: none !important;
+}
+
+.tableControls div .switch .label {
+  color: unset !important;
+  font-weight: normal !important;
+  font-size: unset !important;
+}
+
+.tableControls div .switch:after {
+  content: "";
+}
+
+.main .primary {
+  min-height: 800px;
+  width: 100%;
+}
+
+.mx-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.ms-2 {
+  margin-left: 0.5rem !important;
+}
+
+.mt-2 {
+  margin-top: 0.5rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+#content-wrap {
+  padding-bottom: 1.5rem;
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -0.75rem;
+  border-top: #eee solid 1px;
+}
+
+.footer {
+  display: inline-flex;
+  padding-left: 10px;
+  padding-right: 10px;
+}
