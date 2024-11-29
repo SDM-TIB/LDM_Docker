@@ -173,7 +173,6 @@ class JupyterHubController:
 
                 except ValueError as e:
                     toolkit.h.flash_error(f"Invalid input: {str(e)}")
-                    # return toolkit.render('admin.jinja2')
 
         # Get current values for display
         extra_vars = {
@@ -183,4 +182,4 @@ class JupyterHubController:
             'memory': self.get_jupyterhub_env_variable('CKAN_JUPYTERHUB_MEMORY_LIMIT')
         }
 
-        return toolkit.render('admin.jinja2', extra_vars=extra_vars)
+        return toolkit.render('admin_jupyter.html', extra_vars=extra_vars)
