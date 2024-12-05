@@ -131,7 +131,8 @@ class JupyternotebookPlugin(plugins.SingletonPlugin):
         else:
             user = get_data_from_api()
             if user is None:
-                toolkit.h.flash_success(toolkit._('Sorry, there is not more free JupyterHub user, wait few minutes please.'))
+                toolkit.h.flash_notice(
+                    toolkit._('Sorry, there is not more free JupyterHub user, wait few minutes please.'))
                 # Return the new template when no users are available
                 data_dict['nb_file'] = "ERROR"
                 data_dict['home_url'] = h.url_for('home')
