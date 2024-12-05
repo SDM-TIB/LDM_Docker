@@ -5,7 +5,7 @@ from ckan.common import request, config
 from ckan.plugins import toolkit
 import os
 import requests
-# import docker
+from ckanext.jupyternotebook import plugin
 import logging
 
 log = logging.getLogger(__name__)
@@ -167,6 +167,7 @@ class JupyterHubController:
                     #     toolkit.h.flash_success(
                     #         toolkit._('JupyterHub settings have been updated and service restarted.'))
                     if success:
+                        plugin.dict_user_session = dict()
                         toolkit.h.flash_success(toolkit._('JupyterHub settings have been updated.'))
                     else:
                         toolkit.h.flash_error(toolkit._('Error updating JupyterHub settings.'))
