@@ -45,13 +45,13 @@ sudo apt install nginx
     ```nginx
     server {
         listen 80;
-        server_name coypuldm21.service.tib.eu; # Replace with your server's domain name
+        server_name ldm.service.tib.eu; # Replace with your server's domain name
 
-        location /ldm_coypu/ldmservice/ { 
+        location /ldmservice/ { 
             # Important: Replace the paths as per your actual configuration
-            rewrite ^/ldm_coypu/ldmservice/(.*)$ /ldm_coypu/ldmservice/$1 redirect;
+            rewrite ^/ldmservice/(.*)$ /ldmservice/$1 redirect;
             add_header 'Access-Control-Allow-Origin' '*';
-            rewrite /ldm_coypu/ldmservice(.*) $1 break;
+            rewrite /ldmservice(.*) $1 break;
             proxy_pass http://localhost:5000;
             # Timeout and body size configurations
             proxy_connect_timeout 600;
@@ -69,7 +69,7 @@ sudo apt install nginx
             proxy_cache_key $host$scheme$proxy_host$request_uri;
         }
 
-        location /ldm_coypu/ldmjupyter/ {
+        location /ldmjupyter/ {
             proxy_pass http://localhost:8000;
             # Header configurations
             proxy_set_header Host $host;
@@ -78,7 +78,7 @@ sudo apt install nginx
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        location /ldm_coypu/ldmkg/sparql {
+        location /ldmkg/sparql {
             proxy_pass http://localhost:8890/sparql;
             # Header configurations
             proxy_set_header Host $host;
@@ -113,10 +113,10 @@ sudo apt install nginx
 Update the `.env` file in the root directory where the LDM Docker files are located, changing the following parameters:
 
 ```dotenv
-CKAN_SITE_URL=https://service.tib.eu/ldm_coypu/ldmservice/
+CKAN_SITE_URL=https://service.tib.eu/ldmservice/
 # JupyterHub variables
-CKAN_JUPYTERNOTEBOOK_URL=https://service.tib.eu/ldm_coypu/ldmjupyter/
-CKAN_JUPYTERHUB_BASE_URL=/ldm_coypu/ldmjupyter
+CKAN_JUPYTERNOTEBOOK_URL=https://service.tib.eu/ldmjupyter/
+CKAN_JUPYTERHUB_BASE_URL=/ldmjupyter
 CKAN_NETWORK=ldmnetwork
 CKAN_STORAGE_NOTEBOOK=/data/LDM_Installer/LDM_Docker_Server_Installed/docker/LDM_data/docker_ckan_storage/notebook
 CKAN_API_JUPYTERHUB=http://jupyterhub:6000
@@ -129,7 +129,7 @@ Note: DeTrusty expects the source description file to be named _rdfmts.json_ and
 Adjust the CKAN configuration to match your instance URL:
 
 ```bash
-ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldm_coypu/ldmservice/{{LANG}}"
+ckan config-tool -s app:main $CONFIG "ckan.root_path = /ldmservice/{{LANG}}"
 ```
 ## 4. Examples files
 
@@ -158,8 +158,8 @@ sudo nano /var/lib/docker/volumes/docker_ckan_home/_data/src/ckan
 Update the following lines as per your configuration:
 
 ```ini
-post_login_url = /ldm_coypu/ldmservice/user/logged_in
-post_logout_url = /ldm_coypu/ldmservice/user/logged_out
+post_login_url = /ldmservice/user/logged_in
+post_logout_url = /ldmservice/user/logged_out
 ```
 
 ## 7. Final Step
