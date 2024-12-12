@@ -24,3 +24,30 @@ const yasgui = new Yasgui(document.getElementById("yasgui"), {
 let tab = yasgui.getTab();
 tab.setName(default_query_name);
 tab.setQuery(default_query);
+
+const llm_form = document.getElementById("llm"),
+      loader = document.querySelector("#loading");
+
+function displayLoading() {
+    loader.classList.add("display");
+}
+
+function hideLoading() {
+    loader.classList.remove("display");
+}
+
+llm_form.onsubmit = async function (event) {
+    event.preventDefault();
+    displayLoading();
+
+    let data = new FormData();
+    data.append("question", document.getElementById("question").value)
+    let query = await fetch("/fedorkg/llm", {method: "POST", body: data})
+        .then(res => { hideLoading(); return res.text(); })
+        .catch(err => console.error(err));
+
+    tab = yasgui.getTab();
+    tab.setName("LLM Query");
+    tab.setQuery(query);
+    tab.query();
+};

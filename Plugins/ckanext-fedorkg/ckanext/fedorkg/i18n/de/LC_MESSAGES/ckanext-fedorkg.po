@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-fedorkg 0.4.0\n"
+"Project-Id-Version: ckanext-fedorkg 0.7.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-13 15:50+0200\n"
+"POT-Creation-Date: 2024-11-27 16:20+0100\n"
 "PO-Revision-Date: 2024-04-08 13:44+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -19,87 +19,133 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
-#: ckanext/fedorkg/controller.py:26
+#: ckanext/fedorkg/controller.py:51
 msgid "Need to be system administrator to administer."
 msgstr "Nur Systemadministratoren haben hier Zugriff."
 
-#: ckanext/fedorkg/controller.py:42
+#: ckanext/fedorkg/controller.py:69
 msgid "The query is malformed. Please, check your syntax."
 msgstr "Die Anfrage ist fehlerhaft. Bitte überprüfen Sie Ihre Syntax."
 
-#: ckanext/fedorkg/controller.py:47
+#: ckanext/fedorkg/controller.py:74
 msgid "The query cannot be answer by the federation of FedORKG."
 msgstr "Die Anfrage kann nicht von der FedORKG-Föderation beantwortet werden."
 
-#: ckanext/fedorkg/controller.py:57
+#: ckanext/fedorkg/controller.py:84
 msgid "The default query and its name are required."
 msgstr "Die Standardanfrage und ihr Name sind erforderlich."
 
-#: ckanext/fedorkg/controller.py:63
-msgid "There was an error when deleting {kg} from the federation!"
-msgstr "Beim Entfernen von {kg} aus der Föderation ist ein Fehler aufgetreten."
+#: ckanext/fedorkg/controller.py:91
+msgid ""
+"The query timeout is specified in full seconds. Please, provide input "
+"that can be parsed as an integer."
+msgstr ""
+"Die Zeitüberschreitung der Anfrage wird in vollen Sekunden angegeben. "
+"Bitte entsprechende Eingabe tätigen."
 
-#: ckanext/fedorkg/controller.py:65
+#: ckanext/fedorkg/controller.py:119
+#, fuzzy
+msgid ""
+"There was an error when deleting {kg} from the federation! If you are an "
+"admin, check the logs for more details on what happened."
+msgstr ""
+"Beim Entfernen von {kg} aus der Föderation ist ein Fehler aufgetreten. "
+"Falls Sie ein Administrator sind, prüfen sie bitte die Logs."
+
+#: ckanext/fedorkg/controller.py:121
 msgid "Successfully removed {kg} from the federation!"
 msgstr "{kg} wurde erfolgreich von der Föderation entfernt."
 
-#: ckanext/fedorkg/controller.py:72
-#, fuzzy
-msgid "There was an error when adding {kg} from the federation!"
-msgstr "Beim Hinzufügen von {kg} zur Föderation ist ein Fehler aufgetreten."
+#: ckanext/fedorkg/controller.py:148
+msgid "{kg} is not accessible and, hence, cannot be added to the federation."
+msgstr ""
+"{kg} ist nicht erreichbar und wurde daher nicht zur Föderation "
+"hinzugefügt."
 
-#: ckanext/fedorkg/controller.py:74
+#: ckanext/fedorkg/controller.py:150
+msgid ""
+"There was an error when adding {kg} to the federation! If you are an "
+"admin, check the logs for more details on what happened."
+msgstr ""
+"Beim Hinzufügen von {kg} zur Föderation ist ein Fehler aufgetreten. Falls"
+" Sie ein Administrator sind, prüfen sie bitte die Logs."
+
+#: ckanext/fedorkg/controller.py:152
 #, fuzzy
-msgid "Successfully added {kg} from the federation!"
+msgid "Successfully added {kg} to the federation!"
 msgstr "{kg} wurde erfolgreich zur Föderation hinzugefügt."
 
-#: ckanext/fedorkg/templates/admin.jinja2:14
+#: ckanext/fedorkg/templates/admin.jinja2:15
+msgid "Processing request, please be patient."
+msgstr "Anfrage wird bearbeitet. Bitte haben Sie Geduld."
+
 #: ckanext/fedorkg/templates/admin.jinja2:18
+#: ckanext/fedorkg/templates/admin.jinja2:22
 msgid "Default Query"
 msgstr "Standardanfrage"
 
-#: ckanext/fedorkg/templates/admin.jinja2:17
+#: ckanext/fedorkg/templates/admin.jinja2:21
 msgid "Default Query Name"
 msgstr "Name der Standardanfrage"
 
-#: ckanext/fedorkg/templates/admin.jinja2:17
+#: ckanext/fedorkg/templates/admin.jinja2:21
 msgid "default query name"
 msgstr "Name der Standardanfrage"
 
-#: ckanext/fedorkg/templates/admin.jinja2:21
+#: ckanext/fedorkg/templates/admin.jinja2:25
 msgid "Set default query"
 msgstr "Standardanfrage festlegen"
 
-#: ckanext/fedorkg/templates/admin.jinja2:21
+#: ckanext/fedorkg/templates/admin.jinja2:25
+#: ckanext/fedorkg/templates/admin.jinja2:36
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: ckanext/fedorkg/templates/admin.jinja2:26
+#: ckanext/fedorkg/templates/admin.jinja2:30
+msgid "Query Execution Timeout"
+msgstr "Zeitüberschreitung der Anfrageausführung"
+
+#: ckanext/fedorkg/templates/admin.jinja2:33
+msgid "Query Timeout (in seconds)"
+msgstr "Anfragezeitüberschreitung (in Sekunden)"
+
+#: ckanext/fedorkg/templates/admin.jinja2:33
+msgid "query execution timeout"
+msgstr "Zeitüberschreitung der Anfrageausführung"
+
+#: ckanext/fedorkg/templates/admin.jinja2:36
+msgid "Set query timeout"
+msgstr "Anfragezeitüberschreitung festlegen"
+
+#: ckanext/fedorkg/templates/admin.jinja2:41
 msgid "Knowledge Graphs in the Federation"
 msgstr "Wissensgraphen in der Föderation"
 
-#: ckanext/fedorkg/templates/admin.jinja2:30
+#: ckanext/fedorkg/templates/admin.jinja2:45
 msgid "Knowledge Graph"
 msgstr "Wissensgraph"
 
-#: ckanext/fedorkg/templates/admin.jinja2:41
+#: ckanext/fedorkg/templates/admin.jinja2:56
 msgid "Remove knowledge graph from the federation"
 msgstr "Entferne Wissensgraph aus der Föderation"
 
-#: ckanext/fedorkg/templates/admin.jinja2:52
+#: ckanext/fedorkg/templates/admin.jinja2:67
 msgid "URL of the SPARQL endpoint"
 msgstr "URL des SPARQL-Endpunkts"
 
-#: ckanext/fedorkg/templates/admin.jinja2:55
+#: ckanext/fedorkg/templates/admin.jinja2:70
 msgid "Add knowledge graph to the federation"
 msgstr "Füge Wissensgraph zur Föderation hinzu"
 
-#: ckanext/fedorkg/templates/admin.jinja2:72
+#: ckanext/fedorkg/templates/admin.jinja2:87
+#, fuzzy
 msgid ""
 "<p>Configuration options to manage the FedORKG instance.</p> "
 "<p><strong>Default Query Name:</strong> The title of the tab in the "
 "SPARQL query editor holding the default query.</p> <p><strong>Default "
 "Query:</strong> The default query shown in the SPARQL query editor.</p> "
+"<p><strong>Query Timeout:</strong> The maximum time in seconds a query is"
+" executed. Unfinished queries are canceled and return no result.</p> "
 "<p><strong>Knowledge Graphs in the Federation:</strong> Mange the "
 "knowledge graphs that are included in the federation of FedORKG. Keep in "
 "mind that only included knowledge graphs can be queried.</p>"
@@ -107,17 +153,91 @@ msgstr ""
 "<p>Konfigurationsoptionen zur Verwaltung der FedORKG-Instanz.</p> "
 "<p><strong>Name der Standardanfrage:</strong> Der Name der Registerkarte "
 "im SPARQL Anfrage-Editor, die die Standardabfrage enthält.</p> "
-"<p><strong>Standardanfrage:</strong> Die Standardanfrage, die im SPARQL "
-"Anfrage-Editor angezeigt wird.</p> <p><strong>Wissensgraphen in der "
-"Föderation:</strong> Verwaltung der Wissensgraphen, die in der Föderation"
-" von FedORKG integriert sind. Beachten Sie, dass nur enthaltene "
-"Wissensgraphen angefragt werden können.</p>"
+"<p><strong>Zeitüberschreitung der Anfrageausführung:</strong> Die "
+"maximale Zeit in Sekunden die die Anfrageausführung dauert.Nicht "
+"abgearbeitete Anfragen werden abgebrochen und geben keine Ergebnisse "
+"zurück.</p> <p><strong>Standardanfrage:</strong> Die Standardanfrage, die"
+" im SPARQL Anfrage-Editor angezeigt wird.</p> <p><strong>Wissensgraphen "
+"in der Föderation:</strong> Verwaltung der Wissensgraphen, die in der "
+"Föderation von FedORKG integriert sind. Beachten Sie, dass nur enthaltene"
+" Wissensgraphen angefragt werden können.</p>"
 
-#: ckanext/fedorkg/templates/sparql.jinja2:16
+#: ckanext/fedorkg/templates/sparql.jinja2:17
+msgid "LLM-based Question Answering"
+msgstr "LLM-basierte Fragebeantwortung"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:19
+msgid ""
+"LDMAsk utilizes the LLM <i>o1-mini</i>. If you do not know what you could"
+" ask, here are some examples:"
+msgstr "LDMAsk verwendet das LLM <i>o1-mini</i>. Wenn Sie nicht wissen was die fragen könnten, hier sind ein paar Beispiele:"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:21
+msgid ""
+"What are the datasets that contain the keyword \"cancer\" in the "
+"description of the dataset?"
+msgstr "Welche Datensätze enthalten das Schlagwort \"cancer\" in der Datensatzbeschreibung?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:22
+msgid "What is the frequency of the datasets per data formats?"
+msgstr "Wie viele Datensätze gibt es pro Datenformat?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:23
+msgid "What is the frequency of the datasets per organizations?"
+msgstr "Wie viele Datensätze hat jede Organisation?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:24
+msgid ""
+"What are the resources that include word \"metadata\" in the description "
+"of the resource?"
+msgstr "Welche Ressourcen enthalten das Wort \"metadata\" in der Beschreibung der Ressource?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:25
+msgid ""
+"What are title, year, and research field label of the papers that "
+"describe a dataset?"
+msgstr "Wie lauten Titel, Jahr und Forschungsfeld-Label der Arbeiten, die einen Datensatz beschreiben?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:26
+msgid ""
+"What is the title of the datasets that are described by papers, also "
+"provide title, year, and research field label of these papers?"
+msgstr "Wie lautet der Titel der Datensätze, die in den Arbeiten beschrieben werden, einschließlich Titel, Jahr und Forschungsfeld-Label dieser Arbeiten?"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:30
+msgid "Question"
+msgstr "Frage"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:34
+msgid "Ask"
+msgstr "Frag"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:40
 msgid ""
 "You can use the SPARQL query editor below to run SPARQL queries over a "
 "federation of open research knowledge graphs."
 msgstr ""
 "Der untenstehende SPARQL Anfrage-Editor kann genutzt werden, um SPARQL "
 "Anfragen über eine Föderation von Wissensgraphen auszuführen."
+
+#: ckanext/fedorkg/templates/sparql.jinja2:41
+msgid ""
+"Alternatively, you can try out the beta version of our LLM-based question"
+" answering above. This feature will translate your natural language "
+"question into a SPARQL query and execute it for you."
+msgstr ""
+"Alternativ kann auch die Beta-Version unserer LLM-basierten "
+"Fragebeantwortung ausprobiert werden. Diese Funktion übersetzt "
+"natürlichsprachliche Fragen in eine SPARQL-Anfrage und führt diese aus."
+
+#: ckanext/fedorkg/templates/sparql.jinja2:43
+msgid "Query execution timeout:"
+msgstr "Anfragezeitüberschreitung:"
+
+#: ckanext/fedorkg/templates/sparql.jinja2:44
+#, python-format
+msgid "%(timeout)s second"
+msgid_plural "%(timeout)s seconds"
+msgstr[0] "%(timeout)s Sekunde"
+msgstr[1] "%(timeout)s Sekunden"
 

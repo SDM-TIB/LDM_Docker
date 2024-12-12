@@ -12,14 +12,47 @@
               default_query_name = "{{ default_query_name }}";
     </script>
     {% asset 'fedorkg/query' %}
-    <div class="mb-4 mt-4 mx-2" id="content-wrap">
+    <div class="mb-6 mt-6 mx-2" id="content-wrap">
+        <details class="mb-3" id="details-llm" open>
+            <summary class="font-bold"><i class="fa fa-flask" aria-hidden="true"></i>&nbsp;BETA: LDMAsk - {% trans %}LLM-based Question Answering{% endtrans %}</summary>
+            <div class="mb-3 py-2">
+                {% trans %}LDMAsk utilizes the LLM <i>o1-mini</i>. If you do not know what you could ask, here are some examples:{% endtrans %}
+                <ul>
+                    <li>{% trans %}What are the datasets that contain the keyword "cancer" in the description of the dataset?{% endtrans %}</li>
+                    <li>{% trans %}What is the frequency of the datasets per data formats?{% endtrans %}</li>
+                    <li>{% trans %}What is the frequency of the datasets per organizations?{% endtrans %}</li>
+                    <li>{% trans %}What are the resources that include word "metadata" in the description of the resource?{% endtrans %}</li>
+                    <li>{% trans %}What are title, year, and research field label of the papers that describe a dataset?{% endtrans %}</li>
+                    <li>{% trans %}What is the title of the datasets that are described by papers, also provide title, year, and research field label of these papers?{% endtrans %}</li>
+                </ul>
+
+                <form id="llm" method="post">
+                    <label for="question">{% trans %}Question{% endtrans %}</label>
+                    <input type="text" id="question" name="question" maxlength="136" required>
+                    <div style="display: contents">
+                        <div id="loading"></div>
+                        <input type="submit" id="llm_submit" value="{% trans %}Ask{% endtrans %}">
+                    </div>
+                </form>
+            </div>
+        </details>
+
         {% trans %}You can use the SPARQL query editor below to run SPARQL queries over a federation of open research knowledge graphs.{% endtrans %}
+        {% trans %}Alternatively, you can try out the beta version of our LLM-based question answering above. This feature will translate your natural language question into a SPARQL query and execute it for you.{% endtrans %}
+        <p id="timeout">
+            <b>{% trans %}Query execution timeout:{% endtrans %}</b>
+            {% trans timeout %}
+                {{ timeout }} second
+                {% pluralize %}
+                {{ timeout }} seconds
+            {% endtrans %}
+        </p>
         <div class="mt-2" id="yasgui"></div>
     </div>
 
-    <footer id="footer">
+    <footer id="footer" style="margin-left: {{ margin }};">
         <div class="footer"><a href="https://github.com/SDM-TIB/ckanext-fedorkg" target="_blank">FedORKG</a>&nbsp;v{{ fedorkg_version }}</div>
         <div class="footer">is powered by</div>
-        <div class="footer"><a href="https://github.com/SDM-TIB/DeTrusty" target="_blank">DeTrusty</a>&nbsp;v{{ detrusty_version }}</div>
+        <div class="footer"><a href="https://github.com/SDM-TIB/DeTrusty" target="_blank"><img src="https://raw.githubusercontent.com/SDM-TIB/DeTrusty/refs/heads/master/images/icon.png" alt="Logo of DeTrusty">DeTrusty</a>&nbsp;v{{ detrusty_version }}</div>
     </footer>
 {% endblock %}

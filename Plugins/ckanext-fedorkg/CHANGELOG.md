@@ -1,5 +1,42 @@
 # Changelog
 
+# v0.7.3 - 2024-12-10
+- Update `DeTrusty` to `v0.19.0`
+
+# v0.7.2 - 2024-11-29
+- Rename admin interface template to avoid conflicts with other extensions
+
+# v0.7.1 - 2024-11-27
+- Add bottom margin for the 'ask' button
+- Fix width of natural language question input field
+- Fix the size of the DeTrusty icon in the footer
+- Fix the marker for the LLM feature drop down for CKAN 2.9
+- Update `DeTrusty` to `v0.18.3`
+- Update German translation
+
+# v0.7.0 - 2024-10-17
+- Add federation management to the admin interface
+- Update `DeTrusty` to `v0.18.2`
+- Update German translation
+
+# v0.6.1 - 2024-10-10
+- Fix reading query timeout from config
+
+# v0.6.0 - 2024-10-07
+- Update `DeTrusty` to `v0.17.0`
+- Add query timeout feature
+  - Default is 60 seconds
+  - Timeout is shown in the query interface
+  - Timeout can be changed from the admin interface
+- Update German translation
+
+# v0.5.1 - 2024-10-07
+- Fix footer alignment issue in different versions of CKAN
+
+# v0.5.0 - 2024-10-02
+- Include the logo of `DeTrusty` in the footer
+- Add experimental feature `LLM-based Question Answering`
+
 # v0.4.2 - 2024-07-29
 - Update `DeTrusty` to `v0.16.1`
 

@@ -190,8 +190,9 @@ ADD ./Plugins/ckanext-dwgviewer $CKAN_HOME_L/src/ckanext-dwgviewer
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-dwgviewer
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dwgviewer/requirements.txt
 
-# Fedorkg Plugin:
+# FedORKG Plugin:
 # ******************
+ADD ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
 ADD ./Plugins/ckanext-fedorkg $CKAN_HOME_L/src/ckanext-fedorkg
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-fedorkg
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-fedorkg/requirements.txt

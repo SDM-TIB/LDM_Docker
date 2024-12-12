@@ -19,6 +19,11 @@
   width: 100%;
 }
 
+.py-3 {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+}
+
 .mx-2 {
   margin-left: 0.5rem !important;
   margin-right: 0.5rem !important;
@@ -32,11 +37,15 @@
   margin-top: 0.5rem !important;
 }
 
-.mb-4 {
+.mb-3 {
+  margin-bottom: .75rem;
+}
+
+.mb-6 {
   margin-bottom: 1.5rem !important;
 }
 
-.mt-4 {
+.mt-6 {
   margin-top: 1.5rem !important;
 }
 
@@ -54,7 +63,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: -0.75rem;
   border-top: #eee solid 1px;
 }
 
@@ -62,4 +70,93 @@
   display: inline-flex;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.footer img {
+  height: 2em;
+  margin-top: -0.5em;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+details {
+  background-color: aliceblue;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+summary {
+  background-color: lightblue;
+  padding: 10px;
+  margin-left: -20px;
+  margin-right: -20px;
+}
+
+#llm {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#llm_submit {
+  padding: 10px 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#question {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#loading {
+  width: 45px;
+  height: 45px;
+  border: 5px solid #b0b0b0;
+  border-top: 6px solid darkgreen;
+  border-radius: 100%;
+  margin-left: auto;
+  margin-right: 20px;
+  margin-top: 10px;
+  float: right;
+  visibility: hidden;
+  animation: spin 1s infinite linear;
+}
+
+#loading.display {
+  visibility: visible;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#timeout {
+  margin-top: 20px;
+  margin-bottom: -10px;
+}
+
+#details-llm summary {
+  cursor: pointer;
+  list-style: none; /* remove default marker */
+}
+
+#details-llm summary::before {
+  content: '\25BA'; /* unicode for right-pointing triangle */
+  display: inline-block;
+  margin-right: 10px; /* space between marker and text */
+  transition: transform 0.5s ease;
+}
+
+#details-llm[open] summary::before {
+   transform: rotate(90deg); /* rotate the triangle when opening */
 }
