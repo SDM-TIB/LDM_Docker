@@ -1,2 +1,0 @@
-# ckanext-jupyternotebook
- LDM - plugin

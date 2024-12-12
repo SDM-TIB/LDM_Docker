@@ -1,6 +1,0 @@
-{% set DSdata = h.scheming_get_datasets_for_service_display(data.id) %}
-<ul>
-    {% for ds in DSdata %}
-    <li><b>{{ ds.org_name }}</b> - {{ ds.ds_title }} <a href="{{ ds.ds_url }}" target="_blank">Link</a></li>
-    {% endfor %}
-</ul>

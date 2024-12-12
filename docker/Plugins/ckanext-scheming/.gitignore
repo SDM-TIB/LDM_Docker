@@ -1,7 +1,0 @@
-*.pyc
-ckanext_scheming.egg-info/*
-links/*
-build/*
-dist/*
-.eggs/*
-ckanext/scheming/logs/*

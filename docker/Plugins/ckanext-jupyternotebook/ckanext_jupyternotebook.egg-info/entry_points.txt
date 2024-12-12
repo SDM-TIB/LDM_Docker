@@ -1,7 +1,0 @@
-
-        [ckan.plugins]
-        jupyternotebook=ckanext.jupyternotebook.plugin:JupyternotebookPlugin
-
-        [babel.extractors]
-        ckan = ckan.lib.extract:extract_ckan
-    
