@@ -1,0 +1,142 @@
+
+version: "3"
+
+volumes:
+  ckan_config:
+  ckan_home:
+  ckan_storage:
+  pg_data:
+  solr_data:
+  jupyterhub_data:
+  kg_data:
+
+services:
+  ckan:
+    container_name: ckan
+    restart: unless-stopped
+    image: ckan
+    build:
+      context: ./
+      args:
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
+          - CKAN_CONFIG_L=${CKAN_CONFIG}
+          - CKAN_HOME_L=${CKAN_HOME}
+          - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
+          - CKAN_VER=${CKAN_VERSION}
+    links:
+      - db
+      - solr
+      - redis
+#      - pusher
+#      - postfix
+      - jupyterhub
+      
+    depends_on:
+      - db
+      - solr
+      - redis
+#      - pusher
+#      - postfix
+      - jupyterhub
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+
+    volumes:
+      - ckan_config:${CKAN_CONFIG}
+      - ckan_home:${CKAN_HOME}
+      - ckan_storage:${CKAN_STORAGE_PATH}
+    networks:
+      - ldmnetwork
+
+  db:
+    build: ./postgresql-loaded/
+    container_name: db
+    restart: unless-stopped
+    image: postgresql:loaded
+    environment:
+      - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#    ports:
+#      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - ldmnetwork
+      
+  solr:
+    container_name: solr
+    restart: unless-stopped
+    build: 
+      context: ./solr/
+    image: ckan/ckan-solr:2.10
+#    ports:
+#      - "8983:8983"
+    volumes:
+     - solr_data:/var/solr
+    networks:
+      - ldmnetwork
+
+  redis:
+    container_name: redis
+    image: redis:6.0.9
+    restart: unless-stopped
+    networks:
+      - ldmnetwork
+ 
+ # pusher:
+ #   container_name: datapusher
+ #   image: clementmouchet/datapusher
+ #   ports:
+ #     - "8800:8800"
+ 
+#  postfix:
+#    container_name: postfix
+#    image: tozd/postfix:ubuntu-trusty
+#    ports:
+#      - "25:25"
+#    environment:
+#       MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"
+#    networks:
+#      - ldmnetwork    
+
+  jupyterhub:
+    container_name: jupyterhub
+    restart: unless-stopped
+    build: 
+      context: ./jupyterhub/
+      args:
+          - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
+          - CKAN_SITE_URL=${CKAN_SITE_URL}
+          - CKAN_JUPYTERNOTEBOOK_URL=${CKAN_JUPYTERNOTEBOOK_URL}
+    image: my_jupyterhub
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py
+      - jupyterhub_data:/srv/jupyterhub/data
+      - ckan_storage:${CKAN_STORAGE_PATH}:rw
+    ports:
+      - "8000:8000"
+      - "6000:6000"
+    env_file:
+      - .env
+    networks:
+      - ldmnetwork
+
+  ldm_kg:
+    container_name: ldm_kg
+    image: kemele/virtuoso:7-stable
+    restart: unless-stopped
+    ports:
+      - "8890:8890"
+    volumes:
+      - kg_data:/data
+    networks:
+      - ldmnetwork
+
+networks:
+  ldmnetwork:  
+    external: true
+

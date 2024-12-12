@@ -1,0 +1,18 @@
+{% set fields = data[field.field_name] %}
+
+{% block subfield_display %}
+<dl class="scheming-subfield-list">
+  {% for field_data in fields %}
+
+
+            <dt class="dataset-label">
+              {# h.scheming_language_text(subfield.label) #}
+            </dt>
+            <dd>
+            {{ field_data['cited_in'] }}
+
+            </dd>
+
+  {% endfor %}
+        </dl>
+{% endblock %}

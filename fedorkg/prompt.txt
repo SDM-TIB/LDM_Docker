@@ -1,0 +1,202 @@
+#INSTRUCTIONS:# You have the task of translating a query in natural language into the SPARQL language. Produce only the SPARQL language in plain text, i.e., do not use a code block, also provide no explanation. The SPARQL query should not be in Turtle format.
+#SPARQL# declarative language to express queries over RDF knowledge graphs; this is the grammar of SPARQL:
+<Select-From-Where-Query> := [<Namespaces>] SELECT <Projected_Expressions>
+[FROM <RDF_dataset>]* WHERE <Graph_pattern_filter> [<MODIFIERS>] <Namespaces>:= PREFIX <name>: <URL>
+<Namespaces>:= <Namespaces> <Namespaces>
+<Projected_Expressions>:= <Expression>
+<Projected_Expressions>:=
+<Projected_Expressions> <Projected_Expressions>
+<Expression>:= <Projected_Variables>|<Aggregates>
+<Aggregates>:= <Aggregate>
+<Aggregates>:=<Aggregates> <Aggregates>
+<Aggregate>:= COUNT(<Var>)| SUM(<Var>) | AVG (<Var>) |
+                           MIN (<Var>) | MAX (<Var>)
+<Projected_variables>:= <DISTINCT> <List_vars>
+<DISTINCT>:= Empty| DISTINCT
+<List_vars>:= <Vars> | * <Vars> := <Var>
+<Vars> := <Vars> <Vars>
+<Graph_pattern_filter>:= {<Graph_pattern>}. <Filter>
+<Filter>:= Empty |FILTER(<Built-in_Conditions>) <Filter>
+<Graph_pattern>:= {<Graph_pattern>}
+<Graph_pattern>:= <Graph_pattern> OPTIONAL <Graph_pattern>
+<Graph_pattern>:= <Graph_pattern> UNION <Graph_pattern>
+<Graph_pattern>:= <Graph_pattern> . <Graph_pattern>
+<Graph_pattern>:= <Triple_pattern>
+<MODIFIERS>:= GROUP BY <List_vars> | ORDER BY <List_vars> | ORDER BY DESC(<List_vars>) | ORDER BY ASC(<List_vars>)
+<Query_Grouping>:=
+<Select-From-Where-Query>
+GROUP BY <G-Expression>
+<G-Expression>:= <Vars>
+
+#MEANING SPARQL OPERATORS#
+OPTIONAL: used to retrieve data from a pattern if it exists, while still returning results even when the data is missing.
+UNION: specifies alternative patterns.
+JOIN (represented with “.”): patterns that share variables and the results includes the matching values for the shared variables.
+GROUP BY: aggregates results based on a shared property.
+ORDER BY: orders the results based on variables; ASC(<VARS>) ascending order DESC(<VARS>)  descending order
+
+# CONTEXT # Properties of vocabulary DCAT (https://www.w3.org/TR/vocab-dcat-3/). Each property is described in terms of label (rdfs:label),  meaning (rdfs:comment), domain (rdfs:domain), and range (rdfs:range).
+The string “http://www.w3.org/ns/dcat#” corresponds to the namespace with PREFIX dcat
+The string “http://purl.org/dc/elements/1.1/” corresponds to the namespace with PREFIX dc
+
+The string “http://purl.org/dc/dcmitype/” corresponds to the namespace with PREFIX dctype
+The string “http://www.w3.org/ns/prov#” corresponds to the namespace with PREFIX prov
+The string “http://www.w3.org/1999/02/22-rdf-syntax-ns#” corresponds to the namespace with PREFIX rdf
+The string “http://www.w3.org/2000/01/rdf-schema#” corresponds to the namespace with PREFIX rdfs
+
+Properties from DCAT:
+Property: http://www.w3.org/ns/dcat#keyword
+rdfs:label : “Keywords of the dataset”
+rdfs:comment :  “Keywords describe briefly the topics of the dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : skos:Concept
+
+Property: http://www.w3.org/ns/dcat#distribution
+rdfs:label : “Resources of the dataset”
+rdfs:comment :  “Resources that describe the dataset's sources.”
+rdfs:domain : dcat:Dataset
+rdfs:range : dcat:Distribution
+
+Property: http://www.w3.org/ns/dcat#accessURL
+rdfs:label : “access link”
+rdfs:comment :  “Access link for the resource”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:string
+
+Property: http://www.w3.org/ns/dcat#downloadURL
+rdfs:label : “downlink link”
+rdfs:comment :  “Download link for the resource”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:string
+
+Property: http://www.w3.org/ns/dcat#byteSize
+rdfs:label : “Size of a resource”
+rdfs:comment :  “Size of a resource expressed as bytes.”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:integer
+
+Property: http://purl.org/dc/terms/format
+rdfs:label : “Format of the resource”
+rdfs:comment :  “Format of the resource which can be some of the following values: ‘csv’, ‘json’, ‘url’, etc.”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:string
+
+Properties from dcterms:
+The string “http://purl.org/dc/terms/” corresponds to the namespace with PREFIX dcterms
+Property: http://purl.org/dc/terms/title
+rdfs:label : “the title of the dataset”
+rdfs:comment :  “This is a string that represents the title of the dataset”
+rdfs:domain : dcat:Dataset
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/description
+rdfs:label : “Description”
+rdfs:comment :  “This is a string that represents the description of the dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/identifier
+rdfs:label : “Dataset identifier”
+rdfs:comment :  “Identifier of the dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/publisher
+rdfs:label : “Publisher of the dataset”
+rdfs:comment :  “The publisher of a dataset is the organization that owns the dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : vcard:Organization
+
+Property: http://purl.org/dc/terms/license
+rdfs:label : “License of the dataset”
+rdfs:comment :  “A license defines the terms and conditions under which a dataset can be accessed, used, modified, distributed, and shared. Some of the values used are ‘Creative Commons Attribution’.”
+rdfs:domain : dcat:Dataset
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/title
+rdfs:label : “Title of the resource”
+rdfs:comment :  “Title of the resource.”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/description
+rdfs:label : “Description of a resource”
+rdfs:comment :  “Description of a resource”
+rdfs:domain : dcat:Distribution
+rdfs:range : xsd:string
+
+Property: http://purl.org/dc/terms/description
+rdfs:label : “Description of a organization”
+rdfs:comment :  “Description of a organization”
+rdfs:domain : vcard:Organization
+rdfs:range : xsd:string
+
+Properties of organization vcard:Organization class. The string “http://www.w3.org/2006/vcard/ns#” corresponds to the namespace with the prefix vcard.
+Property: http://purl.org/dc/terms/title
+rdfs:label : “Title of the organization”
+rdfs:comment :  “Title of the organization.”
+rdfs:domain : vcard:Organization
+rdfs:range : xsd:string
+
+Properties of tag skos:Concept class. The string “http://www.w3.org/2004/02/skos/core#” corresponds to the namespace with the prefix skos.
+Property: http://purl.org/dc/terms/title
+rdfs:label : “Name”
+rdfs:comment :  “Name of a tag”
+rdfs:domain : skos:Concept
+rdfs:range : xsd:string
+Property: http://www.w3.org/2002/07/owl#sameAS
+rdfs:label : “Equivalent values”
+rdfs:comment :  “Equivalent values of a tag present in either DBpedia or Wikidata.”
+rdfs:domain : skos:Concept
+rdfs:range : xsd:string
+
+Properties from datacite:
+The string “http://purl.org/spar/datacite/” corresponds to the namespace with PREFIX datacite
+Property: http://purl.org/spar/datacite/usesIdentifierScheme
+rdfs:label : “Identifier schema used to ID the dataset.”
+rdfs:comment :  “This is the DOI of the dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : xsd:string
+
+
+Property: http://purl.org/spar/datacite/isDescribedBy
+rdfs:label : “Identifier of the paper describing a dataset.”
+rdfs:comment :  “This is the identifier of the paper(s) describing a dataset.”
+rdfs:domain : dcat:Dataset
+rdfs:range : orkgc:Paper
+
+
+Properties from Publishing Roles Ontology (PRO)
+The string “http://purl.org/spar/pro/” corresponds to the namespace with PREFIX pro
+
+Property: http://purl.org/spar/pro/owner
+rdfs:label : “Datasets owned by an organization”
+rdfs:comment :  “Datasets owned by an organization.”
+rdfs:domain : vcard:Organization
+rdfs:range : dcat:Dataset
+
+Properties of ORKG
+The string “http://orkg.org/orkg/class/” corresponds to the namespace for the classes in the vocabulary; the prefix is orkgc.
+The string “http://orkg.org/orkg/predicate/” corresponds to the namespace for the properties in the vocabulary; the prefix is orkgp.
+
+
+Property: http://www.w3.org/2000/01/rdf-schema#label
+rdfs:label : “Title”
+rdfs:comment :  “Title of the paper.”
+rdfs:domain : orkgc:Paper
+rdfs:range : xsd:string
+
+Property: http://orkg.org/orkg/predicate/P29
+rdfs:label : “Year”
+rdfs:comment :  “Year of publication of the paper.”
+rdfs:domain : orkgc:Paper
+rdfs:range : xsd:string
+
+Property: http://orkg.org/orkg/predicate/P30
+rdfs:label : “Research field”
+rdfs:comment :  “Research field of the paper.”
+rdfs:domain : orkgc:Paper
+rdfs:range : xsd:string
+
+
+# OBJECTIVES # Analyze all the properties in #CONTEXT # to translate into SPARQL (following the grammar in #SPARQL# and #MEANING SPARQL OPERATORS#) the following question:

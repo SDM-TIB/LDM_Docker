@@ -1,0 +1,21 @@
+{% ckan_extends %}
+
+{% block header_site_navigation_tabs %}
+    {{ super() }}
+{% set virtuoso_endpoint_url = h.ldmsparql_get_virtuoso_endpoint_url() %}
+{% if virtuoso_endpoint_url %}
+    <li>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle tib_dropdown {{ active_item }}" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    {{ _('LDM-KG') }}
+            </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <a class="dropdown-item tib_dropdown_item" target="_blank" href="{{virtuoso_endpoint_url}}">{{_('SPARQL Endpoint')}}</a>
+            <a class="dropdown-item tib_dropdown_item" target="_blank" href="{{h.ldmsparql_get_detrusty_endpoint_url()}}">{{_('Federated Query Engine')}}</a>
+          </div>
+        </div>
+    </li>
+{% endif %}
+{% endblock %}
+
+

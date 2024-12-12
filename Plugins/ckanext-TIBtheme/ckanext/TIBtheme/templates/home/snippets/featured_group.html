@@ -1,0 +1,112 @@
+<!-- {% set groups = h.get_featured_groups() %}
+
+{% for group in groups %}
+  <div class="box">
+    {% snippet 'snippets/group_item.html', group=group, truncate=50, truncate_title=35 %}
+  </div>
+{% endfor %}
+ -->
+
+<div id="accordion-group" role="tablist" aria-multiselectable="true">
+  <div class="box">
+    <section class="group-list module module-narrow module-shallow">
+      <header class="module-heading panel-heading" role="tab" id="heading-wikidata">
+        <a class="module-image" href="">
+        <img src="https://service.tib.eu/ldmservice/dataset/66e93a29-1dc3-48a3-9611-02c29e221cec/resource/98d221e9-0ffc-4bd1-92ca-31fabfc52285/download/falcon_logo.png" alt="falcon-demo">
+        </a>
+        <h3 class="media-heading"><a role="button" data-toggle="collapse" class="accordion-toggle accordion-arrow-toggle collapsed" data-parent="#accodrion-group" href="#collapse-wikidata" aria-expanded="false" aria-controls="collapse-wikidata">Wikidata Explorer Feature</a></h3>
+        <p>Extend your dataset with information from Wikidata</p>
+      </header>
+      <ul class="list-unstyled dataset-list collapse" id="collapse-wikidata" role="tabpanel" aria-expanded="false" aria-labelledby="heading-wikidata">
+        <li class="dataset-item module-content dataset">
+          <div style="width:100%">
+            <div class="parent99">
+              <div class="dataset-content">
+                <p class="empty">With this feature the user is able to extend CSV datasets with existing information in the Wikidata KG.
+                  The tool applies entity linking to all concepts in the same column and enable the user to use the extracted entities to extend the dataset.
+                  Here below is a demo video of how the tool works:
+                </p>
+                <video width="100%" controls>
+                  <source src="https://service.tib.eu/ldmservice/dataset/66e93a29-1dc3-48a3-9611-02c29e221cec/resource/fa0b0487-fee8-43f6-a7bc-23657e8e5f53/download/ldm-falcon.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <ul class="dataset-resources list-unstyled feature">
+                <li>
+                  <a href="" class="label label-default label-dataset-box">Feature</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <div class="box">
+    <section class="group-list module module-narrow module-shallow">
+      <header class="module-heading panel-heading" role="tab" id="heading-fed">
+        <a class="module-image" href="">
+        <img src="https://service.tib.eu/ldmservice/dataset/f2046c00-836e-487a-b57c-bc892e9368d1/resource/08387a98-546e-4649-b639-5a9f44fb80ba/download/logo_high.png" alt="fedorkg-demo">
+        </a>
+        <h3 class="media-heading"><a role="button" data-toggle="collapse" class="accordion-toggle accordion-arrow-toggle collapsed" data-parent="#accodrion-group" href="#collapse-fed" aria-expanded="false" aria-controls="collapse-fed">Federated Search</a></h3>
+        <p>Retrieve answers from multiple ORKGs in a single query</p>
+      </header>
+      <ul class="list-unstyled dataset-list collapse" id="collapse-fed" role="tabpanel" aria-expanded="false" aria-labelledby="heading-fed">
+        <li class="dataset-item module-content dataset">
+          <div style="width:100%">
+            <div class="parent99">
+              <div class="dataset-content">
+                <p class="empty">This feature enables users to execute SPARQL queries over a federation of ORKGs, i.e., retrieving answers from multiple KGs with a single query. DeTrusty decomposes the query and retrieves the answers from the appropriate KGs. The federation includes but is not limited to the LDM KG and the ORKG.
+                  Here below is a demo video of how the tool works:
+                </p>
+                <video width="100%" controls>
+                  <source src="https://service.tib.eu/ldmservice/dataset/f2046c00-836e-487a-b57c-bc892e9368d1/resource/01af5e1c-0eae-45ab-b64d-43812881722e/download/fedorkg.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <ul class="dataset-resources list-unstyled feature">
+                <li>
+                  <a href="" class="label label-default label-dataset-box">Feature</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <div class="box">
+    <section class="group-list module module-narrow module-shallow">
+      <header class="module-heading panel-heading" role="tab" id="heading-orkg">
+        <a class="module-image" href="">
+        <img src="https://service.tib.eu/ldmservice/dataset/1187f2d4-25cb-45eb-b5bd-01b2957f26b1/resource/cf570ae9-1301-48b7-9b20-fa1b393a8568/download/orkg_logo.png" alt="orkg-demo">
+        </a>
+        <h3 class="media-heading"><a role="button" data-toggle="collapse" class="accordion-toggle accordion-arrow-toggle collapsed" data-parent="#accodrion-group" href="#collapse-orkg" aria-expanded="false" aria-controls="collapse-orkg">Enhancing Links between ORKG KGs</a></h3>
+        <p>Describe a dataset and its relations with scientific articles</p>
+      </header>
+      <ul class="list-unstyled dataset-list collapse" id="collapse-orkg" role="tabpanel" aria-expanded="false" aria-labelledby="heading-orkg">
+        <li class="dataset-item module-content dataset">
+          <div style="width:100%">
+            <div class="parent99">
+              <div class="dataset-content">
+                <p class="empty">By adding the DOI of the paper that defines the dataset to the LDM, a link to the corresponding paper in the ORKG will added to the dataset.
+                  Here below is a demo video of how the tool works:
+                </p>
+                <video width="100%" controls>
+                  <source src="https://service.tib.eu/ldmservice/dataset/1187f2d4-25cb-45eb-b5bd-01b2957f26b1/resource/30167b3c-a543-4f9c-bea3-67099727ec2d/download/ldm_orkg.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <ul class="dataset-resources list-unstyled feature">
+                <li>
+                  <a href="" class="label label-default label-dataset-box">Feature</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+

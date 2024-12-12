@@ -1,0 +1,28 @@
+query-css:
+  output: fedorkg/%(version)s_fedorkg.css
+  filter: cssrewrite
+  contents:
+    - css/yasgui-4.2.28.min.css
+    - css/fedorkg-custom.css
+
+query:
+  output: fedorkg/%(version)s_fedorkg.js
+  extra:
+    preload:
+      - fedorkg/query-css
+  contents:
+    - js/yasgui-4.2.28.min.js
+    - js/fedorkg-query.js
+
+admin-css:
+  output: fedorkg/%(version)s_fedorkg_admin.css
+  contents:
+    - css/fedorkg-admin.css
+
+admin:
+  output: fedorkg/%(version)s_fedorkg_admin.js
+  extra:
+    preload:
+      - fedorkg/admin-css
+  contents:
+    - js/fedorkg-admin.js

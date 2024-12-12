@@ -1,0 +1,78 @@
+<!-- {% set organizations = h.get_featured_organizations() %}
+
+{% for organization in organizations %}
+  <div class="box">
+    {% snippet 'snippets/organization_item.html', organization=organization, truncate=50, truncate_title=35 %}
+  </div>
+{% endfor %}
+ -->
+ 
+<div id="accordion-organization" role="tablist" aria-multiselectable="true">
+  <div class="box">
+    <section class="group-list module module-narrow module-shallow">
+      <header class="module-heading panel-heading" role="tab" id="heading-jupyter">
+        <a class="module-image" href="">
+        <img src="https://service.tib.eu/ldmservice/dataset/fe99ccfb-f888-40aa-b31c-f855a29159a6/resource/67446054-be83-4b2f-a050-974e19bdd2d1/download/live_code_logo.png" alt="jupyter-demo">
+        </a>
+        <h3 class="media-heading"><a role="button" data-toggle="collapse" class="accordion-toggle accordion-arrow-toggle collapsed" data-parent="#accodrion-organization" href="#collapse-jupyter" aria-expanded="false" aria-controls="collapse-jupyter">Live Code</a></h3>
+        <p>Creating, sharing, and executing live code interactively</p>
+      </header>
+      <ul class="list-unstyled dataset-list collapse" id="collapse-jupyter" role="tabpanel" aria-expanded="false" aria-labelledby="heading-jupyter">
+        <li class="dataset-item module-content dataset">
+          <div style="width:100%">
+            <div class="parent99">
+              <div class="dataset-content">
+                <p class="empty"> This feature enables users to create, share, and execute live code interactively. We use JupyterHub, which allows multiple users to use the Jupyter Notebook and manages a separate Jupyter environment for each user. The feature facilitates exploratory data analysis and visualization of code outputs. Furthermore, it is ideal for teaching and data science.
+                  Here below is a demo video of how the tool works:
+                </p>
+                <video width="100%" controls>
+                  <source src="https://service.tib.eu/ldmservice/dataset/fe99ccfb-f888-40aa-b31c-f855a29159a6/resource/2b6b7e42-035e-4d87-8538-1a5f396d5c74/download/live_code_demo.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <ul class="dataset-resources list-unstyled feature">
+                <li>
+                  <a href="" class="label label-default label-dataset-box">Feature</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <div class="box">
+    <section class="group-list module module-narrow module-shallow">
+      <header class="module-heading panel-heading" role="tab" id="heading-comparison">
+        <a class="module-image" href="">
+        <img src="https://service.tib.eu/ldmservice/dataset/7fa08901-7fb5-43cc-880f-ccc6b0530aff/resource/2a853cb9-7899-4814-adb2-c9931198372c/download/comparison_logo.webp" alt="falcon-demo">
+        </a>
+        <h3 class="media-heading"><a role="button" data-toggle="collapse" class="accordion-toggle accordion-arrow-toggle collapsed" data-parent="#accodrion-organization" href="#collapse-comparison" aria-expanded="false" aria-controls="collapse-comparison">Datasets Comparison</a></h3>
+        <p>Compare data across multiple datasets</p>
+      </header>
+      <ul class="list-unstyled dataset-list collapse" id="collapse-comparison" role="tabpanel" aria-expanded="false" aria-labelledby="heading-comparison">
+        <li class="dataset-item module-content dataset">
+          <div style="width:100%">
+            <div class="parent99">
+              <div class="dataset-content">
+                <p class="empty"> This feature enables users to compare the data of multiple CSV datasets. The feature allows the users to analyze the combined data in a table. Moreover, the feature is capable of producing different plots putting selected attributes into perspective.
+                  Here below is a demo video of how the tool works:
+                </p>
+                <video width="100%" controls>
+                  <source src="https://service.tib.eu/ldmservice/dataset/7fa08901-7fb5-43cc-880f-ccc6b0530aff/resource/2ca58284-3a9c-452f-b505-7952e60fb458/download/datacomparison.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <ul class="dataset-resources list-unstyled feature">
+                <li>
+                  <a href="" class="label label-default label-dataset-box">Feature</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+

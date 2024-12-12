@@ -1,0 +1,12 @@
+{% ckan_extends  %}
+
+
+{% block secondary_content %}
+
+  {{ super() }}
+
+  {% block package_export %}
+      {% snippet "package/snippets/export_info.html",  pkg=pkg %}
+  {% endblock %}
+
+{% endblock %}

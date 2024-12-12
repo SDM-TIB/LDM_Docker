@@ -1,0 +1,12 @@
+
+.notes img {
+  max-width: 100%;   
+  height: auto;      
+  display: block;    
+  margin: 0 auto;    
+}
+
+.notes img {
+  padding: 10px;     
+  box-sizing: border-box;
+}

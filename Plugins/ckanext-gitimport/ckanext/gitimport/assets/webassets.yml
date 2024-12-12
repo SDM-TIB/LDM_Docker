@@ -1,0 +1,14 @@
+# gitimport-js:
+#   filter: rjsmin
+#   output: ckanext-gitimport/%(version)s-gitimport.js
+#   contents:
+#     - js/gitimport.js
+#   extra:
+#     preload:
+#       - base/main
+
+# gitimport-css:
+#   filter: cssrewrite
+#   output: ckanext-gitimport/%(version)s-gitimport.css
+#   contents:
+#     - css/gitimport.css

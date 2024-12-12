@@ -1,0 +1,11 @@
+{ "type": "module",
+  "devDependencies": {
+    "chai": "^5.1.0",
+    "jsdom": "^24.0.0",
+    "mocha": "^10.3.0",
+    "sinon": "^17.0.1"
+  },
+  "scripts": {
+    "test": "mocha ./ckanext/gitimport/tests/js/gitimport_unittests.js"
+  }
+}

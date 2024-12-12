@@ -1,0 +1,5 @@
+<http://loc.example.com/city/Brussels> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/City>.
+<http://loc.example.com/city/Brussels> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/City>.
+<http://loc.example.com/city/Brussels> <http://www.geonames.org/ontology#countryCode> "BE".
+<http://loc.example.com/city/Brussels> <http://www.w3.org/2003/01/geo/wgs84_pos#latlat> "51.0500000".
+<http://loc.example.com/city/Brussels> <http://www.w3.org/2003/01/geo/wgs84_pos#latlong> "3.7166700".

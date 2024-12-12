@@ -1,0 +1,6 @@
+# TIB Data Manager requirements (development)
+pylons==1.0.3
+ckantoolkit==0.0.4
+rdflib
+rdflib-jsonld
+git+https://github.com/geomet/geomet.git

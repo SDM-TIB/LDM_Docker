@@ -1,0 +1,76 @@
+{% ckan_extends %}
+
+
+    {% block admin_form %}
+
+      {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
+
+      {# form.select('ckan.main_css', id='field-ckan-main-css', label=_('Style'), options=styles, selected=data['ckan.main_css'], error=error) #}
+
+      {# form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) #}
+
+      {% set field_url = 'ckan.site_logo' %}
+      {% set is_upload = data[field_url] and not data[field_url].startswith('http') %}
+      {% set is_url = data[field_url] and data[field_url].startswith('http') %}
+
+      {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
+
+      {# form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=data['ckan.site_about'], error=error, placeholder=_('About page text')) #}
+
+      {# form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=data['ckan.site_intro_text'], error=error, placeholder=_('Text on home page')) #}
+
+      {# form.textarea('ckan.site_custom_css', id='field-ckan-site-custom-css', label=_('Custom CSS'), value=data['ckan.site_custom_css'], error=error, placeholder=_('Customisable css inserted into the page header')) #}
+
+      {# form.select('ckan.homepage_style', id='field-homepage-style', label=_('Homepage'), options=homepages, selected=data['ckan.homepage_style'], error=error) #}
+
+    <div class="panel panel-default" style="padding:6px">
+      <header class="panel-heading" >{{_('Legal Notices Panel')}} </header>
+      <p>&nbsp;</p>
+      {% set true_false_op = [{'value':'True','text':'True'},{'value':'False','text':'False'}] %}
+
+      {{ form.select('tibtheme.legal_notices_enabled', id='field-legal-notices-enabled', label=_('Legal Notices Enabled'), options=true_false_op, selected=data['tibtheme.legal_notices_enabled'], error=error) }}
+
+      {{ form.select('tibtheme.show_cookies_alert', id='field-show-cookies-alert', label=_('Show cookies alert'), options=true_false_op, selected=data['tibtheme.show_cookies_alert'], error=error) }}
+
+      {{ form.select('tibtheme.legal_notices_TIB_terms_use_enabled', id='field-legal-notices-TIB-terms-use-enabled', label=_('Show TIB Terms of Use Link'), options=true_false_op, selected=data['tibtheme.legal_notices_TIB_terms_use_enabled'], error=error) }}
+
+      {{ form.select('tibtheme.special_conditions_LDM_enabled', id='field-special-conditions-LDM-enabled', label=_('Show Special Conditions Link'), options=true_false_op, selected=data['tibtheme.special_conditions_LDM_enabled'], error=error) }}
+
+      {{ form.input('tibtheme.special_conditions_label', id='field-special-conditions-label', label=_('Special Conditions Link Label'), value=data['tibtheme.special_conditions_label'], error=error, classes=['control-medium']) }}
+
+      {{ form.select('tibtheme.data_privacy_enabled', id='field-data-privacy-enabled', label=_('Show Data Privacy Link'), options=true_false_op, selected=data['tibtheme.data_privacy_enabled'], error=error) }}
+
+      {{ form.select('tibtheme.imprint_enabled', id='field-imprint-enabled', label=_('Show Imprint Link'), options=true_false_op, selected=data['tibtheme.imprint_enabled'], error=error) }}
+
+      {{ form.select('tibtheme.accessibility_statement_enabled', id='field-accessibility-statement-enabled', label=_('Show Accessibility Link'), options=true_false_op, selected=data['tibtheme.accessibility_statement_enabled'], error=error) }}
+
+    </div>
+
+    <div class="panel panel-default" style="padding:6px">
+      <header class="panel-heading" >{{_('Automatic update of imported Datasets')}} </header>
+      <p>&nbsp;</p>
+      {% set cj = h.tibimport_create_cronjobs() %}
+      {{ form.select('tibimport.updatedatasets_enabled', id='field-updatedatasets_enabled', label=_('Update imported Datasets'), options=true_false_op, selected=data['tibimport.updatedatasets_enabled'], error=error) }}
+
+    </div>
+      {% endblock %}
+
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-info-circle"></i>
+      {{ _('CKAN config options') }}
+    </h2>
+    <div class="module-content">
+      {% block admin_form_help %}
+        {% set about_url = h.url_for(controller='home', action='about') %}
+        {% set home_url = h.url_for(controller='home', action='index') %}
+        {% set docs_url = "http://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
+          {{ _("<p><strong>Site Title:</strong> This is the title of this CKAN instance. It appears in various places throughout CKAN.</p>") }}
+          {{ _("<p><strong>Site Tag Logo:</strong> This is the logo that appears in the header of all the CKAN instance templates.</p>") }}
+          {{ _("<p><strong>Legal Notices Panel:</strong> This is the list of links placed in the footer of the page.</p>") }}
+    {% endblock %}
+    </div>
+  </div>
+{% endblock %}

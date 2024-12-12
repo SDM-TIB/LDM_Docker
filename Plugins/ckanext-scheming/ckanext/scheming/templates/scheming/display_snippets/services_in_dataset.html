@@ -1,0 +1,6 @@
+{% set Sdata = h.scheming_get_services_for_dataset_display(data.id) %}
+<ul>
+    {% for s in Sdata %}
+    <li><b>{{ s.org_name }}</b> - {{ s.s_title }} <a href="{{ s.s_url }}" target="_blank">Link</a></li>
+    {% endfor %}
+</ul>

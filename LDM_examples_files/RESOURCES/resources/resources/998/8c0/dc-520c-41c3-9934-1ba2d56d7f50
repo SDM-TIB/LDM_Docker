@@ -1,0 +1,78 @@
+{
+    "@id": "_:n1",
+    "label": "ORKG/SciBERT/10",
+    "@type": [
+        "https://orkg.org/class/C17002"
+    ],
+    "P1004": [
+        {
+            "@id": "https://orkg.org/resource/R125989"
+        }
+    ],
+    "P4077": [
+        "https://service.tib.eu/ldmservice/dataset/eed259ae-369d-4a10-906b-d9ba15f4874d/resource/782f2d99-e77a-4cfd-bb80-a737bc136dc6/download/source-code-010.py"
+    ],
+    "P32": [
+        {
+            "@id": "https://orkg.org/resource/R573970"
+        }
+    ],
+    "PWC_HAS_BENCHMARK": [
+        {
+            "@id": "_:n2",
+            "label": "",
+            "@type": [
+                "https://orkg.org/class/C14022"
+            ],
+            "P2005": [
+                {
+                    "@id": "https://orkg.org/resource/R657829"
+                }
+            ],
+            "P34": [
+                {
+                    "@id": "_:n3",
+                    "label": "F1@layer 10 0.644",
+                    "@type": [
+                        "https://orkg.org/class/C23007"
+                    ],
+                    "P45074": [
+                        {
+                            "@id": "https://orkg.org/resource/R657842"
+                        }
+                    ],
+                    "P45073": [
+                        {
+                            "@id": "_:n4",
+                            "label": "",
+                            "@type": [
+                                "https://orkg.org/class/C23008"
+                            ],
+                            "P45075": [
+                                "0.644"
+                            ],
+                            "P45076": [
+                                {
+                                    "@id": "https://orkg.org/resource/R166631"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "@context": {
+        "label": "http://www.w3.org/2000/01/rdf-schema#label",
+        "P1004": "https://orkg.org/property/P1004",
+        "P4077": "https://orkg.org/property/P4077",
+        "P32": "https://orkg.org/property/P32",
+        "PWC_HAS_BENCHMARK": "https://orkg.org/property/PWC_HAS_BENCHMARK",
+        "P2005": "https://orkg.org/property/P2005",
+        "P34": "https://orkg.org/property/P34",
+        "P45074": "https://orkg.org/property/P45074",
+        "P45073": "https://orkg.org/property/P45073",
+        "P45075": "https://orkg.org/property/P45075",
+        "P45076": "https://orkg.org/property/P45076"
+    }
+}

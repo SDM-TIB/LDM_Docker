@@ -1,0 +1,50 @@
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/spar/datacite/usesIdentifierScheme> <https://doi.org/10.57702/y89qq7yc>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/title> "Example CAD Visualizations".
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/description> "Example usage of CAD visualization in 2D and 3D using CKAN Views.".
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/identifier> "c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4".
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/issued> "2022-05-10T06:06:18.809145"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/modified> "2022-05-10T06:11:58.326588"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/tib>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/creator> "Brunet Mauricio".
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/license> "http://www.opendefinition.org/licenses/cc-by".
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#contactPoint> _:c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/2006/vcard/ns#fn> "Brunet Mauricio".
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/2006/vcard/ns#hasEmail> "email@mail.com".
+<http://localhost:5000/dataset/example-cad-viewer> <http://purl.org/dc/terms/creator> "Autor2".
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#keyword> <http://localhost:5000/dataset/?tag=2D>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#keyword> <http://localhost:5000/dataset/?tag=3D>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#keyword> <http://localhost:5000/dataset/?tag=CAD>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#keyword> <http://localhost:5000/dataset/?tag=dwg>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#keyword> <http://localhost:5000/dataset/?tag=visualization>.
+<http://localhost:5000/dataset/?tag=2D> <http://purl.org/dc/terms/title> "2D".
+<http://localhost:5000/dataset/?tag=3D> <http://purl.org/dc/terms/title> "3D".
+<http://localhost:5000/dataset/?tag=CAD> <http://purl.org/dc/terms/title> "CAD".
+<http://localhost:5000/dataset/?tag=dwg> <http://purl.org/dc/terms/title> "dwg".
+<http://localhost:5000/dataset/?tag=visualization> <http://purl.org/dc/terms/title> "visualization".
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#distribution> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#distribution> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg>.
+<http://localhost:5000/dataset/example-cad-viewer> <http://www.w3.org/ns/dcat#distribution> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> <http://purl.org/dc/terms/title> "Example 2D .dwg file".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> <http://www.w3.org/ns/dcat#byteSize> "169807".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> <http://purl.org/dc/terms/issued> "2022-05-10T06:08:39.012405"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> <http://purl.org/dc/terms/modified> "2022-05-10T06:09:15.436821"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> <http://purl.org/dc/terms/title> "Example 3D .dwg file".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> <http://www.w3.org/ns/dcat#byteSize> "733036".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> <http://purl.org/dc/terms/issued> "2022-05-10T06:09:15.447478"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> <http://purl.org/dc/terms/modified> "2022-05-10T06:11:58.154051"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://purl.org/dc/terms/title> "PANGEA CAD example".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://purl.org/dc/terms/description> "Example usage of CAD using Ckan View with information provided by PANGAEA.".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://www.w3.org/ns/dcat#byteSize> "942674".
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://purl.org/dc/terms/issued> "2022-05-10T06:11:58.167565"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+<https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> <http://purl.org/dc/terms/modified> "2022-05-10T06:11:58.329896"^^<http://www.w3.org/2001/XMLSchema#dateTime>.
+_:0c5362f5-b99e-41db-8256-3d0d7549bf4d <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization>.
+_:0c5362f5-b99e-41db-8256-3d0d7549bf4d <http://www.w3.org/2006/vcard/ns#fn> "Brunet Mauricio".
+<http://localhost:5000/organization/tib> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization>.
+<http://localhost:5000/organization/tib> <http://www.w3.org/2000/01/rdf-schema#label> "tib".
+<http://localhost:5000/organization/tib> <http://purl.org/spar/pro/owner> <http://localhost:5000/dataset/example-cad-viewer>.
+<http://localhost:5000/organization/tib> <http://purl.org/dc/terms/title> "TIB".
+<http://localhost:5000/organization/tib> <http://purl.org/dc/terms/description> "The German National Library of Science and Technology, abbreviated TIB, is the national library of the Federal Republic of Germany for all fields of engineering, technology, and the natural sciences.".

@@ -1,0 +1,47 @@
+
+
+{% if h.tibtheme_legal_notices_enabled(): %}
+<h5>{{_('Legal Notices')}}</h5>
+<ul class="list-unstyled">
+    {% set link_terms_of_use= h.tibtheme_get_legal_notice_link(current_lang, 'terms_of_use_link') %}
+
+    {% if h.tibtheme_legal_notices_TIB_terms_use_enabled(): %}
+    <li>
+        <a target="_blank" href="{{link_terms_of_use}}" title="{{_('Terms of Use of the TIB')}}">
+            {{_('Terms of Use of the TIB')}}
+        </a>
+    </li>
+    {% endif %}
+
+    {% if h.tibtheme_special_conditions_LDM_enabled(): %}
+    <li>
+        <a href="{{ h.url_for('home') }}special_conditions_LDM" title="{{_(h.tibtheme_special_conditions_label())}}">
+            {{_(h.tibtheme_special_conditions_label())}}
+        </a>
+    </li>
+    {% endif %}
+
+    {% if h.tibtheme_data_privacy_enabled(): %}
+    <li>
+        <a href="{{ h.url_for('home') }}data_privacy" title="{{_('Data Privacy Statement')}}">
+            {{_('Data Privacy Statement')}}
+        </a>
+    </li>
+    {% endif %}
+    {% if h.tibtheme_imprint_enabled(): %}
+    <li>
+        <a href="{{ h.url_for('home') }}imprint" title="{{_('Imprint')}}">
+            {{_('Imprint')}}
+        </a>
+    </li>
+    {% endif %}
+
+    {% if h.tibtheme_accessibility_statement_enabled(): %}
+    <li>
+        <a href="{{ h.url_for('home') }}accessibility_statement" title="{{_('Accessibility Statement')}}">
+            {{_('Accessibility Statement')}}
+        </a>
+    </li>
+    {% endif %}
+</ul>
+{% endif %}

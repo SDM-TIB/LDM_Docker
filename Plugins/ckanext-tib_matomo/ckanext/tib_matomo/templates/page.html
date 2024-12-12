@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+  {%- block header %}
+    {{ super() }}
+    {% if h.tib_matomo_enabled(): %}
+      {% snippet "snippets/matomo_tracking_code.html" %}
+    {% endif %}
+  {% endblock -%}

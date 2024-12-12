@@ -1,0 +1,82 @@
+
+
+
+{% import "macros/form.html" as form %}
+
+{% set current_lang = request.environ.CKAN_LANG %}
+
+{% if h.tibtheme_legal_notices_enabled(): %}
+  {% if not data.dataprotection and data.name: %}
+    {% do errors.update({'dataprotection': [_('Data processing by TIB must be approved..')]}) %}
+    {% do error_summary.update({_('Data Protection'): _('Data processing by TIB must be approved.')}) %}
+  {% endif %}
+  {% if not data.specialconditions and data.name: %}
+    {% do errors.update({'specialconditions': [_('The Special Conditions have to be accepted.')]}) %}
+    {% do error_summary.update({_('Special Conditions'): _('The Special Conditions have to be accepted.')}) %}
+  {% endif %}
+{% endif %}
+
+<form id="user-register-form" action="" method="post" enctype="multipart/form-data">
+  <div id="alert-error-tib" class="error-explanation alert alert-error" style="display:none;">
+    <p>{{_('The form contains invalid entries:')}}</p>
+    <ul>
+      <li id="sc_error_li"><p>{{_('Special Conditions')}}: {{_('The Special Conditions have to be accepted.')}}</p></li>
+      <li id="dp_error_li"><p>{{_('Data Protection')}}: {{_('Data processing by TIB must be approved.')}}</p></li>
+    </ul>
+  </div>
+
+  {{ form.errors(error_summary) }}
+  {{ form.input("name", id="field-username", label=_("Username"), placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"], is_required=True) }}
+  {{ form.input("fullname", id="field-fullname", label=_("Full Name"), placeholder=_("Joe Bloggs"), value=data.fullname, error=errors.fullname, classes=["control-medium"]) }}
+  {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder=_("joe@example.com"), value=data.email, error=errors.email, classes=["control-medium"], is_required=True) }}
+  {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"], is_required=True) }}
+  {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password2, classes=["control-medium"], is_required=True) }}
+
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture')+" (JPG, PNG, GIF)", url_label=_('Profile picture URL')) }}
+
+
+
+  {% if g.recaptcha_publickey %}
+    {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+  {% endif %}
+
+  {% if h.tibtheme_legal_notices_enabled(): %}
+    {% asset 'ckanext-TIBtheme/new_user-js' %}
+
+
+    {% if current_lang == 'de': %}
+
+      {% set sc_link = h.url_for('home')+'special_conditions_LDM' %}
+      {% set sc_label = _('Ich akzeptiere die <a href="'+h.url_for('home')+'special_conditions_LDM" target="_blank" style="color:red">Nutzungsbedingungen TIB LDM</a>') %}
+      {% set dataprotection_label = _('Mit der Verarbeitung meiner hier angegebenen personenbezogenen Daten durch die \
+        Technische Informationsbibliothek (TIB) bin ich einverstanden. Die Daten werden ausschließlich gemäß der <a href="'+h.url_for('home')+'data_privacy" target="_blank" \
+        style="color:red">Datenschutzerklärung</a> sowie dem <a href="'+h.url_for('home')+'assets/LeibnizDataManager_InformationsblattDatenschutz.pdf" \
+        target="_blank" style="color:red">Infoblatt Datenschutz</a> verarbeitet, um die Dienstleistungen der Portale der \
+        TIB zu erbringen.') %}
+
+    {% else: %}
+
+    {% set sc_link = h.url_for('home')+'special_conditions_LDM' %}
+    {% set sc_label = _('I accept the <a href="'+h.url_for('home')+'special_conditions_LDM" target="_blank" style="color:red">Special Conditions TIB LDM</a>') %}
+    {% set dataprotection_label = _('I agree to the processing of my personal data provided here by Technische \
+        Informationsbibliothek (TIB). In accordance with the <a href="'+h.url_for('home')+'data_privacy" target="_blank" \
+        style="color:red">data protection declaration</a> as well as the <a href="'+h.url_for('home')+'assets/LeibnizDataManager_InformationsblattDatenschutz.pdf" \
+        target="_blank" style="color:red">info sheet data protection</a>, the data is processed exclusively by TIB in order \
+        to provide services of our portals.') %}
+    {% endif %}
+
+    {{ form.checkbox('specialconditions', id="field-specialconditions", label=sc_label, checked=false, error=errors.specialconditions, is_required=True, value=True) }}
+    {{ form.checkbox('dataprotection', id="field-dataprotection", label=dataprotection_label, checked=false, error=errors.dataprotection, is_required=True, value=True) }}
+  {% endif %}
+
+  {{ form.required_message() }}
+
+  <div class="form-actions">
+    {% block form_actions %}
+    <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+    {% endblock %}
+  </div>
+</form>

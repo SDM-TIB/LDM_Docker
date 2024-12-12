@@ -1,0 +1,18 @@
+.center {
+  text-align: center;
+}
+.ui-state {
+  border: 1px solid transparent;
+  padding: .375rem 0 .375rem .75rem;
+  margin-bottom: 1rem;
+}
+.ui-state-error {
+  border: 1px solid #f1a899;
+  background-color: #fddfdf;
+  color: #5f3f3f;
+}
+.ui-state-success {
+  border: 1px solid #99f19b;
+  background-color: #dffde0;
+  color: #3f5f40;
+}

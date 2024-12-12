@@ -1,0 +1,358 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Extend Dataset') }}{% endblock %}
+
+
+{%- block header %}
+    {% include "header.html" %}
+	<link rel="stylesheet" href="{{ h.url_for_static('/css/custom.css') }}" type="text/css">
+
+  {% endblock -%}
+
+
+{% set base_url = h.url_for('/') %}
+
+
+
+
+{% block primary %}
+  {% if h.check_access('resource_create', {'package_id': dataset.id}) and h.check_access('package_update', {'id': dataset.id}) %}
+
+<div class="module-content">
+        <h1>Select a column to process</h1>
+       
+        <select id="selectedColumn" name="selectedColumn">
+		<option value="">Select a column</option>
+		{% for column in columns %}
+			<option value="{{ column }}">{{ column }}</option>
+		{% endfor %}
+		</select>
+        <button type="button" onclick="processColumn()" id="entity_linking">Apply Entity Linking</button>
+		
+		<div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+   
+
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Terms</th>
+                <th>Wikidata IDs</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results will be populated here -->
+        </tbody>
+    </table>
+
+    <button id="analyseButton" onclick="analyseEntities()" style="display: none;">Analyse</button>
+    <div id="loadingIcon" style="display: none;">
+        <!-- You can use an actual image or an icon library like FontAwesome -->
+        <img id="loadingSpinner" src="{{ h.url_for_static('/img/loading.gif') }}" alt="Loading..." style="display: none;width:4%">
+
+    </div>
+
+<div id="predicateTags" style="display: none;">
+    <!-- Tags will be populated here by JavaScript -->
+</div>
+
+<!-- Introduce the new button -->
+<button id="fetchValuesButton" onclick="fetchData()" style="display: none;">Fetch Data</button>
+<div id="loadingIcon2" style="display: none;">
+    <img id="loadingSpinner2" src="{{ h.url_for_static('/img/loading.gif') }}" alt="Loading..." style="display: none;width:4%">
+</div>
+
+<table id="valuesTable">
+    <thead>
+        <!-- Columns will be populated dynamically -->
+    </thead>
+    <tbody>
+        <!-- Data will be populated dynamically -->
+    </tbody>
+</table>
+
+
+<!-- Add the button below your table -->
+<button id="saveExtendedDataButton" onclick="saveExtendedData()" style="display: none;">Save Extended Data</button>
+
+
+
+    <script>
+
+function saveExtendedData() {
+	const saveButton = document.getElementById('saveExtendedDataButton');
+    saveButton.disabled = true;
+	saveButton.style.backgroundColor = 'black';
+    const table = document.getElementById('valuesTable');
+
+    // Extract the headers
+    let headers = Array.from(table.querySelectorAll('thead th')).map(th => `"${th.innerText}"`).join(',');
+
+    // Extract the rows and quote all values
+    let rows = Array.from(table.querySelectorAll('tbody tr'));
+    let csvDataRows = rows.map(row => {
+        return Array.from(row.querySelectorAll('td')).map(td => {
+            // Wrap every value in double quotes and escape existing double quotes
+            return `"${td.innerText.replace(/"/g, '""')}"`;
+        }).join(',');
+    }).join('\n');
+
+    // Combine headers and rows
+    let csvData = headers + '\n' + csvDataRows;
+
+    let baseUrl = "{{ base_url }}";
+    let requestUrl = baseUrl + 'dataset/' + '{{dataset_id}}' + '/resource/' + '{{resource_id}}' + '/save_extended_data';
+
+    // Send the data to the Flask backend
+    fetch(requestUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: csvData }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert("Data saved successfully!\nYou will be redirected now to the extended resource.");
+            let resourceUrl = data.resource_url;
+            window.location.href = resourceUrl.split('/download/')[0];
+        } else {
+            alert("Error saving data!");
+			saveButton.disabled = false;
+			saveButton.style.backgroundColor = '#007bff';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+		saveButton.disabled = false;
+		saveButton.style.backgroundColor = '#007bff';
+    });
+}
+
+
+function processColumn() {
+	// Disable the button
+	document.getElementById('entity_linking').disabled = true;
+
+	// Show the progress bar container when processing starts
+    document.querySelector('.progress-container').style.display = 'block';
+    // Get the selected column
+    let selectedColumn = document.getElementById('selectedColumn').value;
+
+	let baseUrl = "{{ base_url }}";
+    let requestUrl = baseUrl + 'dataset/' + '{{dataset_id}}' + '/resource/' + '{{resource_id}}' + '/process_column';
+
+    // Send an AJAX request to the new route 
+    fetch(requestUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedColumn: selectedColumn }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        let tableHtml = data.map(row => `
+            <tr>
+                <td>${row.input}</td>
+                <td>${row.output}</td>
+            </tr>
+        `).join('');
+        document.querySelector('#resultsTable tbody').innerHTML = tableHtml;
+
+        // Display the table
+        document.querySelector('#resultsTable').style.display = 'table';
+
+        // Optionally, hide the progress bar if you don't want to show it as completed
+        document.querySelector('.progress-container').style.display = 'none';
+
+        // After populating the table
+        document.getElementById('analyseButton').style.display = 'block';
+		
+		// Enable the button
+		document.getElementById('entity_linking').disabled = false;
+
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+		// Enable the button
+		document.getElementById('entity_linking').disabled = false;
+
+        alert('An error occurred. Please try again.');
+    });
+
+    // For demonstration, we'll simulate progress by increasing the width of the progress bar every 500ms
+    let width = 0;
+    let interval = setInterval(() => {
+        width += 10; // increment by 10% for simplicity
+        document.querySelector('.progress-bar').style.width = width + '%';
+        if (width >= 100) {
+            clearInterval(interval);
+        }
+    }, 500);
+    return false;
+}
+
+function analyseEntities() {
+    // Show the loading spinner while the SPARQL query is being processed
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('loadingIcon').style.display = 'block';
+	
+	
+	let baseUrl = "{{ base_url }}";
+    let requestUrl = baseUrl + 'dataset/' + '{{dataset_id}}' + '/resource/' + '{{resource_id}}' + '/get_shared_predicates';
+
+
+
+
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => {
+            // Hide the loading spinner
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            // Populate the tags div with the shared predicates
+            const tagsDiv = document.getElementById('predicateTags');
+            tagsDiv.innerHTML = data.map(pred =>
+                `<span class="predicate-tag" data-uri="${pred.uri}"
+                    title="${pred.uri}" onclick="toggleTagSelection(this)">
+                    ${pred.label}
+                </span>`
+            ).join('');
+
+            tagsDiv.style.display = 'block';
+            // After populating the tags
+            document.getElementById('fetchValuesButton').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching shared predicates:', error);
+            // Hide the loading spinner
+            document.getElementById('loadingSpinner').style.display = 'none';
+        });
+}
+
+
+function toggleTagSelection(tagElement) {
+    const uri = tagElement.getAttribute('data-uri');
+    if(tagElement.classList.contains('selected')) {
+        tagElement.classList.remove('selected');
+    } else {
+        tagElement.classList.add('selected');
+    }
+    selectPredicate(uri);
+
+    // Show or hide the fetchValuesButton based on the state
+    const fetchValuesButton = document.getElementById('fetchValuesButton');
+    if (selectedPredicates.length > 0) {
+        fetchValuesButton.style.display = 'block';
+    } else {
+        fetchValuesButton.style.display = 'none';
+    }
+}
+
+
+
+
+
+
+let selectedPredicates = [];
+
+function fetchData() {
+    document.getElementById('loadingSpinner2').style.display = 'block';
+    document.getElementById('loadingIcon2').style.display = 'block';
+    
+    let baseUrl = "{{ h.url_for('/') }}";
+    let datasetId = "{{ dataset_id }}";
+    let resourceId = "{{ resource_id }}";
+    let predicates = selectedPredicates.join(',');
+
+    let requestUrl = baseUrl + 'dataset/' + datasetId + '/resource/' + resourceId + '/get_predicate_data?predicates=' + predicates;
+    
+    fetch(requestUrl)
+    .then(response => response.json())
+    .then(data => {
+	        // Function to recursively replace NaN values with an empty string
+        function replaceNaNValues(obj) {
+            for (let key in obj) {
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    replaceNaNValues(obj[key]);
+                } else if (typeof obj[key] === 'number' && isNaN(obj[key])) {
+                    obj[key] = ''; // Replace NaN with an empty string
+                }
+            }
+        }
+
+        // Apply the NaN replacement function to the entire dataset
+        data.forEach(row => replaceNaNValues(row));
+		
+        // Start with the original column headers
+        let originalHeaders = Array.from(document.getElementById('selectedColumn').options).map(option => option.value).filter(value => value);
+        
+        // Find any additional headers in the data that are not in the originalHeaders
+        let additionalHeaders = Object.keys(data[0]).filter(header => !originalHeaders.includes(header));
+
+        // Combine original headers with any additional headers
+        let headers = [...originalHeaders, ...additionalHeaders];
+
+        let tableHtml = '<thead><tr>';
+        headers.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody>';
+
+        data.forEach(row => {
+            tableHtml += '<tr>';
+            headers.forEach(header => {
+                let cellValue = row[header] || ''; // Use empty string if the value is undefined
+                tableHtml += `<td>${cellValue}</td>`;
+            });
+            tableHtml += '</tr>';
+        });
+
+        tableHtml += '</tbody>';
+
+        // Update the existing results div or utilize a new div
+        const resultDiv = document.getElementById('valuesTable');
+        resultDiv.innerHTML = tableHtml;
+        resultDiv.style.display = 'block';
+
+        document.getElementById('loadingSpinner2').style.display = 'none';
+        document.getElementById('loadingIcon2').style.display = 'none';
+        document.getElementById('saveExtendedDataButton').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('loadingSpinner2').style.display = 'none';
+        document.getElementById('loadingIcon2').style.display = 'none';
+        alert('An error occurred. Please try again.');
+    });
+}
+
+
+
+function selectPredicate(uri) {
+    const index = selectedPredicates.indexOf(uri);
+    if (index > -1) {
+        selectedPredicates.splice(index, 1); // remove if already selected
+    } else {
+        selectedPredicates.push(uri); // add if not selected
+    }
+}
+
+
+
+    </script>
+  </div>
+    {% else %}
+    <div class="module-content">
+      <h1>Permission Denied</h1>
+      <p>You do not have the required permissions to extend this dataset.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block secondary %}{% endblock %}

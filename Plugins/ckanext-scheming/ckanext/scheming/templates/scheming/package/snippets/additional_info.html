@@ -1,0 +1,115 @@
+<section class="additional-info">
+  <h3>{{ _('Additional Info') }}</h3>
+  <table class="table table-striped table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th scope="col">{{ _('Field') }}</th>
+        <th scope="col">{{ _('Value') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- if pkg_dict['extras'] == [] -%}
+        {%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'owner_org', 'extras', 'orcid'] -%}
+      {% else %}
+        {%- set exclude_fields = [ 'id', 'title', 'name', 'notes', 'tag_string', 'owner_org', 'extras', 'orcid' ] -%}
+      {%- endif %}
+
+      {# BLOCK ADDITIONAL INFO NOT VIRTUAL DATASETS ONLY #}
+      {% if not pkg_dict.type == 'vdataset' %}
+        <tr>
+          <th scope="row" class="dataset-label">{{_('Created')}}</th>
+          <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_created) }}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="dataset-label">{{_('Last update')}}</th>
+          <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_modified) }}</td>
+        </tr>
+        {%- for field in schema.dataset_fields -%}
+          {%- if field.field_name not in exclude_fields and field.display_snippet is not none and pkg_dict[field.field_name] -%}
+            <tr>
+              <th scope="row" class="dataset-label">{{ h.scheming_language_text(field.label) }}</th>
+              <td class="dataset-details" {%
+                if field.display_property %} property="{{ field.display_property }}" {%
+              endif %}>
+                {%- if field.preset == 'multiple_text' and pkg_dict[field.field_name] is iterable -%}
+                  <ul>
+                    {%- for item in pkg_dict[field.field_name] -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  {%- snippet 'scheming/snippets/display_field.html', field=field, data=pkg_dict, schema=schema -%}
+                {%- endif -%}
+              </td>
+            </tr>
+          {%- endif -%}
+        {%- endfor -%}
+        {% if h.check_access('package_update', {'id': pkg_dict.id}) %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _("State") }}</th>
+            <td class="dataset-details">{{ _(pkg_dict.state) }}</td>
+          </tr>
+        {% endif %}
+      {% else %}
+        {# BLOCK ADDITIONAL INFO FOR VIRTUAL DATASETS ONLY #}
+        <tr>
+          <th scope="row" class="dataset-label">Imported on</th>
+          <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_created) }}</td>
+        </tr>
+        <tr>
+          <th scope="row" class="dataset-label">Last update</th>
+          <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_modified) }}</td>
+        </tr>
+        {%- for field in schema.dataset_fields -%}
+          {%- if field.field_name not in exclude_fields and field.display_snippet is not none and pkg_dict[field.field_name] -%}
+            <tr>
+              <th scope="row" class="dataset-label">{{ h.scheming_language_text(field.label) }}</th>
+              <td class="dataset-details" {%
+                if field.display_property %} property="{{ field.display_property }}" {%
+              endif %}>
+                {%- if field.preset == 'multiple_text' and pkg_dict[field.field_name] is iterable -%}
+                  <ul>
+                    {%- for item in pkg_dict[field.field_name] -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  {%- snippet 'scheming/snippets/display_field.html', field=field, data=pkg_dict, schema=schema -%}
+                {%- endif -%}
+              </td>
+            </tr>
+          {%- endif -%}
+        {%- endfor -%}
+        {% if h.check_access('package_update', {'id': pkg_dict.id}) %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _("State") }}</th>
+            <td class="dataset-details">{{ _(pkg_dict.state) }}</td>
+          </tr>
+        {% endif %}
+      {% endif %}
+
+      {# THE FOLLOWING FOR ALL DATASETS #}
+      {% block extras scoped %}
+        {% for extra in h.sorted_extras(pkg_dict.extras) %}
+          {% set key, value = extra %}
+          {% if key %}
+            <tr>
+              <th scope="row" class="dataset-label" property="rdfs:label">{{ _(key|e) }}</th>
+              <td class="dataset-details" property="rdf:value">
+                {%- if key == 'multiple_text_field' and value is iterable -%}
+                  <ul>
+                    {%- for item in value -%}
+                      <li>{{ item }}</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  {{ value }}
+                {%- endif -%}
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      {% endblock %}
+    </tbody>
+  </table>
+</section>

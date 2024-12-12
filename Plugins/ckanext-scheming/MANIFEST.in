@@ -1,0 +1,2 @@
+recursive-include ckanext *.html *.json *.yaml *.js *.html *.css *.yml *.config
+include README.md CHANGELOG.md *.ini
