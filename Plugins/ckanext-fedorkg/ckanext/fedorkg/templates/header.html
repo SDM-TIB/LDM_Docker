@@ -1,6 +1,0 @@
-{% ckan_extends %}
-
-{% block header_site_navigation_tabs %}
-    {{ super() }}
-    <li {% if h.fedorkg_is_fedorkg_page() %} class="active"{% endif %}><a href="{{ h.url_for('fedorkg.query_editor') }}">FedORKG</a></li>
-{% endblock %}
