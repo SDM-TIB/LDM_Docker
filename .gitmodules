@@ -4,3 +4,6 @@
 [submodule "Plugins/ckanext-fedorkg"]
 	path = Plugins/ckanext-fedorkg
 	url = https://github.com/SDM-TIB/ckanext-fedorkg
+[submodule "Plugins/ckanext-falcon"]
+	path = Plugins/ckanext-falcon
+	url = https://github.com/SDM-TIB/ckanext-falcon
