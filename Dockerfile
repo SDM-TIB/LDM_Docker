@@ -285,8 +285,12 @@ ADD ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 
-# Expose port for notebook
-#EXPOSE 8000
+# Code2NB Plugin (R and Py to Notebook Converter)
+# ********************************************
+# Install Jupytext (Required for converting)
+RUN pip install jupytext
+ADD ./Plugins/ckanext-Code2NB $CKAN_HOME_L/src/ckanext-Code2NB
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-Code2NB
 
 
 # Expose port for ckan
