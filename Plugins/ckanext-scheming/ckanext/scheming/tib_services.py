@@ -47,7 +47,11 @@ def get_local_datasets_for_services(user, service_id, ds_list=''):
                'RADAR (Research Data Repository)': {'name': 'RADAR',
                          'id': 'RDR'},
                'PANGEA (Data Publisher for Earth & Environmental Science)': {'name': 'PANGEA',
-                         'id': 'PNG'}
+                         'id': 'PNG'},
+               'Eurostat (Official EU Statistics)': {'name': 'Eurostat',
+                         'id': 'EUST'},
+               'GovData (Germany\'s Open Data Portal)': {'name': 'GovData',
+                         'id': 'GD'}
                }
     selected_ds = DSQuery.read_datasets_for_service(service_id)
 
