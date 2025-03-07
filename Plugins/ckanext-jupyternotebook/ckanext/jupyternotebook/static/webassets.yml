@@ -1,4 +1,0 @@
-admin:
-  output: jupyternotebook/%(version)s_jupyternotebook_admin.css
-  contents:
-    - css/jupyternotebook-admin.css
