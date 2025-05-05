@@ -13,3 +13,6 @@
 [submodule "Plugins/ckanext-jupyternotebook"]
 	path = Plugins/ckanext-jupyternotebook
 	url = https://github.com/SDM-TIB/ckanext-jupyternotebook
+[submodule "Plugins/ckanext-kgcreation"]
+	path = Plugins/ckanext-kgcreation
+	url = https://github.com/SDM-TIB/ckanext-kgcreation
