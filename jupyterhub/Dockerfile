@@ -7,7 +7,8 @@ RUN pip install --no-cache \
     dockerspawner \
     jupyterhub-nativeauthenticator \
     jupyterhub-idle-culler \
-    flask
+    flask \
+	docker
 
 COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
 COPY jupyterhub_api.py /srv/jupyterhub/jupyterhub_api.py

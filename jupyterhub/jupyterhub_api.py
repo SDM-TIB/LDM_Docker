@@ -2,8 +2,10 @@ import requests
 import json
 import os
 import logging
+import subprocess
+import sys
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 log = logging.getLogger(__name__)
 
@@ -11,9 +13,7 @@ log = logging.getLogger(__name__)
 url_nb = os.getenv('CKAN_JUPYTERNOTEBOOK_URL')
 hub_url = url_nb + 'hub/api/users'
 # Set the API token for authentication
-api_token = '71da5210caf07e63a778c1a9f014c3b1c60de0688c1095dd423a3e9f39d313ab'
-path_file = 'guest_list.txt'
-
+api_token = os.getenv('JUPYTERHUB_API_TOKEN')
 
 def get_guest_list(n):
     """
@@ -31,7 +31,8 @@ def get_running_users():
     }
     # Make a GET request to the JupyterHub API endpoint with the authentication token
     response = requests.get(hub_url, headers=headers, verify=False)
-    log.info(response)
+    # log.info(f"requests in get_running_users: {requests}")
+    # log.info(response.text)
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         try:
@@ -55,7 +56,7 @@ def get_free_user():
     set_b = set(running_list)
     # Retrieve elements from set A that are not in set B
     result = set_a - set_b
-    log.info(result)
+    log.info(f"get_free_user {result}")
     if len(result) > 0:
         return result.pop()
     return None
@@ -98,3 +99,90 @@ def update_env_variable(updates):
             log.error(f"Error updating environment variable {key}: {str(e)}")
             return False
     return True
+
+
+def copy_notebook_to_container(username, notebook_name):
+    """Copy a specific notebook to an existing user's volume"""
+    try:
+        import docker
+        client = docker.from_env()
+
+        # Define volume names
+        source_volume = os.getenv('CKAN_STORAGE_NOTEBOOK', '/data/notebooks')
+        volume_name = f"jupyterhub-{username}"
+
+        # Command to copy the specific notebook
+        copy_cmd = f'mkdir -p /target && cp -R /source/{notebook_name} /target/ 2>/dev/null || echo "File not found" && chown -R 1000:100 /target'
+
+        # Run a temporary container to copy files
+        temp_container = client.containers.run(
+            "alpine:latest",
+            f"sh -c '{copy_cmd}'",
+            volumes={
+                source_volume: {"bind": "/source", "mode": "ro"},
+                volume_name: {"bind": "/target", "mode": "rw"}
+            },
+            remove=True,
+            detach=True,
+            network=os.getenv('CKAN_NETWORK')
+        )
+
+        # Check results
+        result = temp_container.wait()
+        if result['StatusCode'] != 0:
+            log.error(f"File copy failed: {temp_container.logs().decode('utf-8')}")
+            return False
+        else:
+            log.info(f"Notebook {notebook_name} copied successfully to {username}'s container")
+            return True
+
+    except Exception as e:
+        log.error(f"Error during notebook copy: {str(e)}")
+        return False
+
+
+def cleanup_unused_volumes():
+    """Clean up unused jupyterhub guest volumes"""
+    try:
+        import docker
+        client = docker.from_env()
+
+        # Get list of all volumes
+        volumes = client.volumes.list()
+
+        # Get list of guest users
+        guest_list = get_guest_list(os.getenv('CKAN_JUPYTERHUB_USER'))
+
+        # Get list of running containers
+        running_containers = client.containers.list()
+
+        # Extract volume names that are currently in use
+        used_volumes = set()
+        for container in running_containers:
+            for mount in container.attrs['Mounts']:
+                if mount['Type'] == 'volume':
+                    used_volumes.add(mount['Name'])
+
+        # Count of removed volumes
+        removed_count = 0
+
+        # Check each volume
+        for volume in volumes:
+            volume_name = volume.name
+            # Only process jupyterhub guest volumes
+            if volume_name.startswith('jupyterhub-guest'):
+                # Extract the username from the volume name
+                username = volume_name.replace('jupyterhub-', '')
+
+                # If the volume is not in use and belongs to a guest user, remove it
+                if volume_name not in used_volumes and username in guest_list:
+                    log.info(f"Removing unused volume: {volume_name}")
+                    volume.remove(force=True)
+                    removed_count += 1
+
+        log.info(f"Cleanup complete. Removed {removed_count} unused volumes.")
+        return removed_count
+
+    except Exception as e:
+        log.error(f"Error cleaning up volumes: {str(e)}")
+        return -1

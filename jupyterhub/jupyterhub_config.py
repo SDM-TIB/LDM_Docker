@@ -2,17 +2,15 @@ from dockerspawner import DockerSpawner
 import os
 import sys
 from tornado import web, gen
-from traitlets import Unicode
 from jupyterhub.auth import Authenticator
 from urllib.parse import urlparse, parse_qs
 import requests
 import re
+import asyncio
+from traitlets import Unicode
+import docker
 
-
-path_file = 'guest_list.txt'
-api_token = '71da5210caf07e63a778c1a9f014c3b1c60de0688c1095dd423a3e9f39d313ab'
-
-
+api_token = os.getenv('JUPYTERHUB_API_TOKEN')
 
 def get_guest_list(n):
     """
@@ -72,46 +70,108 @@ c.JupyterHub.authenticator_class = DummyAuthenticator
 
 c.GenericOAuthenticator.enable_auth_state = True
 c.Spawner.http_timeout = 300
-c.JupyterHub.log_level = 'DEBUG' # 'WARN'
+c.JupyterHub.log_level = 'ERROR' # 'WARN'  'DEBUG'  'ERROR'
 c.JupyterHub.hub_ip = '0.0.0.0'
 
 c.DockerSpawner.network_name = os.getenv('CKAN_NETWORK')
 
 c.DockerSpawner.remove = True
 c.DockerSpawner.stop = True
+# c.DockerSpawner.remove_containers = True
 
 
-# === Create a docker volume for the guest user with read-only privilege ===
 class GuestDockerSpawner(DockerSpawner):
-    user_list = get_guest_list(os.getenv('CKAN_JUPYTERHUB_USER'))
 
-    def start(self):
+    user_list = get_guest_list(os.getenv('CKAN_JUPYTERHUB_USER'))
+    async def start(self):
         if self.user.name in self.user_list:
-            # add team volume to volumes
-            self.volumes[os.getenv('CKAN_STORAGE_NOTEBOOK')] = {
-            # self.volumes['/var/lib/docker/volumes/docker_ckan_storage/_data/notebook'] = {
-                # self.volumes['/var/lib/ckan/notebook'] = {
-                'bind': self.notebook_dir, #'/home/shared',
-                'mode': 'ro',  # or ro for read-only; rw
+            self.log.info(f"Creating docker for {self.user.name}")
+
+            # Define user volume
+            volume_name = f"jupyterhub-{self.user.name}"
+            # self.volume_name = volume_name
+
+            # Set up the volume
+            self.volumes[volume_name] = {
+                'bind': self.notebook_dir,
+                'mode': 'rw',
             }
-            # self.notebook_dir = '/home/shared'
-            # Set resource limits: memory and CPU
+
+            # Set resource limits
             self.extra_host_config = {
-                "mem_limit": os.getenv('CKAN_JUPYTERHUB_MEMORY_LIMIT'),  # Set memory limit to xG
-                "cpu_period": 100000,  # Set CPU period to 100ms
-                "cpu_quota": int(os.getenv('CKAN_JUPYTERHUB_PERCENTAGE_CPU')) * 1000  # Set CPU quota to x (x of a core)
+                "mem_limit": os.getenv('CKAN_JUPYTERHUB_MEMORY_LIMIT'),
+                "cpu_period": 100000,
+                "cpu_quota": int(os.getenv('CKAN_JUPYTERHUB_PERCENTAGE_CPU')) * 1000
             }
+
+            # Extract notebook name from URL
+            notebook_name = None
+            if hasattr(self, 'handler') and hasattr(self.handler, 'request'):
+                next_param = self.handler.request.query_arguments.get('next', [None])[0]
+                if next_param:
+                    next_path = next_param.decode('utf-8')
+                    match = re.search(r'notebooks/([^/]+\.ipynb)', next_path)
+                    if match:
+                        notebook_name = match.group(1)
+                        self.log.info(f"Found notebook name: {notebook_name}")
+
+            # Start the user container
+            container = await super().start()
+
+            # Copy notebooks from source volume
+            await self._copy_notebooks(volume_name, notebook_name)
+
+            return container
         else:
+            # Default behavior for non-guest users
             self.volumes['jupyterhub-user-{username}'] = {
                 'bind': self.notebook_dir,
-                'mode': 'ro',  # or ro for read-only; rw
+                'mode': 'ro',
             }
-            # self.notebook_dir = '/home/shared'
-        return super().start() #return super().start()
+            return await super().start()
+
+    async def _copy_notebooks(self, volume_name, notebook_name=None):
+        """Copy notebooks from source volume to user volume"""
+        source_volume = os.getenv('CKAN_STORAGE_NOTEBOOK', '/data/notebooks')
+
+        try:
+            client = docker.from_env()
+
+            # Command to copy either specific notebook or all notebooks
+            if notebook_name:
+                copy_cmd = f'mkdir -p /target && cp -R /source/{notebook_name} /target/ 2>/dev/null || echo "File not found" && chown -R 1000:100 /target'
+            else:
+                copy_cmd = 'mkdir -p /target && cp -R /source/* /target/ 2>/dev/null || echo "No files to copy" && chown -R 1000:100 /target'
+
+            # Run a temporary container to copy files
+            temp_container = client.containers.run(
+                "alpine:latest",
+                f"sh -c '{copy_cmd}'",
+                volumes={
+                    source_volume: {"bind": "/source", "mode": "ro"},
+                    volume_name: {"bind": "/target", "mode": "rw"}
+                },
+                remove=True,
+                detach=True,
+                network=self.network_name
+            )
+
+            # Check results
+            result = temp_container.wait()
+            if result['StatusCode'] != 0:
+                self.log.error(f"File copy failed: {temp_container.logs().decode('utf-8')}")
+            else:
+                self.log.info("Files copied successfully")
+
+        except Exception as e:
+            self.log.error(f"Error during file copy: {str(e)}")
 
 
-c.JupyterHub.spawner_class = GuestDockerSpawner  # DockerSpawner
+c.JupyterHub.spawner_class = GuestDockerSpawner
 # c.NativeAuthenticator.create_system_users = True
+
+# Make sure DockerSpawner logs are visible
+c.DockerSpawner.debug = False
 
 
 c.Spawner.args = ['--NotebookApp.tornado_settings={"headers":{"Content-Security-Policy": "frame-ancestors *;"}}']
@@ -123,7 +183,7 @@ c.DockerSpawner.notebook_dir = notebook_dir  # 'LDM_examples_files/RESOURCES/jup
 
 
 c.DockerSpawner.image = "jupyter/datascience-notebook:latest"
-c.Spawner.mem_limit = '1G'
+c.Spawner.mem_limit = os.getenv('CKAN_JUPYTERHUB_MEMORY_LIMIT')
 # Persistence
 c.JupyterHub.db_url = "sqlite:///data/jupyterhub.sqlite"
 
@@ -147,7 +207,7 @@ c.JupyterHub.services = [
             '-m', 'jupyterhub_idle_culler',
             '--timeout=' + os.getenv('CKAN_JUPYTERHUB_TIMEOUT'),
             '--cull-users', # Cull users
-#            '--remove-users' # Remove users
+#           '--remove-users' # Remove users
         ],
     },
 ]
@@ -165,7 +225,14 @@ c.JupyterHub.load_roles = [
     }
 ]
 
-# c.DockerSpawner.post_stop_hook = GuestDockerSpawner.post_stop_hook
+# Add a volume cleanup service
+c.JupyterHub.services.append({
+    'name': 'volume-cleaner',
+    'command': [
+        'sh', '-c',
+        'while true; do sleep 60; curl -s ' +os.getenv('CKAN_API_JUPYTERHUB')+'/cleanup_volumes > /dev/null; done'
+    ],
+})
 
 # Shutdown user servers on logout
 c.JupyterHub.shutdown_on_logout = True
