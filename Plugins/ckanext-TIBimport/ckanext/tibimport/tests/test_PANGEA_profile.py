@@ -52,7 +52,7 @@ def test_insert_local_org():
     obj.insert_organization(org_dict)
 
     res_dict = obj.get_local_organization(org_dict['name'])
-    print(res_dict)
+    #print(res_dict)
     assert res_dict['name'] == org_dict['name']
 
 # SEARCH ORGANIZATION - FOUND
@@ -96,7 +96,7 @@ def test_insert_local_dataset():
     ds_dict['metadata_created'] = res_dict['metadata_created']
     ds_dict['metadata_modified'] = res_dict['metadata_modified']
 
-    print(res_dict)
+    #print(res_dict)
     assert res_dict['name'] == ds_dict['name']
 
 # SEARCH DATASET FOUND
@@ -170,7 +170,7 @@ def test_radar_harvesting_remote_ok():
     url = parser.pangea_ListRecords_url
 
     response = requests.get(url)
-
+    #print("\nURL:", url)
     # PRINT ALL TAGS
     # xml_tree_data = ElementTree.fromstring(response.content)
     # for x in xml_tree_data:
@@ -178,7 +178,7 @@ def test_radar_harvesting_remote_ok():
     # tags = [elem.tag for elem in xml_tree_data.iter()]
     # print(tags)
 
-  #  print('XML fist page response:', response.content, url)
+  #  #print('XML fist page response:', response.content, url)
     assert response.ok
 
 #
@@ -188,7 +188,7 @@ def test_radar_harvesting_remote_ok():
 def mocked_requests_get(*args, **kwargs):
     response_content = None
     request_url = args[0]
-    print("REQUEST URL", request_url)
+    #print("REQUEST URL", request_url)
 #    request_url = request_url.replace('&from=0001-01-01T00:00:00Z&until=9999-12-31T23:59:59Z&metadataPrefix=radar', '')
     response = Response()
     response.status_code = 200
@@ -210,7 +210,7 @@ def mocked_requests_get(*args, **kwargs):
     elif request_url == 'test_pangea_get_datasets_list_no_response':
         response_content = 'ERROR'
         response.status_code = 404
-    print("RESPONSE CONTENT", response_content)
+    #print("RESPONSE CONTENT", response_content)
     response._content = str.encode(response_content)
     return response
 
@@ -223,7 +223,7 @@ def test_pangea_get_datasets_list_error(mock_get):
     obj.pangea_ListRecords_url = 'test_pangea_get_datasets_list_error'
     res_dict = obj.get_datasets_list()
 
-       # print("RES DICT:\n", res_dict)
+       # #print("RES DICT:\n", res_dict)
     assert res_dict == []
 
 
@@ -234,7 +234,7 @@ def test_pangea_get_datasets_list_ok(mock_get):
     obj.pangea_ListRecords_url = 'test_pangea_get_datasets_list_ok'
     res_dict = obj.get_datasets_list()
 
-    print('LIST LENGHT:', len(res_dict))
+    #print('LIST LENGHT:', len(res_dict))
 
     assert 3 == len(res_dict)
 
@@ -252,13 +252,13 @@ def test_pangea_get_datasets_list_no_response(mock_get):
 
     res_dict = obj.get_datasets_list()
 
-   # print("RES DICT:\n", res_dict)
+   # #print("RES DICT:\n", res_dict)
     assert res_dict == []
 
     # get all attributes
 
     # for x in res_dict:
-    #  print(x.tag, x.text)
+    #  #print(x.tag, x.text)
 
 
 def test_get_pangea_resumption_token_ok():
@@ -271,7 +271,7 @@ def test_get_pangea_resumption_token_ok():
 
     resumption_token = obj._get_pangea_resumption_token(xml_tree_data)
 
-#    print("RESUMPTION TOKEN: ", resumption_token)
+#    #print("RESUMPTION TOKEN: ", resumption_token)
 
     assert resumption_token == resumption_token_ok
 
@@ -288,7 +288,7 @@ def test_get_pangea_resumption_token_empty():
     xml_tree_data = ElementTree.fromstring(xml_data)
 
     resumption_token = obj._get_pangea_resumption_token(xml_tree_data)
- #   print("RESUMPTION TOKEN EMPTY: ", resumption_token)
+ #   #print("RESUMPTION TOKEN EMPTY: ", resumption_token)
 
     assert resumption_token == resumption_token_empty
 
@@ -305,7 +305,7 @@ def test_get_pangea_resumption_token_not_present():
     xml_tree_data = ElementTree.fromstring(xml_data)
 
     resumption_token = obj._get_pangea_resumption_token(xml_tree_data)
-   # print("RESUMPTION TOKEN EMPTY: ", resumption_token)
+   # #print("RESUMPTION TOKEN EMPTY: ", resumption_token)
 
     assert resumption_token == resumption_token_empty
 
@@ -325,7 +325,7 @@ def test_parse_PANGEA_XML_RECORD_to_DICT():
         res_dict = parser.parse_PANGEA_XML_RECORD_to_DICT(record)
         break
 
-    print('DICT response:', res_dict)
+    #print('\n\nDICT response:', res_dict)
 
     assert res_dict == pangea_dataset_parsed_to_dict
 
@@ -337,7 +337,7 @@ def test_parse_PANGEA_RECORD_DICT_to_LDM_CKAN_DICT():
 
     res_dict = parser.parse_PANGEA_RECORD_DICT_to_LDM_CKAN_DICT(pangea_dict)
 
-    print("PARSED DICT: ", res_dict)
+    #print("\nPARSED DICT: ", res_dict)
 
     assert res_dict == pangea_dataset_parsed_to_ckan_dict
 
@@ -351,7 +351,7 @@ def test_get_all_datasets_dicts(mock_get):
     #res_list = obj.get_datasets_list()
     res_list = obj.get_all_datasets_dicts()
     print("\nALL Datasets List:\n", res_list)
-    print("\nLEN:", len(res_list))
+    #print("\nLEN:", len(res_list))
     assert res_list == pangea_all_datasets_list_response
 
 
@@ -359,8 +359,8 @@ def test_all_datasets_are_retrieved():
     obj = PANGEA_ParserProfile()
 
     res_list = obj.get_all_datasets_dicts()
-   # print("\nALL Datasets List:\n", res_list)
-    print("\nTOTAL PANGEA DS:", len(res_list))
+   # #print("\nALL Datasets List:\n", res_list)
+    #print("\nTOTAL PANGEA DS:", len(res_list))
     assert len(res_list) == obj.total_pangea_datasets
 
 def test_is_dataset_deleted_true():

@@ -5,48 +5,58 @@ import requests
 from ckanext.tibimport.logic2 import DatasetParser
 
 
-class RADAR_ParserProfile(DatasetParser):
+class leoPARD_ParserProfile(DatasetParser):
     '''
 
-    A class defined to access RADAR's Datasets
-    using the RADAR's harvesting tool https://www.radar-service.eu/oai/ and parsing the retrieved
+    A class defined to access leoPARD's Datasets
+    using the leoPARD's harvesting tool https://leopard.tu-braunschweig.de/servlets/OAIDataProvider and parsing the retrieved
     data to dataset_dic as needed by the LDM
 
-    RADAR Harvesting tool docs: https://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
+    leoPARD Harvesting tool docs: https://www.openarchives.org/OAI/openarchivesprotocol.html
 
     '''
 
     def __init__(self):
-        self.repository_name = "RADAR (Research Data Repository)"
-        self.dataset_title_prefix = "rdr-"
-        # Ex. https://www.radar-service.eu/oai/OAIHandler?verb=ListRecords&from=0001-01-01T00:00:00Z&until=9999-12-31T23:59:59Z&metadataPrefix=radar
-
-        self.radar_ListRecords_url = 'https://www.radar-service.eu/oai/OAIHandler?verb=ListRecords'
-        self.radar_from_date = '0001-01-01T00:00:00Z'
-        self.radar_until_date = '9999-12-31T23:59:59Z'
-        self.radar_metadataPrefix = 'radar'
+        self.repository_name = "LeoPARD (TU Braunschweig Publications And Research Data)"
+        self.dataset_title_prefix = "leo-"
+        # Ex. https://leopard.tu-braunschweig.de/servlets/OAIDataProvider?verb=ListRecords&metadataPrefix=oai_datacite&set=GENRE:research_data
+        self.leoPARD_ListRecords_url = 'https://leopard.tu-braunschweig.de/servlets/OAIDataProvider?verb=ListRecords'
+        
+        # REQUIREMENT: Please harvest type 'Dataset' ONLY: 
+        # https://leopard.tu-braunschweig.de/servlets/solr/find?fq=mods.genre:research_data&fq=worldReadableComplete:true 
+        self.leoPARD_GENRE = "research_data"
+        self.leoPARD_GENRE_prefix = '&set=GENRE:' + self.leoPARD_GENRE
+        self.leoPARD_metadata_schema_response = 'oai_datacite'
+        self.leoPARD_metadata_schema_response_prefix = '&metadataPrefix=' + self.leoPARD_metadata_schema_response
+       
+        self.leoPARD_ListRecords_url += self.leoPARD_metadata_schema_response_prefix+\
+                  self.leoPARD_GENRE_prefix
+        
+        self.current_dataset_schema = "http://schema.datacite.org/meta/kernel-4.3/metadata.xsd"        # self.leoPARD_from_date = '0001-01-01T00:00:00Z'
+        # self.leoPARD_until_date = '9999-12-31T23:59:59Z'
+        
         # Schema values
         self.ns0 = '{http://www.openarchives.org/OAI/2.0/}'
-        self.ns2 = '{http://radar-service.eu/schemas/descriptive/radar/v09/radar-dataset}'
-        self.ns3 = '{http://radar-service.eu/schemas/descriptive/radar/v09/radar-elements}'
+        self.ns2 = '{http://datacite.org/schema/kernel-4}'
+        self.ns3 = '{http://leoPARD-service.eu/schemas/descriptive/leoPARD/v09/leoPARD-elements}'
 
         # Set to True to force update of all datasets
         self.force_update = False
 
-        # Total of datasets available in RADAR
-        self.total_radar_datasets = 0
+        # Total of datasets available in leoPARD
+        self.total_leoPARD_datasets = 0
 
         # schema validation report
         self.current_schema_report = {}
 
 
-        self.log_file_prefix = "RDR_"
+        self.log_file_prefix = "LEO_"
         super().__init__()
 
 
     def get_all_datasets_dicts(self):
         '''
-             Using RADAR's "ListRecords" list get a list of dictionaries with the complete Dataset's
+             Using leoPARD's "ListRecords" list get a list of dictionaries with the complete Dataset's
              metadata inside.
              Notice: "ListRecords" retrieves results in XML format and by blocks (pages). Uses "ResumptionToken" to
              continue listing the following records.
@@ -61,13 +71,13 @@ class RADAR_ParserProfile(DatasetParser):
 
         dict_list = []
         for dataset in ds_list:
-            dict_list.append(self.parse_RADAR_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
+            dict_list.append(self.parse_leoPARD_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
 
         return dict_list
 
     def get_datasets_list(self, ds_list=[], resumption_token=''):
         '''
-            Uses the RADAR HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
+            Uses the leoPARD HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
 
             Returns: a list of datasets or an empty list
             Notice: the dictionaries contains metadata NOT in CKAN's schema
@@ -76,13 +86,12 @@ class RADAR_ParserProfile(DatasetParser):
 
         if not resumption_token:
             # Find first page of Datasets
-            url = self.radar_ListRecords_url+'&from='+self.radar_from_date+'&until='+\
-                  self.radar_until_date+'&metadataPrefix='+self.radar_metadataPrefix
+            url = self.leoPARD_ListRecords_url
 
         else:
             # Find page from resumption token url
-            url = self.radar_ListRecords_url+'&resumptionToken=' + resumption_token
-       # print("\nURL\n", url)
+            url = self.leoPARD_ListRecords_url+'&resumptionToken=' + resumption_token
+        #print("\nURL\n", url)
 
         # Find page of Datasets
         try:
@@ -104,12 +113,14 @@ class RADAR_ParserProfile(DatasetParser):
 #        tags = [elem.tag for elem in xml_tree_data.iter()]
 #        print('TAGS/n', tags)
         if ds_list:
-            ds_list.extend(self.parse_RADAR_XML_result_to_DICT(xml_tree_data))
+            ds_list.extend(self.parse_leoPARD_XML_result_to_DICT(xml_tree_data))
         else:
-            ds_list = self.parse_RADAR_XML_result_to_DICT(xml_tree_data)
+            ds_list = self.parse_leoPARD_XML_result_to_DICT(xml_tree_data)
 
+        # Update total of Datasets
+        self.total_leoPARD_datasets = len(ds_list)
         # GET RESUMPTION TOKEN FROM xml_tree_data
-        resumption_token = self._get_radar_resumption_token(xml_tree_data)
+        resumption_token = self._get_leoPARD_resumption_token(xml_tree_data)
 
         if resumption_token['resumptionToken']:
             #print("\nRT:\n", resumption_token)
@@ -135,7 +146,7 @@ class RADAR_ParserProfile(DatasetParser):
 
     def get_remote_datasets_paged(self, resumption_token=''):
         '''
-         Uses the RADAR HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
+         Uses the leoPARD HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
          Returns: a list of datasets or an empty list
          Notice: the dictionaries contains metadata NOT in CKAN's schema
         '''
@@ -143,12 +154,11 @@ class RADAR_ParserProfile(DatasetParser):
 
         if not resumption_token:
             # Find first page of Datasets
-            url = self.radar_ListRecords_url+'&from='+self.radar_from_date+'&until='+\
-                  self.radar_until_date+'&metadataPrefix='+self.radar_metadataPrefix
+            url = self.leoPARD_ListRecords_url
 
         else:
             # Find page from resumption token url
-            url = self.radar_ListRecords_url+'&resumptionToken=' + resumption_token
+            url = self.leoPARD_ListRecords_url+'&resumptionToken=' + resumption_token
 
         # Find page of Datasets
         xml_tree_data = self._get_page_of_Datasets(url)
@@ -159,22 +169,22 @@ class RADAR_ParserProfile(DatasetParser):
         if not self.current_schema_report:
             self.current_schema_report = self._get_schema_report(xml_tree_data)
 
-        ds_list = self.parse_RADAR_XML_result_to_DICT(xml_tree_data)
+        ds_list = self.parse_leoPARD_XML_result_to_DICT(xml_tree_data)
 
         # Update total of Datasets
-        self.total_radar_datasets += len(ds_list)
+        self.total_leoPARD_datasets += len(ds_list)
 
         # GET RESUMPTION TOKEN FROM xml_tree_data
-        resumption_token = self._get_radar_resumption_token(xml_tree_data)
+        resumption_token = self._get_leoPARD_resumption_token(xml_tree_data)
 
         # Convert dics to LDM-CKAN dicts
         dict_list = []
         for dataset in ds_list:
-            dict_list.append(self.parse_RADAR_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
+            dict_list.append(self.parse_leoPARD_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
 
         return {"ds_list": dict_list, "resumptionToken": resumption_token['resumptionToken']}
 
-    def _get_radar_resumption_token(self, xml_tree_data):
+    def _get_leoPARD_resumption_token(self, xml_tree_data):
         r_token = {'resumptionToken': ''}
 
         for record in xml_tree_data.iter(self.ns0 + 'resumptionToken'):
@@ -183,23 +193,71 @@ class RADAR_ParserProfile(DatasetParser):
                 r_token.update(record.attrib)
 
         if 'completeListSize' in r_token:
-            self.total_radar_datasets = int(r_token['completeListSize'])
+            self.total_leoPARD_datasets = int(r_token['completeListSize'])
+
         return r_token
 
 
-    def parse_RADAR_XML_result_to_DICT(self, xml_tree_data):
+    def parse_leoPARD_XML_result_to_DICT(self, xml_tree_data):
 
         ds_result = []
 
         for record in xml_tree_data.iter(self.ns0 + 'record'):
-            ds_result.append(self.parse_RADAR_XML_RECORD_to_DICT(record))
+            ds_result.append(self.parse_leoPARD_XML_RECORD_to_DICT(record))
 
         return ds_result
 
 
-    def parse_RADAR_XML_RECORD_to_DICT(self, xml_tree_obj):
+
+
+
+# ['{http://www.openarchives.org/OAI/2.0/}record', 
+# '{http://www.openarchives.org/OAI/2.0/}header', 
+#   '{http://www.openarchives.org/OAI/2.0/}identifier', 
+#   '{http://www.openarchives.org/OAI/2.0/}datestamp', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}setSpec', 
+# '{http://www.openarchives.org/OAI/2.0/}metadata', 
+# '{http://datacite.org/schema/kernel-4}resource', 
+# '{http://datacite.org/schema/kernel-4}identifier', 
+# '{http://datacite.org/schema/kernel-4}creators', 
+#       '{http://datacite.org/schema/kernel-4}creator', 
+#       '{http://datacite.org/schema/kernel-4}creatorName', 
+#       '{http://datacite.org/schema/kernel-4}givenName', 
+#       '{http://datacite.org/schema/kernel-4}familyName', 
+#       '{http://datacite.org/schema/kernel-4}nameIdentifier', 
+#       '{http://datacite.org/schema/kernel-4}nameIdentifier', 
+#       '{http://datacite.org/schema/kernel-4}affiliation', 
+#       '{http://datacite.org/schema/kernel-4}titles', 
+#       '{http://datacite.org/schema/kernel-4}title', 
+#       '{http://datacite.org/schema/kernel-4}publisher', 
+#       '{http://datacite.org/schema/kernel-4}publicationYear', 
+# '{http://datacite.org/schema/kernel-4}subjects', '{http://datacite.org/schema/kernel-4}subject', '{http://datacite.org/schema/kernel-4}contributors', '{http://datacite.org/schema/kernel-4}contributor', '{http://datacite.org/schema/kernel-4}contributorName', '{http://datacite.org/schema/kernel-4}dates', '{http://datacite.org/schema/kernel-4}date', '{http://datacite.org/schema/kernel-4}language', '{http://datacite.org/schema/kernel-4}resourceType', '{http://datacite.org/schema/kernel-4}alternateIdentifiers', '{http://datacite.org/schema/kernel-4}alternateIdentifier', '{http://datacite.org/schema/kernel-4}alternateIdentifier', '{http://datacite.org/schema/kernel-4}relatedIdentifiers', '{http://datacite.org/schema/kernel-4}relatedIdentifier', '{http://datacite.org/schema/kernel-4}rightsList', '{http://datacite.org/schema/kernel-4}rights', '{http://datacite.org/schema/kernel-4}descriptions', '{http://datacite.org/schema/kernel-4}description']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def parse_leoPARD_XML_RECORD_to_DICT(self, xml_tree_obj):
 
         record = xml_tree_obj
+        # print("\n\n\nRECORD:\n", xml_tree_obj)
+        tags = [elem.tag for elem in xml_tree_obj.iter()]
+        # print(tags)
+        
         ns0 = self.ns0
         ns2 = self.ns2
         ns3 = self.ns3
@@ -208,121 +266,103 @@ class RADAR_ParserProfile(DatasetParser):
         # HEADER
         # <ns0:record>
         #   <ns0:header>
-        #       <ns0:identifier>10.22000/447</ns0:identifier>
-        #       <ns0:datestamp>2022-04-04T09:06:49Z</ns0:datestamp>
+        #       <identifier>oai:https://leopard.tu-braunschweig.de/:dbbs_mods_00078205</identifier>
+        #       <datestamp>2024-11-28</datestamp>
         #   </ns0:header>
+        #   <metadata>
+        #       <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+        #          <identifier identifierType="DOI">10.24355/dbbs.084-202411180831-0</identifier>
+        #         </resource>
+        #   </metadata>
         identifier = record.find('./' + ns0 + 'header/' + ns0 + 'identifier').text
         datestamp = record.find('./' + ns0 + 'header/' + ns0 + 'datestamp').text
         ds_result['header'] = {'identifier': identifier, 'datestamp': datestamp}
 
-        # <ns0:metadata><ns2:radarDataset>
-        ds_result['metadata'] = {'radarDataset': {}}
+        # <ns0:metadata><ns2:leoPARDDataset>
+        ds_result['metadata'] = {'leoPARDDataset': {}}
 
     # METADATA MANDATORY
         # METADATA - IDENTIFIER
         #     <ns3:identifier identifierType="DOI">10.22000/447</ns3:identifier>
-        path_from_radardataset = ns3 + 'identifier'
-        ds_result['metadata']['radarDataset']['identifier'] = self._find_metadata_in_record_simple(record, path_from_radardataset)
+        path_from_leoPARDdataset = ns2 + 'identifier'
+        
+        ds_result['metadata']['leoPARDDataset'] = self._find_metadata_in_record_simple(record, path_from_leoPARDdataset)
 
 
         # METADATA - CREATORS
-        #     <ns3:creators>
-        #         <ns3:creator>
-        #             <ns3:creatorName>Macotela, Edith Liliana</ns3:creatorName>
-        #             <ns3:givenName>Edith Liliana</ns3:givenName>
-        #             <ns3:familyName>Macotela</ns3:familyName>
-        #             <ns3:nameIdentifier schemeURI="http://orcid.org/" nameIdentifierScheme="ORCID">0000-0003-3076-1946</ns3:nameIdentifier>
-        #             <ns3:creatorAffiliation>Leibniz Institute of Atmospheric Physics at the University of Rostock</ns3:creatorAffiliation>
-        #         </ns3:creator>
-        #     </ns3:creators>
-        path_from_radardataset = ns3 + 'creators/' + ns3 + 'creator'
-        subfields = [ns3+'creatorName', ns3+'givenName', ns3+'familyName', ns3+'creatorAffiliation', ns3+'nameIdentifier']
-        ds_result['metadata']['radarDataset']['creators'] = self._find_metadata_in_record(record, path_from_radardataset, 'creator', subfields)
+        #     <ns2:creators>
+        #         <ns2:creator>
+        #             <ns2:creatorName>Macotela, Edith Liliana</ns3:creatorName>
+        #             <ns2:givenName>Edith Liliana</ns3:givenName>
+        #             <ns2:familyName>Macotela</ns3:familyName>
+        #             <ns2:nameIdentifier schemeURI="http://orcid.org/" nameIdentifierScheme="ORCID">0000-0003-3076-1946</ns3:nameIdentifier>
+        #             <ns2:creatorAffiliation>Leibniz Institute of Atmospheric Physics at the University of Rostock</ns3:creatorAffiliation>
+        #         </ns2:creator>
+        #     </ns2:creators>
+        path_from_leoPARDdataset = ns2 + 'creators/' + ns2 + 'creator'
+        subfields = [ns2+'creatorName', ns2+'givenName', ns2+'familyName', ns2+'creatorAffiliation', ns2+'nameIdentifier']
+        ds_result['metadata']['leoPARDDataset']['creators'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'creator', subfields)
 
-        # METADATA TITLE
-        #     <ns3:title>MacotelaGRL2021</ns3:title>
-        path_from_radardataset = ns3 + 'title'
-        ds_result['metadata']['radarDataset']['title'] = self._find_metadata_in_record_simple(record, path_from_radardataset)
+        # METADATA TITLES
+        #  <titles>
+        #   <title xml:lang="de">Projekt ADoRe-OA: Umfrage zur Ermittlung von Bedarfen zur Be- und Verarbeitung publikationsbezogener Daten im Rahmen von Open-Access-Förderungen</title>
+        #   <title titleType="TranslatedTitle" xml:lang="en">Project ADoRe-OA: Survey to determine requirements for the processing of publication-related data in the context of Open Access funding</title>
+        #  </titles>
+        path_from_leoPARDdataset = ns2 + 'titles/' + ns2 + 'title'
+        subfields = []
+        ds_result['metadata']['leoPARDDataset']['titles'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'title', subfields)
 
-        # METADATA PUBLISHERS
-        #     <ns3:publishers>
-        #         <ns3:publisher>Leibniz Institute of Atmospheric Physics at the University of Rostock</ns3:publisher>
-        #     </ns3:publishers>
-        path_from_radardataset = ns3 + 'publishers/' + ns3 + 'publisher'
-        ds_result['metadata']['radarDataset']['publishers'] = self._find_metadata_in_record(record,
-                                                                                            path_from_radardataset,
-                                                                                            'publisher')
 
-        # METADATA - PRODUCTION YEAR
-        #     <ns3:productionYear>2021</ns3:productionYear>
-        path_from_radardataset = ns3 + 'productionYear'
-        ds_result['metadata']['radarDataset']['productionYear'] = self._find_metadata_in_record_simple(record,
-                                                                                                       path_from_radardataset)
-
+        # METADATA PUBLISHER
+        #     <publisher>Universitätsbibliothek Braunschweig</publisher>
+        path_from_leoPARDdataset = ns2 + 'publisher'
+        ds_result['metadata']['leoPARDDataset']['publisher'] = self._find_metadata_in_record_simple(record,
+                                                                                            path_from_leoPARDdataset)
+                                                                                                                                  
+       
         # METADATA - PUBLICATION YEAR
-        #     <ns3:publicationYear>2021</ns3:publicationYear>
-        path_from_radardataset = ns3 + 'publicationYear'
-        ds_result['metadata']['radarDataset']['publicationYear'] = self._find_metadata_in_record_simple(record,
-                                                                                                        path_from_radardataset)
+        #     <publicationYear>2024</publicationYear>
+        path_from_leoPARDdataset = ns2 + 'publicationYear'
+        ds_result['metadata']['leoPARDDataset']['publicationYear'] = self._find_metadata_in_record_simple(record,
+                                                                                                        path_from_leoPARDdataset)
 
         # METADATA SUBJECT AREAS
-        #     <ns3:subjectAreas>
-        #         <ns3:subjectArea>
-        #             <ns3:controlledSubjectAreaName>Physics</ns3:controlledSubjectAreaName>
-        #         </ns3:subjectArea>
-        #         <ns3:subjectArea>
-        #             <ns3:controlledSubjectAreaName>Other</ns3:controlledSubjectAreaName>
-        #             <ns3:additionalSubjectAreaName>Atmospheric Physics</ns3:additionalSubjectAreaName>
-        #         </ns3:subjectArea>
-        #     </ns3:subjectAreas>
-        subfields = [ns3 + 'controlledSubjectAreaName', ns3 + 'additionalSubjectAreaName']
-        path_from_radardataset = ns3 + 'subjectAreas/' + ns3 + 'subjectArea'
-        ds_result['metadata']['radarDataset']['subjectAreas'] = self._find_metadata_in_record(record,
-                                                                                              path_from_radardataset,
-                                                                                              'subjectArea', subfields)
+        # <subjects>
+        #   <subject>Open Access</subject>
+        #   <subject subjectScheme="ddc">025</subject>
+        # </subjects>
+        subfields = []
+        path_from_leoPARDdataset = ns2 + 'subjects/' + ns2 + 'subject'
+        ds_result['metadata']['leoPARDDataset']['subjectAreas'] = self._find_metadata_in_record(record,
+                                                                                              path_from_leoPARDdataset,
+                                                                                              'subject', subfields)
 
         # METADATA RESOURCE TYPE
-        #     <ns3:resource resourceType="Dataset" />
-        path_from_radardataset = ns3 + 'resource'
-        ds_result['metadata']['radarDataset']['resource'] = self._find_metadata_in_record_simple(record,
-                                                                                                 path_from_radardataset)
-
+        #     <resourceType resourceTypeGeneral="Dataset">research_data</resourceType>
+        path_from_leoPARDdataset = ns2 + 'resourceType'
+        ds_result['metadata']['leoPARDDataset']['resourceType'] = self._find_metadata_in_record_simple(record,
+                                                                                                 path_from_leoPARDdataset)
+                                                                                     
+                                                                                   
         # METADATA RIGHTS
-        #     <ns3:rights>
-        #         <ns3:controlledRights>CC BY 4.0 Attribution</ns3:controlledRights>
-        #     </ns3:rights>
-        subfields = [ns3 + 'controlledRights', ns3 + 'additionalRights']
-        path_from_radardataset = ns3 + 'rights'
-        ds_result['metadata']['radarDataset']['rights'] = self._find_metadata_in_record(record,
-                                                                                        path_from_radardataset,
+        # <rightsList>
+        #   <rights rightsIdentifier="CC-BY-4.0" rightsURI="https://creativecommons.org/licenses/by/4.0/" xml:lang="en">Attribution 4.0</rights>
+        # </rightsList>
+        subfields = [ns2 + 'rightsList', ns2 + 'rights']
+        path_from_leoPARDdataset = ns2 + 'rightsList'
+        ds_result['metadata']['leoPARDDataset']['rightsList'] = self._find_metadata_in_record(record,
+                                                                                        path_from_leoPARDdataset,
                                                                                         'rights', subfields)
-        # METADATA RIGHTS HOLDERS
-        #     <ns3:rightsHolders>
-        #         <ns3:rightsHolder>Leibniz Institute of Atmospheric Physics at the University of Rostock</ns3:rightsHolder>
-        #     </ns3:rightsHolders>
-        path_from_radardataset = ns3 + 'rightsHolders/' + ns3 + 'rightsHolder'
-        ds_result['metadata']['radarDataset']['rightsHolders'] = self._find_metadata_in_record(record,
-                                                                                               path_from_radardataset,
-                                                                                               'rightsHolder')
-
+        
     # OPTIONAL METADATA
-        # METADATA ADDITIONAL TITLES
-        # <additionalTitles>
-        #     <additionalTitle additionalTitleType="Subtitle">Supplementary Data PhD Thesis</additionalTitle>
-        #     <additionalTitle additionalTitleType="Subtitle">Supplementary Data PhD Thesis</additionalTitle>
-        # </additionalTitles>
-        path_from_radardataset = ns3 + 'additionalTitles/' + ns3 + 'additionalTitle'
-        ds_result['metadata']['radarDataset']['additionalTitles'] = self._find_metadata_in_record(record,
-                                                                                               path_from_radardataset,
-                                                                                               'additionalTitle')
-
         # METADATA - DESCRIPTIONS
-        #     <ns3:descriptions>
-        #         <ns3:description descriptionType="Abstract">Data to reproduce the figures in publication.</ns3:description>
-        #     </ns3:descriptions>
-        path_from_radardataset = ns3 + 'descriptions/' + ns3 + 'description'
-        ds_result['metadata']['radarDataset']['descriptions'] = self._find_metadata_in_record(record,
-                                                                                              path_from_radardataset,
+        # <descriptions>
+        #    <description descriptionType="Abstract" xml:lang="de">Die im Rahmen des BMBF-geförderten Projekts ADoRe-OA und der damit verbundenen Weiterentwicklung von CODA (Customizable Open Access Database Application) durchgeführten Umfrage wurde ermittelt, welche Daten zur Publikationsförderung wie erhoben und im weiteren Prozess be- und verarbeitet werden. Welche Anforderungen werden z.B. bezüglich Schnittstellen, Funktionalitäten und Metadaten werden an ein Tool gestellt, das die damit verbundenen Prozesse ideal abbildet und somit den Arbeitsaufwand minimiert. Vor diesem Hintergrund richtete sich diese Umfrage besonders an Mitarbeiter und Mitarbeiterinnen an Bibliotheken und/oder Verwaltungseinrichtungen, die in Ihrem Arbeitsalltag mit der Be- bzw. Verarbeitung dieser Daten, der Prüfung und/oder der Bewirtschaftung von Anträgen zur Förderung von Open-Access-Publikationen betraut sind.</description>
+        #    <description descriptionType="Abstract" xml:lang="en">The survey carried out as part of the BMBF-funded ADoRe-OA project and the associated further development of CODA (Customizable Open Access Database Application) determined which data is collected for publication funding and how it is handled and processed in the further process. What requirements are placed on a tool, e.g. with regard to interfaces, functionalities and metadata, that ideally maps the associated processes and thus minimizes the workload? Against this background, this survey was aimed in particular at employees of libraries and/or administrative institutions who are entrusted with the processing of this data, the review and/or management of applications for the funding of open access publications in their everyday work.</description>
+        # </descriptions>
+        path_from_leoPARDdataset = ns2 + 'descriptions/' + ns2 + 'description'
+        ds_result['metadata']['leoPARDDataset']['descriptions'] = self._find_metadata_in_record(record,
+                                                                                              path_from_leoPARDdataset,
                                                                                               'description')
 
         # METADATA - KEYWORDS
@@ -330,43 +370,44 @@ class RADAR_ParserProfile(DatasetParser):
         #     <keyword>downy mildew resistance</keyword>
         #     <keyword>untargeted metabolomics</keyword>
         # </keywords>
-        path_from_radardataset = ns3 + 'keywords/' + ns3 + 'keyword'
-        ds_result['metadata']['radarDataset']['keywords'] = self._find_metadata_in_record(record, path_from_radardataset, 'keyword')
+        path_from_leoPARDdataset = ns3 + 'keywords/' + ns3 + 'keyword'
+        ds_result['metadata']['leoPARDDataset']['keywords'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'keyword')
 
         # METADATA - CONTRIBUTORS
         # <contributors>
-        #     <contributor contributorType="Producer">
-        #           <contributorName>Pohl, Ernst</contributorName>
-        #           <givenName>Ernst</givenName>
-        #           <familyName>Pohl</familyName>
-        #           <nameIdentifier schemeURI="http://orcid.org/" nameIdentifierScheme="ORCID">0000-0002-5168-4540</nameIdentifier>
-        #           <contributorAffiliation>Universität Bonn, Institut für Archäologie und Kulturanthropologie, Abteilung Vor- und Frühgeschichtliche Archäologie</contributorAffiliation>
-        #     </contributor>
+        #   <contributor contributorType="HostingInstitution">
+        #      <contributorName>Universitätsbibliothek Braunschweig</contributorName>
+        #      <givenName>Thomas</givenName>
+        #      <familyName>Spengler</familyName>
+        #      <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-0212-1899</nameIdentifier>
+        #      <affiliation>Institute of Automotive Management and Industrial Production, TU Braunschweig</affiliation>
+        # </contributor>
         # </contributors>
-        path_from_radardataset = ns3 + 'contributors/' + ns3 + 'contributor'
-        subfields = [ns3 + 'contributorName', ns3 + 'givenName', ns3 + 'familyName', ns3 + 'contributorAffiliation',
-                     ns3 + 'nameIdentifier']
-        ds_result['metadata']['radarDataset']['contributors'] = self._find_metadata_in_record(record,
-                                                                                          path_from_radardataset,
+        path_from_leoPARDdataset = ns2 + 'contributors/' + ns2 + 'contributor'
+        subfields = [ns2 + 'contributorName', ns2 + 'givenName', ns2 + 'familyName', ns2 + 'affiliation',
+                     ns2 + 'nameIdentifier']
+        ds_result['metadata']['leoPARDDataset']['contributors'] = self._find_metadata_in_record(record,
+                                                                                          path_from_leoPARDdataset,
                                                                                           'contributor', subfields)
 
         # METADATA LANGUAGE
-        #     <ns3:language>eng</ns3:language>
-        path_from_radardataset = ns3 + 'language'
-        ds_result['metadata']['radarDataset']['language'] = self._find_metadata_in_record_simple(record,
-                                                                                                 path_from_radardataset)
+        #     <language>en</language>
+        path_from_leoPARDdataset = ns2 + 'language'
+        ds_result['metadata']['leoPARDDataset']['language'] = self._find_metadata_in_record_simple(record,
+                                                                                                 path_from_leoPARDdataset)
         # METADATA - ALTERNATE IDENTIFIERS
         # <alternateIdentifiers>
-        #     <alternateIdentifier alternateIdentifierType="GenBank accession number">MN729603</alternateIdentifier>
-        #     <alternateIdentifier alternateIdentifierType="CAS Registry Number">111830-76-3</alternateIdentifier>
+        #   <alternateIdentifier alternateIdentifierType="URL">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00074785</alternateIdentifier>
+        #   <alternateIdentifier alternateIdentifierType="MyCoRe">dbbs_mods_00074785</alternateIdentifier>
         # </alternateIdentifiers>
-        path_from_radardataset = ns3 + 'alternateIdentifiers/' + ns3 + 'alternateIdentifier'
-        ds_result['metadata']['radarDataset']['alternateIdentifiers'] = self._find_metadata_in_record(record, path_from_radardataset, 'alternateIdentifier')
+        path_from_leoPARDdataset = ns2 + 'alternateIdentifiers/' + ns2 + 'alternateIdentifier'
+        ds_result['metadata']['leoPARDDataset']['alternateIdentifiers'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'alternateIdentifier')
 
         # METADATA - RELATED IDENTIFIERS
-        #     <ns3:relatedIdentifiers>
-        #         <ns3:relatedIdentifier relatedIdentifierType="DOI" relationType="IsSupplementTo">10.1029/2021GL094581</ns3:relatedIdentifier>
-        #     </ns3:relatedIdentifiers>
+        #  <relatedIdentifiers>
+        #    <relatedIdentifier relatedIdentifierType="URL" relatedMetadataScheme="mods" relationType="HasMetadata" schemeURI="https://www.loc.gov/standards/mods/v3/mods-3-7.xsd">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00074775?XSL.Transformer=mods</relatedIdentifier>
+        #    <relatedIdentifier relatedIdentifierType="DOI" relationType="References">https://doi.org/10.1021/acs.jnatprod.3c00789</relatedIdentifier>
+        #  </relatedIdentifiers>
         # Types =
         # - ARK
         # - arXiv
@@ -412,80 +453,16 @@ class RADAR_ParserProfile(DatasetParser):
         # - Reviews
         # - IsDerivedFrom
         # - IsSourceOf
-        path_from_radardataset = ns3 + 'relatedIdentifiers/' + ns3 + 'relatedIdentifier'
-        ds_result['metadata']['radarDataset']['relatedIdentifiers'] = self._find_metadata_in_record(record, path_from_radardataset, 'relatedIdentifier')
+        path_from_leoPARDdataset = ns2 + 'relatedIdentifiers/' + ns2 + 'relatedIdentifier'
+        ds_result['metadata']['leoPARDDataset']['relatedIdentifiers'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'relatedIdentifier')
 
-        # METADATA - GEOLOCATION
-        # <geoLocations>
-        #     <geoLocation>
-        #         <geoLocationCountry>GERMANY</geoLocationCountry>
-        #         <geoLocationRegion>North-Rhine Westphalia, Rhineland-Platinate</geoLocationRegion>
-        #         <geoLocationPoint>00000</geoLocationPoint>
-        #         <geoLocationBox>11111</geoLocationBox>
-        #     </geoLocation>
-        # </geoLocations>
-        path_from_radardataset = ns3 + 'geoLocations/' + ns3 + 'geoLocation'
-        subfields = [ns3 + 'geoLocationCountry', ns3 + 'geoLocationRegion', ns3 + 'geoLocationPoint', ns3 + 'geoLocationBox']
-        ds_result['metadata']['radarDataset']['geoLocations'] = self._find_metadata_in_record(record,
-                                                                                          path_from_radardataset,
-                                                                                          'geoLocation', subfields)
-
-        # METADATA - DATA SOURCES
-        # <dataSources>
-        #     <dataSource dataSourceDetail="Instrument">Waters e2695 chromatography workstation with photodiode array detector (PDA) and a QDA mass detector (Waters)</dataSource>
-        #     <dataSource dataSourceDetail="Instrument">BioRad CFX ConnectTM Real-Time System</dataSource>
-        # </dataSources>
-        path_from_radardataset = ns3 + 'dataSources/' + ns3 + 'dataSource'
-        ds_result['metadata']['radarDataset']['dataSources'] = self._find_metadata_in_record(record, path_from_radardataset, 'dataSource')
-
-        # METADATA - SOFTWARE TYPE
-        # <software>
-        #     <softwareType type="Resource Production">
-        #         <softwareName softwareVersion="3">Waters Empower</softwareName>
-        #         <softwareName softwareVersion="2.1">BioRad CFX (qPCR)</softwareName>
-        #         <alternativeSoftwareName alternativeSoftwareVersion="3.6.2">R</alternativeSoftwareName>
-        #     </softwareType>
-        # </software>
-        path_from_radardataset = ns3 + 'software/' + ns3 + 'softwareType'
-        subfields = [ns3 + 'softwareName', ns3 + 'alternativeSoftwareName']
-        ds_result['metadata']['radarDataset']['software'] = self._find_metadata_in_record(record,
-                                                                                          path_from_radardataset,
-                                                                                          'softwareType', subfields)
-        # METADATA - DATA PROCESSING
-        # <processing>
-        #     <dataProcessing>Kollisionsdetektion</dataProcessing>
-        # </processing>
-        path_from_radardataset = ns3 + 'processing/' + ns3 + 'dataProcessing'
-        ds_result['metadata']['radarDataset']['processing'] = self._find_metadata_in_record(record, path_from_radardataset, 'dataProcessing')
-
-        # METADATA - RELATED INFORMATIONS
-        # <relatedInformations>
-        #     <relatedInformation relatedInformationType="10.1038/s42003-021-01967-9">DOI Journal Article</relatedInformation>
-        # </relatedInformations>
-        path_from_radardataset = ns3 + 'relatedInformations/' + ns3 + 'relatedInformation'
-        ds_result['metadata']['radarDataset']['relatedInformations'] = self._find_metadata_in_record(record, path_from_radardataset, 'relatedInformation')
-
-        # METADATA - FUNDING REFERENCES
-        # <fundingReferences>
-        #     <fundingReference>
-        #         <funderName>Landwirtschaftliche Rentenbank</funderName>
-        #         <funderIdentifier type="Other">Project No. 182849149 (SFB 953)</funderIdentifier>
-        #         <awardNumber>UBO 53C-50009_00_71030002</awardNumber>
-        #         <awardURI>https://gepris.dfg.de/gepris/projekt/318064602</awardURI>
-        #         <awardTitle>Biosynthese der Piperamide im schwarzen Pfeffer (Piper nigrum)</awardTitle>
-        #     </fundingReference>
-        # </fundingReferences>
-        path_from_radardataset = ns3 + 'fundingReferences/' + ns3 + 'fundingReference'
-        subfields = [ns3 + 'funderName', ns3 + 'funderIdentifier', ns3 + 'awardNumber', ns3 + 'awardURI', ns3 + 'awardTitle']
-        ds_result['metadata']['radarDataset']['fundingReferences'] = self._find_metadata_in_record(record,
-                                                                                          path_from_radardataset,
-                                                                                          'fundingReference', subfields)
-
+ 
         return ds_result
 
     def _find_metadata_in_record_simple(self, record, path, subfields=[]):
 
-        target = './' + self.ns0 + 'metadata/' + self.ns2 + 'radarDataset/' + path
+        target = './' + self.ns0 + 'metadata/' + self.ns2 + 'resource/' + path
+        
         metadata = record.find(target)
 
         result = {}
@@ -501,8 +478,9 @@ class RADAR_ParserProfile(DatasetParser):
 
     def _find_metadata_in_record(self, record, path, metadata_name, subfields=[]):
 
-        target = './' + self.ns0 + 'metadata/' + self.ns2 + 'radarDataset/' + path
+        target = './' + self.ns0 + 'metadata/' + self.ns2 + 'resource/' + path
         metadata = record.findall(target)
+
         list_result = []
 
         for value in metadata:
@@ -527,15 +505,15 @@ class RADAR_ParserProfile(DatasetParser):
         return list_result
 
 
-    def parse_RADAR_RECORD_DICT_to_LDM_CKAN_DICT(self, radar_dict):
+    def parse_leoPARD_RECORD_DICT_to_LDM_CKAN_DICT(self, leoPARD_dict):
 
         ldm_dict = self._get_LDM_vdataset_template()
-        radar_metadata = radar_dict['metadata']['radarDataset']
+        leoPARD_metadata = leoPARD_dict['metadata']['leoPARDDataset']
 
         # idenfier
-        identifier_type = self._get_radar_value(radar_metadata, ['identifier', 'identifierType'])
-        identifier = self._get_radar_value(radar_metadata, ['identifier', 'identifier'])
-        publication_year = self._get_radar_value(radar_metadata, ['publicationYear'])
+        identifier_type = self._get_leoPARD_value(leoPARD_metadata, ['identifierType'])
+        identifier = self._get_leoPARD_value(leoPARD_metadata, ['identifier'])
+        publication_year = self._get_leoPARD_value(leoPARD_metadata, ['publicationYear'])
 
         if identifier_type == 'DOI':
             ldm_dict['doi'] = identifier
@@ -546,66 +524,69 @@ class RADAR_ParserProfile(DatasetParser):
         ldm_dict['source_metadata_created'] = publication_year
 
         # creators
-        ldm_dict = self._get_radar_creators(radar_metadata, ldm_dict)
+        ldm_dict = self._get_leoPARD_creators(leoPARD_metadata, ldm_dict)
 
         # title
-        title = self._get_radar_value(radar_metadata, ['title'])
+        title = self._get_leoPARD_title(leoPARD_metadata, ldm_dict)
         name = self.adjust_dataset_name(identifier_type+'-'+identifier)
         ldm_dict['title'] = title.capitalize()
         ldm_dict['name'] = name
 
         # rights
-        rights = radar_metadata.get('rights', [])
+        rights = leoPARD_metadata.get('rightsList', [])
         if rights:
-            ldm_dict['license_id'] = self._get_radar_value(rights[0], ['rights', 'controlledRights'])
-            ldm_dict['license_title'] = self._get_radar_value(rights[0], ['rights', 'additionalRights'])
+            ldm_dict['license_id'] = self._get_leoPARD_value(rights[0], ['rights', 'rights', 'rightsIdentifier'])
+            ldm_dict['license_title'] = self._get_leoPARD_value(rights[0], ['rights', 'rights', 'rights'])
 
         # descriptions
-        ldm_dict = self._get_radar_description(radar_metadata, ldm_dict)
-
-        # keywords
-        ldm_dict = self._get_radar_keywords(radar_metadata, ldm_dict)
+        ldm_dict = self._get_leoPARD_description(leoPARD_metadata, ldm_dict)
 
         # publishers
-        ldm_dict = self._get_radar_publishers(radar_metadata, ldm_dict)
-
-        # production year
-        production_year = self._get_radar_value(radar_metadata, ['productionYear'])
-        if production_year:
-            ldm_dict['production_year'] = production_year
+        ldm_dict = self._get_leoPARD_publishers(leoPARD_metadata, ldm_dict)
 
         # publication year
         if publication_year:
             ldm_dict['publication_year'] = publication_year
 
         # subject areas
-        ldm_dict = self._get_radar_subject_areas(radar_metadata, ldm_dict)
+        ldm_dict = self._get_leoPARD_subject_areas(leoPARD_metadata, ldm_dict)
 
         # resource type
-        resource_type = self._get_radar_value(radar_metadata, ['resource', 'resourceType'])
-        resource = self._get_radar_value(radar_metadata, ['resource', 'resource'])
+        resource_type = self._get_leoPARD_value(leoPARD_metadata, ['resourceType', 'resourceType'])
+        resource_type_general = self._get_leoPARD_value(leoPARD_metadata, ['resourceType', 'resourceTypeGeneral'])
         resource_type_txt = resource_type
-        if resource_type_txt and resource:
-            resource_type_txt = resource_type_txt + " - " + resource
+        if resource_type_txt and resource_type_general:
+            resource_type_txt = resource_type_general + " - " + resource_type_txt
         else:
-            resource_type_txt = resource
+            resource_type_txt = resource_type_general
 
         ldm_dict['resource_type'] = resource_type_txt
 
         # related identifiers
-        ldm_dict = self._get_radar_related_identifiers(radar_metadata, ldm_dict)
+        ldm_dict = self._get_leoPARD_related_identifiers(leoPARD_metadata, ldm_dict)
 
         return ldm_dict
 
 
-    def _get_radar_description(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_title(self, leoPARD_metadata, ldm_dict):
 
-        descriptions = radar_metadata.get('descriptions', [])
+        titles = leoPARD_metadata.get('titles', [])
+        title_txt = ""
+
+        for title in titles:
+            title_txt = title.get("title", "").get('title', "")
+            break # just take first one
+            
+        return title_txt
+    
+    def _get_leoPARD_description(self, leoPARD_metadata, ldm_dict):
+
+        descriptions = leoPARD_metadata.get('descriptions', [])
         description_txt = ""
 
         for description in descriptions:
-            desc_type = self._get_radar_value(description, ['descriptionType'])
-            desc_txt = self._get_radar_value(description, ['description', 'description'])
+            desc_type = self._get_leoPARD_value(description, ['descriptionType'])
+            desc_txt = self._get_leoPARD_value(description, ['description', 'description'])
             desc = desc_type + ": " + desc_txt
             if description_txt:
                 desc = '\r\n' + desc
@@ -614,29 +595,29 @@ class RADAR_ParserProfile(DatasetParser):
         ldm_dict['notes'] = description_txt
         return ldm_dict
 
-    def _get_radar_creators(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_creators(self, leoPARD_metadata, ldm_dict):
 
-        creators = radar_metadata.get('creators', [])
+        creators = leoPARD_metadata.get('creators', [])
         extra_authors = []
         pos = 1
         for creator in creators:
             orcid = ""
-            author_id_type = self._get_radar_value(creator, ['creator', 'nameIdentifier', 'nameIdentifierScheme'])
+            author_id_type = self._get_leoPARD_value(creator, ['creator', 'nameIdentifier', 'nameIdentifierScheme'])
             if author_id_type.lower() == 'orcid':
-                orcid = self._get_radar_value(creator, ['creator', 'nameIdentifier', 'nameIdentifier'])
+                orcid = self._get_leoPARD_value(creator, ['creator', 'nameIdentifier', 'nameIdentifier'])
 
             # first is author
             if pos == 1:
-                ldm_dict['author'] = self._get_radar_value(creator, ['creator', 'creatorName'])
-                ldm_dict['givenName'] = self._get_radar_value(creator, ['creator', 'givenName'])
-                ldm_dict['familyName'] = self._get_radar_value(creator, ['creator', 'familyName'])
+                ldm_dict['author'] = self._get_leoPARD_value(creator, ['creator', 'creatorName', 'creatorName'])
+                ldm_dict['givenName'] = self._get_leoPARD_value(creator, ['creator', 'givenName'])
+                ldm_dict['familyName'] = self._get_leoPARD_value(creator, ['creator', 'familyName'])
                 ldm_dict['orcid'] = orcid
                 pos += 1
             else:
                 # following are extra_authors
-                extra_author = {"extra_author": self._get_radar_value(creator, ['creator', 'creatorName']),
-                                "givenName": self._get_radar_value(creator, ['creator', 'givenName']),
-                                "familyName": self._get_radar_value(creator, ['creator', 'familyName']),
+                extra_author = {"extra_author": self._get_leoPARD_value(creator, ['creator', 'creatorName', 'creatorName']),
+                                "givenName": self._get_leoPARD_value(creator, ['creator', 'givenName']),
+                                "familyName": self._get_leoPARD_value(creator, ['creator', 'familyName']),
                                 "orcid": orcid}
                 extra_authors.append(extra_author)
         if extra_authors:
@@ -644,13 +625,13 @@ class RADAR_ParserProfile(DatasetParser):
 
         return ldm_dict
 
-    def _get_radar_keywords(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_keywords(self, leoPARD_metadata, ldm_dict):
 
-        keywords = radar_metadata.get('keywords', [])
+        keywords = leoPARD_metadata.get('keywords', [])
         tag_list = []
 
         for keyword in keywords:
-            tag = self._get_radar_value(keyword, ['keyword', 'keyword'])
+            tag = self._get_leoPARD_value(keyword, ['keyword', 'keyword'])
             # create ckan tag dict
             # some cases are ; separated list of tags
             tag = tag.replace(';', ',')
@@ -691,29 +672,23 @@ class RADAR_ParserProfile(DatasetParser):
         tag = tag[:100]
         return tag
 
-    def _get_radar_publishers(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_publishers(self, leoPARD_metadata, ldm_dict):
 
-        publishers = radar_metadata.get('publishers', [])
-        publishers_list = []
-
-        for publisher in publishers:
-            val = self._get_radar_value(publisher, ['publisher', 'publisher'])
-            # create ckan publisher dict
-            publisher_dict = {"publisher": val}
-            publishers_list.append(publisher_dict)
-        if publishers_list:
-            ldm_dict['publishers'] = publishers_list
+        publisher = leoPARD_metadata.get('publipublisher', "")
+        
+        if publisher:
+            ldm_dict['publishers'] = [publisher]
 
         return ldm_dict
 
-    def _get_radar_subject_areas(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_subject_areas(self, leoPARD_metadata, ldm_dict):
 
-        s_areas = radar_metadata.get('subjectAreas', [])
+        s_areas = leoPARD_metadata.get('subjectAreas', [])
         s_areas_list = []
 
         for s_area in s_areas:
-            name = self._get_radar_value(s_area, ['subjectArea', 'controlledSubjectAreaName'])
-            add_name = self._get_radar_value(s_area, ['subjectArea', 'additionalSubjectAreaName'])
+            name = self._get_leoPARD_value(s_area, ['subject', 'subject'])
+            add_name = self._get_leoPARD_value(s_area, ['subject', 'subjectScheme'])
             # create ckan subject areas dict
             s_area_dict = { "subject_area_additional": add_name,
                             "subject_area_name": name }
@@ -723,15 +698,15 @@ class RADAR_ParserProfile(DatasetParser):
 
         return ldm_dict
 
-    def _get_radar_related_identifiers(self, radar_metadata, ldm_dict):
+    def _get_leoPARD_related_identifiers(self, leoPARD_metadata, ldm_dict):
 
-        r_identifiers = radar_metadata.get('relatedIdentifiers', [])
+        r_identifiers = leoPARD_metadata.get('relatedIdentifiers', [])
         r_identifiers_list = []
 
         for r_id in r_identifiers:
-            identifier = self._get_radar_value(r_id, ['relatedIdentifier', 'relatedIdentifier'])
-            id_type = self._get_radar_value(r_id, ['relatedIdentifiers', 'relatedIdentifierType'])
-            id_relation = self._get_radar_value(r_id, ['relatedIdentifiers', 'relationType'])
+            identifier = self._get_leoPARD_value(r_id, ['relatedIdentifier', 'relatedIdentifier'])
+            id_type = self._get_leoPARD_value(r_id, ['relatedIdentifierType'])
+            id_relation = self._get_leoPARD_value(r_id, ['relationType'])
             # create ckan related identifiers dict
             r_identifier_dict = { "identifier": identifier,
                             "identifier_type": id_type,
@@ -742,9 +717,9 @@ class RADAR_ParserProfile(DatasetParser):
 
         return ldm_dict
 
-    def _get_radar_value(self, radar_metadata, list_fields=[]):
+    def _get_leoPARD_value(self, leoPARD_metadata, list_fields=[]):
 
-        mt_dict = radar_metadata
+        mt_dict = leoPARD_metadata
         value = ""
 
         for field in list_fields:
@@ -767,7 +742,7 @@ class RADAR_ParserProfile(DatasetParser):
             "type": "vdataset",
             "source_metadata_created": "",
             "source_metadata_modified": "",
-            "owner_org": "radar",
+            "owner_org": "leopard",
             "author": "",
             "author_email": "",
         #     "creator_user_id": "17755db4-395a-4b3b-ac09-e8e3484ca700",
@@ -789,7 +764,7 @@ class RADAR_ParserProfile(DatasetParser):
              "notes": "",
         #     "num_resources": 2,
         #     "num_tags": 3,
-             "organization": self._get_radar_organization_ckan_dict(),
+             "organization": self._get_leoPARD_organization_ckan_dict(),
         #         "id": "3d4e7da1-a0ef-4af1-9c07-56cf5e35084d",
         #         "name": "institut-fur-statik-und-dynamik",
         #         "title": "Institut für Statik und Dynamik",
@@ -916,7 +891,7 @@ class RADAR_ParserProfile(DatasetParser):
 
     def check_current_schema(self):
         '''
-            Using the RADAR harvesting tool determine if the current schema is matching the schema implemented.
+            Using the leoPARD harvesting tool determine if the current schema is matching the schema implemented.
             Returning a dict with the results of comparing the metadata schema used in the code
             with the metadata schema retrieved by remote servers
 
@@ -932,17 +907,20 @@ class RADAR_ParserProfile(DatasetParser):
 
     def _get_schema_report(self, obj_tree=None):
 
+        schema_dataset = None
+        schema_dataset_element = None
+        
         if obj_tree is None:
-            url = self.radar_ListRecords_url + '&from=' + self.radar_from_date + '&until=' + \
-                      self.radar_until_date + '&metadataPrefix=' + self.radar_metadataPrefix
+            url = self.leoPARD_ListRecords_url
+            
             # Find page of Datasets
             try:
                 response = requests.get(url)
             except requests.exceptions.RequestException as e:  # This is the correct syntax
-                self.set_log("error_API", self.radar_ListRecords_url + " - " + e.__str__())
+                self.set_log("error_API", self.leoPARD_ListRecords_url + " - " + e.__str__())
 
             if not response.ok:
-                self.set_log("error_api_data", self.radar_ListRecords_url)
+                self.set_log("error_api_data", self.leoPARD_ListRecords_url)
             else:
                 obj_tree = ElementTree.fromstring(response.content)
 
@@ -951,20 +929,25 @@ class RADAR_ParserProfile(DatasetParser):
             schema_dataset = None
             schema_dataset_element = None
         else:
-            schema_dataset = obj_tree.find(self.ns0 + 'ListRecords/' + self.ns0 + 'record/' + self.ns0 + 'metadata/' + self.ns2 + 'radarDataset')
-            schema_dataset_element = obj_tree.find(self.ns0 + 'ListRecords/' + self.ns0 + 'record/' + self.ns0 + 'metadata/' + self.ns2 + 'radarDataset/' + self.ns3 + 'identifier')
-
-        current_schema = {'current_radar_schema': self.ns0,
-                          'current_dataset_schema': self.ns2,
-                          'current_dataset_element_schema': self.ns3}
+            schema_dataset_data = obj_tree.find(self.ns0 + 'ListRecords/' + self.ns0 + 'record/' + self.ns0 + 'metadata/' + self.ns2 + 'resource')
+            if schema_dataset_data is not None:
+                if schema_dataset_data.attrib:
+                    aux = schema_dataset_data.attrib['{http://www.w3.org/2001/XMLSchema-instance}schemaLocation']
+                    aux = aux.split(" ")
+                    schema_dataset = aux[0]
+                    schema_dataset_element = aux[1]
+        
+        current_schema = {'current_leoPARD_schema': self.ns2,
+                          'current_dataset_schema': self.current_dataset_schema
+                          }
         schema_ok = True
 
         errors = {}
         # if both elements were found means the schema is correct
-        if schema_dataset is None:
+        if not schema_dataset:
             errors['dataset_schema'] = 'ERROR: Current Dataset Schema is incorrect.'
             schema_ok = False
-        if schema_dataset_element is None:
+        if not schema_dataset_element:
             errors['dataset_element_schema'] = 'ERROR: Current Dataset Element Schema is incorrect.'
             schema_ok = False
 
@@ -975,32 +958,32 @@ class RADAR_ParserProfile(DatasetParser):
         return report
 
 
-    def get_organization(self, name='radar'):
+    def get_organization(self, name='leoPARD'):
         '''
-            In RADAR Datasets are no related to a specific organization.
-            RADAR's imported datasets allways belongs to RADAR organization in LDM.
+            In leoPARD Datasets are no related to a specific organization.
+            leoPARD's imported datasets allways belongs to leoPARD organization in LDM.
 
             Returns: a dictionary with the organization's metadata
         '''
 
         self.set_log("infos_searching_org", name)
 
-        org_dict = self._get_radar_organization_ckan_dict()
+        org_dict = self._get_leoPARD_organization_ckan_dict()
 
         return org_dict
 
-    def _get_radar_organization_ckan_dict(self):
+    def _get_leoPARD_organization_ckan_dict(self):
 
         org_dict = {
         "approval_status": "approved",
-        "description": "RADAR (Research Data Repository) is a cross-disciplinary repository for archiving and publishing research data from completed scientific studies and projects. The focus is on research data from subjects that do not yet have their own discipline-specific infrastructures for research data management. ",
-        "display_name": "RADAR",
-        "image_display_url": "radar-logo.svg",
-        "image_url": "radar-logo.svg",
+        "description": "Technische Universität Braunschweig - Universitätsbibliothek Braunschweig.",
+        "display_name": "leoPARD (TU Braunschweig Publications And Research Data)",
+        "image_display_url": "logo-leopard-white.png",
+        "image_url": "logo-leopard-white.png",
         "is_organization": True,
-        "name": "radar",
+        "name": "leopard",
         "state": "active",
-        "title": "RADAR",
+        "title": "leoPARD (TU Braunschweig Publications And Research Data)",
         "type": "organization",
         }
         return org_dict
@@ -1025,28 +1008,33 @@ class RADAR_ParserProfile(DatasetParser):
             return True
 
         result = False
-        exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'tags']
+        exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'subject_areas']
 
         for field in remote_dataset.keys():
 
             # special case  tags
-            if field == 'tags':
-                for tag in remote_dataset['tags']:
-                    tag_name = tag['name']
+            if field == 'subject_areas':
+                for tag in remote_dataset['subject_areas']:
+                    tag_name = tag['subject_area_name']
                     tag_found = False
-                    for tag_local in local_dataset['tags']:
-                        if tag_local['name'] == tag_name:
+                    for tag_local in local_dataset['subject_areas']:
+                        if tag_local['subject_area_name'] == tag_name:
                             tag_found = True
                     if not tag_found:
                         result = True
                         break
 
-            #print("\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field])
-            if field in local_dataset and field not in exclude_in_comparison and local_dataset[field] != remote_dataset[field]:
-                self.logger.message = "\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field]
-                self.set_log_msg_info()
-                result = True
-                break
+            print("\nField: ", field, " L= ", local_dataset.get(field, "KEY ERROR"), " R= ", remote_dataset[field])
+            # print("\nField: ", field)
+
+            if field in local_dataset and field not in exclude_in_comparison:
+                # print("\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field])
+                if local_dataset[field] != remote_dataset[field]:
+                    print("\nField: ", field)
+                    self.logger.message = "\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field]
+                    self.set_log_msg_info()
+                    result = True
+                    break
 
         return result
 
@@ -1120,10 +1108,10 @@ class RADAR_ParserProfile(DatasetParser):
         self.logger.message = ""
 
         def infos_searching_ds(data):
-            self.logger.message = "Searching Datasets in RADAR's harvesting tool."
+            self.logger.message = "Searching Datasets in leoPARD's harvesting tool."
 
         def error_API(data):
-            self.logger.message = "Error Connecting RADAR's harvesting tool: " + data
+            self.logger.message = "Error Connecting leoPARD's harvesting tool: " + data
 
         def error_api_data(data):
             self.logger.message = "Error retrieving data from API: " + data
@@ -1135,7 +1123,7 @@ class RADAR_ParserProfile(DatasetParser):
             self.logger.message = "Metadata found with name: " + data
 
         def infos_searching_org(data):
-            self.logger.message = "Searching Organizaion in RADAR API. Name: " + data
+            self.logger.message = "Searching Organizaion in leoPARD API. Name: " + data
 
         def infos_org_found(data):
             self.logger.message = "Organization found: " + data

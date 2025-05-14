@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="https://leopard.tu-braunschweig.de/oai/oai2.xsl" type="text/xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2024-12-04T07:05:52Z</responseDate>
+  <request>https://leopard.tu-braunschweig.de/servlets/OAIDataProvider</request>
+  <error code="noRecordsMatch">No records match.</error>
+</OAI-PMH>

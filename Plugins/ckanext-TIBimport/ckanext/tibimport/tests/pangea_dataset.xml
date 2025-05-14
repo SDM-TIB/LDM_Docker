@@ -36,35 +36,47 @@
     <md:URI>https://doi.org/10.1594/PANGAEA.786524</md:URI>
     <md:dateTime>2009-07-25T12:00:58</md:dateTime>
     <md:supplementTo id="ref36829">
-    <md:author id="ref36829.author42192">
-    <md:lastName>Colacevich</md:lastName>
-    <md:firstName>Andrea</md:firstName>
-    <md:eMail>colacevich2@unisi.it</md:eMail>
-    </md:author>
-    <md:author id="ref36829.author42193">
-    <md:lastName>Caruso</md:lastName>
-    <md:firstName>Tancredi</md:firstName>
-    <md:orcid>0000-0002-3607-9609</md:orcid>
-    </md:author>
-    <md:author id="ref36829.author42194">
-    <md:lastName>Borghini</md:lastName>
-    <md:firstName>Francesca</md:firstName>
-    <md:eMail>borghini@unisi.it</md:eMail>
-    </md:author>
-    <md:author id="ref36829.author42195">
-    <md:lastName>Bargagli</md:lastName>
-    <md:firstName>Roberto</md:firstName>
-    </md:author>
-    <md:year>2009</md:year>
-    <md:title>Photosynthetic pigments in soils from northern Victoria Land (continental Antarctica) as proxies for soil algal community structure and function</md:title>
-    <md:source id="ref36829.journal14918" relatedTermIds="34058" type="journal">Soil Biology and Biochemistry</md:source>
-    <md:volume>41(10)</md:volume>
-    <md:URI>https://doi.org/10.1016/j.soilbio.2009.07.020</md:URI>
-    <md:pages>2105-2114</md:pages>
+        <md:author id="ref36829.author42192">
+            <md:lastName>Colacevich</md:lastName>
+            <md:firstName>Andrea</md:firstName>
+            <md:eMail>colacevich2@unisi.it</md:eMail>
+        </md:author>
+        <md:author id="ref36829.author42193">
+            <md:lastName>Caruso</md:lastName>
+            <md:firstName>Tancredi</md:firstName>
+            <md:orcid>0000-0002-3607-9609</md:orcid>
+        </md:author>
+        <md:author id="ref36829.author42194">
+            <md:lastName>Borghini</md:lastName>
+            <md:firstName>Francesca</md:firstName>
+            <md:eMail>borghini@unisi.it</md:eMail>
+        </md:author>
+        <md:author id="ref36829.author42195">
+            <md:lastName>Bargagli</md:lastName>
+            <md:firstName>Roberto</md:firstName>
+        </md:author>
+        <md:year>2009</md:year>
+        <md:title>Photosynthetic pigments in soils from northern Victoria Land (continental Antarctica) as proxies for soil algal community structure and function</md:title>
+        <md:source id="ref36829.journal14918" relatedTermIds="34058" type="journal">Soil Biology and Biochemistry</md:source>
+        <md:volume>41(10)</md:volume>
+        <md:URI>https://doi.org/10.1016/j.soilbio.2009.07.020</md:URI>
+        <md:pages>2105-2114</md:pages>
     </md:supplementTo>
 </md:citation>
 <md:abstract>Although soil algae are among the main primary producers in most terrestrial ecosystems of continental Antarctica, there are very few quantitative studies on their relative proportion in the main algal groups and on how their distribution is affected by biotic and abiotic factors. Such knowledge is essential for understanding the functioning of Antarctic terrestrial ecosystems. We therefore analyzed biological soil crusts from northern Victoria Land to determine their pH, electrical conductivity (EC), water content (W), total and organic C (TC and TOC) and total N (TN) contents, and the presence and abundance of photosynthetic pigments. In particular, the latter were tested as proxies for biomass and coarse-resolution community structure. Soil samples were collected from five sites with known soil algal communities and the distribution of pigments was shown to reflect differences in the relative proportions of Chlorophyta, Cyanophyta and Bacillariophyta in these sites. Multivariate and univariate models strongly indicated that almost all soil variables (EC, W, TOC and TN) were important environmental correlates of pigment distribution. However, a significant amount of variation is independent of these soil variables and may be ascribed to local variability such as changes in microclimate at varying spatial and temporal scales. There are at least five possible sources of local variation: pigment preservation, temporal variations in water availability, temporal and spatial interactions among environmental and biological components, the local-scale patchiness of organism distribution, and biotic interactions.
 </md:abstract>
+<md:reference dataciteRelType="References" group="210" id="ref103803" relationType="Related to" relationTypeId="12" typeId="ref">
+    <md:author id="ref103803.author74988">
+        <md:lastName>Puy</md:lastName>
+        <md:firstName>Arnald</md:firstName>
+        <md:eMail>apuy@princeton.edu</md:eMail>
+        <md:orcid>0000-0001-9469-2156</md:orcid>
+    </md:author>
+    <md:prepubStatus>in press</md:prepubStatus>
+    <md:title>Current models underestimate future irrigated areas</md:title>
+    <md:source id="ref103803.journal6096" relatedTermIds="33974" type="journal">Geophysical Research Letters</md:source>
+    <md:URI>https://doi.org/10.1029/2020GL087360</md:URI>
+</md:reference>
 <md:extent>
 <md:geographic>
 <md:westBoundLongitude>159.7833</md:westBoundLongitude>

@@ -1,6 +1,7 @@
 from ckanext.tibimport.logic2 import DatasetParser
 import requests
 import json
+from ckanext.tibimport.LLM_search_authors_from_text import LLMSearchAuthorsFromText
 
 class LUH_CKAN_API_ParserProfile(DatasetParser):
     '''
@@ -177,6 +178,7 @@ class LUH_CKAN_API_ParserProfile(DatasetParser):
         for resource in ds_dict['resources']:
             resource['url_type'] = ""
 
+        ds_dict['citation'] = []
         # Save extra fields (not standard ckan fields added by LUH)
         # Listed just for reference and control
         # 'domain'
@@ -184,21 +186,22 @@ class LUH_CKAN_API_ParserProfile(DatasetParser):
         # 'have_copyright'
 
         # process author field
-        ds_dict = self._process_authors(ds_dict)
+        #  for best performance authors only should be processed if insert or update should be done
+        # ds_dict = self._process_authors(ds_dict)
 
         return ds_dict
 
     def _process_authors(self, ds_dict):
 
-        ''' Solve LUH repository using multiple (colon or semicolon separated) authors in field '''
+        ''' Solve LUH repository using multiple (colon or semicolon separated) authors in field.
+        Using a LLM call searching for firstName and lastName for the given text.
+            Response is: [{"firstName": "name", "lastName": "familyName"}] '''
 
-        authors = ds_dict['author']
-        target_chars = [',', ';']
+        authors_txt = ds_dict['author']
 
-        for char in target_chars:
-            authors = authors.replace(char, '|')
+        LLM_obj = LLMSearchAuthorsFromText()
+        authors = LLM_obj.search_for_author_in_text(authors_txt)
 
-        authors = authors.split('|')
         extra_authors = []
         pos = 1
         for author in authors:
@@ -206,12 +209,16 @@ class LUH_CKAN_API_ParserProfile(DatasetParser):
 
             # first is author
             if pos == 1:
-                ds_dict['author'] = author
+                ds_dict['author'] = author["lastName"] + ', ' + author["firstName"]
+                ds_dict['familyName'] = author["lastName"]
+                ds_dict['givenName'] = author["firstName"]
                 # ds_dict['orcid'] = orcid
                 pos += 1
             else:
                 # following are extra_authors
-                extra_author = {"extra_author": author }
+                extra_author = {"extra_author": author["lastName"] + ', ' + author["firstName"],
+                                "familyName": author["lastName"],
+                                "givenName": author["firstName"]}
                                 # ,"orcid": orcid}
                 extra_authors.append(extra_author)
         if extra_authors:
@@ -245,6 +252,22 @@ class LUH_CKAN_API_ParserProfile(DatasetParser):
             return True
         else:
             return local_dataset['source_metadata_modified'] != remote_dataset['metadata_modified']
+
+    def execute_before_insert_dataset(self, remote_dataset):
+        '''
+            This method should be implemented inside a Dataset Parser Profile
+            if needed. Allows to run specific modifications over the dataset to be inserted
+        '''
+        remote_dataset = self._process_authors(remote_dataset)
+        return remote_dataset
+
+    def execute_before_update_dataset(self, remote_dataset):
+        '''
+            This method should be implemented inside a Dataset Parser Profile
+            if needed. Allows to run specific modifications over the dataset to be inserted
+        '''
+        remote_dataset = self._process_authors(remote_dataset)
+        return remote_dataset
 
     def check_current_schema(self):
         '''
@@ -342,7 +365,7 @@ class LUH_CKAN_API_ParserProfile(DatasetParser):
             'infos_ds_metadata_found': infos_ds_metadata_found,
             'infos_searching_org': infos_searching_org,
             'infos_org_found': infos_org_found,
-            'infos_org_found': infos_summary_log
+            'infos_summary_log': infos_summary_log
         }.get(op)(data)
 
         if op[0:5]=='infos':

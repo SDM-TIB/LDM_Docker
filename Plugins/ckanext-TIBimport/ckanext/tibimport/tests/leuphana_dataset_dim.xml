@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="static/style.xsl"?><OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2025-04-23T07:14:07Z</responseDate><request verb="ListRecords" metadataPrefix="dim" set="com_123456789_3">https://pubdata.leuphana.de/server/oai/request</request><ListRecords><record><header><identifier>oai:pubdata.leuphana.de:20.500.14123/1600</identifier><datestamp>2025-04-02T14:45:26Z</datestamp><setSpec>com_123456789_3</setSpec><setSpec>col_123456789_4</setSpec></header><metadata><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::6459" confidence="-1">Hartmann, Eric</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::6465" confidence="-1">Heinrichs, Harald</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="accessioned">2024-11-28T11:49:30Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2024-11-28T11:49:30Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="issued">2024-11-28</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="submitted">2024-11-20T10:48:51Z</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/20.500.14123/1600</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://doi.org/10.48548/pubdata-1526</dim:field>
+   <dim:field mdschema="dc" element="relation" authority="virtual::6427" confidence="-1">Nachhaltigkeitsstrategie Niedersachsen</dim:field>
+   <dim:field mdschema="dc" element="title" lang="de">BNBN 2024: Betriebsrat-Datensatz</dim:field>
+   <dim:field mdschema="dc" element="type" lang="-">Dataset</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Survey Data</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Context Materials / Supporting information</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Survey Instruments / Measuring Instruments</dim:field>
+   <dim:field mdschema="local" element="RightsHolder" authority="virtual::6497" confidence="-1">Professur für Nachhaltigkeit und Politik</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="topic" lang="-">Nachhaltige Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Klimaschutz</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Nachhaltigkeit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Unternehmen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Betriebsrat</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Personalrat</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Dekarbonisierung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Niedersachsen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Climate Protection</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Sustainability</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Company</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Works Council</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Staff Council</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Decarbonization</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword">Lower Saxony</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">DEU</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="region" lang="-">Niedersachsen</dim:field>
+   <dim:field mdschema="local" element="CreationContext">Research</dim:field>
+   <dim:field mdschema="local" element="Affiliation" authority="virtual::6503" confidence="-1">Fakultät Nachhaltigkeit</dim:field>
+   <dim:field mdschema="local" element="technical" qualifier="DataCite_FundingReference" authority="virtual::6427" confidence="-1">{"legalName":["Niedersächsisches Ministerium für Umwelt, Energie und Klimaschutz"],"entityType":["OrgUnit"]}</dim:field>
+   <dim:field mdschema="local" element="RelatedPubDataResource" qualifier="IsSupplementTo" authority="virtual::6535" confidence="-1">DOI: 10.48548/pubdata-1529</dim:field>
+   <dim:field mdschema="DataCite" element="FundingReference" qualifier="funderName" authority="virtual::6427" confidence="-1">Niedersächsisches Ministerium für Umwelt, Energie und Klimaschutz</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Abstract" lang="de">Der Datensatz beinhaltet Umfrageergebnisse samt zugehörigem Fragebogen und Codebook des "Betrieblichen Nachhaltigkeitsbarometers Niedersachsen" (BNBN), einer standardisierten Online-Befragung von Personen aus dem Management sowie aus Betriebs- und Personalräten in niedersächsischen Unternehmen. Der vorliegende Datensatz bezieht sich dabei ausschließlich auf die Befragung der Betriebsräte und Personalräte. Ziel dieser Umfrage war es, einen Überblick über den Stand der Umsetzung von Nachhaltigkeit und Klimaschutz in der Wirtschaft in Niedersachsen aus Perspektive der Befragten zu erhalten. Die Daten wurden im Frühjahr 2024 in Kooperation mit dem Niedersächsischen Ministerium für Umwelt, Energie und Klimaschutz und der Niedersachsen Allianz für Nachhaltigkeit erhoben und statistisch ausgewertet. Das methodische Vorgehen und die Ergebnisse der Auswertung können im begleitenden Bericht "Betriebliches Nachhaltigkeitsbarometer Niedersachsen 2024" eingesehen werden.</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Computer-assisted questionnaire</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Created">2024-04-17 - 2024-05-31</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Collected">2024-04-17 - 2024-05-21</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">deu</dim:field>
+   <dim:field mdschema="DataCite" element="PublicationYear">2024</dim:field>
+   <dim:field mdschema="DataCite" element="Publisher" lang="-">Medien- und Informationszentrum, Leuphana Universität Lüneburg</dim:field>
+   <dim:field mdschema="dspace" element="entity" qualifier="type">Publication</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::6459" confidence="-1">4597dd97-1d21-4bf2-9791-33c4c47890b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::6465" confidence="-1">b377a102-0771-411f-bc63-3e1a9ccbcf76</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::6459" confidence="-1">4597dd97-1d21-4bf2-9791-33c4c47890b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::6465" confidence="-1">b377a102-0771-411f-bc63-3e1a9ccbcf76</dim:field>
+   <dim:field mdschema="relation" element="isRightsHolderOfPublication" authority="virtual::6497" confidence="-1">6d5356b3-8ce9-443c-a745-bc2e361f0e80</dim:field>
+   <dim:field mdschema="relation" element="isRightsHolderOfPublication" qualifier="latestForDiscovery" authority="virtual::6497" confidence="-1">6d5356b3-8ce9-443c-a745-bc2e361f0e80</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" authority="virtual::6503" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" qualifier="latestForDiscovery" authority="virtual::6503" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>
+   <dim:field mdschema="relation" element="isProjectOfPublication" authority="virtual::6427" confidence="-1">686fcf3d-6950-4ba8-ab64-c0aed20f5098</dim:field>
+   <dim:field mdschema="relation" element="isProjectOfPublication" qualifier="latestForDiscovery" authority="virtual::6427" confidence="-1">686fcf3d-6950-4ba8-ab64-c0aed20f5098</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_IsSupplementedBy_" authority="virtual::3332" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_IsSupplementedBy_" qualifier="latestForDiscovery" authority="virtual::3332" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsSupplementTo_OfP" authority="virtual::6535" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsSupplementTo_OfP" qualifier="latestForDiscovery" authority="virtual::6535" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>open.access</dim:dim>
+</metadata></record><record><header><identifier>oai:pubdata.leuphana.de:20.500.14123/1596</identifier><datestamp>2025-04-02T14:45:51Z</datestamp><setSpec>com_123456789_3</setSpec><setSpec>col_123456789_4</setSpec></header><metadata><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::5319" confidence="-1">Hartmann, Eric</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::5323" confidence="-1">Heinrichs, Harald</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="accessioned">2024-11-28T11:01:23Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2024-11-28T11:01:23Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="issued">2024-11-28</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="submitted">2024-11-20T10:32:46Z</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/20.500.14123/1596</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://doi.org/10.48548/pubdata-1522</dim:field>
+   <dim:field mdschema="dc" element="relation" authority="virtual::5285" confidence="-1">Nachhaltigkeitsstrategie Niedersachsen</dim:field>
+   <dim:field mdschema="dc" element="title" lang="de">BNBN 2024: Management-Datensatz</dim:field>
+   <dim:field mdschema="dc" element="type" lang="-">Dataset</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Survey Data</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Context Materials / Supporting information</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Survey Instruments / Measuring Instruments</dim:field>
+   <dim:field mdschema="local" element="RightsHolder" authority="virtual::5357" confidence="-1">Professur für Nachhaltigkeit und Politik</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="topic" lang="-">Nachhaltige Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Klimaschutz</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Nachhaltigkeit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Unternehmen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Führungskraft</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Management</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Dekarbonisierung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Niedersachsen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Climate Protection</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Sustainability</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Company</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Manager</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Management</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Transformation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Decarbonization</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Lower Saxony</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">DEU</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="region" lang="-">Niedersachsen</dim:field>
+   <dim:field mdschema="local" element="CreationContext">Research</dim:field>
+   <dim:field mdschema="local" element="Affiliation" authority="virtual::5361" confidence="-1">Fakultät Nachhaltigkeit</dim:field>
+   <dim:field mdschema="local" element="technical" qualifier="DataCite_FundingReference" authority="virtual::5285" confidence="-1">{"legalName":["Niedersächsisches Ministerium für Umwelt, Energie und Klimaschutz"],"entityType":["OrgUnit"]}</dim:field>
+   <dim:field mdschema="local" element="RelatedPubDataResource" qualifier="IsSupplementTo" authority="virtual::5395" confidence="-1">DOI: 10.48548/pubdata-1529</dim:field>
+   <dim:field mdschema="DataCite" element="FundingReference" qualifier="funderName" authority="virtual::5285" confidence="-1">Niedersächsisches Ministerium für Umwelt, Energie und Klimaschutz</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Abstract" lang="de">Der Datensatz beinhaltet Umfrageergebnisse samt zugehörigem Fragebogen und Codebook des "Betrieblichen Nachhaltigkeitsbarometers Niedersachsen" (BNBN), einer standardisierten Online-Befragung von Personen aus dem Management sowie aus Betriebs- und Personalräten in niedersächsischen Unternehmen. Der vorliegende Datensatz bezieht sich dabei ausschließlich auf die Befragung der Personengruppe aus dem Management. Ziel dieser Umfrage war es, einen Überblick über den Stand der Umsetzung von Nachhaltigkeit und Klimaschutz in der Wirtschaft in Niedersachsen aus Perspektive der Befragten zu erhalten. Die Daten wurden im Frühjahr 2024 in Kooperation mit dem Niedersächsischen Ministerium für Umwelt, Energie und Klimaschutz und der Niedersachsen Allianz für Nachhaltigkeit erhoben und statistisch ausgewertet. Das methodische Vorgehen und die Ergebnisse der Auswertung können im begleitenden Bericht "Betriebliches Nachhaltigkeitsbarometer Niedersachsen 2024" eingesehen werden.</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Computer-assisted questionnaire</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Created">2024-02-28 - 2024-05-22</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Collected">2024-02-28 - 2024-03-26</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">deu</dim:field>
+   <dim:field mdschema="DataCite" element="PublicationYear">2024</dim:field>
+   <dim:field mdschema="DataCite" element="Publisher" lang="-">Medien- und Informationszentrum, Leuphana Universität Lüneburg</dim:field>
+   <dim:field mdschema="dspace" element="entity" qualifier="type">Publication</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::5319" confidence="-1">4597dd97-1d21-4bf2-9791-33c4c47890b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::5323" confidence="-1">b377a102-0771-411f-bc63-3e1a9ccbcf76</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::5319" confidence="-1">4597dd97-1d21-4bf2-9791-33c4c47890b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::5323" confidence="-1">b377a102-0771-411f-bc63-3e1a9ccbcf76</dim:field>
+   <dim:field mdschema="relation" element="isRightsHolderOfPublication" authority="virtual::5357" confidence="-1">6d5356b3-8ce9-443c-a745-bc2e361f0e80</dim:field>
+   <dim:field mdschema="relation" element="isRightsHolderOfPublication" qualifier="latestForDiscovery" authority="virtual::5357" confidence="-1">6d5356b3-8ce9-443c-a745-bc2e361f0e80</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" authority="virtual::5361" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" qualifier="latestForDiscovery" authority="virtual::5361" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>
+   <dim:field mdschema="relation" element="isProjectOfPublication" authority="virtual::5285" confidence="-1">686fcf3d-6950-4ba8-ab64-c0aed20f5098</dim:field>
+   <dim:field mdschema="relation" element="isProjectOfPublication" qualifier="latestForDiscovery" authority="virtual::5285" confidence="-1">686fcf3d-6950-4ba8-ab64-c0aed20f5098</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_IsSupplementedBy_" authority="virtual::3320" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_IsSupplementedBy_" qualifier="latestForDiscovery" authority="virtual::3320" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsSupplementTo_OfP" authority="virtual::5395" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsSupplementTo_OfP" qualifier="latestForDiscovery" authority="virtual::5395" confidence="-1">c680899b-e395-42c7-9ed7-a251fb283fb5</dim:field>open.access</dim:dim>
+</metadata></record><record><header><identifier>oai:pubdata.leuphana.de:20.500.14123/96</identifier><datestamp>2025-04-02T14:50:21Z</datestamp><setSpec>com_123456789_3</setSpec><setSpec>col_123456789_4</setSpec></header><metadata><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2971" confidence="-1">Olsson, Oliver</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2997" confidence="-1">Logunova, Evgenia</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::3009" confidence="-1">Suk, Morten</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::3035" confidence="-1">Kümmerer, Klaus</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="accessioned">2024-02-14T09:31:15Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2024-02-14T09:31:15Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="issued">2024-02-14</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="submitted">2024-02-12T11:05:00Z</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/20.500.14123/96</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://doi.org/10.48548/pubdata-77</dim:field>
+   <dim:field mdschema="dc" element="title" lang="en">Experimental data on ready biodegradability, OECD 301D (Closed Bottle Test), 2023, V1</dim:field>
+   <dim:field mdschema="dc" element="type" lang="-">Dataset</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Laboratory Results</dim:field>
+   <dim:field mdschema="local" element="Contact" lang="-">klaus.kümmerer@leuphana.de; oliver.olsson@leuphana.de</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="topic" lang="-">Green Chemistry</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Biologische Abbaubarkeit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Experiment</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Test</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Nachhaltige Chemie</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Klärwasser</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Abwasser</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Grüne Chemie</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Messung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Sauerstoffgehalt</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Giftigkeit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Biodegradability</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Experiment</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Test</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Sustainable Chemistry</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Sewage Water</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Effluent</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Green Chemistry</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Assessment</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Oxygen Concentration</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Toxicity</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">DEU</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="region" lang="-">Lüneburg</dim:field>
+   <dim:field mdschema="local" element="CreationContext">Research</dim:field>
+   <dim:field mdschema="local" element="Affiliation" authority="virtual::3047" confidence="-1">Fakultät Nachhaltigkeit</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Abstract" lang="en">Closed Bottle Test (CBT) is a simple test to evaluate the ready biodegradability of an organic compound in the environment. It was performed according to the OECD test guidelines (OECD, 1992) using a low bacterial density (2 drops STP effluent/L), low nutrient content, and at room temperature (20 ± 1 °C) in the dark. The test system consisted of four different series, each series run in parallel. The readily biodegradable sodium acetate and the test substance used in the test were adjusted to a concentration corresponding to 5 mg L−1 theoretical oxygen demand without nitrification (ThODNH3). All test bottles were inoculated with an aliquot from the effluent of the municipal sewage treatment plant (STP) in AGL Lüneburg, Germany (144,000 inhabitant equivalents). Throughout the test, the biochemical oxygen demand (BOD) was monitored by measuring the dissolved oxygen concentration. A test compound is classified as “readily biodegradable” if biodegradation, expressed as a percentage of oxygen consumed in the test bottle, exceeds 60% within a period of 10 days after the oxygen consumption reached 10% ThOD. Toxicity was assessed by comparing oxygen consumption, as measured in the toxicity controls, with the predicted level calculated based on the oxygen consumption in the quality control and in the test bottles, respectively. Toxicity controls allow for the recognition of false negative results caused by the toxicity of the test compound against the degrading bacteria. --- Validity criteria (all must be fulfilled): (1) The difference of the double determination on day 28 must not be more than 20%. (2) The toxicity control must not be less than 25% degraded on day 14. (3) The oxygen consumption of the blank must be less than 1.5 mg/l on day 28. (4) The oxygen concentration of the test preparations must not be less than 0.5 mg/l. (5) The quality control must be 60% degraded on day 14. --- The data set includes for each tested substance: the smilescode, the biodegradation rate in % of the two test runs, the mean value of these two test results as a basis for the classification easily biodegradable, yes (1) or no (0).</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Experiment (Laboratory)</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Collected">2003 - 2022</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">eng</dim:field>
+   <dim:field mdschema="DataCite" element="PublicationYear">2024</dim:field>
+   <dim:field mdschema="DataCite" element="Publisher" lang="-">Medien- und Informationszentrum, Leuphana Universität Lüneburg</dim:field>
+   <dim:field mdschema="dspace" element="entity" qualifier="type">Publication</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2971" confidence="-1">46b0cb36-d9b5-429a-930a-9dee62213354</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2997" confidence="-1">4ec364ee-6f58-411d-b74b-682c10c1ea1a</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::3009" confidence="-1">09d59429-a161-401b-9146-ddad72983b94</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::3035" confidence="-1">c854d259-c767-477b-8d0e-73096b5f0250</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2971" confidence="-1">46b0cb36-d9b5-429a-930a-9dee62213354</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2997" confidence="-1">4ec364ee-6f58-411d-b74b-682c10c1ea1a</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::3009" confidence="-1">09d59429-a161-401b-9146-ddad72983b94</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::3035" confidence="-1">c854d259-c767-477b-8d0e-73096b5f0250</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" authority="virtual::3047" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" qualifier="latestForDiscovery" authority="virtual::3047" confidence="-1">ae74fec2-edcd-49d1-8508-f9f42cb46807</dim:field>open.access</dim:dim>
+</metadata></record><record><header><identifier>oai:pubdata.leuphana.de:20.500.14123/88.3</identifier><datestamp>2025-04-02T14:52:46Z</datestamp><setSpec>com_123456789_3</setSpec><setSpec>col_123456789_4</setSpec></header><metadata><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::7709" confidence="-1">Maschewski, Jan</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::7723" confidence="-1">Richter, Kenneth</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::7747" confidence="-1">Zimmer, Markus Philipp</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="accessioned">2024-03-12T05:03:19Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2023-11-21T13:14:55Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2024-03-12T05:03:19Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="issued">2023-11-21</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="submitted">2024-03-08T10:50:11Z</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/20.500.14123/88.3</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://doi.org/10.48548/pubdata-69.3</dim:field>
+   <dim:field mdschema="dc" element="title" lang="en">Digital Health Platform Governance Document Register</dim:field>
+   <dim:field mdschema="dc" element="type" lang="-">Dataset</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Bibliography</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="topic" lang="-">Digital Health</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Gesundheitswesen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Digitale Gesundheit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Datenschutz</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Gesundheitsdaten</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Steuerungsprozesse</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Datensicherheit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Datenübertragung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Digitale Technologien</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Verfahrensweise</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Implementierung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Thematische Analyse</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Dokumentenanalyse</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Healthcare</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Digital Health</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Privacy</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Health Data</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Governance</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Data Security</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Data Transmission</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Digital Technologies</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Procedure</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Implementation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Thematic Analysis</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Document Analysis</dim:field>
+   <dim:field mdschema="local" element="CreationContext">Research</dim:field>
+   <dim:field mdschema="local" element="Affiliation" authority="virtual::7761" confidence="-1">Fakultät Management und Technologie</dim:field>
+   <dim:field mdschema="local" element="RelatedPubDataResource" qualifier="IsVersionOf" authority="virtual::7785" confidence="-1">DOI: 10.48548/pubdata-69</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Abstract" lang="en">This dataset is a register of documents included in an analysis of digital health platform governance sorted in two lists: The first list shows documents regarding Apple Health. The second list focuses on documents from (2) telematics infrastructure with a special view on German healthcare. The register provides author, year, title and referring link to every single document and includes various types of web resources such as laws, statements, guidelines, workflows, reports, articles, etc.</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Analysis of text documents</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Analysis of digital content</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">eng</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">deu</dim:field>
+   <dim:field mdschema="DataCite" element="PublicationYear">2023</dim:field>
+   <dim:field mdschema="DataCite" element="Publisher" lang="-">Medien- und Informationszentrum, Leuphana Universität Lüneburg</dim:field>
+   <dim:field mdschema="dspace" element="entity" qualifier="type">Publication</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::7709" confidence="-1">44713192-e35b-48a2-be8e-341be89e4708</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::7723" confidence="-1">b52d05fe-599b-439c-bddb-7abcb6790ecf</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::7747" confidence="-1">3e72a5ce-acd0-42f8-9f3d-c7bdc8686125</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::7709" confidence="-1">44713192-e35b-48a2-be8e-341be89e4708</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::7723" confidence="-1">b52d05fe-599b-439c-bddb-7abcb6790ecf</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::7747" confidence="-1">3e72a5ce-acd0-42f8-9f3d-c7bdc8686125</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" authority="virtual::7761" confidence="-1">297a5384-5714-4e1f-a667-b9d5046f4bda</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" qualifier="latestForDiscovery" authority="virtual::7761" confidence="-1">297a5384-5714-4e1f-a667-b9d5046f4bda</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_HasVersion_" authority="virtual::6244" confidence="-1">715f32fb-6edb-4776-9a30-f0339012bbd7</dim:field>
+   <dim:field mdschema="relation" element="isPOfIR_HasVersion_" qualifier="latestForDiscovery" authority="virtual::6244" confidence="-1">715f32fb-6edb-4776-9a30-f0339012bbd7</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsVersionOf_OfP" authority="virtual::7785" confidence="-1">715f32fb-6edb-4776-9a30-f0339012bbd7</dim:field>
+   <dim:field mdschema="relation" element="isIR_IsVersionOf_OfP" qualifier="latestForDiscovery" authority="virtual::7785" confidence="-1">715f32fb-6edb-4776-9a30-f0339012bbd7</dim:field>open.access</dim:dim>
+</metadata></record><record><header><identifier>oai:pubdata.leuphana.de:20.500.14123/1816</identifier><datestamp>2025-04-02T15:00:45Z</datestamp><setSpec>com_123456789_3</setSpec><setSpec>col_123456789_4</setSpec></header><metadata><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.dspace.org/xmlns/dspace/dim http://www.dspace.org/schema/dim.xsd">
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::1990" confidence="-1">Finsel, Julia S.</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2002" confidence="-1">Axelrad, Hila</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2028" confidence="-1">Choi, Su Jung</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2040" confidence="-1">Derous, Eva</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2066" confidence="-1">Gu, Xiuzhu</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2078" confidence="-1">Guandalini, Paolo</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2104" confidence="-1">Ha, Jaeyoung</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2116" confidence="-1">Kim, Eun Seok</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2142" confidence="-1">Marzec, Izabela</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2154" confidence="-1">Mykletun, Reidar Johan</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2180" confidence="-1">Oliveira, Eduardo</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2192" confidence="-1">Pajic, Sofija</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2218" confidence="-1">Schellaert, Maaike</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2230" confidence="-1">Heijden, Beatrice I. J. M. van der</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2256" confidence="-1">Vignoli, Michela</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2268" confidence="-1">Wöhrmann, Anne Marit</dim:field>
+   <dim:field mdschema="dc" element="contributor" qualifier="author" authority="virtual::2294" confidence="-1">Deller, Jürgen</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="accessioned">2025-03-28T14:35:18Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="available">2025-03-28T14:35:18Z</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="issued">2025-03-28</dim:field>
+   <dim:field mdschema="dc" element="date" qualifier="submitted">2025-03-28T13:13:37Z</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://hdl.handle.net/20.500.14123/1816</dim:field>
+   <dim:field mdschema="dc" element="identifier" qualifier="uri">https://doi.org/10.48548/pubdata-1716</dim:field>
+   <dim:field mdschema="dc" element="title" lang="en">Online Supplemental Material for "Development and Validation of the Short Form of the Later Life Workplace Index (LLWI-SF): A Study Across Ten Countries"</dim:field>
+   <dim:field mdschema="dc" element="type" lang="-">Dataset</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Statistical Evaluations / Tables</dim:field>
+   <dim:field mdschema="local" element="ResourceType" qualifier="kindsOfData">Survey Instruments / Measuring Instruments</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="topic" lang="-">Altersgerechtes Arbeiten</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Validierung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Skalen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Erhebungsinstrument</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Arbeiten im Alter</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Älterer Arbeitnehmer</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Arbeitsbedingungen</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Organisationsklima</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Gesundheit</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Führung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Personalmanagement</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Arbeitsleistung</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Arbeitsmotivation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="de">Demografischer Wandel</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Validation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Scales</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Research Instrument</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Later Life Work</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Older Worker</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Working Conditions</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Organizational Climate</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Health</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Leadership</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Human Resources</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Work Performance</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Work Motivation</dim:field>
+   <dim:field mdschema="local" element="Subject" qualifier="keyword" lang="en">Demographic Change</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">BEL</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">DEU</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">ITA</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">JPN</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">KOR</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">NOR</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">POL</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">PRT</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">NLD</dim:field>
+   <dim:field mdschema="local" element="GeoLocation" qualifier="country" lang="-">USA</dim:field>
+   <dim:field mdschema="local" element="CreationContext">Research</dim:field>
+   <dim:field mdschema="local" element="Affiliation" authority="virtual::2306" confidence="-1">Fakultät Management und Technologie</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Abstract" lang="en">This document serves as the supplemental material for the paper "Development and Validation of the Short Form of the Later Life Workplace Index (LLWI-SF): A Study Across Ten Countries". The paper aimed to develop and validate a short form of the Later Life Workplace Index (LLWI-SF) in ten countries. This supplemental material includes the LLWI-SF scales in Dutch, English (U.S.), Flemish, German, Italian, Japanese, Korean, Norwegian, Polish, and Portuguese language. It further includes country-level data analysis results to supplement the overall sample results presented in the paper (i.e., LLWI-SF item statistics and correlation tables for each country).</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Questionnaire (Paper)</dim:field>
+   <dim:field mdschema="DataCite" element="Description" qualifier="Methods">Computer-assisted questionnaire</dim:field>
+   <dim:field mdschema="DataCite" element="Date" qualifier="Collected">2022-10 - 2023-06</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">eng</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">Flemish</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">deu</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">ita</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">jpn</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">kor</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">nor</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">pol</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">por</dim:field>
+   <dim:field mdschema="DataCite" element="Language" lang="-">nld</dim:field>
+   <dim:field mdschema="DataCite" element="PublicationYear">2025</dim:field>
+   <dim:field mdschema="DataCite" element="Publisher" lang="-">Medien- und Informationszentrum, Leuphana Universität Lüneburg</dim:field>
+   <dim:field mdschema="DataCite" element="RelatedIdentifier">{"relationType":["IsSupplementTo"],"freetext":["Finsel, J. S., Axelrad, H., Choi, S. J., Derous, E., Gu, X., Guandalini, P., Ha, J., Kim, E. S., Marzec, I., Mykletun, R. J., Oliveira, E., Pajic, S., Schellaert, M., Van der Heijden, B. I. J. M., Vignoli, M., Wöhrmann, A. M., \u0026 Deller, J. (provisionally accepted). Development and Validation of the Short Form of the Later Life Workplace Index\r\n(LLWI-SF): A Study Across Ten Countries. Work Aging and Retirement."],"relatedIdentifier":[""],"relatedIdentifierType":[""]}</dim:field>
+   <dim:field mdschema="dspace" element="entity" qualifier="type">Publication</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::1990" confidence="-1">55dcbb5e-8fb6-4dfd-8f49-01b22a38f196</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2002" confidence="-1">a848be99-9b1f-4f62-a35d-7243bc63ae9e</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2028" confidence="-1">ab710e52-e4fe-4018-92ab-4866f4377cbe</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2040" confidence="-1">f11830c1-d8dd-4575-8cbf-93c369af4a95</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2066" confidence="-1">b232593e-b0f7-4ad4-a7e1-bfa114e601b3</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2078" confidence="-1">8a86c230-9d27-4fc5-8d90-104e25faa314</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2104" confidence="-1">3a9b0632-0113-4d22-8f6b-da975eb5588e</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2116" confidence="-1">3e4f7612-a257-4cf2-b26a-a5be70e85e3c</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2142" confidence="-1">4c3be2ab-edb8-4f63-a382-f826b0da772b</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2154" confidence="-1">1bfe5591-cd77-4e2b-873e-4ff370af5bb1</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2180" confidence="-1">7661b8f3-9022-4f4f-80d6-30bbaa0ec1b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2192" confidence="-1">36c1f216-2cde-4ea5-91f0-0649de70ddd1</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2218" confidence="-1">9522ef1f-0d59-4830-b3b2-b16d439cf151</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2230" confidence="-1">80366c84-0b4a-4333-8cb4-c1c2befffcd4</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2256" confidence="-1">cec78774-6154-4070-945a-003807f606cd</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2268" confidence="-1">3e23d116-6a39-4a29-9833-f62794e632fc</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" authority="virtual::2294" confidence="-1">61aa9930-5b3f-46be-ba42-737df277111d</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::1990" confidence="-1">55dcbb5e-8fb6-4dfd-8f49-01b22a38f196</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2002" confidence="-1">a848be99-9b1f-4f62-a35d-7243bc63ae9e</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2028" confidence="-1">ab710e52-e4fe-4018-92ab-4866f4377cbe</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2040" confidence="-1">f11830c1-d8dd-4575-8cbf-93c369af4a95</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2066" confidence="-1">b232593e-b0f7-4ad4-a7e1-bfa114e601b3</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2078" confidence="-1">8a86c230-9d27-4fc5-8d90-104e25faa314</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2104" confidence="-1">3a9b0632-0113-4d22-8f6b-da975eb5588e</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2116" confidence="-1">3e4f7612-a257-4cf2-b26a-a5be70e85e3c</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2142" confidence="-1">4c3be2ab-edb8-4f63-a382-f826b0da772b</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2154" confidence="-1">1bfe5591-cd77-4e2b-873e-4ff370af5bb1</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2180" confidence="-1">7661b8f3-9022-4f4f-80d6-30bbaa0ec1b2</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2192" confidence="-1">36c1f216-2cde-4ea5-91f0-0649de70ddd1</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2218" confidence="-1">9522ef1f-0d59-4830-b3b2-b16d439cf151</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2230" confidence="-1">80366c84-0b4a-4333-8cb4-c1c2befffcd4</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2256" confidence="-1">cec78774-6154-4070-945a-003807f606cd</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2268" confidence="-1">3e23d116-6a39-4a29-9833-f62794e632fc</dim:field>
+   <dim:field mdschema="relation" element="isAuthorOfPublication" qualifier="latestForDiscovery" authority="virtual::2294" confidence="-1">61aa9930-5b3f-46be-ba42-737df277111d</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" authority="virtual::2306" confidence="-1">297a5384-5714-4e1f-a667-b9d5046f4bda</dim:field>
+   <dim:field mdschema="relation" element="isAffiliationOfPublication" qualifier="latestForDiscovery" authority="virtual::2306" confidence="-1">297a5384-5714-4e1f-a667-b9d5046f4bda</dim:field>open.access</dim:dim>
+</metadata></record><resumptionToken completeListSize="129" cursor="0">dim///com_123456789_3/100</resumptionToken></ListRecords></OAI-PMH>

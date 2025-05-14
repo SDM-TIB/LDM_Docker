@@ -22,8 +22,8 @@ import json
 from unittest.mock import Mock, patch
 from ckan.plugins import toolkit
 
-skip_test1 = True
-skip_test_DatasetImport = True
+skip_test1 = False
+skip_test_DatasetImport = False
 #@pytest.mark.skipif(skip_test1, reason="slows all the work") # put before conditional test to skip
 
 #logged_user = "test.ckan.net"

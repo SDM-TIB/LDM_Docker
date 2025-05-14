@@ -1,0 +1,78 @@
+﻿#INSTRUCTIONS:# You are asked to solve the task of extracting author names from a list of strings like {"name 1": "string 1", "name 2": "string 2"... "name N": "string N"] and produce a JSON file composed of the following tags:
+{{name 1,{
+{{firstName,FNAME},{lastName,LNAME}},
+…
+{{firstName,FNAME},{lastName,LNAME}},
+}
+…
+{{name 2,{
+{{firstName,FNAME},{lastName,LNAME}},
+…
+{{firstName,FNAME},{lastName,LNAME}},
+}
+This JSON format describes a structure for organizing a list of author names, each divided into first, and last name fields and grouped under specific entries. If a name pattern is recognized, it should be applied to all entries' names. Any title (Mr., Mrs, Prof., Dr., etc) should be ignored. Here’s a breakdown of the format:
+1. Main Structure:
+   * Each main section is labeled as an "entry" (e.g., "entry1", "entry2", etc.), serving as a container for the names of authors associated with that entry.
+   * Each entry holds an array of individual author records, each specifying a first, middle, and last name.
+2. Author Information:
+   * Within each entry, author details are structured as follows:
+      * "firstName": Stores the author's first name, represented by "FNAME".
+      * "lastName": Stores the author's last name, represented by "LNAME".
+3. Structure of Multiple Entries:
+   * Each entry (such as "entry1", "entry2", up to "entryn") is organized independently, allowing multiple sets of author names to be grouped separately.
+   * Within each entry, the author records are stored as structured pairs {key, value}, where keys are "firstName" and "lastName", followed by their respective values (e.g., "FNAME", "LNAME").
+# CONTEXT # 
+
+
+Typical formats in which the names of several authors are usually presented:
+* <ListAuthorNames>:= <AuthorName>
+* <ListAuthorNames>:= <AuthorName> <Delimiter> <ListAuthorNames>
+* <Delimiter>:= “,” | “;”| “/” | “-” | “_”
+* <AuthorName>:= <FirstName> <LastName> | 
+                             <LastName> “,” <FirstName>
+<FirstName>:= <UpperCaseLetter> “.”| 
+                          <TypicalFirstName> 
+<LastName>:=  <TypicalLastName>  “,” |
+                          <TypicalLastName>  |
+                           <TypicalLastName> <TypicalLastName> |
+                           Empty.                              
+
+
+Natural language description of the production rules of this simple grammar:
+This grammar specifies the structure for formatting author names in a list, including several common patterns:
+1. List of Author Names (<ListAuthorNames>):
+   * A list of author names can consist of a single name (<AuthorName>).
+   * Alternatively, it can be a sequence of multiple author names separated by a delimiter (<Delimiter>), such as a comma, semicolon, slash, hyphen, or underscore.
+2. Author Name (<AuthorName>):
+   * An author's name may be represented in two ways:
+      * First, and Last Name Format: This format includes a first name, an optional middle name, and a last name.
+      * Last Name, First Name Format: In this style, the last name is followed by a comma, then the first name, possibly with initials.
+3. First Name (<FirstName>):
+   * The first name may be abbreviated with an uppercase letter followed by a period (e.g., “A.”) or represented as a typical first name in full. There might a middle name after the first name, which can also be abbreviated with an uppercase letter followed by a period (e.g., “A.”) or represented as a typical first name in full.
+4. Last Name (<LastName>):
+   * The last name can take several forms:
+      * A typical last name followed by a comma.
+      * A standalone typical last name.
+      * A combination of two typical last names, which may indicate compound or double-barrel surnames.
+      * It may also be left empty, allowing flexibility in cases where only the first and middle names are used.                 
+
+
+These are examples of different cases of names of only one author.
+   
+* “John Alexander Doe” -> (FirstName:John Alexander, LastName: Doe).
+* “Doe, John Alexander” -> (FirstName:John Alexander, LastName: Doe).
+* “John A. Doe” -> (FirstName:John A., LastName: Doe).
+* “Doe, John A.” -> (FirstName:John A., LastName: Doe).
+* “J. A. Doe” -> (FirstName:J. A., LastName: Doe).
+* “Doe, J. A.” -> (FirstName:J. A., LastName: Doe).
+* “John Doe” -> (FirstName:John, LastName: Doe).
+* “Doe John” -> (FirstName:John , LastName: Doe).
+* “J. Doe” -> (FirstName:J., LastName: Doe).
+* “Doe, J.” -> (FirstName:J. LastName: Doe).
+* “John Alexander Doe Smith” -> (FirstName:John Alexander, LastName: Doe Smith).
+* “Doe Smith, John Alexander” -> (FirstName:John Alexander, LastName: Doe Smith).
+* “John A. Doe Smith” ->(FirstName:John A., LastName: Doe Smith).
+* “Doe Smith, John A.” ->(FirstName:John A., LastName: Doe Smith).
+* “J. A. Doe Smith” -> (FirstName:J. A., LastName: Doe Smith).
+* “Doe Smith, J. A.” -> (FirstName:J. A., LastName: Doe Smith).
+# OBJECTIVES # Organization the list of names present in #DATA# by following the organizing style present in # CONTEXT #

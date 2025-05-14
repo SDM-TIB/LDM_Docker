@@ -5,6 +5,10 @@ from flask import render_template
 from ckanext.tibimport.LUH_CKAN_API_ParserProfile import LUH_CKAN_API_ParserProfile
 from ckanext.tibimport.RADAR_ParserProfile import RADAR_ParserProfile
 from ckanext.tibimport.PANGEA_ParserProfile import PANGEA_ParserProfile
+from ckanext.tibimport.LEOPARD_ParserProfile import leoPARD_ParserProfile
+from ckanext.tibimport.OSNADATA_ParserProfile import OSNADATA_ParserProfile
+from ckanext.tibimport.GOETTINGEN_ParserProfile import GOETTINGEN_ParserProfile
+from ckanext.tibimport.LEUPHANA_ParserProfile import LEUPHANA_ParserProfile
 
 from ckanext.tibimport.logic2 import LDM_DatasetImport
 
@@ -18,6 +22,21 @@ log = getLogger(__name__)
 
 import ckan.model as model
 
+pangaea_allowed_types = {"chemistry": "topicChemistry",
+                         "lithosphere": "topicLithosphere",
+                         "atmosphere": "topicAtmosphere",
+                         "biologicalclassification": "topicBiologicalClassification",
+                         "paleontology": "topicPaleontology",
+                         "oceans": "topicOceans",
+                         "ecology": "topicEcology",
+                         "landsurface": "topicLandSurface",
+                         "biosphere": "topicBiosphere",
+                         "geophysics": "topicGeophysics",
+                         "cryosphere": "topicCryosphere",
+                         "lakesrivers": "topicLakesRivers",
+                         "humandimensions": "topicHumanDimensions",
+                         "fisheries": "topicFisheries",
+                         "agriculture": "topicAgriculture"}
 #user_var = d.get("userobj")
 
 # If the user is identified then:
@@ -34,12 +53,44 @@ import ckan.model as model
 # created=2017-08-08 16:45:41.109676 reset_key=None about=None activity_streams_email_notifications=False
 # sysadmin=True state=active image_url=None plugin_extras=None>
 
-def import_vdatasets_png():
+def import_vdatasets_png(_type):
+    summary = _type
 
-    objparser = PANGEA_ParserProfile()
+    if _type and _type.lower() in pangaea_allowed_types:
+        objparser = PANGEA_ParserProfile(pangaea_allowed_types[_type.lower()])
+        objimporter = LDM_DatasetImport(objparser)
+
+        objimporter.import_datasets_paged()
+
+        summary = objimporter.get_summary_log()
+
+        send_importation_update_notification(summary)
+
+    # return toolkit.render(
+    #     'importer_result.html',
+    #     extra_vars={
+    #        u'summary_log': summary
+    #     }
+    # )
+    html = u'''<!DOCTYPE html>
+        <html>
+            <head>
+                <title>Adding importation to worker</title>
+            </head>
+            <body><h1>Adding importation from '''+_type+'''</h1>
+            <p>'''+str(summary)+'''
+            </p>
+            </body>
+        </html>'''
+
+    return render_template_string(html)
+
+def import_vdatasets_rdr():
+
+    objparser = RADAR_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
 
-    objimporter.import_datasets()
+    objimporter.import_datasets_paged()
 
     summary = objimporter.get_summary_log()
 
@@ -52,12 +103,66 @@ def import_vdatasets_png():
         }
     )
 
-def import_vdatasets_rdr():
+def import_vdatasets_leo():
 
-    objparser = RADAR_ParserProfile()
+    objparser = leoPARD_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
 
-    objimporter.import_datasets()
+    objimporter.import_datasets_paged()
+
+    summary = objimporter.get_summary_log()
+
+    send_importation_update_notification(summary)
+
+    return toolkit.render(
+        'importer_result.html',
+        extra_vars={
+           u'summary_log': summary
+        }
+    )
+
+def import_vdatasets_osn():
+
+    objparser = OSNADATA_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+
+    objimporter.import_datasets_paged()
+
+    summary = objimporter.get_summary_log()
+
+    send_importation_update_notification(summary)
+
+    return toolkit.render(
+        'importer_result.html',
+        extra_vars={
+           u'summary_log': summary
+        }
+    )
+
+def import_vdatasets_goe():
+
+    objparser = GOETTINGEN_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+
+    objimporter.import_datasets_paged()
+
+    summary = objimporter.get_summary_log()
+
+    send_importation_update_notification(summary)
+
+    return toolkit.render(
+        'importer_result.html',
+        extra_vars={
+           u'summary_log': summary
+        }
+    )
+
+def import_vdatasets_leu():
+
+    objparser = LEUPHANA_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+
+    objimporter.import_datasets_paged()
 
     summary = objimporter.get_summary_log()
 
@@ -116,13 +221,138 @@ def TIB_update_imported_datasets_radar():
     summary = objimporter.get_summary_log()
     send_importation_update_notification(summary)
 
-def TIB_update_imported_datasets_pangea():
+def TIB_update_imported_datasets_pangea_agriculture():
     objparser = PANGEA_ParserProfile()
     objimporter = LDM_DatasetImport(objparser)
-    objimporter.import_datasets()
+    objimporter.import_datasets_paged()
     summary = objimporter.get_summary_log()
     send_importation_update_notification(summary)
 
+def TIB_update_imported_datasets_pangea_chemistry():
+    objparser = PANGEA_ParserProfile("topicChemistry")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_lithosphere():
+    objparser = PANGEA_ParserProfile("topicLithosphere")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_atmosphere():
+    objparser = PANGEA_ParserProfile("topicAtmosphere")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_biologicalclassification():
+    objparser = PANGEA_ParserProfile("topicBiologicalClassification")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_paleontology():
+    objparser = PANGEA_ParserProfile("topicPaleontology")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_oceans():
+    objparser = PANGEA_ParserProfile("topicOceans")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_ecology():
+    objparser = PANGEA_ParserProfile("topicEcology")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_landsurface():
+    objparser = PANGEA_ParserProfile("topicLandSurface")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_biosphere():
+    objparser = PANGEA_ParserProfile("topicBiosphere")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_geophysics():
+    objparser = PANGEA_ParserProfile("topicGeophysics")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_cryosphere():
+    objparser = PANGEA_ParserProfile("topicCryosphere")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_lakesandrivers():
+    objparser = PANGEA_ParserProfile("topicLakesRivers")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_humandimensions():
+    objparser = PANGEA_ParserProfile("topicHumanDimensions")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_pangea_fisheries():
+    objparser = PANGEA_ParserProfile("topicFisheries")
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_leopard():
+    objparser = leoPARD_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_osnadata():
+    objparser = OSNADATA_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_goettingen():
+    objparser = GOETTINGEN_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
+
+def TIB_update_imported_datasets_leuphana():
+    objparser = LEUPHANA_ParserProfile()
+    objimporter = LDM_DatasetImport(objparser)
+    objimporter.import_datasets_paged()
+    summary = objimporter.get_summary_log()
+    send_importation_update_notification(summary)
 
 # Function adding background jobs
 def add_imported_datasets_update(_type):
@@ -134,7 +364,7 @@ def add_imported_datasets_update(_type):
 
     bk_jobs = objimporter.get_background_jobs()
 
-    if _type in bk_jobs: # luh or radar
+    if _type in bk_jobs: # luh, radar, pangea_agriculture, etc
         toolkit.enqueue_job(eval(bk_jobs[_type]['method']), title=bk_jobs[_type]['title'], queue='tib_ur')
         msg = _type + " update enqueued"
 
@@ -274,7 +504,11 @@ class TibimportPlugin(plugins.SingletonPlugin):
         rules = [
             (u'/import_vdatasets_luh', u'import_vdatasets_luh', import_vdatasets_luh),
             (u'/import_vdatasets_rdr', u'import_vdatasets_rdr', import_vdatasets_rdr),
-            (u'/import_vdatasets_png', u'import_vdatasets_png', import_vdatasets_png),
+            (u'/import_vdatasets_leo', u'import_vdatasets_leo', import_vdatasets_leo),
+            (u'/import_vdatasets_osn', u'import_vdatasets_osn', import_vdatasets_osn),
+            (u'/import_vdatasets_goe', u'import_vdatasets_goe', import_vdatasets_goe),
+            (u'/import_vdatasets_leu', u'import_vdatasets_leu', import_vdatasets_leu),
+            ('/import_vdatasets_png/<_type>', u'import_vdatasets_png_topic', import_vdatasets_png),
             ('/tib_add_imported_datasets_update/<_type>', u'tib_importation_update', add_imported_datasets_update),
             (u'/helper_not_here', u'helper_not_here', helper_not_here),
             (u'/helper', u'helper_here', helper_here),

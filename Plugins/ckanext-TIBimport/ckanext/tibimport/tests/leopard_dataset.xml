@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="https://leopard.tu-braunschweig.de/oai/oai2.xsl" type="text/xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:mcrmods="http://www.mycore.de/xslt/mods" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2024-12-04T07:01:45Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_datacite" set="GENRE:research_data">https://leopard.tu-braunschweig.de/servlets/OAIDataProvider</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>oai:https://leopard.tu-braunschweig.de/:dbbs_mods_00078205</identifier>
+        <datestamp>2024-11-28</datestamp>
+        <setSpec>GENRE:research_data</setSpec>
+        <setSpec>ddc:5</setSpec>
+        <setSpec>ddc:58</setSpec>
+        <setSpec>doc-type:ResearchData</setSpec>
+        <setSpec>driver</setSpec>
+        <setSpec>open_access</setSpec>
+      </header>
+      <metadata>
+        <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+   <identifier identifierType="DOI">10.24355/dbbs.084-202411180831-0</identifier>
+   <creators>
+      <creator>
+         <creatorName nameType="Personal">Pucker, Boas</creatorName>
+         <givenName>Boas</givenName>
+         <familyName>Pucker</familyName>
+         <nameIdentifier nameIdentifierScheme="GND">1191400093</nameIdentifier>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-3321-7471</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+   </creators>
+   <titles>
+      <title xml:lang="de">Gene Expression of Theobroma cacao</title>
+   </titles>
+   <publisher>Universitätsbibliothek Braunschweig</publisher>
+   <publicationYear>2024</publicationYear>
+   <subjects>
+      <subject>Plant genetics</subject>
+      <subject>RNA-Sequence</subject>
+      <subject>Gene expression</subject>
+      <subject subjectScheme="ddc">58</subject>
+   </subjects>
+   <contributors>
+      <contributor contributorType="HostingInstitution">
+         <contributorName>Universitätsbibliothek Braunschweig</contributorName>
+      </contributor>
+   </contributors>
+   <dates>
+      <date dateType="Issued">2024-11-28</date>
+   </dates>
+   <language>en</language>
+   <resourceType resourceTypeGeneral="Dataset">research_data</resourceType>
+   <alternateIdentifiers>
+      <alternateIdentifier alternateIdentifierType="URL">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078205</alternateIdentifier>
+      <alternateIdentifier alternateIdentifierType="MyCoRe">dbbs_mods_00078205</alternateIdentifier>
+   </alternateIdentifiers>
+   <relatedIdentifiers>
+      <relatedIdentifier relatedIdentifierType="URL" relatedMetadataScheme="mods" relationType="HasMetadata" schemeURI="https://www.loc.gov/standards/mods/v3/mods-3-7.xsd">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078205?XSL.Transformer=mods</relatedIdentifier>
+   </relatedIdentifiers>
+   <rightsList>
+      <rights rightsIdentifier="CC-BY-4.0" rightsURI="https://creativecommons.org/licenses/by/4.0/" xml:lang="en">Attribution 4.0</rights>
+   </rightsList>
+   <descriptions>
+      <description descriptionType="Abstract" xml:lang="en">Gene expression of Theobroma cacao was analyzed based on various reference sequences. All available paired-end RNA-seq datasets were downloaded from the Sequence Read Archive and processed with kallisto. Final count tables were generated with customized Python scripts.</description>
+   </descriptions>
+</resource></metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:https://leopard.tu-braunschweig.de/:dbbs_mods_00078186</identifier>
+        <datestamp>2024-11-28</datestamp>
+        <setSpec>GENRE:research_data</setSpec>
+        <setSpec>ddc:5</setSpec>
+        <setSpec>ddc:58</setSpec>
+        <setSpec>doc-type:ResearchData</setSpec>
+        <setSpec>driver</setSpec>
+        <setSpec>open_access</setSpec>
+      </header>
+      <metadata>
+        <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+   <identifier identifierType="DOI">10.24355/dbbs.084-202411140638-0</identifier>
+   <creators>
+      <creator>
+         <creatorName nameType="Personal">Pucker, Boas</creatorName>
+         <givenName>Boas</givenName>
+         <familyName>Pucker</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-3321-7471</nameIdentifier>
+         <nameIdentifier nameIdentifierScheme="GND">1191400093</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Marín Recinos, María Fernanda</creatorName>
+         <givenName>María</givenName>
+         <familyName>Marín Recinos</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0001-5575-1264</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Winnier, Sarah</creatorName>
+         <givenName>Sarah</givenName>
+         <familyName>Winnier</familyName>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Lagerhausen, Kiersten</creatorName>
+         <givenName>Kiersten</givenName>
+         <familyName>Lagerhausen</familyName>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Ajavi, Blessing</creatorName>
+         <givenName>Blessing</givenName>
+         <familyName>Ajavi</familyName>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Wolff, Katharina</creatorName>
+         <givenName>Katharina</givenName>
+         <familyName>Wolff</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0009-0009-9180-3549</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Friedhoff, Ronja</creatorName>
+         <givenName>Ronja</givenName>
+         <familyName>Friedhoff</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0009-0002-0270-4661</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Dassow, Chiara Marie</creatorName>
+         <givenName>Chiara</givenName>
+         <familyName>Dassow</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0009-0002-9413-2460</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+      <creator>
+         <creatorName nameType="Personal">Choudhary, Nancy</creatorName>
+         <givenName>Nancy</givenName>
+         <familyName>Choudhary</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-2562-7905</nameIdentifier>
+         <affiliation>Institut für Pflanzenbiologie</affiliation>
+      </creator>
+   </creators>
+   <titles>
+      <title xml:lang="de">Genome sequence and annotation of Theobroma cacao</title>
+   </titles>
+   <publisher>Universitätsbibliothek Braunschweig</publisher>
+   <publicationYear>2024</publicationYear>
+   <subjects>
+      <subject subjectScheme="ddc">58</subject>
+   </subjects>
+   <contributors>
+      <contributor contributorType="HostingInstitution">
+         <contributorName>Universitätsbibliothek Braunschweig</contributorName>
+      </contributor>
+   </contributors>
+   <dates>
+      <date dateType="Issued">2024-11-28</date>
+   </dates>
+   <language>en</language>
+   <resourceType resourceTypeGeneral="Dataset">research_data</resourceType>
+   <alternateIdentifiers>
+      <alternateIdentifier alternateIdentifierType="URL">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078186</alternateIdentifier>
+      <alternateIdentifier alternateIdentifierType="MyCoRe">dbbs_mods_00078186</alternateIdentifier>
+   </alternateIdentifiers>
+   <relatedIdentifiers>
+      <relatedIdentifier relatedIdentifierType="URL" relatedMetadataScheme="mods" relationType="HasMetadata" schemeURI="https://www.loc.gov/standards/mods/v3/mods-3-7.xsd">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078186?XSL.Transformer=mods</relatedIdentifier>
+   </relatedIdentifiers>
+   <rightsList>
+      <rights rightsIdentifier="CC-BY-4.0" rightsURI="https://creativecommons.org/licenses/by/4.0/" xml:lang="en">Attribution 4.0</rights>
+   </rightsList>
+   <descriptions>
+      <description descriptionType="Abstract" xml:lang="de">A high quality genome sequence of Theobroma cacao is presented together with predicted polypeptide sequences and a functional annoation. The genome sequence was assembled based on ONT long reads using NextDenvo. BRAKER3 was used for the annotation of protein encoding genes.</description>
+   </descriptions>
+</resource></metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:https://leopard.tu-braunschweig.de/:dbbs_mods_00078118</identifier>
+        <datestamp>2024-11-19</datestamp>
+        <setSpec>GENRE:research_data</setSpec>
+        <setSpec>ddc:0</setSpec>
+        <setSpec>ddc:02</setSpec>
+        <setSpec>ddc:025</setSpec>
+        <setSpec>doc-type:ResearchData</setSpec>
+        <setSpec>driver</setSpec>
+        <setSpec>open_access</setSpec>
+        <setSpec>urn</setSpec>
+      </header>
+      <metadata>
+        <resource xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.3/metadata.xsd">
+   <identifier identifierType="DOI">10.24355/dbbs.084-202411011459-0</identifier>
+   <creators>
+      <creator>
+         <creatorName nameType="Personal">Elsner, Carsten</creatorName>
+         <givenName>Carsten</givenName>
+         <familyName>Elsner</familyName>
+         <nameIdentifier nameIdentifierScheme="ORCID" schemeURI="http://orcid.org/">0000-0002-8204-8117</nameIdentifier>
+         <nameIdentifier nameIdentifierScheme="GND">1228289263</nameIdentifier>
+      </creator>
+   </creators>
+   <titles>
+      <title xml:lang="de">Projekt ADoRe-OA: Umfrage zur Ermittlung von Bedarfen zur Be- und Verarbeitung publikationsbezogener Daten im Rahmen von Open-Access-Förderungen</title>
+      <title titleType="TranslatedTitle" xml:lang="en">Project ADoRe-OA: Survey to determine requirements for the processing of publication-related data in the context of Open Access funding</title>
+   </titles>
+   <publisher>Universitätsbibliothek Braunschweig</publisher>
+   <publicationYear>2024</publicationYear>
+   <subjects>
+      <subject>Open Access</subject>
+      <subject subjectScheme="ddc">025</subject>
+   </subjects>
+   <contributors>
+      <contributor contributorType="HostingInstitution">
+         <contributorName>Universitätsbibliothek Braunschweig</contributorName>
+      </contributor>
+   </contributors>
+   <dates>
+      <date dateType="Issued">2024-11-01</date>
+   </dates>
+   <language>de</language>
+   <resourceType resourceTypeGeneral="Dataset">research_data</resourceType>
+   <alternateIdentifiers>
+      <alternateIdentifier alternateIdentifierType="URN">urn:nbn:de:gbv:084-2024110115170</alternateIdentifier>
+      <alternateIdentifier alternateIdentifierType="URL">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078118</alternateIdentifier>
+      <alternateIdentifier alternateIdentifierType="MyCoRe">dbbs_mods_00078118</alternateIdentifier>
+   </alternateIdentifiers>
+   <relatedIdentifiers>
+      <relatedIdentifier relatedIdentifierType="URL" relatedMetadataScheme="mods" relationType="HasMetadata" schemeURI="https://www.loc.gov/standards/mods/v3/mods-3-7.xsd">https://leopard.tu-braunschweig.de/receive/dbbs_mods_00078118?XSL.Transformer=mods</relatedIdentifier>
+   </relatedIdentifiers>
+   <rightsList>
+      <rights rightsIdentifier="CC-BY-4.0" rightsURI="https://creativecommons.org/licenses/by/4.0/" xml:lang="en">Attribution 4.0</rights>
+   </rightsList>
+   <descriptions>
+      <description descriptionType="Abstract" xml:lang="de">Die im Rahmen des BMBF-geförderten Projekts ADoRe-OA und der damit verbundenen Weiterentwicklung von CODA (Customizable Open Access Database Application) durchgeführten Umfrage wurde ermittelt, welche Daten zur Publikationsförderung wie erhoben und im weiteren Prozess be- und verarbeitet werden. Welche Anforderungen werden z.B. bezüglich Schnittstellen, Funktionalitäten und Metadaten werden an ein Tool gestellt, das die damit verbundenen Prozesse ideal abbildet und somit den Arbeitsaufwand minimiert. Vor diesem Hintergrund richtete sich diese Umfrage besonders an Mitarbeiter und Mitarbeiterinnen an Bibliotheken und/oder Verwaltungseinrichtungen, die in Ihrem Arbeitsalltag mit der Be- bzw. Verarbeitung dieser Daten, der Prüfung und/oder der Bewirtschaftung von Anträgen zur Förderung von Open-Access-Publikationen betraut sind.</description>
+      <description descriptionType="Abstract" xml:lang="en">The survey carried out as part of the BMBF-funded ADoRe-OA project and the associated further development of CODA (Customizable Open Access Database Application) determined which data is collected for publication funding and how it is handled and processed in the further process. What requirements are placed on a tool, e.g. with regard to interfaces, functionalities and metadata, that ideally maps the associated processes and thus minimizes the workload? Against this background, this survey was aimed in particular at employees of libraries and/or administrative institutions who are entrusted with the processing of this data, the review and/or management of applications for the funding of open access publications in their everyday work.</description>
+   </descriptions>
+</resource></metadata>
+    </record>    
+  </ListRecords>
+</OAI-PMH>

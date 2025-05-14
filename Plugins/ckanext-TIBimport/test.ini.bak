@@ -12,9 +12,7 @@ port = 5000
 use = config:../ckan/test-core.ini
 ckan.plugins = tibimport
 
-tibimport.updatedatasets_crontab_user = mauricio
-# This is not a valid KEY
-#OPENAI_API_KEY=
+
 # Logging configuration
 [loggers]
 keys = root, ckan, sqlalchemy

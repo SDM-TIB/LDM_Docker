@@ -10,6 +10,9 @@ from ckan.common import config
 
 from crontab import CronTab
 
+import sys
+sys.setrecursionlimit(4000)  # Default is typically 1000
+
 flask_d = toolkit.g
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -85,18 +88,109 @@ class LDM_DatasetImport:
                        {'title': 'update_datasets_luh',
                         'method': 'TIB_update_imported_datasets_luh',
                         'comment': "TIB_update_imported_datasets_luh",
-                        'crontab_commands': [".setall('0 0 14 * *')"]},
+                        'crontab_commands': [".setall('0 0 2 * *')"]},
                    'radar':
                        {'title': 'update_datasets_radar',
                         'method': 'TIB_update_imported_datasets_radar',
                         'comment': "TIB_update_imported_datasets_radar",
-                        'crontab_commands': [".setall('0 1 14 * *')"]},
-                   'pangea':
-                       {'title': 'update_datasets_pangea',
-                        'method': 'TIB_update_imported_datasets_pangea',
-                        'comment': "TIB_update_imported_datasets_pangea",
-                        'crontab_commands': [".setall('0 2 14 * *')"]}
-                   }
+                        'crontab_commands': [".setall('0 0 3 * *')"]},
+                   'pangea_agriculture':
+                       {'title': 'update_datasets_pangea_agriculture',
+                        'method': 'TIB_update_imported_datasets_pangea_agriculture',
+                        'comment': "TIB_update_imported_datasets_pangea_agriculture",
+                        'crontab_commands': [".setall('0 0 4 * *')"]},
+                    'pangea_chemistry':
+                        {'title': 'update_datasets_pangea_chemistry',
+                         'method': 'TIB_update_imported_datasets_pangea_chemistry',
+                         'comment': "TIB_update_imported_datasets_pangea_chemistry",
+                         'crontab_commands': [".setall('0 1 4 * *')"]},
+                    'pangea_lithosphere':
+                        {'title': 'update_datasets_pangea_lithosphere',
+                         'method': 'TIB_update_imported_datasets_pangea_lithosphere',
+                         'comment': "TIB_update_imported_datasets_pangea_lithosphere",
+                         'crontab_commands': [".setall('0 2 4 * *')"]},
+                    'pangea_atmosphere':
+                        {'title': 'update_datasets_pangea_atmosphere',
+                         'method': 'TIB_update_imported_datasets_pangea_atmosphere',
+                         'comment': "TIB_update_imported_datasets_pangea_atmosphere",
+                         'crontab_commands': [".setall('0 3 4 * *')"]},
+                    'pangea_biologicalclassification':
+                        {'title': 'update_datasets_pangea_biologicalclassification',
+                         'method': 'TIB_update_imported_datasets_pangea_biologicalclassification',
+                         'comment': "TIB_update_imported_datasets_pangea_biologicalclassification",
+                         'crontab_commands': [".setall('0 4 4 * *')"]},
+                    'pangea_paleontology':
+                        {'title': 'update_datasets_pangea_paleontology',
+                         'method': 'TIB_update_imported_datasets_pangea_paleontology',
+                         'comment': "TIB_update_imported_datasets_pangea_paleontology",
+                         'crontab_commands': [".setall('0 5 4 * *')"]},
+                    'pangea_oceans':
+                        {'title': 'update_datasets_pangea_oceans',
+                         'method': 'TIB_update_imported_datasets_pangea_oceans',
+                         'comment': "TIB_update_imported_datasets_pangea_oceans",
+                         'crontab_commands': [".setall('0 0 5 * *')"]},
+                    'pangea_ecology':
+                        {'title': 'update_datasets_pangea_ecology',
+                         'method': 'TIB_update_imported_datasets_pangea_ecology',
+                         'comment': "TIB_update_imported_datasets_pangea_ecology",
+                         'crontab_commands': [".setall('0 1 5 * *')"]},
+                    'pangea_landsurface':
+                        {'title': 'update_datasets_pangea_landsurface',
+                         'method': 'TIB_update_imported_datasets_pangea_landsurface',
+                         'comment': "TIB_update_imported_datasets_pangea_landsurface",
+                         'crontab_commands': [".setall('0 2 5 * *')"]},
+                    'pangea_biosphere':
+                        {'title': 'update_datasets_pangea_biosphere',
+                         'method': 'TIB_update_imported_datasets_pangea_biosphere',
+                         'comment': "TIB_update_imported_datasets_pangea_biosphere",
+                         'crontab_commands': [".setall('0 3 5 * *')"]},
+                    'pangea_geophysics':
+                        {'title': 'update_datasets_pangea_geophysics',
+                         'method': 'TIB_update_imported_datasets_pangea_geophysics',
+                         'comment': "TIB_update_imported_datasets_pangea_geophysics",
+                         'crontab_commands': [".setall('0 4 5 * *')"]},
+                    'pangea_cryosphere':
+                        {'title': 'update_datasets_pangea_cryosphere',
+                         'method': 'TIB_update_imported_datasets_pangea_cryosphere',
+                         'comment': "TIB_update_imported_datasets_pangea_cryosphere",
+                         'crontab_commands': [".setall('0 5 5 * *')"]},
+                    'pangea_lakesandrivers':
+                        {'title': 'update_datasets_pangea_lakesandrivers',
+                         'method': 'TIB_update_imported_datasets_pangea_lakesandrivers',
+                         'comment': "TIB_update_imported_datasets_pangea_lakesandrivers",
+                         'crontab_commands': [".setall('0 0 6 * *')"]},
+                    'pangea_humandimensions':
+                        {'title': 'update_datasets_pangea_humandimensions',
+                         'method': 'TIB_update_imported_datasets_pangea_humandimensions',
+                         'comment': "TIB_update_imported_datasets_pangea_humandimensions",
+                         'crontab_commands': [".setall('0 1 6 * *')"]},
+                    'pangea_fisheries':
+                        {'title': 'update_datasets_pangea_fisheries',
+                         'method': 'TIB_update_imported_datasets_pangea_fisheries',
+                         'comment': "TIB_update_imported_datasets_pangea_fisheries",
+                         'crontab_commands': [".setall('0 2 6 * *')"]},
+                    'leopard':
+                        {'title': 'update_datasets_leopard',
+                         'method': 'TIB_update_imported_datasets_leopard',
+                         'comment': "TIB_update_imported_datasets_leopard",
+                         'crontab_commands': [".setall('0 3 6 * *')"]}, 
+                    'osnadata':
+                        {'title': 'update_datasets_osnadata',
+                         'method': 'TIB_update_imported_datasets_osnadata',
+                         'comment': "TIB_update_imported_datasets_osnadata",
+                         'crontab_commands': [".setall('0 4 6 * *')"]}, 
+                    'goettingen':
+                        {'title': 'update_datasets_goettingen',
+                         'method': 'TIB_update_imported_datasets_goettingen',
+                         'comment': "TIB_update_imported_datasets_goettingen",
+                         'crontab_commands': [".setall('0 5 6 * *')"]},
+                    'leuphana':
+                        {'title': 'update_datasets_leuphana',
+                         'method': 'TIB_update_imported_datasets_leuphana',
+                         'comment': "TIB_update_imported_datasets_leuphana",
+                         'crontab_commands': [".setall('0 0 7 * *')"]},                    
+
+        }
 
     def get_background_jobs(self):
         return self.background_jobs
@@ -211,6 +305,14 @@ class LDM_DatasetImport:
         datasets_dict = self.ds_parser.get_all_datasets_dicts()
         return datasets_dict
 
+    def get_remote_datasets_paged(self, page_url=''):
+        '''
+         Using the Dataset Parser (DatasetParser) retrieves all remote datasets adjusted
+         to the dictionary requirements of CKAN and LDM (virtual Datasets schema).
+         Instead of process all available Datasets, this method is processing in blocks or pages.
+        '''
+        datasets_dict = self.ds_parser.get_remote_datasets_paged(page_url)
+        return datasets_dict
 
     def get_remote_organization(self, name):
         '''
@@ -232,11 +334,31 @@ class LDM_DatasetImport:
             self._insert_update_skip_dataset(ds)
 
         # For testing just 10
-        #for x in range(50):
+        # for x in range(10):
         #    self._insert_update_skip_dataset(remote_datasets[x])
-        #self._insert_update_skip_dataset(remote_datasets[3])
+        # self._insert_update_skip_dataset(remote_datasets[3])
         self.set_log_info(self.ds_parser.get_summary_log())
 
+    def import_datasets_paged(self, resumption_token=''):
+        remote_datasets_res = self.get_remote_datasets_paged(resumption_token)
+        remote_datasets = remote_datasets_res["ds_list"]
+        resumption_token = remote_datasets_res["resumptionToken"]
+        
+        # import first page
+        for ds in remote_datasets:
+            self._insert_update_skip_dataset(ds)
+
+        # Import All the rest of pages
+        while resumption_token != "":
+            remote_datasets_res = self.get_remote_datasets_paged(resumption_token)
+            remote_datasets = remote_datasets_res["ds_list"]
+            resumption_token = remote_datasets_res["resumptionToken"]  
+            for ds in remote_datasets:
+                self._insert_update_skip_dataset(ds)
+        
+        self.set_log_info(self.ds_parser.get_summary_log())
+
+        
     def _insert_update_skip_dataset(self, remote_dataset):
         ds_name = remote_dataset['name']
         org_name = remote_dataset['organization']['name']
@@ -251,6 +373,7 @@ class LDM_DatasetImport:
             # discard remmote id
             remote_dataset['id'] = ''
             # Insert Dataset
+            remote_dataset = self.ds_parser.execute_before_insert_dataset(remote_dataset)
             self.insert_dataset(remote_dataset)
             self.ds_parser.increment_inserted_log()
             self.set_log_info("Dataset: " + ds_name + " Inserted")
@@ -267,9 +390,10 @@ class LDM_DatasetImport:
             self._insert_skip_organization(remote_dataset['organization'])
 
             remote_dataset['id'] = dataset['id']
+            remote_dataset = self.ds_parser.execute_before_update_dataset(remote_dataset)
             self.update_dataset(remote_dataset)
             self.ds_parser.increment_modified_log()
-            self.set_log_info("Dataset: " + ds_name + " Updated")
+            self.set_log_info("Dataset: " + ds_name + " Updated" + str(remote_dataset))
 
 
     def _insert_skip_organization(self, org_dict):
@@ -353,6 +477,20 @@ class DatasetParser():
             Returning True or False after datasets comparison
         '''
         pass
+
+    def execute_before_insert_dataset(self, remote_dataset):
+        '''
+            This method should be implemented inside a Dataset Parser Profile
+            if needed. Allows to run specific modifications over the dataset to be inserted
+        '''
+        return remote_dataset
+
+    def execute_before_update_dataset(self, remote_dataset):
+        '''
+            This method should be implemented inside a Dataset Parser Profile
+            if needed. Allows to run specific modifications over the dataset to be inserted
+        '''
+        return remote_dataset
 
     def check_current_schema(self):
         '''

@@ -5,6 +5,8 @@ import xmltodict
 from xml.etree import ElementTree
 import urllib.parse
 import ckan.lib.helpers as h
+import ckan.plugins.toolkit as toolkit
+from ckan.common import config
 
 class PANGEA_ParserProfile(DatasetParser):
     '''
@@ -17,7 +19,7 @@ class PANGEA_ParserProfile(DatasetParser):
 
     '''
 
-    def __init__(self):
+    def __init__(self, topic="topicAgriculture"):
         self.repository_name = "PANGAEA (Data Publisher for Earth & Environmental Science)"
         # Website: www.pangaea.de
 
@@ -30,16 +32,44 @@ class PANGEA_ParserProfile(DatasetParser):
         self.pangea_ListRecords_url = self.pangea_ListRecords_base_url
         # Searching for Datasets on Pangea's schema
         self.pangea_ListRecords_url += '&metadataPrefix=' + self.pangea_metadataPrefix
-        # Searching for "Agriculture" Datasets
-        self.pangea_ListRecords_url += '&set=topicAgriculture'
+        # Searching for topic or "Agriculture" Datasets
+        self.topic = topic
 
+        self.organization_name = "pangaea_" + self.topic.replace("topic", "").lower()
+        # Keep organization created in first importation (Agriculture)
+        if self.organization_name == "pangaea_agriculture":
+            self.organization_name = "pangaea"
+
+        self.pangea_ListRecords_url += '&set=' + topic
+        self.pangaea_allowed_types = {"topicChemistry": "Chemistry",
+                                 "topicLithosphere": "Lithosphere",
+                                 "topicAtmosphere": "Atmosphere",
+                                 "topicBiologicalClassification": "Biological Classification",
+                                 "topicPaleontology": "Paleontology",
+                                 "topicOceans": "Oceans",
+                                 "topicEcology": "Ecology",
+                                 "topicLandSurface": "Land Surface",
+                                 "topicBiosphere": "Biosphere",
+                                 "topicGeophysics": "Geophysics",
+                                 "topicCryosphere": "Cryosphere",
+                                 "topicLakesRivers": "Lakes & Rivers",
+                                 "topicHumanDimensions": "Human Dimensions",
+                                 "topicFisheries": "Fisheries",
+                                 "topicAgriculture": "Agriculture"}
+        
+        # tools to continue execution on error
+        self.last_resumption_token = ""
+        force_token = config.get('force_resumption_token_pangaea', False)
+        self.force_resumption_token_pangaea = toolkit.asbool(force_token)
+        self.resumption_token_pangaea = config.get('resumption_token_pangaea', "")
+        
         # Set to True to force update of all datasets
         self.force_update = False
-
+        
         # Schema values
         self.ns0 = '{http://www.openarchives.org/OAI/2.0/}'
         self.ns2 = '{http://www.pangaea.de/MetaData}'
-        self.pangea_schema_version = "2023-01-12"
+        self.pangea_schema_version = "2024-07-19"
 
         # Total of datasets available in PANGAEA
         self.total_pangea_datasets = 0
@@ -48,7 +78,7 @@ class PANGEA_ParserProfile(DatasetParser):
         self.current_schema_report = {}
 
 
-        self.log_file_prefix = "PNG_"
+        self.log_file_prefix = "PNG_"+self.topic.lower()+"_"
         super().__init__()
 
     def get_all_datasets_dicts(self):
@@ -71,6 +101,53 @@ class PANGEA_ParserProfile(DatasetParser):
             dict_list.append(self.parse_PANGEA_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
 
         return dict_list
+
+    def get_remote_datasets_paged(self, resumption_token=''):
+        '''
+         Uses the PANGAEA HARVESTING TOOL to retrieve a list of datasets in a list of dictionaries
+         Returns: a list of datasets or an empty list
+         Notice: the dictionaries contains metadata NOT in CKAN's schema
+        '''
+        self.set_log("infos_searching_ds")
+
+        if not resumption_token:
+            # allow continue ejecution forcing token from ckan.ini
+            if self.force_resumption_token_pangaea:
+                url = self.pangea_ListRecords_base_url + '&resumptionToken=' + self.resumption_token_pangaea
+                self.last_resumption_token = resumption_token
+            else:
+                # Find first page of Datasets
+                url = self.pangea_ListRecords_url
+
+        else:
+            # Find page from resumption token url
+            url = self.pangea_ListRecords_base_url + '&resumptionToken=' + resumption_token
+            self.last_resumption_token = resumption_token
+
+        # Find page of Datasets
+        xml_tree_data = self._get_page_of_Datasets(url)
+        if xml_tree_data is None:
+            return []
+
+        # get schema data only first time
+        if not self.current_schema_report:
+            self.current_schema_report = self._get_schema_report(xml_tree_data)
+
+        ds_list = self.parse_PANGEA_XML_result_to_DICT(xml_tree_data)
+
+
+        # GET RESUMPTION TOKEN FROM xml_tree_data
+        resumption_token = self._get_pangea_resumption_token(xml_tree_data)
+
+        # Convert dics to LDM-CKAN dicts
+        dict_list = []
+        for dataset in ds_list:
+            dict_list.append(self.parse_PANGEA_RECORD_DICT_to_LDM_CKAN_DICT(dataset))
+
+        # Update total of Datasets
+        self.total_pangea_datasets += len(ds_list)
+
+        return {"ds_list": dict_list, "resumptionToken": resumption_token['resumptionToken']}
 
     def get_datasets_list(self, ds_list=[], resumption_token=''):
         '''
@@ -529,17 +606,21 @@ class PANGEA_ParserProfile(DatasetParser):
         for author in authors:
             firstName = self._get_pangea_value(author, ['author', 'firstName'])
             lastName = self._get_pangea_value(author, ['author', 'lastName'])
-            author_name = lastName + " " + firstName
+            author_name = lastName + ", " + firstName
             orcid = self._get_pangea_value(author, ['author', 'orcid'])
 
             # first is author
             if pos == 1:
                 ldm_dict['author'] = author_name
+                ldm_dict['givenName'] = firstName
+                ldm_dict['familyName'] = lastName
                 ldm_dict['orcid'] = orcid
                 pos += 1
             else:
                 # following are extra_authors
                 extra_author = {"extra_author": author_name,
+                                "givenName": firstName,
+                                "familyName": lastName,
                                 "orcid": orcid}
                 extra_authors.append(extra_author)
         if extra_authors:
@@ -553,18 +634,49 @@ class PANGEA_ParserProfile(DatasetParser):
         tag_list = []
 
         for keyword in keywords_list:
-            # create ckan tag dict
-            tag_dict = { "display_name": keyword,
-                         "name": keyword,
-                         "state": "active",
-                         "vocabulary_id": None}
-            tag_list.append(tag_dict)
-
+            tag = keyword
+            # some cases are ; separated list of tags
+            tag = tag.replace(';', ',')
+            # some cases are "·" separated list of tags
+            tag = tag.replace('·', ',')
+            # some cases are "·" separated list of tags
+            tag = tag.replace('-', ',')
+            
+            if ',' in tag: # some cases are comma separated list of tags
+                for t in tag.split(','):
+                    t = self._adjust_tag(t)
+                    if t: # some cases list end with comma ,
+                        tag_dict = { "display_name": t,
+                                     "name": t,
+                                     "state": "active",
+                                     "vocabulary_id": None}
+                        tag_list.append(tag_dict)
+            else:
+                tag = self._adjust_tag(tag)
+                if tag:
+                    tag_dict = {"display_name": tag.strip(),
+                                "name": tag.strip(),
+                                "state": "active",
+                                "vocabulary_id": None}
+                    tag_list.append(tag_dict)
+            
         if tag_list:
             ldm_dict['tags'] = tag_list
 
         return ldm_dict
 
+    def _adjust_tag(self, tag):
+        PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_. "
+        tag = tag.replace("/", "-") # some tags have / chars
+        tag = "".join(c for c in tag if c in PERMITTED_CHARS)  # some tags has no permitted chars
+        tag = tag.strip()
+        # In CKAN tags minimum lenght is 2
+        if len(tag) < 2:
+            tag = ''
+        # In CKAN tag long max = 100
+        tag = tag[:100]
+        return tag
+        
     def _adjust_tags(self, tag_list):
 
         PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_. "
@@ -645,6 +757,19 @@ class PANGEA_ParserProfile(DatasetParser):
                 ldm_dict['related_identifiers'] += r_identifiers_list
             else:
                 ldm_dict['related_identifiers'] = r_identifiers_list
+        
+        # Solr limits to 32776 the field
+        # Get the UTF-8 encoded bytes
+        if 'related_identifiers' in ldm_dict and len(ldm_dict['related_identifiers']):
+            max_bytes = 30000
+            r_string = str(ldm_dict['related_identifiers'])
+            encoded = r_string.encode('utf-8')
+            #print("\n\nRELATED IDENTIFIER", ldm_dict['related_identifiers'], "\nBYTES\n", encoded)            
+            # If already within limit, return original
+            while len(encoded) > max_bytes:
+                ldm_dict['related_identifiers'] = ldm_dict['related_identifiers'][:-1]
+                r_string = str(ldm_dict['related_identifiers'])
+                encoded = r_string.encode('utf-8')
 
         return ldm_dict
 
@@ -693,13 +818,12 @@ class PANGEA_ParserProfile(DatasetParser):
         #datetime.datetime.now().isoformat()
 
 
-
         LDM_imported_vdataset = {
             "repository_name": self.repository_name,
             "type": "vdataset",
             "source_metadata_created": "",
             "source_metadata_modified": "",
-            "owner_org": "pangaea",
+            "owner_org": self.organization_name,
             "author": "",
             "author_email": "",
         #     "creator_user_id": "17755db4-395a-4b3b-ac09-e8e3484ca700",
@@ -747,6 +871,7 @@ class PANGEA_ParserProfile(DatasetParser):
              "title": "",
         #     "type": "vdataset",
              "url": "",
+             "citation": [],
         #     "version": "",
         #     "publishers": [
         #         {
@@ -876,7 +1001,8 @@ class PANGEA_ParserProfile(DatasetParser):
 
         current_schema = {'current_pangea_schema': self.ns0,
                           'current_dataset_schema': self.ns2,
-                          'current_pangea_schema_version': self.pangea_schema_version}
+                          'current_pangea_schema_version': self.pangea_schema_version,
+                          'last_resumption_token': self.last_resumption_token}
         schema_ok = True
 
         errors = {}
@@ -887,7 +1013,7 @@ class PANGEA_ParserProfile(DatasetParser):
         elif schema_dataset.attrib:
              schema_version = schema_dataset.attrib['version']
              if schema_version != self.pangea_schema_version:
-                 errors['dataset_schema_version'] = 'ERROR: Current Dataset Schema version is incorrect.'
+                 errors['dataset_schema_version'] = 'ERROR: Current Dataset Schema version is incorrect. Current_local: '+self.pangea_schema_version+', Current_API: '+ schema_version
                  schema_ok = False
 
         report = {'status_ok': schema_ok,
@@ -922,13 +1048,13 @@ class PANGEA_ParserProfile(DatasetParser):
                        "and models/simulations. Citability, comprehensive metadata descriptions, interoperability of data "
                        "and metadata, a high degree of structural and semantic harmonization of the data inventory as "
                        "well as the commitment of the hosting institutions ensures FAIRness of archived data.",
-        "display_name": "PANGAEA",
-        "image_display_url": "pangea-logo.png",
-        "image_url": "pangea-logo.png",
+        "display_name": "PANGAEA (" + self.pangaea_allowed_types.get(self.topic, "") + ")",
+        "image_display_url": "pangaea_" + self.topic.lower() + ".png",
+        "image_url": "pangaea_" + self.topic.lower() + ".png",
         "is_organization": True,
-        "name": "pangaea",
+        "name": self.organization_name,
         "state": "active",
-        "title": "PANGAEA (Agriculture)",
+        "title": "PANGAEA (" + self.pangaea_allowed_types.get(self.topic, "") + ")",
         "type": "organization",
         }
         return org_dict
@@ -975,6 +1101,7 @@ class PANGEA_ParserProfile(DatasetParser):
             #print("\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field])
             if field in local_dataset and field not in exclude_in_comparison and local_dataset[field] != remote_dataset[field]:
                 self.logger.message = "\nField: ", field, " L= ", local_dataset[field], " R= ", remote_dataset[field]
+                print("\n\n\n\n***********************", self.logger.message,"+++++++++++++++\n\n\n")
                 self.set_log_msg_info()
                 result = True
                 break
@@ -1028,6 +1155,15 @@ class PANGEA_ParserProfile(DatasetParser):
 
 # LOGGER METHODS
 # **************
+    def get_summary_log(self):
+        summary_log = {'Repository_name': self.repository_name + ' - ' + self.topic,
+                       "Datasets_inserted": self.logger.datasets_inserted,
+                       "Datasets_updated": self.logger.datasets_modified,
+                       "Datasets_skiped": self.logger.datasets_skiped,
+                       "LOG_file": self.log_file_path+self.log_file,
+                       "SCHEMA_REPORT": self.check_current_schema()}
+
+        return summary_log
 
 
     def set_log(self, op, data=""):

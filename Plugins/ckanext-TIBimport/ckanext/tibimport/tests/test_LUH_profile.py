@@ -376,6 +376,12 @@ def test_get_all_datasets_dicts():
     res_dict = obj.get_all_datasets_dicts()
     print("Datasets found in LUH:\n", len(res_dict))
     print("Datasets dictionaries:\n", res_dict[0])
+
+    authors = {}
+    for ds in res_dict:
+        authors[ds['name']] = ds['author']
+    print("\n\n\nAUTHORS LIST\n\n\n", authors)
+
     assert 'name' in res_dict[0]
 
 @pytest.mark.skipif(skip_test1, reason="test against API directly - slows all the work")
