@@ -24,6 +24,7 @@ RUN apt-get -q -y update \
 		solr-jetty \
 		openjdk-8-jdk \
 		redis-server \
+		unixodbc-dev \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
