@@ -36,7 +36,7 @@ To install ckanext-gitimport:
 
 ## Config settings
 
-1. Add the plugin `gitimport` to the `ckan.plugins` list in the CKAN config file`ckan-entrypoint.sh`.
+1. Add the plugin `gitImport` to the `ckan.plugins` list in the CKAN config file`ckan-entrypoint.sh`.
   
 3. Add the yaml File `ckanext.scheming:ckan_github.yaml` to the `scheming.dataset_schemas` list in the CKAN config file `ckan-entrypoint.sh`.
   
