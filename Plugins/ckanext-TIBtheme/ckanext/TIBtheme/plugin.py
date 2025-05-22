@@ -242,8 +242,10 @@ def is_dataset_menu_item_selected():
     current_url = h.current_url()
     return '/dataset/' in current_url or '/vdataset/' in current_url or '/service/' in current_url
 
+
 def get_dataset_type_title(dataset_type):
     aux_list = {'dataset': 'Dataset',
                 'vdataset': 'Imported Dataset',
+                'github': 'GitHub',
                 'service': 'Service'}
     return aux_list[dataset_type]
