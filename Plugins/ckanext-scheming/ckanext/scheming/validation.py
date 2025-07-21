@@ -563,6 +563,8 @@ def scheming_multiple_text(field, schema):
         if (data[key] is missing or data[key] == '[]') and field.get('required'):
             errors[key].append(_('Missing value'))
             raise StopOnError
+        if data[key] is missing or data[key] == '[]':
+            data[key] = ''  # fix insert of missing into DB
 
     return _scheming_multiple_text
 
