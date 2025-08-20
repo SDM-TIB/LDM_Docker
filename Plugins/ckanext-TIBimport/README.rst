@@ -1,6 +1,6 @@
-.. You should enable this project on travis-ci.org and coveralls.io to make
-   these badges work. The necessary Travis and Coverage config files have been
-   generated for you.
+=============
+ckanext-TIBimport
+=============
 
 .. image:: https://travis-ci.org/Rmbruno11/ckanext-TIBimport.svg?branch=master
     :target: https://travis-ci.org/Rmbruno11/ckanext-TIBimport
@@ -24,140 +24,108 @@
     :target: https://pypi.org/project/ckanext-TIBimport/
     :alt: License
 
-=============
-ckanext-TIBimport
-=============
+Overview
+--------
 
-.. Put a description of your extension here:
-   What does it do? What features does it have?
-   Consider including some screenshots or embedding a video!
+**ckanext-TIBimport** is a comprehensive CKAN extension that enables seamless integration and automated import of research datasets from multiple academic and scientific data repositories. This plugin facilitates the aggregation of research data from various sources into a unified CKAN-based data management system.
 
-
+Key Features
 ------------
+
+* **Multi-Repository Integration**: Supports data import from multiple research repositories including:
+  
+  * **LUH** (Leibniz University Hannover) - CKAN API integration
+  * **Leuphana** University Lüneburg - OAI-PMH + DataCite hybrid approach
+  * **Göttingen** Research Online - Dataverse API integration
+  * **OSNADATA** (University of Osnabrück) - OAI-PMH DataCite
+  * **LEOPARD** (TU Braunschweig) - OAI-PMH with research data filtering
+  * **RADAR** - Research data repository
+  * **PANGAEA** - Earth & Environmental Science data repository (with topic-based filtering)
+
+* **Automated Import Workflows**: Scheduled and on-demand dataset imports with comprehensive logging and error handling
+
+* **Flexible Parser Profiles**: Modular architecture with specialized parser profiles for each repository type
+
+* **Background Job Processing**: Utilizes CKAN's background job system for efficient large-scale data imports
+
+* **Virtual Dataset Management**: Support for virtual datasets with configurable ribbon displays
+
+* **Notification System**: Integration with TIBnotify plugin for import status notifications
+
+* **Comprehensive Logging**: Detailed import summaries and error tracking
+
+Technical Architecture
+----------------------
+
+The plugin implements a modular parser-based architecture where each supported repository has its own specialized parser profile. The system supports various data exchange protocols including:
+
+* OAI-PMH (Open Archives Initiative Protocol for Metadata Harvesting)
+* DataCite API
+* Dataverse API
+* Direct CKAN API integration
+
+Documentation
+-------------
+
+📚 **Complete Documentation**: `documentation/README.md <documentation/README.md>`_
+
+The documentation directory contains comprehensive guides covering:
+
+* **System Documentation** - Technical specifications, architecture, and API details
+* **User Documentation** - User guides and operational procedures  
+* **Lower Saxony Repositories Documentation** - Specialized documentation for academic repository integrations
+
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+* CKAN 2.9+
+* Python 3.6+
+* Required Python packages (see requirements.txt)
 
-
-------------
 Installation
 ------------
 
-.. Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
-
-To install ckanext-TIBimport:
-
-1. Activate your CKAN virtual environment, for example::
+1. Activate your CKAN virtual environment::
 
      . /usr/lib/ckan/default/bin/activate
 
-2. Install the ckanext-TIBimport Python package into your virtual environment::
+2. Install the ckanext-TIBimport Python package::
 
      pip install ckanext-TIBimport
 
-3. Add ``TIBimport`` to the ``ckan.plugins`` setting in your CKAN
-   config file (by default the config file is located at
-   ``/etc/ckan/default/ckan.ini``).
+3. Add ``TIBimport`` to the ``ckan.plugins`` setting in your CKAN config file::
 
-4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
+     ckan.plugins = ... TIBimport
+
+4. Restart CKAN::
 
      sudo service apache2 reload
 
+Configuration
+-------------
 
----------------
-Config settings
----------------
+Add the following settings to your CKAN config file (ckan.ini):
 
-You can set in CKAN's config file (ckan.ini) the following values:
+**Log File Path**::
 
-
-     tibimport.log_file_path = '/home/johndoe/logs/'
-
-The path should end in "/". The default value is:
-'/usr/lib/ckan/default/src/ckanext-TIBimport/ckanext/tibimport/logs/'
-
-     tibimport.show_vdatasets_virtual_ribbon = true
-
-The value enables and disables the 'virtual' ribbon in virtual dataset's list pages.
-The default value is: false
-
-     tibimport.show_vdatasets_virtual_source_ribbon = true
-
-The value enables and disables the 'source' ribbon in virtual dataset's list pages.
-The default value is: false
+    tibimport.log_file_path = /path/to/logs/
+    # Default: /usr/lib/ckan/default/src/ckanext-TIBimport/ckanext/tibimport/logs/
 
 
-.. Document any optional config settings here. For example::
 
-.. # The minimum number of hours to wait before re-checking a resource
-   # (optional, default: 24).
-   ckanext.tibimport.some_setting = some_default_value
+Testing
+-------
 
-
-----------------------
-Developer installation
-----------------------
-
-To install ckanext-TIBimport for development, activate your CKAN virtualenv and
-do::
-
-    git clone https://github.com/Rmbruno11/ckanext-TIBimport.git
-    cd ckanext-TIBimport
-    python setup.py develop
-    pip install -r dev-requirements.txt
-
-
------
-Tests
------
-
-To run the tests, do::
+Run tests with::
 
     pytest --ckan-ini=test.ini
 
-To run the tests and produce a coverage report, first make sure you have
-``pytest-cov`` installed in your virtualenv (``pip install pytest-cov``) then run::
+Generate coverage report::
 
-    pytest --ckan-ini=test.ini  --cov=ckanext.tibimport
+    pytest --ckan-ini=test.ini --cov=ckanext.tibimport
 
 
-----------------------------------------
-Releasing a new version of ckanext-TIBimport
-----------------------------------------
+Support
+-------
 
-ckanext-TIBimport should be available on PyPI as https://pypi.org/project/ckanext-TIBimport.
-To publish a new version to PyPI follow these steps:
-
-1. Update the version number in the ``setup.py`` file.
-   See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
-   for how to choose version numbers.
-
-2. Make sure you have the latest version of necessary packages::
-
-    pip install --upgrade setuptools wheel twine
-
-3. Create a source and binary distributions of the new version::
-
-       python setup.py sdist bdist_wheel && twine check dist/*
-
-   Fix any errors you get.
-
-4. Upload the source distribution to PyPI::
-
-       twine upload dist/*
-
-5. Commit any outstanding changes::
-
-       git commit -a
-       git push
-
-6. Tag the new release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.1 then do::
-
-       git tag 0.0.1
-       git push --tags
+For technical documentation, usage guides, and integration details, please refer to the comprehensive documentation in the `documentation/ <documentation/>`_ directory.
