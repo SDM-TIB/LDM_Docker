@@ -7,6 +7,7 @@
 import logging
 
 from ckan.lib.helpers import lang as ckan_lang
+from ckan.lib.helpers import markdown_extract
 from ckan.model import Package
 from ckan.plugins import PluginImplementations, toolkit
 
@@ -198,7 +199,7 @@ def build_metadata_dict(pkg_dict):
     optional['descriptions'] = [
         {
             'descriptionType': 'Other',
-            'description': pkg_dict.get('notes', '')
+            'description': markdown_extract(pkg_dict.get('notes', ''))
         }
     ]
 

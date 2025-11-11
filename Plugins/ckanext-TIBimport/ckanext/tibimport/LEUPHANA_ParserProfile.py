@@ -1552,7 +1552,7 @@ class LEUPHANA_ParserProfile(DatasetParser):
         
         for field in remote_dataset.keys():
 
-            # special case  tags
+            # special case  subject areas
             if field == 'subject_areas':
                 for tag in remote_dataset['subject_areas']:
                     tag_name = tag['subject_area_name']

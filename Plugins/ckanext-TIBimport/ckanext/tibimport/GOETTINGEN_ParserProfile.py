@@ -141,6 +141,19 @@ class GOETTINGEN_ParserProfile(DatasetParser):
             ds_data = self.check_is_open_license(ds_data)
             # print("\n\nEXTENDED DATA:", ds_data)
             if ds_data.get("identifier", False):
+
+                # Add subjects from first API call
+                subjects_list = dataset.get('subjects', [])
+                if subjects_list:
+                    ds_data['subjects'] = subjects_list
+
+                # Adding publications
+                # "publications":[{"citation":"Government of India, Ministry of..",
+                #                  "url":"http://fsi.nic.in/details.php?pgID=sb_64"}]    
+                publications = dataset.get('publications', [])
+                if publications:
+                    ds_data['publications'] = publications
+                
                 result_list.append(ds_data)
 
         return result_list
@@ -584,7 +597,7 @@ class GOETTINGEN_ParserProfile(DatasetParser):
             ldm_dict['publication_year'] = publication_year
 
         # subject areas
-        # ldm_dict = self._get_goettingen_subject_areas(goettingen_metadata, ldm_dict)
+        ldm_dict = self._get_goettingen_subject_areas(goettingen_metadata, ldm_dict)
 
         # resource type
         # '@type': 'Dataset',
@@ -592,8 +605,8 @@ class GOETTINGEN_ParserProfile(DatasetParser):
         
         ldm_dict['resource_type'] = resource_type
 
-        # related identifiers
-        # ldm_dict = self._get_goettingen_related_identifiers(goettingen_metadata, ldm_dict)
+        # related publications
+        ldm_dict = self._get_goettingen_related_publications(goettingen_metadata, ldm_dict)
         
          # keywords
         ldm_dict = self._get_goettingen_keywords(goettingen_metadata, ldm_dict)
@@ -664,6 +677,8 @@ class GOETTINGEN_ParserProfile(DatasetParser):
 
         keywords = goettingen_metadata.get('keywords', [])
         tag_list = []
+        # filter subjects: the API is joining subjects and keywors as the result for keywords
+        subjects = goettingen_metadata.get('subjects', [])
 
         for keyword in keywords:
             tag = keyword
@@ -676,20 +691,22 @@ class GOETTINGEN_ParserProfile(DatasetParser):
                 for t in tag.split(','):
                     t = self._adjust_tag(t)
                     if t: # some cases list end with comma ,
-                        tag_dict = { "display_name": t,
-                                     "name": t,
-                                     "state": "active",
-                                     "vocabulary_id": None}
-                        tag_list.append(tag_dict)
+                        if t not in subjects:    
+                            tag_dict = { "display_name": t,
+                                        "name": t,
+                                        "state": "active",
+                                        "vocabulary_id": None}
+                            tag_list.append(tag_dict)
             else:
                 tag = self._adjust_tag(tag)
                 if tag:
-                    tag_dict = {"display_name": tag.strip(),
-                                "name": tag.strip(),
-                                "state": "active",
-                                "vocabulary_id": None}
-                    tag_list.append(tag_dict)
-
+                    if tag.strip() not in subjects:    
+                        tag_dict = {"display_name": tag.strip(),
+                                    "name": tag.strip(),
+                                    "state": "active",
+                                    "vocabulary_id": None}
+                        tag_list.append(tag_dict)
+        
         if tag_list:
             ldm_dict['tags'] = tag_list
 
@@ -725,34 +742,65 @@ class GOETTINGEN_ParserProfile(DatasetParser):
 
     def _get_goettingen_subject_areas(self, goettingen_metadata, ldm_dict):
 
-        s_areas = goettingen_metadata.get('subjectAreas', [])
+        s_areas = goettingen_metadata.get('subjects', [])
         s_areas_list = []
 
         for s_area in s_areas:
-            name = self._get_goettingen_value(s_area, ['subject', 'subject'])
-            add_name = self._get_goettingen_value(s_area, ['subject', 'subjectScheme'])
             # create ckan subject areas dict
-            s_area_dict = { "subject_area_additional": add_name,
-                            "subject_area_name": name }
+            s_area_dict = { "subject_area_additional": "",
+                            "subject_area_name": s_area }
             s_areas_list.append(s_area_dict)
         if s_areas_list:
             ldm_dict['subject_areas'] = s_areas_list
 
         return ldm_dict
 
-    def _get_goettingen_related_identifiers(self, goettingen_metadata, ldm_dict):
+    def _get_goettingen_related_publications(self, goettingen_metadata, ldm_dict):
 
-        r_identifiers = goettingen_metadata.get('relatedIdentifiers', [])
         r_identifiers_list = []
+        
+        # Adding publications
+        # "publications":[{"citation":"Government of India, Ministry of..",
+        #                  "url":"http://fsi.nic.in/details.php?pgID=sb_64"}]
+        publications = goettingen_metadata.get('publications', [])
 
-        for r_id in r_identifiers:
-            identifier = self._get_goettingen_value(r_id, ['relatedIdentifier', 'relatedIdentifier'])
-            id_type = self._get_goettingen_value(r_id, ['relatedIdentifierType'])
-            id_relation = self._get_goettingen_value(r_id, ['relationType'])
+        for pub in publications:
+            citation = self._get_goettingen_value(pub, ['citation'])
+            url = self._get_goettingen_value(pub, ['url'])
+            id_relation = 'IsPublishedIn'
             # create ckan related identifiers dict
-            r_identifier_dict = { "identifier": identifier,
-                            "identifier_type": id_type,
-                            "relation_type": id_relation}
+    #           repeating_subfields:
+    # - field_name: identifier
+    #   label: Identifier
+    #   required: false
+    # - field_name: identifier_type
+    #   label: Type
+    #   required: false
+    # - field_name: relation_type
+    #   label: Relation Type
+    #   required: false
+    # - field_name: title
+    #   label: Title
+    #   required: false
+    # - field_name: year
+    #   label: Year
+    #   required: false
+    # - field_name: authors
+    #   label: Author/s
+    #   required: false
+    # - field_name: orcid_authors
+    #   label: ORCID/s
+    #   required: false
+    # - field_name: email_authors
+    #   label: Email/s
+    #   required: false
+    # - field_name: source
+    #   label: Source
+    #   required: false
+            r_identifier_dict = { "identifier": url,
+                            "identifier_type": 'URL',
+                            "relation_type": id_relation,
+                            "title": citation}
             r_identifiers_list.append(r_identifier_dict)
         if r_identifiers_list:
             ldm_dict['related_identifiers'] = r_identifiers_list

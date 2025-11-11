@@ -1,9 +1,9 @@
 import urllib.parse
 from xml.etree import ElementTree
-
+import time
 import requests
 from ckanext.tibimport.logic2 import DatasetParser
-
+from ckanext.tibimport.open_licenses import open_access_licenses
 
 class OSNADATA_ParserProfile(DatasetParser):
     '''
@@ -27,6 +27,10 @@ class OSNADATA_ParserProfile(DatasetParser):
         self.osnaData_metadata_schema_response = 'oai_datacite'
         self.osnaData_metadata_schema_response_prefix = '&metadataPrefix=' + self.osnaData_metadata_schema_response
        
+        # Citations must be harvested from exported version of the Dataset because "subjects", "keywords" and "ddc" are not present in OAI system
+        # Ex. https://osnadata.ub.uni-osnabrueck.de/api/datasets/export?exporter=dataverse_json&persistentId=doi:10.26249/FK2/5AXRBJ
+        self.osnadata_export_to_dataverse_json_url = 'https://osnadata.ub.uni-osnabrueck.de/api/datasets/export?exporter=dataverse_json&persistentId='
+        
         self.osnaData_ListRecords_url += self.osnaData_metadata_schema_response_prefix
         
         self.current_dataset_schema = "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd"        
@@ -125,6 +129,13 @@ class OSNADATA_ParserProfile(DatasetParser):
             self.get_datasets_list(ds_list, resumption_token['resumptionToken'])
 
         ds_list = self.filter_open_datasets(ds_list)
+
+        # Add citation data
+        for ds in ds_list:
+            citation_license = self._get_citations_and_license_from_API(ds['header']['identifier'])
+            ds['metadata']['osnaDataDataset']['citation'] = citation_license['citation']
+            ds['metadata']['osnaDataDataset']['license'] = citation_license['license']
+       
         # Update total of Datasets
         self.total_osnaData_datasets = len(ds_list)
         return ds_list
@@ -172,6 +183,13 @@ class OSNADATA_ParserProfile(DatasetParser):
 
         ds_list = self.parse_osnaData_XML_result_to_DICT(xml_tree_data)
         ds_list = self.filter_open_datasets(ds_list)
+
+        # Add citation data
+        for ds in ds_list:
+            citation_license = self._get_citations_and_license_from_API(ds['header']['identifier'])
+            ds['metadata']['osnaDataDataset']['citation'] = citation_license['citation']
+            ds['metadata']['osnaDataDataset']['license'] = citation_license['license']
+       
         # Update total of Datasets
         self.total_osnaData_datasets += len(ds_list)
         
@@ -479,7 +497,6 @@ class OSNADATA_ParserProfile(DatasetParser):
         path_from_osnaDatadataset = ns2 + 'relatedIdentifiers/' + ns2 + 'relatedIdentifier'
         ds_result['metadata']['osnaDataDataset']['relatedIdentifiers'] = self._find_metadata_in_record(record, path_from_osnaDatadataset, 'relatedIdentifier')
 
- 
         return ds_result
 
     def _find_metadata_in_record_simple(self, record, path, subfields=[]):
@@ -527,6 +544,41 @@ class OSNADATA_ParserProfile(DatasetParser):
                     list_result.append(dict_result)
         return list_result
 
+    def _get_citations_and_license_from_API(self, doi):
+
+        export_url = self.osnadata_export_to_dataverse_json_url + doi
+        # print(export_url)
+        # Find Dataset's metadata
+        time.sleep(0.5)
+        try:
+            response = requests.get(export_url)
+        except requests.exceptions.RequestException as e:  
+            self.set_log("error_API", export_url + " - " + e.__str__())
+        # print(str(response)) 
+
+        try:
+            ds_data = response.json()
+        except ValueError:
+            self.set_log("error_api_data", export_url)
+            ds_data = {}
+
+
+            # Try waiting different amounts
+            wait_times = [5, 10, 15, 30]  # secconds
+
+            for wait_time in wait_times:
+                # wait API to respond
+                time.sleep(wait_time)
+                
+                response = requests.get(export_url)
+                if response.status_code == 200:
+                    # print(f"Success after waiting {wait_time} seconds!")
+                    break
+        
+        citation = ds_data.get('datasetVersion', {}).get('metadataBlocks', {}).get('citation', {})
+        license = ds_data.get('datasetVersion', {}).get('license', "")
+        
+        return {'citation': citation, 'license': license}
 
     def parse_osnaData_RECORD_DICT_to_LDM_CKAN_DICT(self, osnaData_dict):
 
@@ -557,11 +609,12 @@ class OSNADATA_ParserProfile(DatasetParser):
         ldm_dict['name'] = name
 
         # rights
-        rights = osnaData_metadata.get('rightsList', [])
-        if rights:
-            ldm_dict['license_id'] = self._get_osnaData_value(rights[0], ['rights', 'rights', 'rightsIdentifier'])
-            ldm_dict['license_title'] = self._get_osnaData_value(rights[0], ['rights', 'rights', 'rights'])
+        ds_license_name = osnaData_metadata.get('license', "")
+        ldm_dict['license_id'] = ds_license_name
 
+        if ds_license_name in open_access_licenses:
+            ldm_dict['license_title'] = open_access_licenses[ds_license_name]['title']
+            
         # descriptions
         ldm_dict = self._get_osnaData_description(osnaData_metadata, ldm_dict)
 
@@ -574,6 +627,12 @@ class OSNADATA_ParserProfile(DatasetParser):
 
         # subject areas
         ldm_dict = self._get_osnaData_subject_areas(osnaData_metadata, ldm_dict)
+
+        # subject areas ddc
+        ldm_dict = self._get_osnaData_subject_areas_ddc(osnaData_metadata, ldm_dict)
+
+        # keywords
+        ldm_dict = self._get_osnaData_keywords(osnaData_metadata, ldm_dict)
 
         # resource type
         resource_type = self._get_osnaData_value(osnaData_metadata, ['resourceType', 'resourceType'])
@@ -611,7 +670,8 @@ class OSNADATA_ParserProfile(DatasetParser):
         for description in descriptions:
             desc_type = self._get_osnaData_value(description, ['descriptionType'])
             desc_txt = self._get_osnaData_value(description, ['description', 'description'])
-            desc = desc_type + ": " + desc_txt
+            #desc = desc_type + ": " + desc_txt
+            desc = desc_txt
             if description_txt:
                 desc = '\r\n' + desc
             description_txt = description_txt + desc
@@ -659,33 +719,40 @@ class OSNADATA_ParserProfile(DatasetParser):
 
     def _get_osnaData_keywords(self, osnaData_metadata, ldm_dict):
 
-        keywords = osnaData_metadata.get('keywords', [])
+        # ['citation']['fields']
+        citation_fields = osnaData_metadata.get('citation', {}).get('fields', {})
         tag_list = []
 
-        for keyword in keywords:
-            tag = self._get_osnaData_value(keyword, ['keyword', 'keyword'])
-            # create ckan tag dict
-            # some cases are ; separated list of tags
-            tag = tag.replace(';', ',')
-            # some cases are "·" separated list of tags
-            tag = tag.replace('·', ',')
-            if ',' in tag: # some cases are comma separated list of tags
-                for t in tag.split(','):
-                    t = self._adjust_tag(t)
-                    if t: # some cases list end with comma ,
-                        tag_dict = { "display_name": t,
-                                     "name": t,
-                                     "state": "active",
-                                     "vocabulary_id": None}
-                        tag_list.append(tag_dict)
-            else:
-                tag = self._adjust_tag(tag)
-                if tag:
-                    tag_dict = {"display_name": tag.strip(),
-                                "name": tag.strip(),
-                                "state": "active",
-                                "vocabulary_id": None}
-                    tag_list.append(tag_dict)
+        for field in citation_fields:
+            type_name = field.get('typeName', '')
+            if type_name == 'keyword':
+                for keyword in field.get('value', []):
+                    keyword_txt = keyword.get('keywordValue', {}).get('value')
+                    
+        
+                    tag = keyword_txt
+                    # create ckan tag dict
+                    # some cases are ; separated list of tags
+                    tag = tag.replace(';', ',')
+                    # some cases are "·" separated list of tags
+                    tag = tag.replace('·', ',')
+                    if ',' in tag: # some cases are comma separated list of tags
+                        for t in tag.split(','):
+                            t = self._adjust_tag(t)
+                            if t: # some cases list end with comma ,
+                                tag_dict = { "display_name": t,
+                                            "name": t,
+                                            "state": "active",
+                                            "vocabulary_id": None}
+                                tag_list.append(tag_dict)
+                    else:
+                        tag = self._adjust_tag(tag)
+                        if tag:
+                            tag_dict = {"display_name": tag.strip(),
+                                        "name": tag.strip(),
+                                        "state": "active",
+                                        "vocabulary_id": None}
+                            tag_list.append(tag_dict)
 
         if tag_list:
             ldm_dict['tags'] = tag_list
@@ -715,19 +782,45 @@ class OSNADATA_ParserProfile(DatasetParser):
 
     def _get_osnaData_subject_areas(self, osnaData_metadata, ldm_dict):
 
-        s_areas = osnaData_metadata.get('subjectAreas', [])
+        # ['citation']['fields']
+        citation_fields = osnaData_metadata.get('citation', {}).get('fields', {})
         s_areas_list = []
 
-        for s_area in s_areas:
-            name = self._get_osnaData_value(s_area, ['subject', 'subject'])
-            add_name = self._get_osnaData_value(s_area, ['subject', 'subjectScheme'])
-            # create ckan subject areas dict
-            s_area_dict = { "subject_area_additional": add_name,
-                            "subject_area_name": name }
-            s_areas_list.append(s_area_dict)
+        for field in citation_fields:
+            type_name = field.get('typeName', '')
+            if type_name == 'subject':
+                for value in field.get('value', []):
+                    # create ckan subject areas dict
+                    s_area_dict = { "subject_area_additional": "",
+                                    "subject_area_name": value } 
+                    s_areas_list.append(s_area_dict)
+
         if s_areas_list:
             ldm_dict['subject_areas'] = s_areas_list
+        
+        return ldm_dict
 
+    def _get_osnaData_subject_areas_ddc(self, osnaData_metadata, ldm_dict):
+
+        # ['citation']['fields']
+        citation_fields = osnaData_metadata.get('citation', {}).get('fields', {})
+        s_areas_list = []
+
+        for field in citation_fields:
+            type_name = field.get('typeName', '')
+            if type_name == 'ddc':
+                for value in field.get('value', []):
+                    # create ckan subject areas dict
+                    s_area_dict = { "subject_area_additional": "",
+                                    "subject_area_name": value } 
+                    s_areas_list.append(s_area_dict)
+
+        if s_areas_list:
+            if 'subject_areas' in ldm_dict:
+                ldm_dict['subject_areas'] = ldm_dict['subject_areas'] + s_areas_list
+            else:
+                ldm_dict['subject_areas'] = s_areas_list    
+        
         return ldm_dict
 
     def _get_osnaData_related_identifiers(self, osnaData_metadata, ldm_dict):
@@ -1042,17 +1135,29 @@ class OSNADATA_ParserProfile(DatasetParser):
             return True
 
         result = False
-        exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'subject_areas']
+        exclude_in_comparison = ['owner_org', 'license_title', 'organization', 'subject_areas', 'tags']
 
         for field in remote_dataset.keys():
 
-            # special case  tags
+            # special case  subject areas
             if field == 'subject_areas':
                 for tag in remote_dataset['subject_areas']:
                     tag_name = tag['subject_area_name']
                     tag_found = False
                     for tag_local in local_dataset['subject_areas']:
                         if tag_local['subject_area_name'] == tag_name:
+                            tag_found = True
+                    if not tag_found:
+                        result = True
+                        break
+
+            # special case  tags
+            if field == 'tags':
+                for tag in remote_dataset['tags']:
+                    tag_name = tag['display_name']
+                    tag_found = False
+                    for tag_local in local_dataset['tags']:
+                        if tag_local['display_name'] == tag_name:
                             tag_found = True
                     if not tag_found:
                         result = True

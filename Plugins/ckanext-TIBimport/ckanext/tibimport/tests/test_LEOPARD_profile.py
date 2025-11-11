@@ -403,7 +403,18 @@ def test_process_all_remote_datasets():
     # Expecting errors in code in case something goes wrong during parsing
     assert True
 
+def test__get_DDC_value_from_id():
 
+    obj = leoPARD_ParserProfile()
+    
+    ids = ["550", "620", "624", "580"]
+    values = ["Earth sciences & geology", "Engineering", "Civil engineering", "Pants (Botany)"]
+    for x in range(3):
+        id = ids[x]
+        value = values[x]
+        ext_value = obj._get_DDC_value_from_id(id)
+        print("\nDDC value: ", ext_value)
+        assert value == ext_value
 
 # # def test_remote_dataset_schema_updated():
 # #     obj = RADAR_ParserProfile()

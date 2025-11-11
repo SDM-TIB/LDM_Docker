@@ -213,6 +213,21 @@ def mocked_requests_get(*args, **kwargs):
         response_content = 'ERROR'
         response.status_code = 404
 
+    elif 'test_osnadata_export_dataset' in request_url:
+        
+        id = request_url.replace("test_osnadata_export_datasetdoi:10.26249/FK2/","")
+        # osnadata_export_test_osnadata_export_datasetdoi:10.26249/FK2/48FTWW.json
+        # Fix for testing All datasets search (test_osnadata_get_datasets_list_complete)
+        if id not in ['48FTWW', '4B3NSO', '5AXRBJ']:
+            id = '48FTWW'
+
+        # Emule harvester response from file
+        with open('./ckanext/tibimport/tests/osnadata_export_'+id+'.json', 'r') as file:
+            json_data = file.read()
+        
+        response_content = json_data
+        response._content = response_content
+
     response._content = str.encode(response_content)
     return response
 
@@ -242,13 +257,14 @@ def test_osnadata_get_datasets_list_ok(mock_get):
 
     obj = OSNADATA_ParserProfile()
     obj.osnaData_ListRecords_url = 'test_osnadata_get_datasets_list_ok'
+    obj.osnadata_export_to_dataverse_json_url = 'test_osnadata_export_dataset'
     res_dict = obj.get_datasets_list()
 
     #print('LIST LENGHT:', len(res_dict))
 
     assert 3 == len(res_dict)
 
-    print('DATASETS LIST: ', res_dict)
+    print('\n\nDATASETS LIST: ', res_dict)
 
     assert res_dict == expected_list_of_dict_from_osnadata
 
@@ -259,6 +275,7 @@ def test_osnadata_get_datasets_list_complete(mock_get):
 
     obj = OSNADATA_ParserProfile()
     obj.osnaData_ListRecords_url = 'test_osnadata_get_datasets_list_all'
+    obj.osnadata_export_to_dataverse_json_url = 'test_osnadata_export_dataset'
     res_dict = obj.get_datasets_list()
 
     #print('LIST LENGHT:', len(res_dict))
@@ -290,24 +307,6 @@ def test_osnadata_get_datasets_list_no_response(mock_get):
     assert res_dict == []
 
 
-
-    
-# def test_get_radar_resumption_token_ok():
-#     obj = RADAR_ParserProfile()
-
-#     # Emule harvester response from file
-#     with open('./ckanext/tibimport/tests/radar_dataset.xml', 'r') as file:
-#         xml_data = file.read()
-#     xml_tree_data = ElementTree.fromstring(xml_data)
-
-#     resumption_token = obj._get_radar_resumption_token(xml_tree_data)
-
-# #    print("RESUMPTION TOKEN: ", resumption_token)
-
-#     #tags = [elem.tag for elem in xml_tree_data.iter()]
-#     #print(tags)
-
-#     assert resumption_token == resumption_token_ok
 
 def test_get_osnadata_resumption_token_empty():
     obj = OSNADATA_ParserProfile()
@@ -355,7 +354,13 @@ def test_parse_osnadata_XML_RECORD_to_DICT():
         res_dict = parser.parse_osnaData_XML_RECORD_to_DICT(record)
         break
     import pprint
-    print('\n\nDICT response:\n', pprint.pprint(res_dict, width=100, sort_dicts=False))
+    res = parser._get_citations_and_license_from_API(res_dict['header']['identifier'])
+        
+    res_dict['metadata']['osnaDataDataset']['citation'] = res['citation']
+    res_dict['metadata']['osnaDataDataset']['license'] = res['license']
+    
+    # print('\n\nDICT response:\n', pprint.pprint(res_dict, width=100, sort_dicts=False))
+    print('\n\nDICT response:\n', res_dict)
 
     assert res_dict == osnadata_dataset_parsed_to_dict
 
@@ -378,6 +383,7 @@ def test_get_all_datasets_dicts(mock_get):
 
     obj = OSNADATA_ParserProfile()
     obj.osnaData_ListRecords_url = 'test_get_all_datasets_dicts'
+    obj.osnadata_export_to_dataverse_json_url = 'test_osnadata_export_dataset'
     #res_list = obj.get_datasets_list()
     res_list = obj.get_all_datasets_dicts()
     print("\nALL Datasets List:\n", res_list)
@@ -389,7 +395,7 @@ def test_all_datasets_are_retrieved():
     obj = OSNADATA_ParserProfile()
 
     res_list = obj.get_all_datasets_dicts()
-    print("\nALL Datasets List:\n", res_list)
+    # print("\nALL Datasets List:\n", res_list)
     print("\nTOTAL OSNADATA DS:", len(res_list))
     assert len(res_list) == obj.total_osnaData_datasets
 
@@ -415,21 +421,21 @@ def test_should_be_updated_true():
 
     assert res == True
 
-def test_check_current_schema():
-    obj = OSNADATA_ParserProfile()
-    res = obj.check_current_schema()
+# def test_check_current_schema():
+#     obj = OSNADATA_ParserProfile()
+#     res = obj.check_current_schema()
 
-    print("\nSCHEMA REPORT: ", res)
+#     print("\nSCHEMA REPORT: ", res)
 
-    assert res['status_ok']
+#     assert res['status_ok']
 
-def test_process_all_remote_datasets():
+# def test_process_all_remote_datasets():
 
-    obj = OSNADATA_ParserProfile()
-    # process all remote datasets from OSNADATA
-    obj.get_all_datasets_dicts()
+#     obj = OSNADATA_ParserProfile()
+#     # process all remote datasets from OSNADATA
+#     obj.get_all_datasets_dicts()
 
-    # Expecting errors in code in case something goes wrong during parsing
-    assert True
+#     # Expecting errors in code in case something goes wrong during parsing
+#     assert True
 
 

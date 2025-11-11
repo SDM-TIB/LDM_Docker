@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 import requests
 from ckanext.tibimport.logic2 import DatasetParser
-
+from ckanext.tibimport.ddc_reader_python import DDCReader
 
 class leoPARD_ParserProfile(DatasetParser):
     '''
@@ -51,6 +51,10 @@ class leoPARD_ParserProfile(DatasetParser):
 
 
         self.log_file_prefix = "LEO_"
+
+        # DDC reader
+        self.ddc_reader = DDCReader()
+
         super().__init__()
 
 
@@ -365,14 +369,9 @@ class leoPARD_ParserProfile(DatasetParser):
                                                                                               path_from_leoPARDdataset,
                                                                                               'description')
 
-        # METADATA - KEYWORDS
-        # <keywords>
-        #     <keyword>downy mildew resistance</keyword>
-        #     <keyword>untargeted metabolomics</keyword>
-        # </keywords>
-        path_from_leoPARDdataset = ns3 + 'keywords/' + ns3 + 'keyword'
-        ds_result['metadata']['leoPARDDataset']['keywords'] = self._find_metadata_in_record(record, path_from_leoPARDdataset, 'keyword')
-
+        # METADATA - KEYWORDS - Are mixed as subjects
+        ds_result['metadata']['leoPARDDataset']['keywords'] = []
+        
         # METADATA - CONTRIBUTORS
         # <contributors>
         #   <contributor contributorType="HostingInstitution">
@@ -548,8 +547,8 @@ class leoPARD_ParserProfile(DatasetParser):
         if publication_year:
             ldm_dict['publication_year'] = publication_year
 
-        # subject areas
-        ldm_dict = self._get_leoPARD_subject_areas(leoPARD_metadata, ldm_dict)
+        # subject areas and keywords
+        ldm_dict = self._get_leoPARD_subject_areas_and_keywords(leoPARD_metadata, ldm_dict)
 
         # resource type
         resource_type = self._get_leoPARD_value(leoPARD_metadata, ['resourceType', 'resourceType'])
@@ -587,7 +586,8 @@ class leoPARD_ParserProfile(DatasetParser):
         for description in descriptions:
             desc_type = self._get_leoPARD_value(description, ['descriptionType'])
             desc_txt = self._get_leoPARD_value(description, ['description', 'description'])
-            desc = desc_type + ": " + desc_txt
+            #desc = desc_type + ": " + desc_txt
+            desc = desc_txt
             if description_txt:
                 desc = '\r\n' + desc
             description_txt = description_txt + desc
@@ -625,13 +625,42 @@ class leoPARD_ParserProfile(DatasetParser):
 
         return ldm_dict
 
-    def _get_leoPARD_keywords(self, leoPARD_metadata, ldm_dict):
+    def _get_leoPARD_subject_areas_and_keywords(self, leoPARD_metadata, ldm_dict):
+        # 'subjectAreas': [{'subject': {'subject': 'Plant genetics'}},
+        #                           {'subject': {'subject': '58'},'subjectScheme': 'ddc'}]
+        
+        s_areas = leoPARD_metadata.get('subjectAreas', [])
+        s_areas_list = []
+        keywords_list = []
 
-        keywords = leoPARD_metadata.get('keywords', [])
+        for subject in s_areas:
+            s_type = subject.get('subjectScheme', '')
+            subject_txt = subject.get('subject',{}).get('subject', '')
+
+            if s_type == 'ddc' and subject_txt: # is subject area with code DDC
+                ddc_id = self._adjust_ddc_id(subject_txt)
+                s_areas_list.append({"subject_area_name": ddc_id + " " + self._get_DDC_value_from_id(ddc_id)})
+            else:
+                keywords_list.append(subject_txt)
+
+        if s_areas_list:
+            ldm_dict['subject_areas'] = s_areas_list
+        if keywords_list:
+            ldm_dict['tags'] = self._fix_leoPARD_keywords(keywords_list)    
+
+        return ldm_dict
+    
+    def _adjust_ddc_id(self, ddc_id_txt):
+
+        if len(ddc_id_txt) == 2:
+            ddc_id_txt += '0'
+        return ddc_id_txt
+            
+    def _fix_leoPARD_keywords(self, keywords_list):
+
         tag_list = []
 
-        for keyword in keywords:
-            tag = self._get_leoPARD_value(keyword, ['keyword', 'keyword'])
+        for tag in keywords_list:
             # create ckan tag dict
             # some cases are ; separated list of tags
             tag = tag.replace(';', ',')
@@ -655,10 +684,49 @@ class leoPARD_ParserProfile(DatasetParser):
                                 "vocabulary_id": None}
                     tag_list.append(tag_dict)
 
-        if tag_list:
-            ldm_dict['tags'] = tag_list
+        return tag_list
+    
+    def _get_DDC_value_from_id(self, ddc_id):
 
-        return ldm_dict
+        ddc_value = self.ddc_reader.get_text_by_id(ddc_id)
+        return ddc_value
+
+
+
+    # def _get_leoPARD_keywords(self, leoPARD_metadata, ldm_dict):
+
+    #     keywords = leoPARD_metadata.get('keywords', [])
+    #     tag_list = []
+
+    #     for keyword in keywords:
+    #         tag = self._get_leoPARD_value(keyword, ['keyword', 'keyword'])
+    #         # create ckan tag dict
+    #         # some cases are ; separated list of tags
+    #         tag = tag.replace(';', ',')
+    #         # some cases are "·" separated list of tags
+    #         tag = tag.replace('·', ',')
+    #         if ',' in tag: # some cases are comma separated list of tags
+    #             for t in tag.split(','):
+    #                 t = self._adjust_tag(t)
+    #                 if t: # some cases list end with comma ,
+    #                     tag_dict = { "display_name": t,
+    #                                  "name": t,
+    #                                  "state": "active",
+    #                                  "vocabulary_id": None}
+    #                     tag_list.append(tag_dict)
+    #         else:
+    #             tag = self._adjust_tag(tag)
+    #             if tag:
+    #                 tag_dict = {"display_name": tag.strip(),
+    #                             "name": tag.strip(),
+    #                             "state": "active",
+    #                             "vocabulary_id": None}
+    #                 tag_list.append(tag_dict)
+
+    #     if tag_list:
+    #         ldm_dict['tags'] = tag_list
+
+    #     return ldm_dict
 
     def _adjust_tag(self, tag):
         PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_. "

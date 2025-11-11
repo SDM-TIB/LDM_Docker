@@ -70,6 +70,15 @@ dataset_fields:
   form_snippet: author.html
   display_snippet: author.html
 
+- field_name: givenName
+  label: Given Name
+  required: false
+  form_placeholder: Given Name
+- field_name: familyName
+  label: Family Name
+  required: false
+  form_placeholder: Family Name
+
 - field_name: orcid
   label: ORCID
   form_placeholder: 'ORCID e.g. 0000-0002-1825-0097'
@@ -79,6 +88,14 @@ dataset_fields:
   label: More Authors
   display_snippet: repeating_subfields_authors.html
   repeating_subfields:
+    - field_name: givenName
+      label: Given Name
+      required: false
+      form_placeholder: Given Name
+    - field_name: familyName
+      label: Family Name
+      required: false
+      form_placeholder: Family Name
     - field_name: extra_author
       label: Author
       required: false
@@ -221,6 +238,38 @@ dataset_fields:
       required: false
     - field_name: subject_area_additional
       label: Additional Subject Area Name
+      required: false
+
+- field_name: related_identifiers
+  label: Related Identifiers
+  display_snippet: repeating_subfields_relatedidentifiers.html
+  repeating_subfields:
+    - field_name: identifier
+      label: Identifier
+      required: false
+    - field_name: identifier_type
+      label: Type
+      required: false
+    - field_name: relation_type
+      label: Relation Type
+      required: false
+    - field_name: title
+      label: Title
+      required: false
+    - field_name: year
+      label: Year
+      required: false
+    - field_name: authors
+      label: Author/s
+      required: false
+    - field_name: orcid_authors
+      label: ORCID/s
+      required: false
+    - field_name: email_authors
+      label: Email/s
+      required: false
+    - field_name: source
+      label: Source
       required: false
 
 - field_name: extras
