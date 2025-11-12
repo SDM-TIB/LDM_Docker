@@ -199,7 +199,7 @@ def build_metadata_dict(pkg_dict):
     optional['descriptions'] = [
         {
             'descriptionType': 'Other',
-            'description': markdown_extract(pkg_dict.get('notes', ''))
+            'description': markdown_extract(pkg_dict.get('notes', ''), 0)
         }
     ]
 
