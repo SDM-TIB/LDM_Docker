@@ -4,77 +4,60 @@
 
 {% if current_lang == 'de' %}
 
-    <h1 class="page-heading">{{ "Über den Leibniz-Datenmanager" }}</h1>
-    <p>Der <strong>Leibniz Data Manager (LDM)</strong> ist eine quelloffene und kostenlose webbasierte Anwendung für das Forschungsdatenmanagement (RDM).
-        Der LDM bietet verschiedene Distributionen an, um den spezifischen Anforderungen verschiedener Kunden gerecht zu werden, z.B.
-        Instituten und Forschungsgruppen, die RDM in verschiedenen wissenschaftlichen Disziplinen betreiben.
-        Die LDM-Distributionen werden von der <a href="https://www.tib.eu/de/" target="_blank" rel="nofollow">TIB</a> und
-        <a href="https://www.l3s.de/de" target="_blank" rel="nofollow">L3S</a> entwickelt, gepflegt und kuratiert.
-    </p>
-    <p>Der Prototyp bietet derzeit die folgenden Funktionen zur Visualisierung von Forschungsdaten:</p>
-    <ul><li>Unterstützung von Datensammlungen und Publikationen mit unterschiedlichen Formaten</li>
-        <li>Unterschiedliche Sichten auf denselben Datensatz (2D- und 3D-Unterstützung)</li>
-        <li>Visualisierung von Auto-CAD-Dateien</li>
-        <li>Jupyter Notes zur Demonstration von Live-Code</li>
-        <li>RDF Beschreibung von Datensammlungen</li>
+<h1 class="page-heading">{{ "Über den Leibniz Data Manager" }}</h1>
+<p>Der <strong>Leibniz Data Manager (LDM)</strong> ist eine modulare Forschungsdateninfrastruktur, die das <strong>FAIR-konforme Management und die Exploration von Research Digital Objects (RDOs)</strong> ermöglicht—wie Datensätze, Software, Dokumente und wissenschaftliche Publikationen. Durch die Kombination von <strong>Knowledge Graphs (KGs)</strong> mit <strong>Neuro-Symbolischer KI</strong> unterstützt LDM intelligente, interoperable und wiederverwendbare Daten-Workflows über wissenschaftliche Domänen hinweg. Zu den Hauptmerkmalen gehören:</p>
+    
+    <ul>
+        <li><strong>Metadaten-Repräsentation</strong> unter Verwendung von Standard- und domänenspezifischen Vokabularen (z.B. DCAT, Datacite, UMLS), die semantische Interoperabilität und Ausrichtung an FAIR-Prinzipien gewährleisten.</li>
+        
+        <li><strong>Knowledge Graph-Konstruktion</strong> aus heterogenen Datenquellen durch ein deklaratives Datenintegrationssystem (DIS), das strukturierte und kontextuelle Metadaten ermöglicht.</li>
+        
+        <li><strong>Entity Linking und Anreicherung</strong> von RDOs mit externen KGs wie <strong>Wikidata</strong> und dem <strong>Open Research Knowledge Graph (ORKG)</strong>, unter Verwendung von Tools wie Falcon und BioLinkedAI zur automatischen Erweiterung von Metadaten.</li>
+        
+        <li><strong>On-the-Fly Metadaten-Updates</strong>, die die Synchronisation mit sich entwickelndem Wissen und neu veröffentlichten Ressourcen aufrechterhalten.</li>
+        
+        <li><strong>Föderierte Abfrageverarbeitung</strong> über mehrere KGs hinweg, die es Benutzern ermöglicht, <strong>natürlichsprachliche Fragen</strong> zu stellen, die in SPARQL umgewandelt und über LDM und ORKG ausgeführt werden.</li>
+        
+        <li><strong>Datensatz-Vergleich und Visualisierung</strong>, mit Tools zur Analyse und zum Vergleich von RDOs basierend auf gemeinsamen Attributen und Forschungskontexten.</li>
+        
+        <li><strong>Live-Code-Ausführung</strong> über <strong>Jupyter Notebooks</strong>, die reproduzierbare wissenschaftliche Workflows und interaktive Datenanalyse in einer sicheren, containerisierten Umgebung ermöglichen.</li>
+        
+        <li><strong>Neuro-Symbolisches Reasoning</strong> sowohl für die Beantwortung von Anfragen als auch für die Metadaten-Erweiterung, das symbolische Modelle mit LLM-basierter Kontextualisierung kombiniert, um die Auffindbarkeit und Nutzbarkeit von RDOs zu verbessern.</li>
     </ul>
-    <p>Die dateispezifischen Viewer wurden mit Hilfe von CKAN-Plugins (Comprehensive Knowledge Archive Network) implementiert, um bestehende Viewer für die in der
-        CKAN-Instanz enthaltenen Datensätze darzustellen.</p>
-    <p>TDie RDM-bezogenen Konzepte, die LDM-Distributionen und die Deployment-Methoden werden im
-        <a href="https://github.com/TIBHannover/ldm.base/wiki" title="wiki" target="_blank"
-           class="external-link-new-window">Projekt-Wiki</a> auf GitHub erläutert.
-    </p>
-    <p>Neben dem Leibniz Data Manager bietet die TIB weitere Dienste rund um das Forschungsdatenmanagement für Institutionen und Wissenschaftler an.
-        Dazu gehören ein DOI-Service, Unterstützung bei der Auswahl der richtigen Repositorien, bei der Veröffentlichung und Archivierung von
-        Forschungsdaten sowie Schulungs- und Beratungsangebote.
-        Eine vollständige Leistungsbeschreibung finden Sie auf unserer Homepage:
-        <a href="https://www.tib.eu/de/publizieren-archivieren/forschungsdaten" target="_blank"
-           data-htmlarea-external="1">https://www.tib.eu/de/publizieren-archivieren/forschungsdaten</a>
-        <p>Weitere Informationen über das LDM-Projekt finden Sie auf der <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
-           class="external-link-new-window">TIB-Webseite</a> und den zuletzt aktualisierten Code im <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
-           class="external-link-new-window">GitHub-Repository</a>.</p>
-        <p>Bitte kontaktieren Sie uns unter <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a>,
-            wenn Sie Kommentare oder Fragen haben.</p>
-    </p>
+    
+    <p>LDM ist öffentlich zugänglich unter <a href="https://service.tib.eu/ldmservice/">https://service.tib.eu/ldmservice/</a>, und ein <strong>Docker-Container</strong> für die lokale Bereitstellung ist verfügbar unter <a href="https://github.com/SDM-TIB/LDM_Docker">https://github.com/SDM-TIB/LDM_Docker</a></p>
+	
+
     <p>&nbsp;</p>
 
 {% else %}
-    <h1 class="page-heading">{{ "About the Leibniz Data Manager" }}</h1>
-    <p>The&nbsp;<strong>Leibniz Data Manager (LDM)</strong>&nbsp;is an open source and free web-based application
-        for Research Data Management (RDM). LDM delivers different distributions to best fit the specific
-        requirements of various customers, e.g., institutes and research groups performing RDM in various
-        scientific disciplines. The LDM distributions are designed, maintained, and curated
-        by&nbsp;
-        <a href="https://www.tib.eu/en/" target="_blank" rel="nofollow">TIB</a>&nbsp;
-        and&nbsp;
-        <a href="https://www.l3s.de/en" target="_blank" rel="nofollow">L3S</a>.
-    </p>
-    <p>The prototype currently offers the following functions for the visualization of research data:</p>
-    <ul><li>Supports data collections and publications&nbsp; with different formats</li>
-        <li>Different views on the same data set (2D and 3D support)</li>
-        <li>Visualization of Auto CAD files</li>
-        <li>Jupyter Notes for demonstrating live code</li>
-        <li>RDF Description of data collections</li>
-    </ul>
-    <p>The file specific viewers were implemented using CKAN (Comprehensive Knowledge Archive Network) plugins
-        to render existing viewers for the datasets included in the CKAN instance.</p>
-    <p>The RDM arelated&nbsp;concepts, the LDM distributions, and the deployment methods are explained in the
-        projects
-        <a href="https://github.com/TIBHannover/ldm.base/wiki" title="wiki" target="_blank"
-           class="external-link-new-window">wiki</a> on GitHub.
-    </p>
-    <p>Besides the Leibniz Data Manager, TIB provides further <strong>services around research data management</strong>
-        for institutions and researchers. This includes a DOI service, support in choosing the right repositories,
-        and in publishing and archiving research data, as well as training and advisory services. Please refer to
-        our homepage for a full service description:
-        <a href="https://www.tib.eu/en/publishing-archiving/research-data/" target="_blank"
-           data-htmlarea-external="1">https://www.tib.eu/en/publishing-archiving/research-data/</a>
-    </p>
-    <p>More info about the LDM project can be found on the <a href="https://projects.tib.eu/datamanager/" title="TIB webpage" target="_blank"
-           class="external-link-new-window">TIB webpage</a> and the last updated code in the <a href="https://github.com/SDM-TIB/LDM_Docker" title="GitHub" target="_blank"
-           class="external-link-new-window">GitHub</a> repository.</p>
 
-    <p>Please, contact us at <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a> if you have comments or questions.</p>
+<h1 class="page-heading">{{ "About the Leibniz Data Manager" }}</h1>
+<p>The <strong>Leibniz Data Manager (LDM)</strong> is a modular research data infrastructure that enables the <strong>FAIR-compliant management and exploration of Research Digital Objects (RDOs)</strong>—such as datasets, software, documents, and scientific publications. By combining <strong>Knowledge Graphs (KGs)</strong> with <strong>Neuro-Symbolic AI</strong>, LDM supports intelligent, interoperable, and reusable data workflows across scientific domains. Key features include:</p>
+    
+    <ul>
+        <li><strong>Metadata Representation</strong> using standard and domain-specific vocabularies (e.g., DCAT, Datacite, UMLS), ensuring semantic interoperability and alignment with FAIR principles.</li>
+        
+        <li><strong>Knowledge Graph Construction</strong> from heterogeneous data sources through a declarative data integration system (DIS), enabling structured and contextual metadata.</li>
+        
+        <li><strong>Entity Linking and Enrichment</strong> of RDOs with external KGs such as <strong>Wikidata</strong> and the <strong>Open Research Knowledge Graph (ORKG)</strong>, using tools like Falcon and BioLinkedAI to automatically expand metadata.</li>
+        
+        <li><strong>On-the-Fly Metadata Updates</strong>, maintaining synchronization with evolving knowledge and newly published resources.</li>
+        
+        <li><strong>Federated Query Processing</strong> across multiple KGs, allowing users to pose <strong>natural language questions</strong> that are transformed into SPARQL and executed over LDM and ORKG.</li>
+        
+        <li><strong>Dataset Comparison and Visualization</strong>, offering tools to analyze and contrast RDOs based on shared attributes and research contexts.</li>
+        
+        <li><strong>Live Code Execution</strong> via <strong>Jupyter Notebooks</strong>, enabling reproducible scientific workflows and interactive data analysis within a secure, containerized environment.</li>
+        
+        <li><strong>Neuro-Symbolic Reasoning</strong> for both query answering and metadata expansion, combining symbolic models with LLM-based contextualization to enhance discoverability and usability of RDOs.</li>
+    </ul>
+    
+    <p>LDM is publicly accessible at <a href="https://service.tib.eu/ldmservice/">https://service.tib.eu/ldmservice/</a>, and a <strong>Docker container</strong> for local deployment is available at <a href="https://github.com/SDM-TIB/LDM_Docker">https://github.com/SDM-TIB/LDM_Docker</a></p>
+
+
+
+
     <p>&nbsp;</p>
 {% endif %}
 
