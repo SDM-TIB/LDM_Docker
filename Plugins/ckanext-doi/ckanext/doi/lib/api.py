@@ -4,21 +4,26 @@
 # This file is part of ckanext-doi
 # Created by the Natural History Museum in London, UK
 
-import string
-
+import json
 import logging
 import random
+import string
+from datetime import datetime as dt
+
+import requests
 import xmltodict
 from ckan.common import asbool
 from ckan.plugins import toolkit
+from ckanext.doi.lib.helpers import get_site_url
 from ckanext.doi.model.crud import DOIQuery
 from datacite import DataCiteMDSClient, schema42
 from datacite.errors import DataCiteError, DataCiteNotFoundError
-from datetime import datetime as dt
+from requests.auth import HTTPBasicAuth
 
 log = logging.getLogger(__name__)
 
 DEPRECATED_TEST_PREFIX = '10.5072'
+HTTP_CREATED = requests.codes['created']
 
 
 class DataciteClient:
@@ -86,12 +91,42 @@ class DataciteClient:
                 try:
                     self.client.metadata_get(doi)
                 except DataCiteNotFoundError:
+                    self.draft_doi(doi=doi)
                     return doi
                 except DataCiteError as e:
                     log.warning(f'Error whilst checking new DOIs with DataCite. DOI: {doi}, '
                                 f'error: {e}')
             attempts -= 1
         raise Exception('Failed to generate a DOI')
+
+    def draft_doi(self, doi):
+        '''
+        Follows the logic implemented in the REST client in later versions of the DataCite librarby.
+        '''
+        data = {
+            'attributes': {
+                'prefix': self.prefix,
+                'doi': doi
+            }
+        }
+
+        if self.test_mode:
+            api_url_ = 'https://api.test.datacite.org/'
+        else:
+            api_url_ = 'https://api.datacite.org/'
+
+        kwargs = dict(
+            auth=HTTPBasicAuth(self.username, self.password),
+            params={},
+            headers={'content-type': 'application/vnd.api+json'},
+            data=json.dumps({'data': data}).encode('utf-8'),
+        )
+        resp = requests.post(api_url_ + 'dois', **kwargs)
+
+        if resp.status_code == HTTP_CREATED:
+            return resp.json()['data']['id']
+        else:
+            raise DataCiteError.factory(resp.status_code, resp.text)
 
     def mint_doi(self, doi, package_id):
         '''
