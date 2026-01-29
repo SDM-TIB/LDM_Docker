@@ -40,6 +40,7 @@ ARG VER_CKANEXT_FEDORKG="0.8.2"
 ARG VER_CKANEXT_FALCON="2cb86e0"
 ARG VER_CKANEXT_KGCREATION="11cd45c"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="6fede3b"
+ARG VER_CKANEXT_CODE2NB="41a9338"
 
 
 
@@ -294,8 +295,7 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 # ********************************************
 # Install Jupytext (Required for converting)
 RUN pip install jupytext
-ADD ./Plugins/ckanext-Code2NB $CKAN_HOME_L/src/ckanext-Code2NB
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-Code2NB
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/
 
 
 # Expose port for ckan
