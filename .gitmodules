@@ -1,3 +1,0 @@
-[submodule "Plugins/ckanext-Code2NB"]
-	path = Plugins/ckanext-Code2NB
-	url = https://github.com/SDM-TIB/ckanext-Code2NB
