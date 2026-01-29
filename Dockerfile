@@ -35,6 +35,8 @@ ARG CKAN_CONFIG_L
 ARG CKAN_STORAGE_PATH_L
 ARG CKAN_VER
 
+ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
+
 
 
 #Install CKAN into a Python virtual environment
@@ -181,9 +183,8 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-advancedstats/requirements.txt
 
 # datacomparison Plugin:
 # ******************
-ADD ./Plugins/ckanext-datacomparison $CKAN_HOME_L/src/ckanext-datacomparison
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-datacomparison
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-datacomparison/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-datacomparison@v${VER_CKANEXT_DATACOMPARISON}#egg=ckanext-datacomparison --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-datacomparison/refs/tags/v${VER_CKANEXT_DATACOMPARISON}/requirements.txt
 
 # Dwgviewer Plugin:
 # ******************
