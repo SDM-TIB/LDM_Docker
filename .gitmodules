@@ -1,6 +1,3 @@
-[submodule "Plugins/ckanext-datacomparison"]
-	path = Plugins/ckanext-datacomparison
-	url = https://github.com/SDM-TIB/ckanext-datacomparison
 [submodule "Plugins/ckanext-fedorkg"]
 	path = Plugins/ckanext-fedorkg
 	url = https://github.com/SDM-TIB/ckanext-fedorkg
