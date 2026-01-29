@@ -40,7 +40,7 @@ ARG VER_CKANEXT_FEDORKG="0.8.2"
 ARG VER_CKANEXT_FALCON="2cb86e0"
 ARG VER_CKANEXT_KGCREATION="11cd45c"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="6fede3b"
-ARG VER_CKANEXT_CODE2NB="41a9338"
+ARG VER_CKANEXT_CODE2NB="7a217a9"
 
 
 
@@ -293,9 +293,8 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 
 # Code2NB Plugin (R and Py to Notebook Converter)
 # ********************************************
-# Install Jupytext (Required for converting)
-RUN pip install jupytext
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-Code2NB/${VER_CKANEXT_CODE2NB}/requirements.txt
 
 
 # Expose port for ckan
