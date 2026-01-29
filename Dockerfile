@@ -38,6 +38,7 @@ ARG CKAN_VER
 ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
 ARG VER_CKANEXT_FEDORKG="0.8.2"
 ARG VER_CKANEXT_FALCON="2cb86e0"
+ARG VER_CKANEXT_KGCREATION="11cd45c"
 
 
 
@@ -224,6 +225,8 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-officedocs
 ADD ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDM_SPARQL/requirements.txt
+#RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_CKANEXT_KGCREATION}#egg=ckanext-kgcreation --src $CKAN_HOME_L/src/ &&\
+#    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-kgcreation/${VER_CKANEXT_KGCREATION}/requirements.txt
 
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
