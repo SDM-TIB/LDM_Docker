@@ -41,6 +41,7 @@ ARG VER_CKANEXT_FALCON="2cb86e0"
 ARG VER_CKANEXT_KGCREATION="11cd45c"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="6fede3b"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
+ARG VER_CKANEXT_ADVANCEDSTATS="eb36291"
 
 
 
@@ -181,9 +182,8 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-falcon@${VER_CKAN
 
 # advancedstats Plugin:
 # ******************
-ADD ./Plugins/ckanext-advancedstats $CKAN_HOME_L/src/ckanext-advancedstats
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-advancedstats
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-advancedstats/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-advancedstats@${VER_CKANEXT_ADVANCEDSTATS}#egg=ckanext-advancedstats --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-advancedstats/${VER_CKANEXT_ADVANCEDSTATS}/requirements.txt
 
 # datacomparison Plugin:
 # ******************
