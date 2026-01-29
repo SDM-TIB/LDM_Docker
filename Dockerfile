@@ -39,6 +39,7 @@ ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
 ARG VER_CKANEXT_FEDORKG="0.8.2"
 ARG VER_CKANEXT_FALCON="2cb86e0"
 ARG VER_CKANEXT_KGCREATION="11cd45c"
+ARG VER_CKANEXT_JUPYTERNOTEBOOK="6fede3b"
 
 
 
@@ -243,9 +244,8 @@ ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
 # Install Jupyternotebooks Plugin requirements
 # ********************************************
 
-ADD ./Plugins/ckanext-jupyternotebook $CKAN_HOME_L/src/ckanext-jupyternotebook
-
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-jupyternotebook
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-jupyternotebook@${VER_CKANEXT_JUPYTERNOTEBOOK}#egg=ckanext-jupyternotebook --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-jupyternotebook/${VER_CKANEXT_JUPYTERNOTEBOOK}/requirements.txt
 
 # Setup examples
 ADD ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
