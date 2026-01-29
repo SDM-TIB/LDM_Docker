@@ -1,6 +1,3 @@
-[submodule "Plugins/ckanext-falcon"]
-	path = Plugins/ckanext-falcon
-	url = https://github.com/SDM-TIB/ckanext-falcon
 [submodule "Plugins/ckanext-Code2NB"]
 	path = Plugins/ckanext-Code2NB
 	url = https://github.com/SDM-TIB/ckanext-Code2NB
