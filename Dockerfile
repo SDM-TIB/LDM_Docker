@@ -37,6 +37,7 @@ ARG CKAN_VER
 
 ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
 ARG VER_CKANEXT_FEDORKG="0.8.2"
+ARG VER_CKANEXT_FALCON="2cb86e0"
 
 
 
@@ -172,9 +173,8 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-pdfview
 
 # Falcon Plugin:
 # ******************
-ADD ./Plugins/ckanext-falcon $CKAN_HOME_L/src/ckanext-falcon
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-falcon
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-falcon/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-falcon@${VER_CKANEXT_FALCON}#egg=ckanext-falcon --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-falcon/${VER_CKANEXT_FALCON}/requirements.txt
 
 # advancedstats Plugin:
 # ******************
