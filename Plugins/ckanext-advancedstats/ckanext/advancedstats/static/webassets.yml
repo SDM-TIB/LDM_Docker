@@ -1,4 +1,0 @@
-main:
-  output: advancedstats/%(version)s_advancedstats.css
-  contents:
-    - css/advancedstats.css
