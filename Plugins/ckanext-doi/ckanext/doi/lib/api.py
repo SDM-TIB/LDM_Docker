@@ -136,7 +136,7 @@ class DataciteClient:
         '''
 
         # create the URL the DOI will point to, i.e. the package page
-        site = toolkit.config.get('ckan.site_url')
+        site = get_site_url()  # toolkit.config.get('ckan.site_url')
         if site[-1] != '/':
             site += '/'
         permalink = f'{site}dataset/{package_id}'
