@@ -36,6 +36,7 @@ ARG CKAN_STORAGE_PATH_L
 ARG CKAN_VER
 
 ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
+ARG VER_CKANEXT_FEDORKG="0.8.2"
 
 
 
@@ -195,9 +196,8 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dwgviewer/requirements.txt
 # FedORKG Plugin:
 # ******************
 ADD ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
-ADD ./Plugins/ckanext-fedorkg $CKAN_HOME_L/src/ckanext-fedorkg
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-fedorkg
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-fedorkg/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-fedorkg@v${VER_CKANEXT_FEDORKG}#egg=ckanext-fedorkg --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-fedorkg/refs/tags/v${VER_CKANEXT_FEDORKG}/requirements.txt
 
 
 # Showcase Plugin:
