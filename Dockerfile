@@ -272,6 +272,11 @@ COPY ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 
+# RDf Graph Visualisation Plugin:
+# ********************
+COPY ./Plugins/ckanext-graphviewer $CKAN_HOME_L/src/ckanext-graphviewer
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
+
 # Code2NB Plugin (R and Py to Notebook Converter)
 # ********************************************
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/ &&\
