@@ -133,7 +133,7 @@ write_config () {
 #  echo "CONFIG root_path DONE"
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
-#     "ckan.plugins = stats text_view image_view recline_view resource_proxy datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface" \
+#     "ckan.plugins = stats text_view image_view recline_view resource_proxy datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface graph_viewer" \
 
   echo "CONFIG PLUGINS DONE"
 }
