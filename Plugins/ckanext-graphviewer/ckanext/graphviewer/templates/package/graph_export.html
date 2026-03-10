@@ -11,12 +11,18 @@
     </div>
 
     <script type="module">
-     // Use the native CKAN Fanstatic URL!
-     import init from '/graph_viewer/rdf_wasm_graph.js';
-     async function run() {
-         await init('/graph_viewer/rdf_wasm_graph_bg.wasm');
-     }
-     run();
+        import init from '/graph_viewer/rdf_wasm_graph.js';
+
+        async function run() {
+            try {
+                await init('/graph_viewer/rdf_wasm_graph_bg.wasm');
+                console.log("WASM Initialized");
+            } catch (e) {
+                console.error("WASM Loading Failed:", e);
+            }
+        }
+
+        run();
     </script>
 </div>
 {% endblock %}
