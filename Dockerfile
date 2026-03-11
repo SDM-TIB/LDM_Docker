@@ -174,13 +174,11 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
 COPY ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
 
-# DCAT
+# TIB dcat
 # ****
-# Note: ckanext-dcat from: https://github.com/ckan/ckanext-dcat.git
-COPY ./Plugins/ckanext-dcat $CKAN_HOME_L/src/ckanext-dcat
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-dcat
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dcat/requirements.txt
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dcat/dev-requirements.txt
+COPY ./Plugins/ckanext-TIBdcat $CKAN_HOME_L/src/ckanext-TIBdcat
+RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBdcat
+RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-TIBdcat/requirements.txt
 
 # PDF viewer Plugin:
 # ******************
@@ -272,7 +270,7 @@ COPY ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 
-# RDf Graph Visualisation Plugin:
+# RDF Graph Visualisation Plugin:
 # ********************
 COPY ./Plugins/ckanext-graphviewer $CKAN_HOME_L/src/ckanext-graphviewer
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
