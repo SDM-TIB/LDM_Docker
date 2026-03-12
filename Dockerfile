@@ -177,6 +177,7 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
 # TIB dcat
 # ****
 COPY ./Plugins/ckanext-TIBdcat $CKAN_HOME_L/src/ckanext-TIBdcat
+COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBdcat
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-TIBdcat/requirements.txt
 
@@ -273,7 +274,6 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
 # RDF Graph Visualisation Plugin:
 # ********************
 COPY ./Plugins/ckanext-graphviewer $CKAN_HOME_L/src/ckanext-graphviewer
-COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
 
 # Code2NB Plugin (R and Py to Notebook Converter)
