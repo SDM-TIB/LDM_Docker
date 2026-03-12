@@ -11,9 +11,9 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config_):
-        toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
+    # def update_config(self, config_):
+    #     toolkit.add_template_directory(config_, 'templates')
+    #     toolkit.add_public_directory(config_, 'public')
 
     # IBlueprint
 
@@ -46,9 +46,12 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
                 # If the format doesn't match, return a clean 404 page
                 toolkit.abort(404, f"Format {file_format} is not supported.")
 
+        # TODO figure out how to handle vdataset and service
         # Add plugin url rules to Blueprint object
         rules = [
-            (u'/<_type>/<_id>.<_format>', u'download_dataset', download_dataset)
+            (u'/dataset/<_id>.<_format>', u'download_dataset', download_dataset)
+            (u'/vdataset/<_id>.<_format>', u'download_dataset', download_dataset)
+            (u'/service/<_id>.<_format>', u'download_dataset', download_dataset)
         ]
 
         for rule in rules:
