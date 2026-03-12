@@ -1,0 +1,67 @@
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/modified> "2024-02-15T08:40:49.342191" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/1722> .
+<https://research.tib.eu/ldm/1722> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/1722> <http://www.w3.org/2000/01/rdf-schema#label> "Brunet Mauricio" .
+<https://research.tib.eu/ldm/1722> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> . 
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/license> "http://www.opendefinition.org/licenses/cc-by" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://purl.org/dc/terms/modified> "2022-05-10T06:11:58.329896" .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://www.w3.org/ns/dcat#byteSize> "942674" .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/3f429389-27fa-4bac-a677-1c989882b06f/download/g12_0020_100_5_5_grosskaste.dwg> .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://purl.org/dc/terms/description> "Example usage of CAD using Ckan View with information provided by PANGAEA." .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://purl.org/dc/terms/issued> "2022-05-10T06:11:58.167565" .
+<https://research.tib.eu/ldm/3f429389-27fa-4bac-a677-1c989882b06f> <http://purl.org/dc/terms/title> "PANGEA CAD example" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://purl.org/dc/terms/modified> "2024-02-15T08:40:49.371098" .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://www.w3.org/ns/dcat#byteSize> "169807" .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/4c0009c0-69f2-49ec-831c-181f97d624a5/download/drive_shaft.dwg> .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://purl.org/dc/terms/issued> "2022-05-10T06:08:39.012405" .
+<https://research.tib.eu/ldm/4c0009c0-69f2-49ec-831c-181f97d624a5> <http://purl.org/dc/terms/title> "Example 2D .dwg file" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://purl.org/dc/terms/modified> "2022-05-10T06:11:58.154051" .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://www.w3.org/ns/dcat#byteSize> "733036" .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4/resource/6b12f482-7693-4e36-9f47-fa0d4e03a5dc/download/visualization_-_aerial.dwg> .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://purl.org/dc/terms/issued> "2022-05-10T06:09:15.447478" .
+<https://research.tib.eu/ldm/6b12f482-7693-4e36-9f47-fa0d4e03a5dc> <http://purl.org/dc/terms/title> "Example 3D .dwg file" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/675a1366-8d81-4e07-ab30-8c492c34b91d> .
+<https://research.tib.eu/ldm/675a1366-8d81-4e07-ab30-8c492c34b91d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/675a1366-8d81-4e07-ab30-8c492c34b91d> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/.dwg> .
+<https://research.tib.eu/ldm/675a1366-8d81-4e07-ab30-8c492c34b91d> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q1053358> .
+<https://research.tib.eu/ldm/675a1366-8d81-4e07-ab30-8c492c34b91d> <http://purl.org/dc/terms/title> "dwg" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/7ffd8f1d-b342-4349-aee9-a1d5aae5d2bd> .
+<https://research.tib.eu/ldm/7ffd8f1d-b342-4349-aee9-a1d5aae5d2bd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/7ffd8f1d-b342-4349-aee9-a1d5aae5d2bd> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Social_Visualization> .
+<https://research.tib.eu/ldm/7ffd8f1d-b342-4349-aee9-a1d5aae5d2bd> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q451553> .
+<https://research.tib.eu/ldm/7ffd8f1d-b342-4349-aee9-a1d5aae5d2bd> <http://purl.org/dc/terms/title> "visualization" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/80b88538-5f29-4c5f-af29-895228232a10> .
+<https://research.tib.eu/ldm/80b88538-5f29-4c5f-af29-895228232a10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/80b88538-5f29-4c5f-af29-895228232a10> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/CAD_(gene)> .
+<https://research.tib.eu/ldm/80b88538-5f29-4c5f-af29-895228232a10> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q184793> .
+<https://research.tib.eu/ldm/80b88538-5f29-4c5f-af29-895228232a10> <http://purl.org/dc/terms/title> "CAD" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/aa5643c3-51ea-4233-a672-6f5a2a7b174e> .
+<https://research.tib.eu/ldm/aa5643c3-51ea-4233-a672-6f5a2a7b174e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/aa5643c3-51ea-4233-a672-6f5a2a7b174e> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/2D> .
+<https://research.tib.eu/ldm/aa5643c3-51ea-4233-a672-6f5a2a7b174e> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q93203> .
+<https://research.tib.eu/ldm/aa5643c3-51ea-4233-a672-6f5a2a7b174e> <http://purl.org/dc/terms/title> "2D" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/c98a3ca2-e5c9-4173-93fb-420e0b48e9d8> .
+<https://research.tib.eu/ldm/c98a3ca2-e5c9-4173-93fb-420e0b48e9d8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/c98a3ca2-e5c9-4173-93fb-420e0b48e9d8> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/3D> .
+<https://research.tib.eu/ldm/c98a3ca2-e5c9-4173-93fb-420e0b48e9d8> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q34929> .
+<https://research.tib.eu/ldm/c98a3ca2-e5c9-4173-93fb-420e0b48e9d8> <http://purl.org/dc/terms/title> "3D" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/description> "Example usage of CAD visualization in 2D and 3D using CKAN Views." .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/identifier> "c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/issued> "2022-05-10T06:06:18.809145" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://purl.org/dc/terms/title> "Example CAD Visualizations" .
+<https://research.tib.eu/ldm/c31c9ff2-0ea9-43d8-8f93-2af0eaade9d4> <http://www.w3.org/2006/vcard/ns#fn> "Brunet Mauricio" .
