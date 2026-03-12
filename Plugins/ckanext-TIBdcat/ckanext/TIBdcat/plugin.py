@@ -11,9 +11,9 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
 
     # IConfigurer
 
-    # def update_config(self, config_):
-    #     toolkit.add_template_directory(config_, 'templates')
-    #     toolkit.add_public_directory(config_, 'public')
+    def update_config(self, config_):
+        toolkit.add_template_directory(config_, 'templates')
+        toolkit.add_public_directory(config_, 'public')
 
     # IBlueprint
 
@@ -29,7 +29,7 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
         # 3. n3
         # 4. ttl
         # 5. jsonld
-        def download_dataset(_type, _id, _format):
+        def download_dataset(_id, _format):
             file_format = _format
 
             if file_format == "rdf":
@@ -49,8 +49,8 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
         # TODO figure out how to handle vdataset and service
         # Add plugin url rules to Blueprint object
         rules = [
-            (u'/dataset/<_id>.<_format>', u'download_dataset', download_dataset)
-            (u'/vdataset/<_id>.<_format>', u'download_dataset', download_dataset)
+            (u'/dataset/<_id>.<_format>', u'download_dataset', download_dataset),
+            (u'/vdataset/<_id>.<_format>', u'download_dataset', download_dataset),
             (u'/service/<_id>.<_format>', u'download_dataset', download_dataset)
         ]
 
