@@ -30,8 +30,10 @@ class TIBdcatPlugin(plugins.SingletonPlugin):
         # 4. ttl
         # 5. jsonld
         def download_dataset(_type, _id, _format):
+            file_format = _format
+
             if file_format == "rdf":
-                return utils.download_dataset_rdf(_id)  # Pass the ID!
+                return utils.download_dataset_rdf(_id)
             elif file_format == "xml":
                 return utils.download_dataset_xml(_id)
             elif file_format == "n3":
