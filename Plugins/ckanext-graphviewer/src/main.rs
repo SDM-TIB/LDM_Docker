@@ -449,7 +449,10 @@ impl RdfGraphApp {
 
 impl eframe::App for RdfGraphApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+        // background
+        let custom_frame = egui::Frame::default().fill(egui::Color32::from_rgb(60, 60, 60));
+
+        egui::CentralPanel::default().frame(custom_frame).show(ctx, |ui| {
             let mut state_lock = self.state.lock().unwrap();
 
             if let AppState::Ready { nodes, edges } = &mut *state_lock {
