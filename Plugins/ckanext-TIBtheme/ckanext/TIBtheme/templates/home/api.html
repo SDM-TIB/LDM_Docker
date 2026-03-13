@@ -1,4 +1,4 @@
- {% extends "page.html" %}
+{% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 {% set current_lang = request.environ.CKAN_LANG %}
 
@@ -11,22 +11,27 @@
 {% block primary %}
   <article class="module" role="main">
     <div class="module-content">
-      {% block about %}
-        {% if g.site_about %}
-          {{ h.render_markdown(g.site_about) }}
-        {% else %}
-          {% if not h.tibtheme_styled_header_enabled() and h.tibtheme_is_TIBservice_instance():%}
-          <img id="tib_event_logo" src="{{asset_path}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
-          {% endif %}
+      {% if not h.tibtheme_styled_header_enabled() and h.tibtheme_is_TIBservice_instance():%}
+        <img id="tib_event_logo" src="{{asset_path}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
+      {% endif %}
 
-          {% if h.tibtheme_is_TIBservice_instance() %}
-              {% snippet 'home/snippets/api_text.html' %}
-          {% else %}
-              {% snippet 'home/snippets/api_text_default.html' %}
-          {% endif %}
+      {% snippet 'home/snippets/api_text.html' %}
 
-        {% endif %}
-      {% endblock %}
+      {% if not h.tibtheme_styled_footer_enabled() and h.tibtheme_is_TIBservice_instance():%}
+        <div class="ldm_about_foot">
+          <ul class="list-inline">
+            <li>
+              <a target="_blank" href="https://www.tib.eu"><img alt="TIB Logo" src="{{asset_path}}images/tib_logo_weiss_footer.png"></a>
+            </li>
+            <li>
+              <a target="_blank" href="http://www.leibniz-gemeinschaft.de"><img alt="Logo Leibniz-Gemeinschaft" src="{{asset_path}}images/logo_leibniz_mitglied.png"></a>
+            </li>
+            <li>
+              <a target="_blank" href="https://www.dfg.de/"><img style="width: 240px" alt="Logo Deustche Forschungsgemeinschaft" src="{{asset_path}}images/dfg_logo_schriftzug_weiss_foerderung_en.gif"></a>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
     </div>
   </article>
 {% endblock %}
