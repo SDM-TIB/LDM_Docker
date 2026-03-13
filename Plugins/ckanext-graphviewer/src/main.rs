@@ -4,9 +4,36 @@ use oxttl::TurtleParser;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use oxrdf::Triple;
-//use log::error;
 
-// struct that represents a subject or object
+const RDF_TYPE: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+const RDF_LABEL: &str = "http://www.w3.org/2000/01/rdf-schema#label";
+
+const VCARD_FN: &str = "http://www.w3.org/2006/vcard/ns#fn";
+
+const PRO_AUTHOR: &str = "http://purl.org/spar/pro/Author";
+const DCAT_DISTRIBUTION: &str = "http://www.w3.org/ns/dcat#Distribution";
+const DCAT_DISTRIBUTION_PROP: &str = "http://www.w3.org/ns/dcat#distribution";
+const DCAT_DATASERVICE: &str = "http://www.w3.org/ns/dcat#DataService";
+const DCAT_DATASET: &str = "http://www.w3.org/ns/dcat#Dataset";
+const DCAT_KEYWORD_PROP: &str = "http://www.w3.org/ns/dcat#keyword";
+
+const DCAT_LANDING_PAGE: &str = "http://www.w3.org/ns/dcat#landingPage";
+const DCTERMS_DESCRIBED_BY: &str = "http://purl.org/dc/terms/isReferencedBy";
+const DCTERMS_CITATION: &str = "http://purl.org/dc/terms/bibliographicCitation";
+
+const VCARD_ORGANIZATION: &str = "http://www.w3.org/2006/vcard/ns#Organization";
+const SKOS_CONCEPT: &str = "http://www.w3.org/2004/02/skos/core#Concept";
+
+const DCTERMS_TITLE: &str = "http://purl.org/dc/terms/title";
+const DCTERMS_MODIFIED: &str = "http://purl.org/dc/terms/modified";
+const DCTERMS_LICENSE: &str = "http://purl.org/dc/terms/license";
+const DCTERMS_DESCRIPTION: &str = "http://purl.org/dc/terms/description";
+const DCTERMS_IDENTIFIER: &str = "http://purl.org/dc/terms/identifier";
+const DCTERMS_ISSUED: &str = "http://purl.org/dc/terms/issued";
+const DCTERMS_PUBLISHER: &str = "http://purl.org/dc/terms/publisher";
+const DCTERMS_CREATOR: &str = "http://purl.org/dc/terms/creator";
+
+// srtuct representing a subject or object
 #[derive(Debug)]
 struct RDFNode {
     id: String,
@@ -16,7 +43,7 @@ struct RDFNode {
     pos: egui::Pos2,
 }
 
-// struct that represents the predicate and links a subject to an object
+// struct representing a predicate
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 struct RDFEdge {
     source: String,
@@ -29,7 +56,7 @@ enum AppState {
     Error(String),
     Ready {
         nodes: HashMap<String, RDFNode>,
-        edges: HashMap<u64, RDFEdge>,
+        edges: HashMap<(String, String), RDFEdge>,
     },
 }
 
@@ -44,638 +71,47 @@ struct NodeColors {
     selected: egui::Color32,
 }
 
-// parse the current path to get the ttl file we want to use
+// obtain source ttl file
 #[cfg(target_arch = "wasm32")]
 fn get_ttl_url_from_current_path() -> Option<String> {
     let window = web_sys::window()?;
-
     let location = window.location();
-
     let pathname = location.pathname().ok()?;
-
     let pathname2 = pathname.strip_suffix("/graph")?;
-
     Some(format!("{}.ttl", pathname2))
 }
 
-// parse the content of the ttl file and populate the RDFNode and RDFEdge struct
-fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64, RDFEdge>) {
-    let mut nodes: HashMap<String, RDFNode> = HashMap::new();
-    let mut edges: HashMap<u64, RDFEdge> = HashMap::new();
+struct ParsedTriple {
+    subject: String,
+    subject_type: String,
+    predicate: String,
+    object: String,
+}
 
-
-    let mut edge_counter = 1;
-
-    let rdf_type_string = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-
-    let creator_string = "http://purl.org/spar/pro/Author";
-    let distribution_string = "http://www.w3.org/ns/dcat#Distribution";
-    let publisher_string = "http://www.w3.org/2006/vcard/ns#Organization";
-    let keyword_string = "http://www.w3.org/2004/02/skos/core#Concept";
-
-    let center_string_service = "http://www.w3.org/ns/dcat#DataService";
-    let center_string_dataset = "http://www.w3.org/ns/dcat#Dataset";
-
-    let mut center_subject = "".to_string();
-
-    let center_pos = egui::pos2(500.0, 600.0);
-
-    let modified_pos = egui::pos2(200.0, 400.0);
-    let issued_pos = egui::pos2(200.0, 500.0);
-    let language_pos = egui::pos2(200.0, 600.0);
-    let conforms_to_pos = egui::pos2(200.0, 700.0);
-    let publisher_pos = egui::pos2(200.0, 800.0);
-    let contact_point_pos = egui::pos2(200.0, 900.0);
-
-    let version_info_pos = egui::pos2(800.0, 400.0);
-    let license_pos = egui::pos2(800.0, 500.0);
-    let description_pos = egui::pos2(800.0, 600.0);
-    let license_pos = egui::pos2(800.0, 700.0);
-    let id_pos = egui::pos2(800.0, 800.0);
-    let page_pos = egui::pos2(800.0, 900.0);
-
-    let mut creator_pos = egui::pos2(250.0, 900.0);
-    let mut distribution_pos = egui::pos2(750.0, 900.0);
-    let mut keyword_pos = egui::pos2(400.0, 900.0);
-    // let mut citation_pos = egui::pos2(800.0, 300.0);
-    // let mut landing_page_pos = egui::pos2(800.0, 300.0);
-    // let mut described_by_pos = egui::pos2(600.0, 900.0);
-
-    let iteration_delta = 50.0;
-
-    let triples: Vec<Triple> = TurtleParser::new()
-        .for_slice(ttl_text.as_bytes())
-        .filter_map(|r| r.map_err(|e| error!("Parse error: {}", e)).ok())
-        .collect();
-
-
-    for triple in &triples {
-        info!("{:?}", triple);
-        match triple {
-            Ok(content) => {
-                let subject_string;
-                let subject_node_type;
-
-                let object_string;
-
-                match &content.subject {
-                    oxrdf::NamedOrBlankNode::NamedNode(node) => {
-                        subject_string = node.as_str().to_string();
-                        subject_node_type = "NamedNode".to_string();
-                    }
-                    oxrdf::NamedOrBlankNode::BlankNode(node) => {
-                        subject_string = node.as_str().to_string();
-                        subject_node_type = "BlankNode".to_string();
-                    }
-                };
-
-                let predicate_string = &content.predicate.into_string();
-
-                match &content.object {
-                    oxrdf::Term::NamedNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::BlankNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::Literal(literal) => {
-                        object_string = literal.value().to_string();
-                    }
-                };
-
-                info!("triple:\n\ts: {}\n\tp: {}\n\to: {}\n", subject_string, predicate_string, object_string);
-
-                // dataset / service
-                if (predicate_string == rdf_type_string && object_string == center_string_service)
-                    || (predicate_string == rdf_type_string
-                        && object_string == center_string_dataset)
-                {
-                    center_subject = subject_string.clone();
-                    match nodes.get_mut(&subject_string) {
-                        Some(entry) => {
-                            entry.rdf_type.push(',');
-                            entry.rdf_type.push(' ');
-                            entry.rdf_type.push_str(&object_string);
-                        }
-                        None => {
-                            nodes.insert(
-                                subject_string.clone(),
-                                RDFNode {
-                                    id: subject_string.clone(),
-                                    label: extract_label(&subject_string),
-                                    rdf_type: object_string.clone(),
-                                    node_type: subject_node_type.clone(),
-                                    pos: center_pos,
-                                },
-                            );
-                        }
-                    }
-                }
-
-                // author / creator of type creator
-                if (predicate_string == rdf_type_string && object_string == creator_string)
-                    || (predicate_string == rdf_type_string && object_string == creator_string)
-                {
-                    nodes.insert(
-                        subject_string.clone(),
-                        RDFNode {
-                            id: subject_string.clone(),
-                            label: extract_label(&subject_string),
-                            rdf_type: object_string.clone(),
-                            node_type: subject_node_type.clone(),
-                            pos: egui::pos2(0.0, 0.0),
-                        },
-                    );
-                }
-
-                // file of type distribution
-                if (predicate_string == rdf_type_string && object_string == distribution_string)
-                    || (predicate_string == rdf_type_string && object_string == distribution_string)
-                {
-                    nodes.insert(
-                        subject_string.clone(),
-                        RDFNode {
-                            id: subject_string.clone(),
-                            label: extract_label(&subject_string),
-                            rdf_type: object_string.clone(),
-                            node_type: subject_node_type.clone(),
-                            pos: egui::pos2(0.0, 0.0),
-                        },
-                    );
-                }
-
-                // publisher of type organization
-                if (predicate_string == rdf_type_string && object_string == publisher_string)
-                    || (predicate_string == rdf_type_string && object_string == publisher_string)
-                {
-                    nodes.insert(
-                        subject_string.clone(),
-                        RDFNode {
-                            id: subject_string.clone(),
-                            label: extract_label(&subject_string),
-                            rdf_type: object_string.clone(),
-                            node_type: subject_node_type.clone(),
-                            pos: publisher_pos,
-                        },
-                    );
-                }
-
-                // keyword of type concept
-                if (predicate_string == rdf_type_string && object_string == keyword_string)
-                    || (predicate_string == rdf_type_string && object_string == keyword_string)
-                {
-                    nodes.insert(
-                        subject_string.clone(),
-                        RDFNode {
-                            id: subject_string.clone(),
-                            label: extract_label(&subject_string),
-                            rdf_type: object_string.clone(),
-                            node_type: subject_node_type.clone(),
-                            pos: egui::pos2(0.0, 0.0),
-                        },
-                    );
-                }
+impl ParsedTriple {
+    fn from_triple(triple: &Triple) -> Self {
+        let (subject, subject_type) = match &triple.subject {
+            oxrdf::NamedOrBlankNode::NamedNode(node) => {
+                (node.as_str().to_string(), "NamedNode".to_string())
             }
-            Err(e) => {
-                error!("got turtle parse error: {}", e);
+            oxrdf::NamedOrBlankNode::BlankNode(node) => {
+                (node.as_str().to_string(), "BlankNode".to_string())
             }
         };
-    }
 
-    // 2. iteration to add label to node and edges
-    for triple in TurtleParser::new().for_slice(ttl_text.as_bytes()) {
-        let label_string = "http://www.w3.org/2000/01/rdf-schema#label";
-        let title_string = "http://purl.org/dc/terms/title";
+        let object = match &triple.object {
+            oxrdf::Term::NamedNode(node) => node.as_str().to_string(),
+            oxrdf::Term::BlankNode(node) => node.as_str().to_string(),
+            oxrdf::Term::Literal(literal) => literal.value().to_string(),
+        };
 
-        let modified_string = "http://purl.org/dc/terms/modified";
-        let license_string = "http://purl.org/dc/terms/license";
-        let description_string = "http://purl.org/dc/terms/description";
-        let id_string = "http://purl.org/dc/terms/identifier";
-        let issued_string = "http://purl.org/dc/terms/issued";
-        let publisher_string = "http://purl.org/dc/terms/publisher";
-
-        match triple {
-            Ok(content) => {
-                let subject_string;
-                let subject_node_type;
-
-                let object_string;
-
-                match &content.subject {
-                    oxrdf::NamedOrBlankNode::NamedNode(node) => {
-                        subject_string = node.as_str().to_string();
-                        subject_node_type = "NamedNode".to_string();
-                    }
-                    oxrdf::NamedOrBlankNode::BlankNode(node) => {
-                        subject_string = node.as_str().to_string();
-                        subject_node_type = "BlankNode".to_string();
-                    }
-                };
-
-                let predicate_string = &content.predicate.into_string();
-
-                match &content.object {
-                    oxrdf::Term::NamedNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::BlankNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::Literal(literal) => {
-                        object_string = literal.value().to_string();
-                    }
-                };
-
-                // label and title to show
-                if predicate_string == label_string {
-                    match nodes.get_mut(&subject_string) {
-                        Some(entry) => {
-                            entry.label.clear();
-                            entry.label.push_str(&object_string);
-                        }
-                        None => {}
-                    }
-                }
-                if predicate_string == title_string {
-                    match nodes.get_mut(&subject_string) {
-                        Some(entry) => {
-                            entry.label.clear();
-                            entry.label.push_str(&object_string);
-                        }
-                        None => {}
-                    }
-                }
-
-                // modified_string
-                if predicate_string == modified_string {
-                    match nodes.get(&subject_string) {
-                        Some(entry) => {
-                            if entry.rdf_type.contains("Dataset")
-                                || entry.rdf_type.contains("Service")
-                            {
-                                match nodes.get(&subject_string) {
-                                    Some(_) => {
-                                        nodes.insert(
-                                            object_string.clone(),
-                                            RDFNode {
-                                                id: object_string.clone(),
-                                                label: object_string.clone(),
-                                                rdf_type: "Literal".to_string(),
-                                                node_type: subject_node_type.clone(),
-                                                pos: modified_pos,
-                                            },
-                                        );
-                                        edges.insert(
-                                            edge_counter,
-                                            RDFEdge {
-                                                source: subject_string.clone(),
-                                                target: object_string.clone(),
-                                                label: extract_label(&predicate_string),
-                                            },
-                                        );
-                                        edge_counter += 1;
-                                    }
-                                    None => {}
-                                }
-                            }
-                        }
-                        None => {}
-                    }
-                }
-
-                // version info
-
-                // license
-                if predicate_string == license_string {
-                    match nodes.get(&subject_string) {
-                        Some(_) => {
-                            nodes.insert(
-                                object_string.clone(),
-                                RDFNode {
-                                    id: object_string.clone(),
-                                    label: object_string.clone(),
-                                    rdf_type: "Literal".to_string(),
-                                    node_type: subject_node_type.clone(),
-                                    pos: license_pos,
-                                },
-                            );
-                            edges.insert(
-                                edge_counter,
-                                RDFEdge {
-                                    source: subject_string.clone(),
-                                    target: object_string.clone(),
-                                    label: extract_label(&predicate_string),
-                                },
-                            );
-                            edge_counter += 1;
-                        }
-                        None => {}
-                    }
-                }
-
-                // contact point
-
-                // description
-                if (predicate_string == description_string) && (subject_string == center_subject){
-                    match nodes.get(&subject_string) {
-                        Some(_) => {
-                            nodes.insert(
-                                object_string.clone(),
-                                RDFNode {
-                                    id: object_string.clone(),
-                                    label: object_string.clone(),
-                                    rdf_type: "Literal".to_string(),
-                                    node_type: subject_node_type.clone(),
-                                    pos: description_pos,
-                                },
-                            );
-                            edges.insert(
-                                edge_counter,
-                                RDFEdge {
-                                    source: subject_string.clone(),
-                                    target: object_string.clone(),
-                                    label: extract_label(&predicate_string),
-                                },
-                            );
-                            edge_counter += 1;
-                        }
-                        None => {}
-                    }
-                }
-
-                // page
-
-                // identifier string
-                if predicate_string == id_string {
-                    match nodes.get(&subject_string) {
-                        Some(_) => {
-                            nodes.insert(
-                                object_string.clone(),
-                                RDFNode {
-                                    id: object_string.clone(),
-                                    label: object_string.clone(),
-                                    rdf_type: "Literal".to_string(),
-                                    node_type: subject_node_type.clone(),
-                                    pos: id_pos,
-                                },
-                            );
-                            edges.insert(
-                                edge_counter,
-                                RDFEdge {
-                                    source: subject_string.clone(),
-                                    target: object_string.clone(),
-                                    label: extract_label(&predicate_string),
-                                },
-                            );
-                            edge_counter += 1;
-                        }
-                        None => {}
-                    }
-                }
-
-                // issued string
-                if predicate_string == issued_string {
-                    match nodes.get(&subject_string) {
-                        Some(entry) => {
-                            if entry.rdf_type.contains("Dataset")
-                                || entry.rdf_type.contains("Service")
-                            {
-                                match nodes.get(&subject_string) {
-                                    Some(_) => {
-                                        nodes.insert(
-                                            object_string.clone(),
-                                            RDFNode {
-                                                id: object_string.clone(),
-                                                label: object_string.clone(),
-                                                rdf_type: "Literal".to_string(),
-                                                node_type: subject_node_type.clone(),
-                                                pos: issued_pos,
-                                            },
-                                        );
-                                        edges.insert(
-                                            edge_counter,
-                                            RDFEdge {
-                                                source: subject_string.clone(),
-                                                target: object_string.clone(),
-                                                label: extract_label(&predicate_string),
-                                            },
-                                        );
-                                        edge_counter += 1;
-                                    }
-                                    None => {}
-                                }
-                            }
-                        }
-                        None => {}
-                    }
-                }
-
-                // publischer
-                if predicate_string == publisher_string {
-                    match nodes.get(&subject_string) {
-                        Some(entry) => {
-                            if entry.rdf_type.contains("Dataset")
-                                || entry.rdf_type.contains("Service")
-                            {
-                                edges.insert(
-                                    edge_counter,
-                                    RDFEdge {
-                                        source: subject_string.clone(),
-                                        target: object_string.clone(),
-                                        label: extract_label(&predicate_string),
-                                    },
-                                );
-                                edge_counter += 1;
-
-                                match nodes.get_mut(&object_string) {
-                                    Some(entry) => {
-                                        entry.pos = publisher_pos;
-                                    }
-                                    None => {}
-                                }
-                            }
-                        }
-                        None => {}
-                    }
-                }
-
-                // user id schema
-
-                // access rights
-
-                // language
-
-                // conforms to
-            }
-            Err(e) => {
-                error!("got turtle parse error: {}", e);
-            }
+        Self {
+            subject,
+            subject_type,
+            predicate: triple.predicate.as_str().to_string(),
+            object,
         }
     }
-
-    // edges betwen nodes
-    for triple in TurtleParser::new().for_slice(ttl_text.as_bytes()) {
-        let creator_string = "http://purl.org/dc/terms/creator";
-        let distribution_string = "http://www.w3.org/ns/dcat#distribution";
-        let keyword_string = "http://www.w3.org/ns/dcat#keyword";
-
-        match triple {
-            Ok(content) => {
-                let subject_string;
-
-                let object_string;
-
-                match &content.subject {
-                    oxrdf::NamedOrBlankNode::NamedNode(node) => {
-                        subject_string = node.as_str().to_string();
-                    }
-                    oxrdf::NamedOrBlankNode::BlankNode(node) => {
-                        subject_string = node.as_str().to_string();
-                    }
-                };
-
-                let predicate_string = &content.predicate.into_string();
-
-                match &content.object {
-                    oxrdf::Term::NamedNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::BlankNode(node) => {
-                        object_string = node.as_str().to_string();
-                    }
-                    oxrdf::Term::Literal(literal) => {
-                        object_string = literal.value().to_string();
-                    }
-                };
-
-                // creator
-                if predicate_string == creator_string {
-                    edges.insert(
-                        edge_counter,
-                        RDFEdge {
-                            source: subject_string.clone(),
-                            target: object_string.clone(),
-                            label: extract_label(&predicate_string),
-                        },
-                    );
-                    edge_counter += 1;
-
-                    match nodes.get_mut(&object_string) {
-                        Some(entry) => {
-                            entry.pos = creator_pos.clone();
-                            creator_pos.y += iteration_delta;
-                        }
-                        None => {}
-                    }
-                }
-
-                // distribution
-                if predicate_string == distribution_string {
-                    edges.insert(
-                        edge_counter,
-                        RDFEdge {
-                            source: subject_string.clone(),
-                            target: object_string.clone(),
-                            label: extract_label(&predicate_string),
-                        },
-                    );
-                    edge_counter += 1;
-                    match nodes.get_mut(&object_string) {
-                        Some(entry) => {
-                            entry.pos = distribution_pos;
-                            distribution_pos.y += iteration_delta;
-                        }
-                        None => {}
-                    }
-                }
-
-                // keyword
-                if predicate_string == keyword_string {
-                    edges.insert(
-                        edge_counter,
-                        RDFEdge {
-                            source: subject_string.clone(),
-                            target: object_string.clone(),
-                            label: extract_label(&predicate_string),
-                        },
-                    );
-                    edge_counter += 1;
-                    match nodes.get_mut(&object_string) {
-                        Some(entry) => {
-                            entry.pos = keyword_pos;
-                            keyword_pos.y += iteration_delta;
-                        }
-                        None => {}
-                    }
-                }
-
-                // // landing page
-                // if predicate_string == distribution_string {
-                //     edges.insert(
-                //         edge_counter,
-                //         RDFEdge {
-                //             source: subject_string.clone(),
-                //             target: object_string.clone(),
-                //             label: extract_label(&predicate_string),
-                //         },
-                //     );
-                //     edge_counter += 1;
-                //     match nodes.get_mut(&object_string) {
-                //         Some(entry) => {
-                //             entry.pos = distribution_pos;
-                //             distribution_pos.y += iteration_delta;
-                //         }
-                //         None => {}
-                //     }
-                // }
-
-                // // is descriibed by
-                // if predicate_string == distribution_string {
-                //     edges.insert(
-                //         edge_counter,
-                //         RDFEdge {
-                //             source: subject_string.clone(),
-                //             target: object_string.clone(),
-                //             label: extract_label(&predicate_string),
-                //         },
-                //     );
-                //     edge_counter += 1;
-                //     match nodes.get_mut(&object_string) {
-                //         Some(entry) => {
-                //             entry.pos = distribution_pos;
-                //             distribution_pos.y += iteration_delta;
-                //         }
-                //         None => {}
-                //     }
-                // }
-
-                // // citation
-                // if predicate_string == distribution_string {
-                //     edges.insert(
-                //         edge_counter,
-                //         RDFEdge {
-                //             source: subject_string.clone(),
-                //             target: object_string.clone(),
-                //             label: extract_label(&predicate_string),
-                //         },
-                //     );
-                //     edge_counter += 1;
-                //     match nodes.get_mut(&object_string) {
-                //         Some(entry) => {
-                //             entry.pos = distribution_pos;
-                //             distribution_pos.y += iteration_delta;
-                //         }
-                //         None => {}
-                //     }
-                // }
-
-            }
-            Err(e) => {
-                error!("got turtle parse error: {}", e);
-            }
-        }
-    }
-    (nodes, edges)
 }
 
 fn extract_label(uri: &str) -> String {
@@ -687,52 +123,289 @@ fn extract_label(uri: &str) -> String {
         .to_string()
 }
 
-// render loop
+// TODO debug author
+fn add_or_update_edge(
+    edges: &mut HashMap<(String, String), RDFEdge>,
+    source: String,
+    target: String,
+    label: String,
+) {
+    let key = (source.clone(), target.clone());
+    edges
+        .entry(key)
+        .and_modify(|e| {
+            if !e.label.contains(&label) {
+                e.label.push_str(", ");
+                e.label.push_str(&label);
+            }
+        })
+        .or_insert(RDFEdge { source, target, label });
+}
+
+// parse ttl file and populate graph struct
+fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<(String, String), RDFEdge>) {
+    let mut nodes: HashMap<String, RDFNode> = HashMap::new();
+    let mut edges: HashMap<(String, String), RDFEdge> = HashMap::new();
+
+    let mut center_subject = String::new();
+    let center_pos = egui::pos2(500.0, 600.0);
+
+    let modified_pos = egui::pos2(200.0, 400.0);
+    let issued_pos = egui::pos2(200.0, 500.0);
+    let publisher_pos = egui::pos2(200.0, 800.0);
+
+    let license_pos = egui::pos2(800.0, 700.0);
+    let description_pos = egui::pos2(800.0, 600.0);
+    let id_pos = egui::pos2(800.0, 800.0);
+
+    let mut creator_pos = egui::pos2(250.0, 900.0);
+    let mut distribution_pos = egui::pos2(750.0, 900.0);
+    let mut keyword_pos = egui::pos2(400.0, 900.0);
+
+    let mut citation_pos = egui::pos2(800.0, 300.0);
+    let mut landing_page_pos = egui::pos2(800.0, 300.0);
+    let mut described_by_pos = egui::pos2(600.0, 900.0);
+
+    let iteration_delta = 50.0;
+
+    let mut author_names: Vec<String> = Vec::new();
+
+    let triples: Vec<Triple> = TurtleParser::new()
+        .for_slice(ttl_text.as_bytes())
+        .filter_map(|r| r.map_err(|e| error!("Parse error: {}", e)).ok())
+        .collect();
+
+    let parsed_triples: Vec<ParsedTriple> = triples.iter().map(|t| {
+        // info!("{:?}", t);
+        let pt = ParsedTriple::from_triple(t);
+        // info!("triple:\n\ts: {}\n\tp: {}\n\to: {}\n", pt.subject, pt.predicate, pt.object);
+        pt
+    }).collect();
+
+    let insert_literal_node = |nodes: &mut HashMap<String, RDFNode>,
+    edges: &mut HashMap<(String, String), RDFEdge>,
+    pt: &ParsedTriple,
+    pos: egui::Pos2| {
+
+        if nodes.contains_key(&pt.subject) {
+            nodes.insert(
+                pt.object.clone(),
+                RDFNode {
+                    id: pt.object.clone(),
+                    label: pt.object.clone(),
+                    rdf_type: "Literal".to_string(),
+                    node_type: pt.subject_type.clone(),
+                    pos,
+                },
+            );
+            add_or_update_edge(edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+        }
+    };
+
+    // 1. pass to find all types present in the ttl
+    for pt in &parsed_triples {
+        if pt.predicate == RDF_TYPE {
+            match pt.object.as_str() {
+                DCAT_DATASERVICE | DCAT_DATASET => {
+                    center_subject = pt.subject.clone();
+                    nodes.entry(pt.subject.clone())
+                        .and_modify(|entry| {
+                            entry.rdf_type.push_str(", ");
+                            entry.rdf_type.push_str(&pt.object);
+                        })
+                        .or_insert_with(|| RDFNode {
+                            id: pt.subject.clone(),
+                            label: extract_label(&pt.subject),
+                            rdf_type: pt.object.clone(),
+                            node_type: pt.subject_type.clone(),
+                            pos: center_pos,
+                        });
+                }
+                PRO_AUTHOR | DCAT_DISTRIBUTION | SKOS_CONCEPT => {
+                    nodes.insert(
+                        pt.subject.clone(),
+                        RDFNode {
+                            id: pt.subject.clone(),
+                            label: extract_label(&pt.subject),
+                            rdf_type: pt.object.clone(),
+                            node_type: pt.subject_type.clone(),
+                            pos: egui::pos2(0.0, 0.0),
+                        },
+                    );
+                }
+                VCARD_ORGANIZATION => {
+                    nodes.insert(
+                        pt.subject.clone(),
+                        RDFNode {
+                            id: pt.subject.clone(),
+                            label: extract_label(&pt.subject),
+                            rdf_type: pt.object.clone(),
+                            node_type: pt.subject_type.clone(),
+                            pos: publisher_pos,
+                        },
+                    );
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // 2. pass to fill in label and edges
+for pt in &parsed_triples {
+        let is_dataset_or_service = nodes.get(&pt.subject)
+            .map(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("Service"))
+            .unwrap_or(false);
+
+        match pt.predicate.as_str() {
+            // Labels
+            RDF_LABEL | DCTERMS_TITLE => {
+                if let Some(entry) = nodes.get_mut(&pt.subject) {
+                    entry.label.clear();
+                    entry.label.push_str(&pt.object);
+                }
+            }
+            DCTERMS_DESCRIPTION => {
+                if pt.subject == center_subject {
+                    insert_literal_node(&mut nodes, &mut edges, pt, description_pos);
+                }
+            }
+
+            // Collect Author Names (vcard:fn)
+            VCARD_FN => {
+                if pt.subject == center_subject {
+                    author_names.push(pt.object.clone());
+                }
+            }
+
+            // Literals requiring Dataset/Service verification
+            DCTERMS_MODIFIED => {
+                if is_dataset_or_service {
+                    insert_literal_node(&mut nodes, &mut edges, pt, modified_pos);
+                }
+            }
+            DCTERMS_ISSUED => {
+                if is_dataset_or_service {
+                    insert_literal_node(&mut nodes, &mut edges, pt, issued_pos);
+                }
+            }
+            DCTERMS_PUBLISHER => {
+                if is_dataset_or_service {
+                    add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                    if let Some(obj_entry) = nodes.get_mut(&pt.object) {
+                        obj_entry.pos = publisher_pos;
+                    }
+                }
+            }
+
+            // General Literals
+            DCTERMS_LICENSE => insert_literal_node(&mut nodes, &mut edges, pt, license_pos),
+            DCTERMS_IDENTIFIER => insert_literal_node(&mut nodes, &mut edges, pt, id_pos),
+
+            // Relational Edges
+            DCTERMS_CREATOR => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = creator_pos;
+                    creator_pos.y += iteration_delta;
+                }
+            }
+            DCAT_DISTRIBUTION_PROP => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = distribution_pos;
+                    distribution_pos.y += iteration_delta;
+                }
+            }
+            DCAT_KEYWORD_PROP => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = keyword_pos;
+                    keyword_pos.y += iteration_delta;
+                }
+            }
+            DCAT_LANDING_PAGE => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = landing_page_pos;
+                    landing_page_pos.y += iteration_delta;
+                }
+            }
+            DCTERMS_DESCRIBED_BY => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = described_by_pos;
+                    described_by_pos.y += iteration_delta;
+                }
+            }
+            DCTERMS_CITATION => {
+                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+                if let Some(entry) = nodes.get_mut(&pt.object) {
+                    entry.pos = citation_pos;
+                    citation_pos.y += iteration_delta;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // CLEANUP: Resolve Author Names
+    // Match the collected string literals to actual node labels.
+    // ----------------------------------------------------------------
+    for author_name in author_names {
+        // Find the node ID whose label exactly matches the string literal
+        if let Some((node_id, _)) = nodes.iter().find(|(_, n)| n.label == author_name) {
+            // Update the edge to append "author"
+            add_or_update_edge(&mut edges, center_subject.clone(), node_id.clone(), "author".to_string());
+        }
+    }
+
+    (nodes, edges)
+}
 impl RdfGraphApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        cc.egui_ctx.style_mut(|style| {
+            style.interaction.tooltip_delay = 0.0;
+        });
+
         let state = Arc::new(Mutex::new(AppState::Loading));
 
         let mut color_map = HashMap::new();
         color_map.insert(
-            "http://www.w3.org/ns/dcat#Dataset".to_string(),
+            DCAT_DATASET.to_string(),
             NodeColors {
                 normal: egui::Color32::from_rgb(255, 165, 0),
                 selected: egui::Color32::from_rgb(255, 200, 100),
             },
         );
-
         color_map.insert(
-            "http://purl.org/spar/pro/Author".to_string(),
+            PRO_AUTHOR.to_string(),
             NodeColors {
                 normal: egui::Color32::from_rgb(250, 50, 50),
                 selected: egui::Color32::from_rgb(255, 100, 100),
             },
         );
-
         color_map.insert(
-            "http://www.w3.org/ns/dcat#Distribution".to_string(),
+            DCAT_DISTRIBUTION.to_string(),
             NodeColors {
                 normal: egui::Color32::from_rgb(50, 120, 220),
                 selected: egui::Color32::from_rgb(100, 180, 255),
             },
         );
-
         color_map.insert(
-            "http://www.w3.org/2004/02/skos/core#Concept".to_string(),
+            SKOS_CONCEPT.to_string(),
             NodeColors {
                 normal: egui::Color32::from_rgb(50, 180, 50),
                 selected: egui::Color32::from_rgb(120, 255, 120),
             },
         );
-
         color_map.insert(
-            "http://www.w3.org/2006/vcard/ns#Organization".to_string(),
+            VCARD_ORGANIZATION.to_string(),
             NodeColors {
                 normal: egui::Color32::from_rgb(150, 80, 220),
                 selected: egui::Color32::from_rgb(200, 150, 255),
             },
         );
-
         color_map.insert(
             "Literal".to_string(),
             NodeColors {
@@ -782,36 +455,77 @@ impl eframe::App for RdfGraphApp {
             if let AppState::Ready { nodes, edges } = &mut *state_lock {
                 let painter = ui.painter();
 
-                // Draw Edges
+                // 1. edge line
                 for edge in edges.values() {
                     if let (Some(s), Some(t)) = (nodes.get(&edge.source), nodes.get(&edge.target)) {
                         painter.line_segment([s.pos, t.pos], (2.0, egui::Color32::from_gray(100)));
-                        // Label drawing logic condensed...
                     }
                 }
 
-                // Draw Nodes
+                // 2. edge label
+                for edge in edges.values() {
+                    if let (Some(s), Some(t)) = (nodes.get(&edge.source), nodes.get(&edge.target)) {
+                        let center_point = s.pos + (t.pos - s.pos) * 0.5;
+
+                        let galley = painter.layout_no_wrap(
+                            edge.label.clone(),
+                            egui::FontId::proportional(10.0),
+                            egui::Color32::WHITE,
+                        );
+
+                        let text_rect = egui::Align2::CENTER_CENTER
+                            .anchor_rect(egui::Rect::from_min_size(center_point, galley.size()));
+
+                        painter.rect_filled(
+                            text_rect.expand(2.0),
+                            2.0,
+                            egui::Color32::from_gray(10),
+                        );
+
+                        painter.galley(text_rect.min, galley, egui::Color32::WHITE);
+                    }
+                }
+
+                // draw node
                 for node in nodes.values_mut() {
                     let response = ui.interact(
                         egui::Rect::from_center_size(node.pos, egui::vec2(30.0, 30.0)),
                         ui.id().with(&node.id),
                         egui::Sense::click_and_drag(),
-                    );
+                    )
+                        .on_hover_text(format!("ID : {}\nRDF Type : {}\nNode type : {}", node.id, node.rdf_type, node.node_type));
 
-                    if response.dragged() { node.pos += response.drag_delta(); }
+                    if response.dragged() {
+                        node.pos += response.drag_delta();
+                    }
 
-                    let theme = self.color_map.get(&node.rdf_type)
-                        .unwrap_or(&NodeColors { normal: egui::Color32::GRAY, selected: egui::Color32::WHITE });
+                    let theme = self.color_map.get(&node.rdf_type).unwrap_or(&NodeColors {
+                        normal: egui::Color32::GRAY,
+                        selected: egui::Color32::WHITE,
+                    });
 
                     let color = if response.hovered() { theme.selected } else { theme.normal };
+
+                    // Node Circle
                     painter.circle_filled(node.pos, 15.0, color);
+
+                    // Node Text
                     painter.text(
                         node.pos + egui::vec2(0.0, 20.0),
                         egui::Align2::CENTER_TOP,
                         &node.label,
                         egui::FontId::proportional(12.0),
-                        egui::Color32::WHITE);
+                        egui::Color32::WHITE,
+                    );
                 }
+            } else if let AppState::Error(err_msg) = &*state_lock {
+                // Now the string is read and displayed on the screen!
+                ui.heading("Something went wrong:");
+                ui.label(
+                    egui::RichText::new(err_msg)
+                        .color(egui::Color32::RED)
+                        .strong()
+                );
             } else {
                 ui.heading("Loading...");
             }
@@ -821,13 +535,9 @@ impl eframe::App for RdfGraphApp {
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    // init logger
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
-
-    // set defaults
     let web_options = eframe::WebOptions::default();
 
-    // start the webrunner
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
             .start(
