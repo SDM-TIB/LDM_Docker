@@ -12,7 +12,6 @@ struct RDFNode {
     label: String,
     rdf_type: String,
     node_type: String,
-    edges_from_center: i8,
     pos: egui::Pos2,
 }
 
@@ -37,6 +36,12 @@ struct RdfGraphApp {
     state: Arc<Mutex<AppState>>,
 }
 
+#[derive(Debug)]
+struct NodeColors {
+    normal: egui::Color32,
+    selected: egui::Color32,
+}
+
 // parse the current path to get the ttl file we want to use
 #[cfg(target_arch = "wasm32")]
 fn get_ttl_url_from_current_path() -> Option<String> {
@@ -56,22 +61,48 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
     let mut nodes: HashMap<String, RDFNode> = HashMap::new();
     let mut edges: HashMap<u64, RDFEdge> = HashMap::new();
 
+
     let mut edge_counter = 1;
 
     let rdf_type_string = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
     let creator_string = "http://purl.org/spar/pro/Author";
-
     let distribution_string = "http://www.w3.org/ns/dcat#Distribution";
-
-    let organization_string = "http://www.w3.org/2006/vcard/ns#Organization";
+    let publisher_string = "http://www.w3.org/2006/vcard/ns#Organization";
+    let keyword_string = "http://www.w3.org/2004/02/skos/core#Concept";
 
     let center_string_service = "http://www.w3.org/ns/dcat#DataService";
     let center_string_dataset = "http://www.w3.org/ns/dcat#Dataset";
-    let center_pos = egui::pos2(500.0, 200.0);
+
+    let mut center_subject = "".to_string();
+
+    let center_pos = egui::pos2(500.0, 600.0);
+
+    let modified_pos = egui::pos2(200.0, 400.0);
+    let issued_pos = egui::pos2(200.0, 500.0);
+    let language_pos = egui::pos2(200.0, 600.0);
+    let conforms_to_pos = egui::pos2(200.0, 700.0);
+    let publisher_pos = egui::pos2(200.0, 800.0);
+    let contact_point_pos = egui::pos2(200.0, 900.0);
+
+    let version_info_pos = egui::pos2(800.0, 400.0);
+    let license_pos = egui::pos2(800.0, 500.0);
+    let description_pos = egui::pos2(800.0, 600.0);
+    let license_pos = egui::pos2(800.0, 700.0);
+    let id_pos = egui::pos2(800.0, 800.0);
+    let page_pos = egui::pos2(800.0, 900.0);
+
+    let mut creator_pos = egui::pos2(250.0, 900.0);
+    let mut distribution_pos = egui::pos2(750.0, 900.0);
+    let mut keyword_pos = egui::pos2(400.0, 900.0);
+    // let mut citation_pos = egui::pos2(800.0, 300.0);
+    // let mut landing_page_pos = egui::pos2(800.0, 300.0);
+    // let mut described_by_pos = egui::pos2(600.0, 900.0);
+
+    let iteration_delta = 50.0;
 
     for triple in TurtleParser::new().for_slice(ttl_text.as_bytes()) {
-        // info!("{:?}", triple);
+        info!("{:?}", triple);
         match triple {
             Ok(content) => {
                 let subject_string;
@@ -104,15 +135,14 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 };
 
-                // info!("triple:\n\ts: {}\n\tp: {}\n\to: {}\n", subject_string, predicate_string, object_string);
+                info!("triple:\n\ts: {}\n\tp: {}\n\to: {}\n", subject_string, predicate_string, object_string);
 
                 // dataset / service
-                // get the center node
-                // TODO fix entry and unwrap
                 if (predicate_string == rdf_type_string && object_string == center_string_service)
                     || (predicate_string == rdf_type_string
                         && object_string == center_string_dataset)
                 {
+                    center_subject = subject_string.clone();
                     match nodes.get_mut(&subject_string) {
                         Some(entry) => {
                             entry.rdf_type.push(',');
@@ -127,7 +157,6 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                                     label: extract_label(&subject_string),
                                     rdf_type: object_string.clone(),
                                     node_type: subject_node_type.clone(),
-                                    edges_from_center: 0,
                                     pos: center_pos,
                                 },
                             );
@@ -135,7 +164,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 }
 
-                // creator
+                // author / creator of type creator
                 if (predicate_string == rdf_type_string && object_string == creator_string)
                     || (predicate_string == rdf_type_string && object_string == creator_string)
                 {
@@ -146,13 +175,12 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                             label: extract_label(&subject_string),
                             rdf_type: object_string.clone(),
                             node_type: subject_node_type.clone(),
-                            edges_from_center: -1,
                             pos: egui::pos2(0.0, 0.0),
                         },
                     );
                 }
 
-                // distribution
+                // file of type distribution
                 if (predicate_string == rdf_type_string && object_string == distribution_string)
                     || (predicate_string == rdf_type_string && object_string == distribution_string)
                 {
@@ -163,15 +191,14 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                             label: extract_label(&subject_string),
                             rdf_type: object_string.clone(),
                             node_type: subject_node_type.clone(),
-                            edges_from_center: -1,
                             pos: egui::pos2(0.0, 0.0),
                         },
                     );
                 }
 
-                // organization
-                if (predicate_string == rdf_type_string && object_string == organization_string)
-                    || (predicate_string == rdf_type_string && object_string == organization_string)
+                // publisher of type organization
+                if (predicate_string == rdf_type_string && object_string == publisher_string)
+                    || (predicate_string == rdf_type_string && object_string == publisher_string)
                 {
                     nodes.insert(
                         subject_string.clone(),
@@ -180,7 +207,22 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                             label: extract_label(&subject_string),
                             rdf_type: object_string.clone(),
                             node_type: subject_node_type.clone(),
-                            edges_from_center: -1,
+                            pos: publisher_pos,
+                        },
+                    );
+                }
+
+                // keyword of type concept
+                if (predicate_string == rdf_type_string && object_string == keyword_string)
+                    || (predicate_string == rdf_type_string && object_string == keyword_string)
+                {
+                    nodes.insert(
+                        subject_string.clone(),
+                        RDFNode {
+                            id: subject_string.clone(),
+                            label: extract_label(&subject_string),
+                            rdf_type: object_string.clone(),
+                            node_type: subject_node_type.clone(),
                             pos: egui::pos2(0.0, 0.0),
                         },
                     );
@@ -197,9 +239,11 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
         let label_string = "http://www.w3.org/2000/01/rdf-schema#label";
         let title_string = "http://purl.org/dc/terms/title";
 
+        let modified_string = "http://purl.org/dc/terms/modified";
+        let license_string = "http://purl.org/dc/terms/license";
+        let description_string = "http://purl.org/dc/terms/description";
         let id_string = "http://purl.org/dc/terms/identifier";
-        let issue_string = "http://purl.org/dc/terms/issued";
-        let mod_string = "http://purl.org/dc/terms/modified";
+        let issued_string = "http://purl.org/dc/terms/issued";
         let publisher_string = "http://purl.org/dc/terms/publisher";
 
         match triple {
@@ -234,6 +278,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 };
 
+                // label and title to show
                 if predicate_string == label_string {
                     match nodes.get_mut(&subject_string) {
                         Some(entry) => {
@@ -243,7 +288,6 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                         None => {}
                     }
                 }
-
                 if predicate_string == title_string {
                     match nodes.get_mut(&subject_string) {
                         Some(entry) => {
@@ -254,7 +298,47 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 }
 
-                if predicate_string == id_string {
+                // modified_string
+                if predicate_string == modified_string {
+                    match nodes.get(&subject_string) {
+                        Some(entry) => {
+                            if entry.rdf_type.contains("Dataset")
+                                || entry.rdf_type.contains("Service")
+                            {
+                                match nodes.get(&subject_string) {
+                                    Some(_) => {
+                                        nodes.insert(
+                                            object_string.clone(),
+                                            RDFNode {
+                                                id: object_string.clone(),
+                                                label: object_string.clone(),
+                                                rdf_type: "Literal".to_string(),
+                                                node_type: subject_node_type.clone(),
+                                                pos: modified_pos,
+                                            },
+                                        );
+                                        edges.insert(
+                                            edge_counter,
+                                            RDFEdge {
+                                                source: subject_string.clone(),
+                                                target: object_string.clone(),
+                                                label: extract_label(&predicate_string),
+                                            },
+                                        );
+                                        edge_counter += 1;
+                                    }
+                                    None => {}
+                                }
+                            }
+                        }
+                        None => {}
+                    }
+                }
+
+                // version info
+
+                // license
+                if predicate_string == license_string {
                     match nodes.get(&subject_string) {
                         Some(_) => {
                             nodes.insert(
@@ -264,8 +348,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                                     label: object_string.clone(),
                                     rdf_type: "Literal".to_string(),
                                     node_type: subject_node_type.clone(),
-                                    edges_from_center: -1,
-                                    pos: egui::pos2(500.0, 100.0),
+                                    pos: license_pos,
                                 },
                             );
                             edges.insert(
@@ -282,7 +365,68 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 }
 
-                if predicate_string == issue_string {
+                // contact point
+
+                // description
+                if (predicate_string == description_string) && (subject_string == center_subject){
+                    match nodes.get(&subject_string) {
+                        Some(_) => {
+                            nodes.insert(
+                                object_string.clone(),
+                                RDFNode {
+                                    id: object_string.clone(),
+                                    label: object_string.clone(),
+                                    rdf_type: "Literal".to_string(),
+                                    node_type: subject_node_type.clone(),
+                                    pos: description_pos,
+                                },
+                            );
+                            edges.insert(
+                                edge_counter,
+                                RDFEdge {
+                                    source: subject_string.clone(),
+                                    target: object_string.clone(),
+                                    label: extract_label(&predicate_string),
+                                },
+                            );
+                            edge_counter += 1;
+                        }
+                        None => {}
+                    }
+                }
+
+                // page
+
+                // identifier string
+                if predicate_string == id_string {
+                    match nodes.get(&subject_string) {
+                        Some(_) => {
+                            nodes.insert(
+                                object_string.clone(),
+                                RDFNode {
+                                    id: object_string.clone(),
+                                    label: object_string.clone(),
+                                    rdf_type: "Literal".to_string(),
+                                    node_type: subject_node_type.clone(),
+                                    pos: id_pos,
+                                },
+                            );
+                            edges.insert(
+                                edge_counter,
+                                RDFEdge {
+                                    source: subject_string.clone(),
+                                    target: object_string.clone(),
+                                    label: extract_label(&predicate_string),
+                                },
+                            );
+                            edge_counter += 1;
+                        }
+                        None => {}
+                    }
+                }
+
+                // issued string
+                if predicate_string == issued_string {
                     match nodes.get(&subject_string) {
                         Some(entry) => {
                             if entry.rdf_type.contains("Dataset")
@@ -297,8 +441,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                                                 label: object_string.clone(),
                                                 rdf_type: "Literal".to_string(),
                                                 node_type: subject_node_type.clone(),
-                                                edges_from_center: -1,
-                                                pos: egui::pos2(200.0, 100.0),
+                                                pos: issued_pos,
                                             },
                                         );
                                         edges.insert(
@@ -319,43 +462,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 }
 
-                if predicate_string == mod_string {
-                    match nodes.get(&subject_string) {
-                        Some(entry) => {
-                            if entry.rdf_type.contains("Dataset")
-                                || entry.rdf_type.contains("Service")
-                            {
-                                match nodes.get(&subject_string) {
-                                    Some(_) => {
-                                        nodes.insert(
-                                            object_string.clone(),
-                                            RDFNode {
-                                                id: object_string.clone(),
-                                                label: object_string.clone(),
-                                                rdf_type: "Literal".to_string(),
-                                                node_type: subject_node_type.clone(),
-                                                edges_from_center: -1,
-                                                pos: egui::pos2(800.0, 100.0),
-                                            },
-                                        );
-                                        edges.insert(
-                                            edge_counter,
-                                            RDFEdge {
-                                                source: subject_string.clone(),
-                                                target: object_string.clone(),
-                                                label: extract_label(&predicate_string),
-                                            },
-                                        );
-                                        edge_counter += 1;
-                                    }
-                                    None => {}
-                                }
-                            }
-                        }
-                        None => {}
-                    }
-                }
-
+                // publischer
                 if predicate_string == publisher_string {
                     match nodes.get(&subject_string) {
                         Some(entry) => {
@@ -374,7 +481,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
 
                                 match nodes.get_mut(&object_string) {
                                     Some(entry) => {
-                                        entry.pos = egui::pos2(500.0, 300.0);
+                                        entry.pos = publisher_pos;
                                     }
                                     None => {}
                                 }
@@ -383,6 +490,14 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                         None => {}
                     }
                 }
+
+                // user id schema
+
+                // access rights
+
+                // language
+
+                // conforms to
             }
             Err(e) => {
                 error!("got turtle parse error: {}", e);
@@ -390,14 +505,11 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
         }
     }
 
-    let mut creator_pos = egui::pos2(200.0, 300.0);
-    let mut distribution_pos = egui::pos2(800.0, 300.0);
-
-    let iteration_delta = 80.0;
-
+    // edges betwen nodes
     for triple in TurtleParser::new().for_slice(ttl_text.as_bytes()) {
         let creator_string = "http://purl.org/dc/terms/creator";
         let distribution_string = "http://www.w3.org/ns/dcat#distribution";
+        let keyword_string = "http://www.w3.org/ns/dcat#keyword";
 
         match triple {
             Ok(content) => {
@@ -428,6 +540,7 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                     }
                 };
 
+                // creator
                 if predicate_string == creator_string {
                     edges.insert(
                         edge_counter,
@@ -447,6 +560,8 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                         None => {}
                     }
                 }
+
+                // distribution
                 if predicate_string == distribution_string {
                     edges.insert(
                         edge_counter,
@@ -465,6 +580,87 @@ fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<u64,
                         None => {}
                     }
                 }
+
+                // keyword
+                if predicate_string == keyword_string {
+                    edges.insert(
+                        edge_counter,
+                        RDFEdge {
+                            source: subject_string.clone(),
+                            target: object_string.clone(),
+                            label: extract_label(&predicate_string),
+                        },
+                    );
+                    edge_counter += 1;
+                    match nodes.get_mut(&object_string) {
+                        Some(entry) => {
+                            entry.pos = keyword_pos;
+                            keyword_pos.y += iteration_delta;
+                        }
+                        None => {}
+                    }
+                }
+
+                // // landing page
+                // if predicate_string == distribution_string {
+                //     edges.insert(
+                //         edge_counter,
+                //         RDFEdge {
+                //             source: subject_string.clone(),
+                //             target: object_string.clone(),
+                //             label: extract_label(&predicate_string),
+                //         },
+                //     );
+                //     edge_counter += 1;
+                //     match nodes.get_mut(&object_string) {
+                //         Some(entry) => {
+                //             entry.pos = distribution_pos;
+                //             distribution_pos.y += iteration_delta;
+                //         }
+                //         None => {}
+                //     }
+                // }
+
+                // // is descriibed by
+                // if predicate_string == distribution_string {
+                //     edges.insert(
+                //         edge_counter,
+                //         RDFEdge {
+                //             source: subject_string.clone(),
+                //             target: object_string.clone(),
+                //             label: extract_label(&predicate_string),
+                //         },
+                //     );
+                //     edge_counter += 1;
+                //     match nodes.get_mut(&object_string) {
+                //         Some(entry) => {
+                //             entry.pos = distribution_pos;
+                //             distribution_pos.y += iteration_delta;
+                //         }
+                //         None => {}
+                //     }
+                // }
+
+                // // citation
+                // if predicate_string == distribution_string {
+                //     edges.insert(
+                //         edge_counter,
+                //         RDFEdge {
+                //             source: subject_string.clone(),
+                //             target: object_string.clone(),
+                //             label: extract_label(&predicate_string),
+                //         },
+                //     );
+                //     edge_counter += 1;
+                //     match nodes.get_mut(&object_string) {
+                //         Some(entry) => {
+                //             entry.pos = distribution_pos;
+                //             distribution_pos.y += iteration_delta;
+                //         }
+                //         None => {}
+                //     }
+                // }
+
             }
             Err(e) => {
                 error!("got turtle parse error: {}", e);
@@ -535,6 +731,46 @@ impl eframe::App for RdfGraphApp {
                     ui.colored_label(egui::Color32::RED, format!("Error: {}", err));
                 }
                 AppState::Ready { nodes, edges } => {
+                    let mut color_map = HashMap::<String, NodeColors>::new();
+
+                    color_map.insert("http://www.w3.org/ns/dcat#Dataset".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(255, 165, 0),
+                                         selected: egui::Color32::from_rgb(255, 200, 100),
+                                     },
+                    );
+                    color_map.insert("http://purl.org/spar/pro/Author".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(250, 50, 50),
+                                         selected: egui::Color32::from_rgb(255, 100, 100),
+                                     },
+                    );
+                    color_map.insert("http://www.w3.org/ns/dcat#Distribution".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(50, 120, 220),
+                                         selected: egui::Color32::from_rgb(100, 180, 255),
+                                     },
+                    );
+                    color_map.insert("http://www.w3.org/2004/02/skos/core#Concept".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(50, 180, 50),
+                                         selected: egui::Color32::from_rgb(120, 255, 120),
+                                     },
+                    );
+                    color_map.insert("http://www.w3.org/2006/vcard/ns#Organization".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(150, 80, 220),
+                                         selected: egui::Color32::from_rgb(200, 150, 255),
+                                     },
+                    );
+                    color_map.insert("Literal".to_string(),
+                                     NodeColors {
+                                         normal: egui::Color32::from_rgb(220, 200, 0),
+                                         selected: egui::Color32::from_rgb(255, 240, 100),
+                                     },
+                    );
+
+
                     let painter = ui.painter();
 
                     for (_, edge) in edges {
@@ -598,21 +834,26 @@ impl eframe::App for RdfGraphApp {
                             node.pos += response.drag_delta();
                         }
 
-                        let color: egui::Color32;
-
-                        if node.node_type == "BlankNode".to_string() {
-                            color = if response.hovered() || response.dragged() {
+                        let color: egui::Color32 = if node.node_type == "BlankNode" {
+                            // Keep your specific logic for BlankNodes
+                            if response.hovered() || response.dragged() {
                                 egui::Color32::LIGHT_GREEN
                             } else {
                                 egui::Color32::GREEN
-                            };
+                            }
                         } else {
-                            color = if response.hovered() || response.dragged() {
-                                egui::Color32::LIGHT_BLUE
+                            info!("{:?}", &node.rdf_type);
+                            let theme = color_map.get(&node.rdf_type).unwrap_or(&NodeColors {
+                                normal: egui::Color32::GRAY,      // Default color if type not found
+                                selected: egui::Color32::WHITE,   // Default hover color
+                            });
+
+                            if response.hovered() || response.dragged() {
+                                theme.selected
                             } else {
-                                egui::Color32::BLUE
-                            };
-                        }
+                                theme.normal
+                            }
+                        };
 
                         painter.circle_filled(node.pos, node_radius, color);
                         painter.text(
@@ -631,7 +872,6 @@ impl eframe::App for RdfGraphApp {
                                 ui.label(format!("URI: {}", node.id));
                                 ui.label(format!("rdf type: {}", node.rdf_type));
                                 ui.label(format!("node type: {}", node.node_type));
-                                ui.label(format!("hops from center: {}", node.edges_from_center));
                             });
                         }
                     }
