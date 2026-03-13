@@ -1,0 +1,34 @@
+ {% extends "page.html" %}
+{% import 'macros/form.html' as form %}
+{% set current_lang = request.environ.CKAN_LANG %}
+
+{% block subtitle %}{{ _('API') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('API'), 'API' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module" role="main">
+    <div class="module-content">
+      {% block about %}
+        {% if g.site_about %}
+          {{ h.render_markdown(g.site_about) }}
+        {% else %}
+          {% if not h.tibtheme_styled_header_enabled() and h.tibtheme_is_TIBservice_instance():%}
+          <img id="tib_event_logo" src="{{asset_path}}images/tib_datamanager_1150.jpg" alt="TIB Leibniz Data Manager Logo" class="img-responsive">
+          {% endif %}
+
+          {% if h.tibtheme_is_TIBservice_instance() %}
+              {% snippet 'home/snippets/api_text.html' %}
+          {% else %}
+              {% snippet 'home/snippets/api_text_default.html' %}
+          {% endif %}
+
+        {% endif %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

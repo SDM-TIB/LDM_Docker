@@ -91,6 +91,17 @@ def demo():
     )
 # ****************************
 
+# API PAGE
+# ****************************
+def api():
+
+    return toolkit.render(
+        'home/api.html',
+        extra_vars={
+        }
+    )
+# ****************************
+
 # LDM REGISTER PAGE
 # *****************
 def ldm_register():
@@ -216,6 +227,7 @@ class TibthemePlugin(plugins.SingletonPlugin):
             (u'/special_conditions_LDM', 'special_conditions_LDM', special_conditions_LDM),
             (u'/data_privacy', 'data_privacy', data_privacy),
             (u'/demo', 'demo_page', demo),
+            (u'/api', 'api_page', api),
             (u'/LDM-register', 'ldm_register', ldm_register),
 
         ]
