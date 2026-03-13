@@ -348,14 +348,9 @@ for pt in &parsed_triples {
         }
     }
 
-    // ----------------------------------------------------------------
-    // CLEANUP: Resolve Author Names
-    // Match the collected string literals to actual node labels.
-    // ----------------------------------------------------------------
+    // add author the creator edge
     for author_name in author_names {
-        // Find the node ID whose label exactly matches the string literal
         if let Some((node_id, _)) = nodes.iter().find(|(_, n)| n.label == author_name) {
-            // Update the edge to append "author"
             add_or_update_edge(&mut edges, center_subject.clone(), node_id.clone(), "author".to_string());
         }
     }
