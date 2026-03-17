@@ -1,0 +1,67 @@
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/modified> "2024-02-16T14:10:58.633015" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40059> .
+<https://research.tib.eu/ldm/40059> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40059> <http://www.w3.org/2000/01/rdf-schema#label> "B. Maronga" .
+<https://research.tib.eu/ldm/40059> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> . 
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40062> .
+<https://research.tib.eu/ldm/40062> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40062> <http://www.w3.org/2000/01/rdf-schema#label> "H. Knoop" .
+<https://research.tib.eu/ldm/40062> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> . 
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40063> .
+<https://research.tib.eu/ldm/40063> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40063> <http://www.w3.org/2000/01/rdf-schema#label> "F. Ament" .
+<https://research.tib.eu/ldm/40063> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> . 
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://purl.org/dc/terms/modified> "2023-08-04T08:46:18.120255" .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://purl.org/dc/terms/format> "ZIP" .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://www.w3.org/ns/dcat#accessURL> <https://data.uni-hannover.de/dataset/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033/resource/bd5d8d95-b3e2-4f25-a928-d75df8faf462/download/wavelet_gust_analysis.zip> .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://www.w3.org/ns/dcat#byteSize> "96112" .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://www.w3.org/ns/dcat#downloadURL> <https://data.uni-hannover.de/dataset/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033/resource/bd5d8d95-b3e2-4f25-a928-d75df8faf462/download/wavelet_gust_analysis.zip> .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://purl.org/dc/terms/description> "Wind velocity data in netCDF format, a python script for data analysis and a requirements.txt file containing all python package dependencies." .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://purl.org/dc/terms/issued> "2019-07-09T17:27:20.908781" .
+<https://research.tib.eu/ldm/bd5d8d95-b3e2-4f25-a928-d75df8faf462> <http://purl.org/dc/terms/title> "wavelet_gust_analysis.zip" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/b774bef9-91c3-4c76-ad46-62874ed0caf9> .
+<https://research.tib.eu/ldm/b774bef9-91c3-4c76-ad46-62874ed0caf9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/b774bef9-91c3-4c76-ad46-62874ed0caf9> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Aerography_(meteorology)> .
+<https://research.tib.eu/ldm/b774bef9-91c3-4c76-ad46-62874ed0caf9> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q25261> .
+<https://research.tib.eu/ldm/b774bef9-91c3-4c76-ad46-62874ed0caf9> <http://purl.org/dc/terms/title> "Meteorology" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/236338fd-6708-444f-8626-539368651111> .
+<https://research.tib.eu/ldm/236338fd-6708-444f-8626-539368651111> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/236338fd-6708-444f-8626-539368651111> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Filter_(large_eddy_simulation)> .
+<https://research.tib.eu/ldm/236338fd-6708-444f-8626-539368651111> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q1755722> .
+<https://research.tib.eu/ldm/236338fd-6708-444f-8626-539368651111> <http://purl.org/dc/terms/title> "large eddy simulation" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/46d0fe88-5cc8-49e4-9cf0-4d23f1695140> .
+<https://research.tib.eu/ldm/46d0fe88-5cc8-49e4-9cf0-4d23f1695140> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/46d0fe88-5cc8-49e4-9cf0-4d23f1695140> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Wavelet> .
+<https://research.tib.eu/ldm/46d0fe88-5cc8-49e4-9cf0-4d23f1695140> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q7754> .
+<https://research.tib.eu/ldm/46d0fe88-5cc8-49e4-9cf0-4d23f1695140> <http://purl.org/dc/terms/title> "Wavelet Analysis" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/c664ed9f-b30c-4106-8ece-3822ff63d370> .
+<https://research.tib.eu/ldm/c664ed9f-b30c-4106-8ece-3822ff63d370> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/c664ed9f-b30c-4106-8ece-3822ff63d370> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Gibson_Les_Paul> .
+<https://research.tib.eu/ldm/c664ed9f-b30c-4106-8ece-3822ff63d370> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q12633> .
+<https://research.tib.eu/ldm/c664ed9f-b30c-4106-8ece-3822ff63d370> <http://purl.org/dc/terms/title> "LES model" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/fe07b2d6-87cc-450c-91fa-c413470e450a> .
+<https://research.tib.eu/ldm/fe07b2d6-87cc-450c-91fa-c413470e450a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/fe07b2d6-87cc-450c-91fa-c413470e450a> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Continuous_gusts> .
+<https://research.tib.eu/ldm/fe07b2d6-87cc-450c-91fa-c413470e450a> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q6132486> .
+<https://research.tib.eu/ldm/fe07b2d6-87cc-450c-91fa-c413470e450a> <http://purl.org/dc/terms/title> "Gusts" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/4b49d4f9-63a7-436b-8a0e-b83f5a28225d> .
+<https://research.tib.eu/ldm/4b49d4f9-63a7-436b-8a0e-b83f5a28225d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/4b49d4f9-63a7-436b-8a0e-b83f5a28225d> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/LES> .
+<https://research.tib.eu/ldm/4b49d4f9-63a7-436b-8a0e-b83f5a28225d> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q1013> .
+<https://research.tib.eu/ldm/4b49d4f9-63a7-436b-8a0e-b83f5a28225d> <http://purl.org/dc/terms/title> "LES" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/ns/dcat#landingPage> <https://data.uni-hannover.de/dataset/a-generic-gust-definition-and-detection-method-based-on-wavelet-analysis> .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/description> "This dataset is associated with the paper Knoop et al. (2019) titled  \'A generic gust definition and detection method based on wavelet-analysis\' published in \'Advances in Science and Research (ASR)\' within the Special Issue: 18th EMS Annual Meeting: European Conference for Applied Meteorology and Climatology 2018. It contains the data and analysis software required to recreate all figures in the publication." .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/identifier> "c76adf5a-9aa8-4ebe-bbbe-0e61436cf033" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/issued> "2021-10-14T10:15:52.575549" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/2d2ca2a7-26f5-497b-b5a4-a559a28f3042> .
+<https://service.tib.eu/ldmservice/organization/2d2ca2a7-26f5-497b-b5a4-a559a28f3042> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/2d2ca2a7-26f5-497b-b5a4-a559a28f3042> <http://www.w3.org/2000/01/rdf-schema#label> "ag-palm" .
+<https://service.tib.eu/ldmservice/organization/2d2ca2a7-26f5-497b-b5a4-a559a28f3042> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/ag-palm> .
+<https://service.tib.eu/ldmservice/organization/2d2ca2a7-26f5-497b-b5a4-a559a28f3042> <http://purl.org/dc/terms/title> "AG PALM" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/dc/terms/title> "A generic gust definition and detection method based on wavelet-analysis" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://purl.org/spar/datacite/usesIdentifierScheme> <https://doi.org/10.25835%2F0067988> .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/2006/vcard/ns#fn> "H. Knoop" .
+<https://research.tib.eu/ldm/c76adf5a-9aa8-4ebe-bbbe-0e61436cf033> <http://www.w3.org/2006/vcard/ns#hasEmail> "knoop@muk.uni-hannover.de" .
