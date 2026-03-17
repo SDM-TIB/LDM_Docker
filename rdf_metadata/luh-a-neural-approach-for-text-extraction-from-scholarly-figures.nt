@@ -1,0 +1,50 @@
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/modified> "2023-08-04T08:46:18.444285" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40300> .
+<https://research.tib.eu/ldm/40300> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40300> <http://www.w3.org/2000/01/rdf-schema#label> "David Morris" .
+<https://research.tib.eu/ldm/40300> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> . 
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40468> .
+<https://research.tib.eu/ldm/40468> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40468> <http://www.w3.org/2000/01/rdf-schema#label> "Peichen Tang" .
+<https://research.tib.eu/ldm/40468> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> . 
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/1911> .
+<https://research.tib.eu/ldm/1911> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/1911> <http://www.w3.org/2000/01/rdf-schema#label> "Ralph Ewerth" .
+<https://research.tib.eu/ldm/1911> <http://www.w3.org/2002/07/owl#sameAS> <https://orcid.org/0000-0003-0918-6297> .
+<https://research.tib.eu/ldm/1911> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> . 
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://purl.org/dc/terms/modified> "2023-08-04T08:46:18.451830" .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://purl.org/dc/terms/format> "ZIP" .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://www.w3.org/ns/dcat#accessURL> <https://data.uni-hannover.de/dataset/ef96d2db-9cbe-4738-b7bf-da556e12bdc2/resource/106f7149-6161-4117-893a-44990c05cbe4/download/code.zip> .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://www.w3.org/ns/dcat#byteSize> "798357692" .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://www.w3.org/ns/dcat#downloadURL> <https://data.uni-hannover.de/dataset/ef96d2db-9cbe-4738-b7bf-da556e12bdc2/resource/106f7149-6161-4117-893a-44990c05cbe4/download/code.zip> .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://purl.org/dc/terms/issued> "2019-06-27T16:35:58.670413" .
+<https://research.tib.eu/ldm/106f7149-6161-4117-893a-44990c05cbe4> <http://purl.org/dc/terms/title> "code.zip" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/9e42784b-6ee7-47e8-a69a-28b8c510212b> .
+<https://research.tib.eu/ldm/9e42784b-6ee7-47e8-a69a-28b8c510212b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/9e42784b-6ee7-47e8-a69a-28b8c510212b> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Active_learning_(machine_learning)> .
+<https://research.tib.eu/ldm/9e42784b-6ee7-47e8-a69a-28b8c510212b> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q2539> .
+<https://research.tib.eu/ldm/9e42784b-6ee7-47e8-a69a-28b8c510212b> <http://purl.org/dc/terms/title> "machine learning" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/f650b4e3-9955-49b0-ba7b-2d302a990978> .
+<https://research.tib.eu/ldm/f650b4e3-9955-49b0-ba7b-2d302a990978> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/f650b4e3-9955-49b0-ba7b-2d302a990978> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Autonomous_University_of_Barcelona> .
+<https://research.tib.eu/ldm/f650b4e3-9955-49b0-ba7b-2d302a990978> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q43452> .
+<https://research.tib.eu/ldm/f650b4e3-9955-49b0-ba7b-2d302a990978> <http://purl.org/dc/terms/title> "computer vision" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/fd068cc5-5d26-4f2e-a92f-a60ef2c33839> .
+<https://research.tib.eu/ldm/fd068cc5-5d26-4f2e-a92f-a60ef2c33839> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/fd068cc5-5d26-4f2e-a92f-a60ef2c33839> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Document_layout_analysis> .
+<https://research.tib.eu/ldm/fd068cc5-5d26-4f2e-a92f-a60ef2c33839> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q47988> .
+<https://research.tib.eu/ldm/fd068cc5-5d26-4f2e-a92f-a60ef2c33839> <http://purl.org/dc/terms/title> "document analysis" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/ns/dcat#landingPage> <https://data.uni-hannover.de/dataset/a-neural-approach-for-text-extraction-from-scholarly-figures> .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/identifier> "ef96d2db-9cbe-4738-b7bf-da556e12bdc2" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/issued> "2021-10-14T10:15:52.746653" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/dc/terms/title> "A Neural Approach for Text Extraction from Scholarly Figures" .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://purl.org/spar/datacite/usesIdentifierScheme> <https://doi.org/10.25835%2F0030443> .
+<https://research.tib.eu/ldm/ef96d2db-9cbe-4738-b7bf-da556e12bdc2> <http://www.w3.org/2006/vcard/ns#fn> "David Morris" .
