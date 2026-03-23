@@ -1,0 +1,77 @@
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/modified> "2022-06-13T06:47:00.239049" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40482> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/2000/01/rdf-schema#label> "John Doe" .
+<https://research.tib.eu/ldm/40482> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> . 
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/modified> "2022-06-13T06:43:27.904638" .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/format> "CSV" .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96/download/1-laurenz_meyhoefer_a.-proletella-performance.csv> .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#byteSize> "2017" .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96/download/1-laurenz_meyhoefer_a.-proletella-performance.csv> .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/description> "All data are analysed and published 2020 under the title \'Banker plants promote functional biodiversity and decrease populations of the cabbage whitefly Aleyrodes proletella\'.
+This dataset was published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/issued> "2022-06-13T06:42:45.477082" .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/title> "CSV Data Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://purl.org/dc/terms/modified> "2022-06-13T06:47:00.079076" .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://purl.org/dc/terms/format> "XLSX" .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/4a8809e3-7452-4e4a-9108-223c6bdb7102/download/jcdl-2019-dils-2019-papers-orkg-overview.xlsx> .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://www.w3.org/ns/dcat#byteSize> "32536" .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/4a8809e3-7452-4e4a-9108-223c6bdb7102/download/jcdl-2019-dils-2019-papers-orkg-overview.xlsx> .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://purl.org/dc/terms/description> "This is a XLSX file published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://purl.org/dc/terms/issued> "2022-06-13T06:46:05.214679" .
+<https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> <http://purl.org/dc/terms/title> "XLSX Data Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://purl.org/dc/terms/modified> "2022-06-13T06:44:07.355725" .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://purl.org/dc/terms/format> "XML" .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/5ab0c3ad-0086-4fae-b206-3954a4b147cd/download/2017-12-21_vnstat-export-br0.xml> .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://www.w3.org/ns/dcat#byteSize> "9610" .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/5ab0c3ad-0086-4fae-b206-3954a4b147cd/download/2017-12-21_vnstat-export-br0.xml> .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://purl.org/dc/terms/description> "This is a XML file published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://purl.org/dc/terms/issued> "2022-06-13T06:43:27.908833" .
+<https://research.tib.eu/ldm/5ab0c3ad-0086-4fae-b206-3954a4b147cd> <http://purl.org/dc/terms/title> "XML Data Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://purl.org/dc/terms/modified> "2022-06-13T06:47:00.242679" .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://purl.org/dc/terms/format> "ODS" .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/6fe73326-888d-4190-9a5d-09e65cd5d58b/download/sample1.ods> .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://www.w3.org/ns/dcat#byteSize> "19587" .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/6fe73326-888d-4190-9a5d-09e65cd5d58b/download/sample1.ods> .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://purl.org/dc/terms/description> "This is just an example file of the format for visualization." .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://purl.org/dc/terms/issued> "2022-06-13T06:47:00.084311" .
+<https://research.tib.eu/ldm/6fe73326-888d-4190-9a5d-09e65cd5d58b> <http://purl.org/dc/terms/title> "Open Document Spreadsheet (ODS) Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://purl.org/dc/terms/modified> "2022-06-13T06:46:05.209876" .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://purl.org/dc/terms/format> "RDF" .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/75d19a29-b1fe-4327-b09c-dcf8b828df9c/download/luh-beispiel-netzwerkmessdaten.rdf> .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://www.w3.org/ns/dcat#byteSize> "6203" .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/75d19a29-b1fe-4327-b09c-dcf8b828df9c/download/luh-beispiel-netzwerkmessdaten.rdf> .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://purl.org/dc/terms/description> "This is a RDF file example generated from data published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://purl.org/dc/terms/issued> "2022-06-13T06:45:06.685501" .
+<https://research.tib.eu/ldm/75d19a29-b1fe-4327-b09c-dcf8b828df9c> <http://purl.org/dc/terms/title> "RDF Data Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://purl.org/dc/terms/modified> "2022-06-13T06:45:06.680887" .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://purl.org/dc/terms/format> "JSON" .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/8b27c588-9ca1-451f-8d22-86df37613355/download/2017-12-21_vnstat-export-br0.json> .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://www.w3.org/ns/dcat#byteSize> "6211" .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/8b27c588-9ca1-451f-8d22-86df37613355/download/2017-12-21_vnstat-export-br0.json> .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://purl.org/dc/terms/description> "This is a JSON file published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://purl.org/dc/terms/issued> "2022-06-13T06:44:07.359897" .
+<https://research.tib.eu/ldm/8b27c588-9ca1-451f-8d22-86df37613355> <http://purl.org/dc/terms/title> "JSON Data Example" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/description> "This is an example Dataset showing visualizations for data in different formats." .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/identifier> "abe34d5b-89dc-45a6-ace3-edef03a98e25" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/issued> "2022-06-13T06:41:25.981748" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://purl.org/dc/terms/title> "Example Data Formats Visualizations" .
+<https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/2006/vcard/ns#fn> "John Doe" .

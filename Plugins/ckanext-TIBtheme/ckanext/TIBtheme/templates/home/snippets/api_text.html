@@ -1,0 +1,192 @@
+{% set current_lang = request.environ.CKAN_LANG %}
+
+{% if current_lang == 'de' %}
+
+<h1 class="page-heading">{{ "APIs angeboten vom Leibniz-Datenmanager" }}</h1>
+
+<p>Der <strong>Leibniz Data Manager (LDM)</strong> ist eine Open-Source- und frei verfügbare webbasierte Anwendung
+    für Forschungsdatenmanagement (FDM). Um die Integration mit externen Werkzeugen und Arbeitsabläufen zu erleichtern,
+    bietet der LDM eine Reihe von APIs an, die verschiedene Zwecke im Bereich des Datenmanagements erfüllen.
+</p>
+
+<p>Die angebotenen APIs können in den folgenden Bereichen eingesetzt werden:</p>
+
+<ul>
+    <li>
+        <b>Service für Datenvergleich:</b> Diese API ermöglicht den direkten Vergleich von CSV-Datensätzen
+        nebeneinander. Laden Sie zwei oder mehr CSV-Dateien hoch, verbinden Sie diese über eine gemeinsame
+        Schlüsselspalte und erkunden Sie das Ergebnis in einer filterbaren Tabelle. Visualisierungen können als
+        Linien-, Streu- oder Balkendiagramm mit optionaler logarithmischer Skala erstellt werden.
+        <ul>
+            <li>Schrittweises Laden von Ressourcen – beginnen Sie mit einer einzelnen CSV-Datei und ergänzen Sie weitere</li>
+            <li>Automatischer Left-Join über die erste gemeinsame Spalte</li>
+            <li>Filterbare Tabelle mit spaltenbasierter Suche und Seitennavigation (DataTables)</li>
+            <li>Interaktive Diagramme mit wählbaren Serien und Filterung auf sichtbare Zeilen (Plotly)</li>
+            <li>Verfügbar als Docker-Container oder lokale Python-Anwendung</li>
+        </ul>
+        Diese API ist verfügbar auf <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/data_comparison"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service für die Ausführung von Jupyter Notebooks:</b> Eine containerisierte, multiuserfähige
+        JupyterHub-Instanz mit einer einheitlichen REST-API zur Verwaltung von Notebooks. Entwickelt für die
+        Integration in externe Anwendungen, die temporäre Jupyter-Umgebungen starten und Notebooks für Endnutzer
+        bereitstellen müssen.
+        <ul>
+            <li>Pool konfigurierbarer Gastnutzer für gleichzeitige Sitzungen (z.&nbsp;B. <code>guest0..guestN</code>)</li>
+            <li>Automatische Bereinigung inaktiver Server mit konfigurierbaren Zeitlimits und Kernel-Lebenszyklusverwaltung</li>
+            <li>Pro-Container-Ressourcenlimits für CPU, Arbeitsspeicher und Festplattenplatz</li>
+            <li>Admin-Dashboard zur Konfiguration von Limits und Überwachung aktiver Sitzungen</li>
+            <li>Einheitliche REST-API über einen einzigen Port für alle Operationen</li>
+        </ul>
+        Diese API ist verfügbar auf <a href="https://github.com/SDM-TIB/jupyterhub-standalone/tree/d37bb1f3746b3b51ed7653bf5d6e4eb770f2c13a"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service zur Erstellung von Knowledge Graphs:</b> Diese API transformiert heterogene Datenquellen
+        mithilfe von SDM-RDFizer und RML-Mappings in RDF-Knowledge-Graphs. RML (RDF Mapping Language) ist eine
+        deklarative Sprache, mit der definiert wird, wie Datenelemente aus Quellen wie CSV, JSON oder XML auf
+        RDF-Subjekte, Prädikate und Objekte abgebildet werden. Die API ermöglicht es Nutzern, Datensätze und
+        RML-Mappingregeln einzureichen, den Transformationsprozess automatisch auszuführen und den resultierenden
+        Knowledge Graph in einen angegebenen Ausgabeordner zu exportieren.
+        <ul>
+            <li>Unterstützt heterogene Quellformate (CSV, JSON, XML, relationale Datenbanken)</li>
+            <li>Automatisierte RDF-Tripel-Generierung auf Basis von RML-Mappingregeln</li>
+            <li>Ausgabe des Knowledge Graphs in einen konfigurierbaren Ordner</li>
+        </ul>
+        Diese API ist verfügbar auf <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_creation/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service zur Integration von Knowledge Graphs:</b> Diese API bildet Metadateneigenschaften von
+        Datensätzen auf diejenigen ab, die in einer Mapping-Vorlage definiert sind. Der Zweck dieses Services
+        besteht darin, Metadaten von Datensätzen auf die Struktur abzubilden, die von der Datensatzvorlage des
+        Leibniz Data Managers (LDM) verlangt wird, um den Import von Datensätzen in die Plattform zu erleichtern.
+        <ul>
+            <li>Nutzerdefinierte Mapping-Vorlagen zur Verknüpfung vorhandener Metadateneigenschaften</li>
+            <li>Unterstützung für verschachtelte Metadatenstrukturen über Iterator-Konfiguration</li>
+            <li>Erzeugung einer strukturierten Ausgabedatei, die mit dem LDM-Template kompatibel ist</li>
+        </ul>
+        Diese API ist verfügbar auf <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_integration/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service zur Exploration von Knowledge Graphs:</b> Diese API liefert Metadaten zu Datensätzen, die
+        mit einer wissenschaftlichen Publikation oder mit der ORCID eines Autors verbunden sind. Sie unterstützt
+        sowohl die Abfrage einzelner Einträge als auch die Stapelverarbeitung mehrerer DOIs in einem einzigen
+        Aufruf.
+        <ul>
+            <li>Abfrage von Datensatzmetadaten anhand einer DOI (einzeln oder als Batch mehrerer DOIs)</li>
+            <li>Abfrage von Datensatzmetadaten anhand der ORCID eines Autors</li>
+            <li>Abruf von Datensätzen, die Werke eines Autors zitieren, anhand der ORCID</li>
+            <li>Unterstützt sowohl GET- als auch POST-Anfragen</li>
+        </ul>
+        Diese API ist verfügbar auf <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_exploration/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+</ul>
+
+<p>Alle verfügbaren APIs finden Sie in diesem <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs"
+        title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>-Repository.</p>
+
+<p>Bitte kontaktieren Sie uns unter <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a>, wenn Sie Kommentare oder Fragen haben.</p>
+<p>&nbsp;</p>
+
+{% else %}
+
+<h1 class="page-heading">{{ "APIs offered by the Leibniz Data Manager" }}</h1>
+
+<p>The <strong>Leibniz Data Manager (LDM)</strong> is an open-source and free web-based application
+    for Research Data Management (RDM). To facilitate integration with external tools and workflows,
+    the LDM offers a series of APIs that fulfil various data management purposes.
+</p>
+
+<p>The APIs offered can be applied in the following areas:</p>
+
+<ul>
+    <li>
+        <b>Service for Data Comparison:</b> This API enables direct side-by-side comparison of CSV datasets.
+        Upload two or more CSV files, join them on a shared key column, and explore the result in a filterable
+        table. Visualisations can be rendered as line, scatter, or bar charts with an optional logarithmic scale.
+        <ul>
+            <li>Incremental resource loading — start with a single CSV and join additional files one at a time</li>
+            <li>Automatic left-join on the first shared column across datasets</li>
+            <li>Filterable table with column-level search and pagination (DataTables)</li>
+            <li>Interactive charts with selectable series and filtering to currently visible rows (Plotly)</li>
+            <li>Available as a Docker container or a local Python application</li>
+        </ul>
+        This API is available on <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/data_comparison"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service for Jupyter Notebook Execution:</b> A containerised, multi-user JupyterHub instance with a
+        unified REST API for notebook management. Designed for integration into external applications that need
+        to spawn temporary Jupyter environments and serve notebooks to end users.
+        <ul>
+            <li>Configurable pool of guest users for concurrent sessions (e.g. <code>guest0..guestN</code>)</li>
+            <li>Automatic cleanup of idle servers with configurable timeouts and kernel lifecycle management</li>
+            <li>Per-container resource limits for CPU, memory, and disk</li>
+            <li>Admin dashboard for configuring limits and monitoring active sessions</li>
+            <li>Unified REST API on a single port for all operations</li>
+        </ul>
+        This API is available on <a href="https://github.com/SDM-TIB/jupyterhub-standalone/tree/d37bb1f3746b3b51ed7653bf5d6e4eb770f2c13a"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service for Knowledge Graph Creation:</b> This API transforms heterogeneous data sources into RDF
+        knowledge graphs using SDM-RDFizer executed with RML mappings. RML (RDF Mapping Language) is a
+        declarative language for defining how data elements from sources such as CSV, JSON, or XML correspond to
+        RDF subjects, predicates, and objects. The API allows users to submit datasets and RML mapping rules,
+        automatically execute the transformation process, and output the resulting knowledge graph to a specified
+        folder.
+        <ul>
+            <li>Supports heterogeneous source formats (CSV, JSON, XML, relational databases)</li>
+            <li>Automated RDF triple generation based on RML mapping rules</li>
+            <li>Knowledge graph output to a configurable folder</li>
+        </ul>
+        This API is available on <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_creation/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service for Knowledge Graph Integration:</b> This API maps dataset metadata properties to those
+        defined in a mapping template. The purpose of this service is to map dataset metadata to the structure
+        required by the dataset template of the Leibniz Data Manager (LDM), facilitating easier import of
+        datasets into the platform.
+        <ul>
+            <li>User-defined mapping templates for linking existing metadata properties</li>
+            <li>Support for nested metadata structures via iterator configuration</li>
+            <li>Generates a structured output file compatible with the LDM dataset template</li>
+        </ul>
+        This API is available on <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_integration/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+
+    <li>
+        <b>Service for Knowledge Graph Exploration:</b> This API returns metadata about datasets associated
+        with a scientific publication or an author's ORCID. It supports both single-entry lookups and batch
+        processing of multiple DOIs in a single request.
+        <ul>
+            <li>Retrieve dataset metadata by DOI — individually or as a batch of multiple DOIs</li>
+            <li>Retrieve dataset metadata by an author's ORCID</li>
+            <li>Retrieve datasets citing an author's work, identified by ORCID</li>
+            <li>Supports both GET and POST requests</li>
+        </ul>
+        This API is available on <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs/tree/main/knowledge_graph_managment/knowledge_graph_exploration/api"
+            title="GitHub" target="_blank" class="external-link-new-window">GitHub</a>.
+    </li>
+</ul>
+
+<p>All available APIs can be found in this <a href="https://github.com/SDM-TIB/FAIR_RDM_APIs"
+        title="GitHub" target="_blank" class="external-link-new-window">GitHub</a> repository.</p>
+
+<p>Please contact us at <a href="mailto:service.ldm@tib.eu">service.ldm@tib.eu</a> if you have any comments or questions.</p>
+<p>&nbsp;</p>
+
+{% endif %}

@@ -1,0 +1,133 @@
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#DataService> .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/modified> "2025-09-10T13:15:27.330807" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/20> .
+<https://research.tib.eu/ldm/20> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/20> <http://www.w3.org/2000/01/rdf-schema#label> "Maria-Esther Vidal" .
+<https://research.tib.eu/ldm/20> <http://www.w3.org/2002/07/owl#sameAS> <https://orcid.org/0000-0003-1160-8727> .
+<https://research.tib.eu/ldm/20> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> . 
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/1722> .
+<https://research.tib.eu/ldm/1722> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/1722> <http://www.w3.org/2000/01/rdf-schema#label> "Brunet Mauricio" .
+<https://research.tib.eu/ldm/1722> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> . 
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/1724> .
+<https://research.tib.eu/ldm/1724> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/1724> <http://www.w3.org/2000/01/rdf-schema#label> "Ariam Rivas" .
+<https://research.tib.eu/ldm/1724> <http://www.w3.org/2002/07/owl#sameAS> <https://orcid.org/0000-0003-4916-5220> .
+<https://research.tib.eu/ldm/1724> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> . 
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://purl.org/dc/terms/modified> "2024-12-04T10:42:10.400926" .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/264860be-6525-406d-9d77-73d8fe9110a8/download/exploratory_data_analysis.ipynb> .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://www.w3.org/ns/dcat#byteSize> "198119" .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/264860be-6525-406d-9d77-73d8fe9110a8/download/exploratory_data_analysis.ipynb> .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://purl.org/dc/terms/issued> "2021-11-19T09:23:45.540491" .
+<https://research.tib.eu/ldm/264860be-6525-406d-9d77-73d8fe9110a8> <http://purl.org/dc/terms/title> "JN example" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://purl.org/dc/terms/modified> "2025-02-07T11:52:45.259645" .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/317d7e88-b403-4059-8699-d7d74e046d06/download/r_example.ipynb> .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://www.w3.org/ns/dcat#byteSize> "2552" .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/317d7e88-b403-4059-8699-d7d74e046d06/download/r_example.ipynb> .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://purl.org/dc/terms/issued> "2025-02-07T11:51:41.849763" .
+<https://research.tib.eu/ldm/317d7e88-b403-4059-8699-d7d74e046d06> <http://purl.org/dc/terms/title> "R Example" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://purl.org/dc/terms/modified> "2025-07-31T11:35:54.972723" .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/664e5740-5f3f-43f6-9f53-a09866867fa3/download/link_prediction_example.ipynb> .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://www.w3.org/ns/dcat#byteSize> "567054" .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/664e5740-5f3f-43f6-9f53-a09866867fa3/download/link_prediction_example.ipynb> .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://purl.org/dc/terms/issued> "2025-07-31T11:35:54.980562" .
+<https://research.tib.eu/ldm/664e5740-5f3f-43f6-9f53-a09866867fa3> <http://purl.org/dc/terms/title> "LP example" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://purl.org/dc/terms/modified> "2023-08-27T00:00:03.211758" .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://purl.org/dc/terms/format> "TXT" .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380/download/resource_update_daily.txt> .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://www.w3.org/ns/dcat#byteSize> "24" .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380/download/resource_update_daily.txt> .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://purl.org/dc/terms/issued> "2022-03-10T10:33:37.429813" .
+<https://research.tib.eu/ldm/67dfc517-ed46-43ca-9ebc-f2a7bf1ca380> <http://purl.org/dc/terms/title> "Test autoupdate daily" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://purl.org/dc/terms/modified> "2025-07-31T13:02:00.676580" .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/99876b30-c4e3-4d4d-bd81-56fda4d19727/download/symboliclearning_kge.ipynb> .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://www.w3.org/ns/dcat#byteSize> "53025" .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/99876b30-c4e3-4d4d-bd81-56fda4d19727/download/symboliclearning_kge.ipynb> .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://purl.org/dc/terms/description> "Pattern Detection, Analysis and Explanation over Lung Cancer Knowledge Graph" .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://purl.org/dc/terms/issued> "2025-07-31T13:02:00.690627" .
+<https://research.tib.eu/ldm/99876b30-c4e3-4d4d-bd81-56fda4d19727> <http://purl.org/dc/terms/title> "Symbolic Learning and Knowledge Graph Embeddings" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://purl.org/dc/terms/modified> "2025-04-08T12:55:20.941672" .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://purl.org/dc/terms/format> "R" .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/a34377cf-ed79-49d0-8eeb-8fb1df47cff1/download/untitled.r> .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://www.w3.org/ns/dcat#byteSize> "1006" .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/a34377cf-ed79-49d0-8eeb-8fb1df47cff1/download/untitled.r> .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://purl.org/dc/terms/issued> "2025-04-08T12:55:20.949544" .
+<https://research.tib.eu/ldm/a34377cf-ed79-49d0-8eeb-8fb1df47cff1> <http://purl.org/dc/terms/title> "example r" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://purl.org/dc/terms/modified> "2022-02-17T09:53:07.493172" .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://purl.org/dc/terms/format> "WebM" .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/a689c791-1cc9-4e29-8989-e4734e2d919f/download/sdm_tool_short_52.webm> .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://www.w3.org/ns/dcat#byteSize> "211320341" .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/a689c791-1cc9-4e29-8989-e4734e2d919f/download/sdm_tool_short_52.webm> .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://purl.org/dc/terms/issued> "2022-02-16T10:20:18.984853" .
+<https://research.tib.eu/ldm/a689c791-1cc9-4e29-8989-e4734e2d919f> <http://purl.org/dc/terms/title> "testing big file" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://purl.org/dc/terms/modified> "2025-09-10T13:15:27.335988" .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/af7dcd64-7986-42a0-9e39-b3d4d33c6b04/download/symboliclearning_kge1.ipynb> .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://www.w3.org/ns/dcat#byteSize> "53025" .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/af7dcd64-7986-42a0-9e39-b3d4d33c6b04/download/symboliclearning_kge1.ipynb> .
+<https://research.tib.eu/ldm/af7dcd64-7986-42a0-9e39-b3d4d33c6b04> <http://purl.org/dc/terms/issued> "2025-09-10T13:15:27.345014" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://purl.org/dc/terms/modified> "2023-05-01T03:00:02.205463" .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://purl.org/dc/terms/format> "TXT" .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/b72b0889-7081-4c5b-9b45-d648cf65aef9/download/resource_update_monthly.txt> .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://www.w3.org/ns/dcat#byteSize> "26" .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/b72b0889-7081-4c5b-9b45-d648cf65aef9/download/resource_update_monthly.txt> .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://purl.org/dc/terms/issued> "2022-03-10T10:34:54.393120" .
+<https://research.tib.eu/ldm/b72b0889-7081-4c5b-9b45-d648cf65aef9> <http://purl.org/dc/terms/title> "Test autoupdate monthly" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://purl.org/dc/terms/modified> "2022-01-19T09:42:50.251964" .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://purl.org/dc/terms/format> "TXT" .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/c8be2c50-6c65-4822-ab9f-870ac36fc703/download/justtext.txt> .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://www.w3.org/ns/dcat#byteSize> "17" .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/c8be2c50-6c65-4822-ab9f-870ac36fc703/download/justtext.txt> .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://purl.org/dc/terms/issued> "2021-11-12T11:04:54.354381" .
+<https://research.tib.eu/ldm/c8be2c50-6c65-4822-ab9f-870ac36fc703> <http://purl.org/dc/terms/title> "Text" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://purl.org/dc/terms/modified> "2023-08-21T02:00:02.732095" .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://purl.org/dc/terms/format> "TXT" .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2/download/resource_update_weekly.txt> .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://www.w3.org/ns/dcat#byteSize> "25" .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2/download/resource_update_weekly.txt> .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://purl.org/dc/terms/issued> "2022-03-10T10:34:16.113171" .
+<https://research.tib.eu/ldm/cb7ed7ae-2b9b-4271-a97e-8a926d3b27b2> <http://purl.org/dc/terms/title> "Test autoupdate weekly" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://purl.org/dc/terms/modified> "2025-04-08T12:55:22.551735" .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://purl.org/dc/terms/format> "ipynb" .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://www.w3.org/ns/dcat#accessURL> <https://ldm01.develop.service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/e5430702-4820-4627-aa5e-b69338d74bf2/download/exampler(Notebook).ipynb> .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://www.w3.org/ns/dcat#downloadURL> <https://ldm01.develop.service.tib.eu/ldmservice/dataset/672f2339-c57f-48f5-a681-b62acc50f488/resource/e5430702-4820-4627-aa5e-b69338d74bf2/download/exampler(Notebook).ipynb> .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://purl.org/dc/terms/issued> "2025-04-08T12:55:21.872255" .
+<https://research.tib.eu/ldm/e5430702-4820-4627-aa5e-b69338d74bf2> <http://purl.org/dc/terms/title> "example r (Notebook)" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/description> "This is an example of a dummy service created just for testing. We are working to populate the prototype with new updated and real life services and datasets." .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/identifier> "672f2339-c57f-48f5-a681-b62acc50f488" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/issued> "2021-11-12T11:03:15.204772" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://purl.org/dc/terms/title> "Service Example" .
+<https://research.tib.eu/ldm/672f2339-c57f-48f5-a681-b62acc50f488> <http://www.w3.org/2006/vcard/ns#fn> "Brunet Mauricio" .

@@ -1,3 +1,0 @@
-beautifulsoup4==4.8.2
-pytest-ckan
-pytest-cov==2.7.1

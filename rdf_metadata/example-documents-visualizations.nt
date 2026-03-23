@@ -1,0 +1,89 @@
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/modified> "2022-06-13T06:39:24.560824" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40482> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/2000/01/rdf-schema#label> "John Doe" .
+<https://research.tib.eu/ldm/40482> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> . 
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://purl.org/dc/terms/modified> "2022-06-13T06:39:24.380514" .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://purl.org/dc/terms/format> "ODT" .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/19d40f31-d2c3-4900-8402-7458251d9b6e/download/sample1.odt> .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://www.w3.org/ns/dcat#byteSize> "21423" .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/19d40f31-d2c3-4900-8402-7458251d9b6e/download/sample1.odt> .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://purl.org/dc/terms/description> "This is just an example for visualization." .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://purl.org/dc/terms/issued> "2022-06-13T06:38:20.643723" .
+<https://research.tib.eu/ldm/19d40f31-d2c3-4900-8402-7458251d9b6e> <http://purl.org/dc/terms/title> "OpenOffice Writer example (ODT)" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://purl.org/dc/terms/modified> "2022-06-13T06:39:24.564810" .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://purl.org/dc/terms/format> "ODP" .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f/download/sample1.odp> .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://www.w3.org/ns/dcat#byteSize> "389789" .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f/download/sample1.odp> .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://purl.org/dc/terms/description> "This is just an example file for visualization." .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://purl.org/dc/terms/issued> "2022-06-13T06:39:24.385748" .
+<https://research.tib.eu/ldm/3ecda15f-bcb6-49e3-98fe-ea3b354ec06f> <http://purl.org/dc/terms/title> "Open Document Presentation (ODP)" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/modified> "2022-06-13T06:37:10.783898" .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/format> "JPEG" .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/6ef14c56-8de5-41f8-8333-e6428cc561ef/download/gtem_1250.jpg> .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#byteSize> "2437112" .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/6ef14c56-8de5-41f8-8333-e6428cc561ef/download/gtem_1250.jpg> .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/description> "Picture of the GTEM 1250 cell.
+Image published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/issued> "2022-06-13T06:36:24.912114" .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/title> "JPG Image example" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://purl.org/dc/terms/modified> "2022-06-13T06:35:37.870259" .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://purl.org/dc/terms/format> "TXT" .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/998f246f-2e3e-42c8-87cd-dc9241148e83/download/text_example.txt> .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://www.w3.org/ns/dcat#byteSize> "2330" .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/998f246f-2e3e-42c8-87cd-dc9241148e83/download/text_example.txt> .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://purl.org/dc/terms/description> "This is just text for visualization." .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://purl.org/dc/terms/issued> "2022-06-13T06:34:45.706238" .
+<https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> <http://purl.org/dc/terms/title> "Text file example (TXT)" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/modified> "2022-06-13T06:34:45.702154" .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/format> "PDF" .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/ad15ee0f-8501-43ca-8188-798550b60dec/download/data_description.pdf> .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#byteSize> "962808" .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/ad15ee0f-8501-43ca-8188-798550b60dec/download/data_description.pdf> .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/description> "To analyse the stochastic properties of the laser tracker Leica AT960-LR, five fix points spatially distributed were continuously observed from three different positions in the 3D.
+Published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/issued> "2022-06-13T06:33:54.472815" .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/title> "Data Description (PDF)" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/modified> "2022-06-13T06:36:24.907498" .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/format> "PNG" .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/e3bf9e67-3bec-4696-ab04-86c2bcc64355/download/junctiona.png> .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#byteSize> "2085108" .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/e3bf9e67-3bec-4696-ab04-86c2bcc64355/download/junctiona.png> .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/description> "Intersection A with overlaid trajectory samples and background image.
+Image published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/issued> "2022-06-13T06:35:37.874536" .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/title> "PNG image example" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://purl.org/dc/terms/modified> "2022-06-13T06:38:20.638632" .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://purl.org/dc/terms/format> "GIF" .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/f30297a2-6127-4f32-b83e-45abd460bf10/download/giphy.gif> .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://www.w3.org/ns/dcat#byteSize> "3132208" .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/f30297a2-6127-4f32-b83e-45abd460bf10/download/giphy.gif> .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://purl.org/dc/terms/description> "Just a GIF image for visualization." .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://purl.org/dc/terms/issued> "2022-06-13T06:37:10.788704" .
+<https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> <http://purl.org/dc/terms/title> "GIF image example" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/description> "This is an example Dataset showing visualizations for documents in different formats." .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/identifier> "416b1441-cac9-4f9a-bb30-db1fb160ea65" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/issued> "2022-06-13T06:32:24.216226" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://purl.org/dc/terms/title> "Example Documents Visualizations" .
+<https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/2006/vcard/ns#fn> "John Doe" .

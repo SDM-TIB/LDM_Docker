@@ -1,0 +1,79 @@
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset> .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/modified> "2022-06-13T06:29:36.923184" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/creator> <https://research.tib.eu/ldm/40482> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/pro/Author> .
+<https://research.tib.eu/ldm/40482> <http://www.w3.org/2000/01/rdf-schema#label> "John Doe" .
+<https://research.tib.eu/ldm/40482> <http://purl.org/spar/pro/authorOf> <https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> . 
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/license> "http://www.opendefinition.org/licenses/cc-by" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://purl.org/dc/terms/modified> "2022-06-13T06:29:36.926526" .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://purl.org/dc/terms/format> "OGG" .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/1554f1ee-0425-4efd-94fb-8c16d6757702/download/spring.ogg> .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://www.w3.org/ns/dcat#byteSize> "543985" .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/1554f1ee-0425-4efd-94fb-8c16d6757702/download/spring.ogg> .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://purl.org/dc/terms/description> "The video was published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://purl.org/dc/terms/issued> "2022-06-13T06:29:36.767118" .
+<https://research.tib.eu/ldm/1554f1ee-0425-4efd-94fb-8c16d6757702> <http://purl.org/dc/terms/title> "Boundary value problem of a spring (OGG)" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://purl.org/dc/terms/modified> "2022-06-13T06:29:36.752680" .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://purl.org/dc/terms/format> "WebM" .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/82451693-de7a-4275-8c18-22484d7b12c1/download/pushrod.webm> .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://www.w3.org/ns/dcat#byteSize> "369844" .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/82451693-de7a-4275-8c18-22484d7b12c1/download/pushrod.webm> .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://purl.org/dc/terms/description> "The video was published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://purl.org/dc/terms/issued> "2022-06-13T06:28:49.376022" .
+<https://research.tib.eu/ldm/82451693-de7a-4275-8c18-22484d7b12c1> <http://purl.org/dc/terms/title> "Boundary value problem of a push rod (WEBM)" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Distribution> .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://purl.org/dc/terms/modified> "2022-06-13T06:28:49.360397" .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://purl.org/dc/terms/format> "MP4" .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/ed5a1c08-e020-442a-a4ad-0a715a89805f/download/stf50_autocombustions_with_varying_phi_v2_hd.mp4> .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://www.w3.org/ns/dcat#byteSize> "71194509" .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/30bb224e-7474-4495-bd8e-96c7d3f1b22e/resource/ed5a1c08-e020-442a-a4ad-0a715a89805f/download/stf50_autocombustions_with_varying_phi_v2_hd.mp4> .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://purl.org/dc/terms/issued> "2022-06-13T06:27:45.483239" .
+<https://research.tib.eu/ldm/ed5a1c08-e020-442a-a4ad-0a715a89805f> <http://purl.org/dc/terms/title> "STF50 autocombustions with varying Phi (MP4)" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/7d945dfc-6203-4ef8-8369-90704d7498ac> .
+<https://research.tib.eu/ldm/7d945dfc-6203-4ef8-8369-90704d7498ac> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/7d945dfc-6203-4ef8-8369-90704d7498ac> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Video> .
+<https://research.tib.eu/ldm/7d945dfc-6203-4ef8-8369-90704d7498ac> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q7889> .
+<https://research.tib.eu/ldm/7d945dfc-6203-4ef8-8369-90704d7498ac> <http://purl.org/dc/terms/title> "Video" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/a6bbc1be-05c4-406c-8d13-b9e2018b311a> .
+<https://research.tib.eu/ldm/a6bbc1be-05c4-406c-8d13-b9e2018b311a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/a6bbc1be-05c4-406c-8d13-b9e2018b311a> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Experiment> .
+<https://research.tib.eu/ldm/a6bbc1be-05c4-406c-8d13-b9e2018b311a> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q186422> .
+<https://research.tib.eu/ldm/a6bbc1be-05c4-406c-8d13-b9e2018b311a> <http://purl.org/dc/terms/title> "Experiment" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/23f7f291-52c1-4942-aa23-008a9b23a5e1> .
+<https://research.tib.eu/ldm/23f7f291-52c1-4942-aa23-008a9b23a5e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/23f7f291-52c1-4942-aa23-008a9b23a5e1> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Combustion> .
+<https://research.tib.eu/ldm/23f7f291-52c1-4942-aa23-008a9b23a5e1> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q133235> .
+<https://research.tib.eu/ldm/23f7f291-52c1-4942-aa23-008a9b23a5e1> <http://purl.org/dc/terms/title> "Combustion" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/53b4f8bd-5778-4ece-b3ac-78e8a60be011> .
+<https://research.tib.eu/ldm/53b4f8bd-5778-4ece-b3ac-78e8a60be011> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/53b4f8bd-5778-4ece-b3ac-78e8a60be011> <http://purl.org/dc/terms/title> "STF50" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/5df7cf26-78df-4382-b27d-fad8237cf180> .
+<https://research.tib.eu/ldm/5df7cf26-78df-4382-b27d-fad8237cf180> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/5df7cf26-78df-4382-b27d-fad8237cf180> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Creative_Assembly> .
+<https://research.tib.eu/ldm/5df7cf26-78df-4382-b27d-fad8237cf180> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q16> .
+<https://research.tib.eu/ldm/5df7cf26-78df-4382-b27d-fad8237cf180> <http://purl.org/dc/terms/title> "CA" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/9d0587af-aad0-4352-ab8f-fc7b90f7430b> .
+<https://research.tib.eu/ldm/9d0587af-aad0-4352-ab8f-fc7b90f7430b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/9d0587af-aad0-4352-ab8f-fc7b90f7430b> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Ethylenediaminetetraacetic_acid> .
+<https://research.tib.eu/ldm/9d0587af-aad0-4352-ab8f-fc7b90f7430b> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q408032> .
+<https://research.tib.eu/ldm/9d0587af-aad0-4352-ab8f-fc7b90f7430b> <http://purl.org/dc/terms/title> "EDTA" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/ns/dcat#keyword> <https://research.tib.eu/ldm/a292a3c1-b272-4c02-bfb2-385e12ff6b66> .
+<https://research.tib.eu/ldm/a292a3c1-b272-4c02-bfb2-385e12ff6b66> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<https://research.tib.eu/ldm/a292a3c1-b272-4c02-bfb2-385e12ff6b66> <http://www.w3.org/2002/07/owl#sameAs> <http://dbpedia.org/resource/Desulfonylation_reactions> .
+<https://research.tib.eu/ldm/a292a3c1-b272-4c02-bfb2-385e12ff6b66> <http://www.w3.org/2002/07/owl#sameAs> <http://www.wikidata.org/entity/Q220389> .
+<https://research.tib.eu/ldm/a292a3c1-b272-4c02-bfb2-385e12ff6b66> <http://purl.org/dc/terms/title> "Reactions" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/description> "Video about auto combustion reactions of STF50 with EDTA+CA: variying phi. Video about boundary value problem of a push rod. The video was published by Leibniz University Hannover. Video about boundary value problem of a spring. The video was published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/identifier> "30bb224e-7474-4495-bd8e-96c7d3f1b22e" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/issued> "2022-06-13T06:25:38.846167" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/publisher> <https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2006/vcard/ns#Organization> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/2000/01/rdf-schema#label> "tib" .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://www.w3.org/ns/dcat#landingPage> <https://service.tib.eu/ldmservice/organization/tib> .
+<https://service.tib.eu/ldmservice/organization/0c5362f5-b99e-41db-8256-3d0d7549bf4d> <http://purl.org/dc/terms/title> "TIB" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://purl.org/dc/terms/title> "Example Video Visualizations" .
+<https://research.tib.eu/ldm/30bb224e-7474-4495-bd8e-96c7d3f1b22e> <http://www.w3.org/2006/vcard/ns#fn> "John Doe" .

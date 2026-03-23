@@ -148,6 +148,7 @@ ARG VER_CKANEXT_FALCON="2cb86e0"
 ARG VER_CKANEXT_KGCREATION="11cd45c"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="5794bed"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
+ARG VER_CKANEXT_SHOWCASE="1.6.1"
 
 # TEXTVIEW
 # ********
@@ -215,9 +216,8 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-fedorkg@v${VER_CK
 
 # Showcase Plugin:
 # ******************
-COPY ./Plugins/ckanext-showcase $CKAN_HOME_L/src/ckanext-showcase
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-showcase
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-showcase/requirements.txt
+RUN ckan-pip install -e git+https://github.com/ckan/ckanext-showcase@v${VER_CKANEXT_SHOWCASE}#egg=ckanext-showcase --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/ckan/ckanext-showcase/refs/tags/v${VER_CKANEXT_SHOWCASE}/requirements.txt
 
 # LDMoAuth Plugin:
 # ******************
