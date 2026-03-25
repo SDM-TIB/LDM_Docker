@@ -80,7 +80,11 @@ impl App {
                         Ok(res) => {
                             if let Some(text) = res.text() {
                                 let (nodes, edges) = parse_n3_to_graph(text);
-                                *app_state = AppState::Ready { nodes, edges };
+                                *app_state = AppState::Ready {
+                                    selected_entrypoint: "placeholder".to_string(),
+                                    nodes,
+                                    edges
+                                };
                             } else {
                                 *app_state = AppState::Error("failed to read text from n3".into());
                             }
