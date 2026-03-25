@@ -145,25 +145,25 @@ impl eframe::App for App {
                         }
                     }
 
-                    if ui.button("Load sample.n3").clicked() {
-                        let mut state_lock = self.state.lock().unwrap();
-                        *state_lock = AppState::Loading;
+                    // if ui.button("Load sample.n3").clicked() {
+                    //     let mut state_lock = self.state.lock().unwrap();
+                    //     *state_lock = AppState::Loading;
 
-                        match load_local_file("sample.n3") {
-                            Ok((nodes, edges)) => {
-                                *state_lock = AppState::Ready {
-                                    selected_entrypoint: "file_loaded".to_string(),
-                                    nodes,
-                                    edges,
-                                };
-                                self.zoom = 1.0;
-                                self.pan = egui::vec2(400.0, 300.0);
-                            }
-                            Err(err_msg) => {
-                                *state_lock = AppState::Error(err_msg);
-                            }
-                        }
-                    }
+                    //     match load_local_file("sample.n3") {
+                    //         Ok((nodes, edges)) => {
+                    //             *state_lock = AppState::Ready {
+                    //                 selected_entrypoint: "file_loaded".to_string(),
+                    //                 nodes,
+                    //                 edges,
+                    //             };
+                    //             self.zoom = 1.0;
+                    //             self.pan = egui::vec2(400.0, 300.0);
+                    //         }
+                    //         Err(err_msg) => {
+                    //             *state_lock = AppState::Error(err_msg);
+                    //         }
+                    //     }
+                    // }
                 });
             });
 
