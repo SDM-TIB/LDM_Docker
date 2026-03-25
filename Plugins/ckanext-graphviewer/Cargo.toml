@@ -11,6 +11,7 @@ oxttl = "0.2.3"
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen-futures = "0.4.64"
 oxrdf = "0.3.3"
+env_logger = "0.11.10"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", features = ["Window", "Location", "UrlSearchParams"] }
