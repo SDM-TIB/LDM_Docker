@@ -79,25 +79,11 @@ impl ParsedTriple {
         let clean_subject = subject.trim_matches('<').trim_matches('>').to_string();
         let clean_predicate = predicate.trim_matches('<').trim_matches('>').to_string();
 
-        // 2. Extract just the text from literal strings and scrub out newlines!
         let clean_object = if object.starts_with('"') {
-            object.split('"')
-                .nth(1)
-                .unwrap_or(&object)
-                .replace("\\n", " ") // Nukes explicit "\n" text
-                .replace('\n', " ")  // Nukes actual invisible line breaks
-                .replace('\r', "")   // Nukes Windows carriage returns
-                .trim()              // Cleans up any leftover leading/trailing spaces
-                .to_string()
+            object.split('"').nth(1).unwrap_or(&object).to_string()
         } else {
             object.trim_matches('<').trim_matches('>').to_string()
         };
-
-        // let clean_object = if object.starts_with('"') {
-        //     object.split('"').nth(1).unwrap_or(&object).to_string()
-        // } else {
-        //     object.trim_matches('<').trim_matches('>').to_string()
-        // };
 
         Self {
             subject: clean_subject,
@@ -156,29 +142,6 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
         })
         .collect();
 
-    let mut insert_literal_node = |nodes: &mut HashMap<String, Node>,
-                                   edges: &mut HashMap<(String, String), String>,
-                                   pt: &ParsedTriple| {
-        if nodes.contains_key(&pt.subject) {
-            nodes.insert(
-                pt.object.clone(),
-                Node {
-                    id: pt.object.clone(),
-                    label: pt.object.clone(),
-                    rdf_type: "Literal".to_string(),
-                    node_type: pt.subject_type.clone(),
-                    pos: egui::Pos2::ZERO,
-                    original_pos: egui::Pos2::ZERO,
-                    attributes: HashMap::new(),
-                    expanded: false,
-                    visible: true,
-                    parent_index: None,
-                },
-            );
-            add_or_update_edge(edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-        }
-    };
-
     // iteration 1 type discovery
     for pt in &parsed_triples {
         if pt.predicate == RDF_TYPE {
@@ -215,7 +178,7 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                             original_pos: egui::Pos2::ZERO,
                             attributes: HashMap::new(),
                             expanded: false,
-                            visible: true,
+                            visible: false,
                             parent_index: None,
                         },
                     );
@@ -226,13 +189,20 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
     }
 
     // iteration 2 identify labels literals and edges
-    for pt in &parsed_triples {
+for pt in &parsed_triples {
         let pred_label = extract_label(&pt.predicate);
 
+        // Identify if this property is a structural edge linking two real nodes
+        let is_structural_edge = match pt.predicate.as_str() {
+            DCTERMS_PUBLISHER | DCTERMS_CREATOR | DCAT_DISTRIBUTION_PROP |
+            DCAT_KEYWORD_PROP | DCAT_LANDING_PAGE | DCTERMS_DESCRIBED_BY |
+            DCTERMS_CITATION | VCARD_FN => true,
+            _ => false,
+        };
+
         if let Some(node) = nodes_map.get_mut(&pt.subject) {
-
-            if pt.predicate != RDF_TYPE && pred_label != "label" && pred_label != "title" {
-
+            // Only add to attributes if it's NOT a structural edge
+            if pt.predicate != RDF_TYPE && pred_label != "label" && pred_label != "title" && !is_structural_edge {
                 node.attributes
                     .entry(pred_label.clone())
                     .and_modify(|val| {
@@ -245,10 +215,6 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
             }
         }
 
-        let is_dataset_or_service = nodes_map.get(&pt.subject)
-            .map(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("Service"))
-            .unwrap_or(false);
-
         match pt.predicate.as_str() {
             RDF_LABEL | DCTERMS_TITLE => {
                 if let Some(entry) = nodes_map.get_mut(&pt.subject) {
@@ -256,27 +222,73 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                     entry.label.push_str(&pt.object);
                 }
             }
-            DCTERMS_DESCRIPTION => {
-                if pt.subject == center_subject {
-                    insert_literal_node(&mut nodes_map, &mut edges_map, pt);
-                }
-            }
             VCARD_FN => {
                 if pt.subject == center_subject {
                     author_names.push(pt.object.clone());
                 }
             }
-            DCTERMS_MODIFIED | DCTERMS_ISSUED | DCTERMS_LICENSE | DCTERMS_IDENTIFIER => {
-                if is_dataset_or_service || pt.predicate == DCTERMS_LICENSE || pt.predicate == DCTERMS_IDENTIFIER {
-                    insert_literal_node(&mut nodes_map, &mut edges_map, pt);
-                }
+            DCTERMS_PUBLISHER | DCTERMS_CREATOR | DCAT_DISTRIBUTION_PROP |
+            DCAT_KEYWORD_PROP | DCAT_LANDING_PAGE | DCTERMS_DESCRIBED_BY |
+            DCTERMS_CITATION => {
+                // Create the permanent connecting line!
+                add_or_update_edge(&mut edges_map, pt.subject.clone(), pt.object.clone(), pred_label);
             }
-            DCTERMS_PUBLISHER | DCTERMS_CREATOR | DCAT_DISTRIBUTION_PROP | DCAT_KEYWORD_PROP | DCAT_LANDING_PAGE | DCTERMS_DESCRIBED_BY | DCTERMS_CITATION => {
-                add_or_update_edge(&mut edges_map, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-            }
-            _ => {}
+            _ => {} // Everything else (descriptions, dates) is safely inside the attributes backpack!
         }
     }
+
+    // // iteration 2 identify labels literals and edges
+    // for pt in &parsed_triples {
+    //     let pred_label = extract_label(&pt.predicate);
+
+    //     if let Some(node) = nodes_map.get_mut(&pt.subject) {
+
+    //         if pt.predicate != RDF_TYPE && pred_label != "label" && pred_label != "title" {
+
+    //             node.attributes
+    //                 .entry(pred_label.clone())
+    //                 .and_modify(|val| {
+    //                     if !val.contains(&pt.object) {
+    //                         val.push_str(", ");
+    //                         val.push_str(&pt.object);
+    //                     }
+    //                 })
+    //                 .or_insert(pt.object.clone());
+    //         }
+    //     }
+
+    //     let is_dataset_or_service = nodes_map.get(&pt.subject)
+    //         .map(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("Service"))
+    //         .unwrap_or(false);
+
+    //     match pt.predicate.as_str() {
+    //         RDF_LABEL | DCTERMS_TITLE => {
+    //             if let Some(entry) = nodes_map.get_mut(&pt.subject) {
+    //                 entry.label.clear();
+    //                 entry.label.push_str(&pt.object);
+    //             }
+    //         }
+    //         DCTERMS_DESCRIPTION => {
+    //             if pt.subject == center_subject {
+    //                 insert_literal_node(&mut nodes_map, &mut edges_map, pt);
+    //             }
+    //         }
+    //         VCARD_FN => {
+    //             if pt.subject == center_subject {
+    //                 author_names.push(pt.object.clone());
+    //             }
+    //         }
+    //         DCTERMS_MODIFIED | DCTERMS_ISSUED | DCTERMS_LICENSE | DCTERMS_IDENTIFIER => {
+    //             if is_dataset_or_service || pt.predicate == DCTERMS_LICENSE || pt.predicate == DCTERMS_IDENTIFIER {
+    //                 insert_literal_node(&mut nodes_map, &mut edges_map, pt);
+    //             }
+    //         }
+    //         DCTERMS_PUBLISHER | DCTERMS_CREATOR | DCAT_DISTRIBUTION_PROP | DCAT_KEYWORD_PROP | DCAT_LANDING_PAGE | DCTERMS_DESCRIBED_BY | DCTERMS_CITATION => {
+    //             add_or_update_edge(&mut edges_map, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
+    //         }
+    //         _ => {}
+    //     }
+    // }
 
     // add author to label
     for author_name in author_names {
@@ -374,7 +386,7 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                 source: source_idx,
                 target: target_idx,
                 label: label,
-                visible: true,
+                visible: false,
             });
         }
     }

@@ -140,20 +140,35 @@ impl eframe::App for App {
                         let mut state_lock = self.state.lock().unwrap();
 
                         if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
+                            // 1. Reset positions and hide everything except root nodes
                             for node in nodes.iter_mut() {
                                 node.pos = node.original_pos;
                                 node.expanded = false;
 
-                                if node.node_type == "Attribute" {
-                                    node.visible = false;
-                                }
+                                // Only Datasets and DataServices stay visible on reset!
+                                let is_root = node.rdf_type.contains("Dataset") || node.rdf_type.contains("DataService");
+                                node.visible = is_root;
                             }
 
+                            // 2. Hide all connecting lines
                             for edge in edges.iter_mut() {
-                                if nodes[edge.target].node_type == "Attribute" {
-                                    edge.visible = false;
-                                }
+                                edge.visible = false;
                             }
+
+                            // for node in nodes.iter_mut() {
+                            //     node.pos = node.original_pos;
+                            //     node.expanded = false;
+
+                            //     if node.node_type == "Attribute" {
+                            //         node.visible = false;
+                            //     }
+                            // }
+
+                            // for edge in edges.iter_mut() {
+                            //     if nodes[edge.target].node_type == "Attribute" {
+                            //         edge.visible = false;
+                            //     }
+                            // }
                         }
                     }
 
@@ -331,12 +346,44 @@ impl eframe::App for App {
                 for edge in edges.iter() {
                     if !edge.visible { continue; }
 
-                    let s = &nodes[edge.source];
-                    let t = &nodes[edge.target];
-                    painter.line_segment(
-                        [to_screen(s.pos), to_screen(t.pos)],
-                        (2.0 * self.zoom, self.theme.edge_line)
-                    );
+                    if let (Some(source_node), Some(target_node)) = (nodes.get(edge.source), nodes.get(edge.target)) {
+                        let p1 = to_screen(source_node.pos);
+                        let p2 = to_screen(target_node.pos);
+
+                        // edge line
+                        painter.line_segment(
+                            [p1, p2],
+                            egui::Stroke::new(2.0 * self.zoom, self.theme.edge_line),
+                        );
+
+                        // arrow head
+                        let vector = p2 - p1;
+                        let length = vector.length();
+
+                        if length > 0.0 {
+                            let dir = vector / length;
+
+                            let node_radius = 15.0 * self.zoom;
+                            let tip = p2 - (dir * node_radius);
+
+                            let arrow_len = 12.0 * self.zoom;
+                            let arrow_angle = 0.4;
+
+                            let line_angle = dir.y.atan2(dir.x);
+
+                            let angle_left = line_angle - arrow_angle;
+                            let p_left = tip - egui::vec2(angle_left.cos(), angle_left.sin()) * arrow_len;
+
+                            let angle_right = line_angle + arrow_angle;
+                            let p_right = tip - egui::vec2(angle_right.cos(), angle_right.sin()) * arrow_len;
+
+                            painter.add(egui::Shape::convex_polygon(
+                                vec![tip, p_left, p_right],
+                                self.theme.edge_line,
+                                egui::Stroke::NONE,
+                            ));
+                        }
+                    }
                 }
 
                 // draw edge label
@@ -461,7 +508,6 @@ impl eframe::App for App {
                                 .find(|e| e.target == index)
                                 .map(|e| e.label.clone())
                                 .unwrap_or_else(|| "Description".to_string());
-
                             let display_pred = {
                                 let mut c = pred_name.chars();
                                 match c.next() {
@@ -495,14 +541,12 @@ impl eframe::App for App {
                     }
                 }
 
-                // sync child position
+                // move child node in sync
                 if let Some((parent_idx, delta)) = dragged_node_delta {
                     for edge in edges.iter() {
                         if edge.source == parent_idx && edge.visible {
                             let child_idx = edge.target;
-                            if nodes[child_idx].node_type == "Attribute" {
-                                nodes[child_idx].pos += delta;
-                            }
+                            nodes[child_idx].pos += delta;
                         }
                     }
                 }
@@ -510,69 +554,103 @@ impl eframe::App for App {
                 // expansion
                 if let Some(parent_idx) = clicked_to_expand {
                     let is_currently_expanded = nodes[parent_idx].expanded;
-                    nodes[parent_idx].expanded = !is_currently_expanded;
 
-                    let attributes = nodes[parent_idx].attributes.clone();
+                    if is_currently_expanded {
+                        // cascade collapse
+                        let mut stack = vec![parent_idx];
 
-                    let mut angle: f32 = 100.0;
-                    let angle_step = std::f32::consts::TAU / (attributes.len().max(1) as f32);
-                    let spawn_radius = 150.0;
+                        while let Some(current_idx) = stack.pop() {
+                            nodes[current_idx].expanded = false;
 
-                    for (key, value) in attributes {
-                        let shared_attr_id = format!("shared_attr_{}_{}", key, value);
+                            for edge_idx in 0..edges.len() {
+                                if edges[edge_idx].source == current_idx && edges[edge_idx].visible {
+                                    edges[edge_idx].visible = false;
+                                    let child_idx = edges[edge_idx].target;
 
-                        let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
-                        angle += angle_step;
+                                    let has_other_active_parents = edges.iter().any(|e|
+                                        e.target == child_idx && e.visible
+                                    );
 
-                        let existing_node_idx = nodes.iter().position(|n| n.id == shared_attr_id);
+                                    if !has_other_active_parents {
+                                        nodes[child_idx].visible = false;
 
-                        let target_idx = if let Some(idx) = existing_node_idx {
-                            if !is_currently_expanded {
+                                        if nodes[child_idx].expanded {
+                                            stack.push(child_idx);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // orbit expansion
+                        nodes[parent_idx].expanded = true;
+
+                        let attributes = nodes[parent_idx].attributes.clone();
+
+                        let mut structural_children_indices = Vec::new();
+                        for (edge_idx, edge) in edges.iter().enumerate() {
+                            if edge.source == parent_idx {
+                                structural_children_indices.push((edge_idx, edge.target));
+                            }
+                        }
+
+                        let total_children = attributes.len() + structural_children_indices.len();
+                        let mut angle: f32 = 0.0;
+                        let angle_step = std::f32::consts::TAU / (total_children.max(1) as f32);
+                        let spawn_radius = 250.0;
+
+                        for (edge_idx, target_idx) in structural_children_indices {
+                            let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
+                            angle += angle_step;
+
+                            if !nodes[target_idx].visible {
+                                nodes[target_idx].pos = target_pos;
+                            }
+                            nodes[target_idx].visible = true;
+                            edges[edge_idx].visible = true;
+                        }
+
+                        for (key, value) in attributes {
+                            let shared_attr_id = format!("shared_attr_{}_{}", key, value);
+                            let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
+                            angle += angle_step;
+
+                            let existing_node_idx = nodes.iter().position(|n| n.id == shared_attr_id);
+
+                            let target_idx = if let Some(idx) = existing_node_idx {
                                 if !nodes[idx].visible {
                                     nodes[idx].pos = target_pos;
                                 }
                                 nodes[idx].visible = true;
-                            }
-                            idx
-                        } else {
-                            let new_idx = nodes.len();
-                            nodes.push(Node {
-                                id: shared_attr_id.clone(),
-                                label: value.clone(),
-                                rdf_type: "Literal".to_string(),
-                                node_type: "Attribute".to_string(),
-                                pos: target_pos,
-                                original_pos: target_pos,
-                                attributes: std::collections::HashMap::new(),
-                                expanded: false,
-                                visible: true,
-                                parent_index: None,
-                            });
-                            new_idx
-                        };
+                                idx
+                            } else {
+                                let new_idx = nodes.len();
+                                nodes.push(Node {
+                                    id: shared_attr_id.clone(),
+                                    label: value.clone(),
+                                    rdf_type: "Literal".to_string(),
+                                    node_type: "Attribute".to_string(),
+                                    pos: target_pos,
+                                    original_pos: target_pos,
+                                    attributes: std::collections::HashMap::new(),
+                                    expanded: false,
+                                    visible: true,
+                                    parent_index: None,
+                                });
+                                new_idx
+                            };
 
-                        let existing_edge_idx = edges.iter().position(|e| e.source == parent_idx && e.target == target_idx && e.label == key);
+                            let existing_edge_idx = edges.iter().position(|e| e.source == parent_idx && e.target == target_idx && e.label == key);
 
-                        if let Some(edge_idx) = existing_edge_idx {
-                            edges[edge_idx].visible = !is_currently_expanded;
-                        } else {
-                            edges.push(Edge {
-                                source: parent_idx,
-                                target: target_idx,
-                                label: key.clone(),
-                                visible: !is_currently_expanded,
-                            });
-                        }
-
-                        if is_currently_expanded {
-                            let has_other_active_parents = edges.iter().any(|e|
-                                e.target == target_idx &&
-                                e.source != parent_idx &&
-                                e.visible == true
-                            );
-
-                            if !has_other_active_parents {
-                                nodes[target_idx].visible = false;
+                            if let Some(edge_idx) = existing_edge_idx {
+                                edges[edge_idx].visible = true;
+                            } else {
+                                edges.push(Edge {
+                                    source: parent_idx,
+                                    target: target_idx,
+                                    label: key.clone(),
+                                    visible: true,
+                                });
                             }
                         }
                     }
