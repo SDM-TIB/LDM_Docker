@@ -41,6 +41,10 @@ pub struct Node {
     pub node_type: String,
     pub pos: egui::Pos2,
     pub original_pos: egui::Pos2,
+    pub attributes: HashMap<String, String>,
+    pub expanded: bool,
+    pub visible: bool,
+    pub parent_index: Option<usize>,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -48,6 +52,7 @@ pub struct Edge {
     pub source: usize,
     pub target: usize,
     pub label: String,
+    pub visible: bool,
 }
 
 struct ParsedTriple {
@@ -74,11 +79,25 @@ impl ParsedTriple {
         let clean_subject = subject.trim_matches('<').trim_matches('>').to_string();
         let clean_predicate = predicate.trim_matches('<').trim_matches('>').to_string();
 
+        // 2. Extract just the text from literal strings and scrub out newlines!
         let clean_object = if object.starts_with('"') {
-            object.split('"').nth(1).unwrap_or(&object).to_string()
+            object.split('"')
+                .nth(1)
+                .unwrap_or(&object)
+                .replace("\\n", " ") // Nukes explicit "\n" text
+                .replace('\n', " ")  // Nukes actual invisible line breaks
+                .replace('\r', "")   // Nukes Windows carriage returns
+                .trim()              // Cleans up any leftover leading/trailing spaces
+                .to_string()
         } else {
             object.trim_matches('<').trim_matches('>').to_string()
         };
+
+        // let clean_object = if object.starts_with('"') {
+        //     object.split('"').nth(1).unwrap_or(&object).to_string()
+        // } else {
+        //     object.trim_matches('<').trim_matches('>').to_string()
+        // };
 
         Self {
             subject: clean_subject,
@@ -150,6 +169,10 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                     node_type: pt.subject_type.clone(),
                     pos: egui::Pos2::ZERO,
                     original_pos: egui::Pos2::ZERO,
+                    attributes: HashMap::new(),
+                    expanded: false,
+                    visible: true,
+                    parent_index: None,
                 },
             );
             add_or_update_edge(edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
@@ -174,6 +197,10 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                             node_type: pt.subject_type.clone(),
                             pos: egui::Pos2::ZERO,
                             original_pos: egui::Pos2::ZERO,
+                            attributes: HashMap::new(),
+                            expanded: false,
+                            visible: true,
+                            parent_index: None,
                         });
                 }
                 PRO_AUTHOR | DCAT_DISTRIBUTION | SKOS_CONCEPT | VCARD_ORGANIZATION => {
@@ -186,6 +213,10 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
                             node_type: pt.subject_type.clone(),
                             pos: egui::Pos2::ZERO,
                             original_pos: egui::Pos2::ZERO,
+                            attributes: HashMap::new(),
+                            expanded: false,
+                            visible: true,
+                            parent_index: None,
                         },
                     );
                 }
@@ -196,6 +227,24 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
 
     // iteration 2 identify labels literals and edges
     for pt in &parsed_triples {
+        let pred_label = extract_label(&pt.predicate);
+
+        if let Some(node) = nodes_map.get_mut(&pt.subject) {
+
+            if pt.predicate != RDF_TYPE && pred_label != "label" && pred_label != "title" {
+
+                node.attributes
+                    .entry(pred_label.clone())
+                    .and_modify(|val| {
+                        if !val.contains(&pt.object) {
+                            val.push_str(", ");
+                            val.push_str(&pt.object);
+                        }
+                    })
+                    .or_insert(pt.object.clone());
+            }
+        }
+
         let is_dataset_or_service = nodes_map.get(&pt.subject)
             .map(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("Service"))
             .unwrap_or(false);
@@ -324,7 +373,8 @@ pub fn parse_n3_to_graph(file_content: &str) -> (Vec<Node>, Vec<Edge>) {
             edges.push(Edge {
                 source: source_idx,
                 target: target_idx,
-                label,
+                label: label,
+                visible: true,
             });
         }
     }

@@ -48,8 +48,7 @@ fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     }
 }
 
-// A dummy version for WASM so it still compiles,
-// though you'd typically use a browser file picker here instead.
+// A dummy version for WASM so it still compiles
 #[cfg(target_arch = "wasm32")]
 fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     Err("Direct file access is not supported in the browser.".to_string())
@@ -136,11 +135,24 @@ impl eframe::App for App {
                     if ui.button("Reset View").clicked() {
                         self.zoom = 1.0;
                         self.pan = egui::vec2(0.0, 0.0);
+                        self.selected_node = None;
 
                         let mut state_lock = self.state.lock().unwrap();
-                        if let AppState::Ready { nodes, .. } = &mut *state_lock {
+
+                        if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                             for node in nodes.iter_mut() {
                                 node.pos = node.original_pos;
+                                node.expanded = false;
+
+                                if node.node_type == "Attribute" {
+                                    node.visible = false;
+                                }
+                            }
+
+                            for edge in edges.iter_mut() {
+                                if nodes[edge.target].node_type == "Attribute" {
+                                    edge.visible = false;
+                                }
                             }
                         }
                     }
@@ -175,9 +187,25 @@ impl eframe::App for App {
                         .num_columns(2)
                         .spacing([10.0, 4.0])
                         .show(ui, |ui| {
-                            if !node.id.is_empty() {
+                            let display_id = if node.node_type == "Attribute" {
+                                &node.label
+                            } else {
+                                &node.id
+                            };
+
+                            if !display_id.is_empty() {
                                 ui.strong("ID:");
-                                ui.label(&node.id);
+                                if display_id.len() > 60 {
+                                    egui::ScrollArea::vertical()
+                                        .id_source(format!("scroll_id_{}", node.id))
+                                        .max_height(60.0)
+                                        .min_scrolled_height(0.0)
+                                        .show(ui, |ui| {
+                                            ui.label(display_id);
+                                        });
+                                } else {
+                                    ui.label(display_id);
+                                }
                                 ui.end_row();
                             }
 
@@ -190,6 +218,32 @@ impl eframe::App for App {
                             if !node.node_type.is_empty() {
                                 ui.strong("Node Type:");
                                 ui.label(&node.node_type);
+                                ui.end_row();
+                            }
+
+                            for (key, value) in &node.attributes {
+                                // pretty print
+                                let display_key = {
+                                    let mut c = key.chars();
+                                    match c.next() {
+                                        None => String::new(),
+                                        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                                    }
+                                };
+
+                                ui.strong(format!("{}:", display_key));
+
+                                if value.len() > 60 {
+                                    egui::ScrollArea::vertical()
+                                        .id_source(format!("scroll_{}_{}", node.id, key))
+                                        .max_height(100.0)
+                                        .min_scrolled_height(0.0)
+                                        .show(ui, |ui| {
+                                            ui.label(value);
+                                        });
+                                } else {
+                                    ui.label(value);
+                                }
                                 ui.end_row();
                             }
                         });
@@ -239,15 +293,22 @@ impl eframe::App for App {
                     self.selected_node = None;
                 }
 
-                let zoom_delta = ui.input(|i| i.zoom_delta());
+                let scroll_y = ui.input(|i| i.smooth_scroll_delta.y);
 
-                if zoom_delta != 1.0 {
+                let pinch_zoom = ui.input(|i| i.zoom_delta());
+
+                let mut zoom_multiplier = pinch_zoom;
+                if scroll_y != 0.0 {
+                    zoom_multiplier *= (scroll_y * 0.005).exp();
+                }
+
+                if zoom_multiplier != 1.0 {
                     if let Some(pointer_pos) = ui.ctx().pointer_hover_pos() {
                         let pointer_vec = pointer_pos.to_vec2();
 
                         let graph_pos = (pointer_vec - screen_center - self.pan) / self.zoom;
 
-                        self.zoom *= zoom_delta;
+                        self.zoom *= zoom_multiplier;
                         self.zoom = self.zoom.clamp(0.1, 5.0);
 
                         self.pan = pointer_vec - screen_center - graph_pos * self.zoom;
@@ -268,6 +329,8 @@ impl eframe::App for App {
 
                 // draw edge
                 for edge in edges.iter() {
+                    if !edge.visible { continue; }
+
                     let s = &nodes[edge.source];
                     let t = &nodes[edge.target];
                     painter.line_segment(
@@ -278,6 +341,8 @@ impl eframe::App for App {
 
                 // draw edge label
                 for edge in edges.iter() {
+                    if !edge.visible { continue; }
+
                     let s = &nodes[edge.source];
                     let t = &nodes[edge.target];
 
@@ -305,7 +370,13 @@ impl eframe::App for App {
                 }
 
                 // draw node
+                let mut clicked_to_expand = None;
+
+                let mut dragged_node_delta = None;
+
                 for (index, node) in nodes.iter_mut().enumerate() {
+                    if !node.visible { continue; }
+
                     let screen_pos = to_screen(node.pos);
                     let radius = 15.0 * self.zoom;
 
@@ -315,9 +386,16 @@ impl eframe::App for App {
                         egui::Sense::click_and_drag(),
                     );
 
+                    if response.double_clicked() {
+                        clicked_to_expand = Some(index);
+                    }
+
                     if response.dragged() {
-                        node.pos += response.drag_delta() / self.zoom;
+                        let delta = response.drag_delta() / self.zoom;
+                        node.pos += delta;
                         self.selected_node = None;
+
+                        dragged_node_delta = Some((index, delta));
                     }
 
                     if response.hovered() && self.selected_node.is_some() && self.selected_node != Some(index) {
@@ -379,9 +457,22 @@ impl eframe::App for App {
                     if font_size > 4.0 {
 
                         let display_text = if node.label.len() > 50 {
-                            "Description (Click to show)"
+                            let pred_name = edges.iter()
+                                .find(|e| e.target == index)
+                                .map(|e| e.label.clone())
+                                .unwrap_or_else(|| "Description".to_string());
+
+                            let display_pred = {
+                                let mut c = pred_name.chars();
+                                match c.next() {
+                                    None => String::new(),
+                                    Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                                }
+                            };
+
+                            format!("{} (Click to show)", display_pred)
                         } else {
-                            &node.label
+                            node.label.clone()
                         };
 
                         let galley = painter.layout_no_wrap(
@@ -404,6 +495,88 @@ impl eframe::App for App {
                     }
                 }
 
+                // sync child position
+                if let Some((parent_idx, delta)) = dragged_node_delta {
+                    for edge in edges.iter() {
+                        if edge.source == parent_idx && edge.visible {
+                            let child_idx = edge.target;
+                            if nodes[child_idx].node_type == "Attribute" {
+                                nodes[child_idx].pos += delta;
+                            }
+                        }
+                    }
+                }
+
+                // expansion
+                if let Some(parent_idx) = clicked_to_expand {
+                    let is_currently_expanded = nodes[parent_idx].expanded;
+                    nodes[parent_idx].expanded = !is_currently_expanded;
+
+                    let attributes = nodes[parent_idx].attributes.clone();
+
+                    let mut angle: f32 = 100.0;
+                    let angle_step = std::f32::consts::TAU / (attributes.len().max(1) as f32);
+                    let spawn_radius = 150.0;
+
+                    for (key, value) in attributes {
+                        let shared_attr_id = format!("shared_attr_{}_{}", key, value);
+
+                        let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
+                        angle += angle_step;
+
+                        let existing_node_idx = nodes.iter().position(|n| n.id == shared_attr_id);
+
+                        let target_idx = if let Some(idx) = existing_node_idx {
+                            if !is_currently_expanded {
+                                if !nodes[idx].visible {
+                                    nodes[idx].pos = target_pos;
+                                }
+                                nodes[idx].visible = true;
+                            }
+                            idx
+                        } else {
+                            let new_idx = nodes.len();
+                            nodes.push(Node {
+                                id: shared_attr_id.clone(),
+                                label: value.clone(),
+                                rdf_type: "Literal".to_string(),
+                                node_type: "Attribute".to_string(),
+                                pos: target_pos,
+                                original_pos: target_pos,
+                                attributes: std::collections::HashMap::new(),
+                                expanded: false,
+                                visible: true,
+                                parent_index: None,
+                            });
+                            new_idx
+                        };
+
+                        let existing_edge_idx = edges.iter().position(|e| e.source == parent_idx && e.target == target_idx && e.label == key);
+
+                        if let Some(edge_idx) = existing_edge_idx {
+                            edges[edge_idx].visible = !is_currently_expanded;
+                        } else {
+                            edges.push(Edge {
+                                source: parent_idx,
+                                target: target_idx,
+                                label: key.clone(),
+                                visible: !is_currently_expanded,
+                            });
+                        }
+
+                        if is_currently_expanded {
+                            let has_other_active_parents = edges.iter().any(|e|
+                                e.target == target_idx &&
+                                e.source != parent_idx &&
+                                e.visible == true
+                            );
+
+                            if !has_other_active_parents {
+                                nodes[target_idx].visible = false;
+                            }
+                        }
+                    }
+                }
             } else if let AppState::Error(err_msg) = &*state_lock {
                 ui.heading("Something went wrong:");
                 ui.label(
@@ -437,9 +610,10 @@ fn main() -> eframe::Result<()> {
     )
 }
 
-
+// wasm entrypoint
 #[cfg(target_arch = "wasm32")]
 fn main() {
+    // Initialize web logger
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
 
     let web_options = eframe::WebOptions::default();
