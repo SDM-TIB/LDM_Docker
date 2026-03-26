@@ -1,0 +1,31 @@
+* graphviewer
+
+- description
+  this module handels the representation of a KG inside a html container
+
+* state of features and bugs
+** DONE obtain n3 file from path
+CLOSED: [2026-03-26 Do 13:47]
+** DONE parse n3 and build graph
+CLOSED: [2026-03-26 Do 13:47]
+** render graph
+*** DONE basic graph from dataset
+CLOSED: [2026-03-26 Do 13:49]
+*** DONE show everthing in infobox
+CLOSED: [2026-03-26 Do 13:49]
+*** DONE expand expandable node
+CLOSED: [2026-03-26 Do 13:49]
+*** DONE pin infobox
+CLOSED: [2026-03-26 Do 13:49]
+*** DONE create legend
+CLOSED: [2026-03-26 Do 13:49]
+** TODO color schema
+*** DONE node color logic
+CLOSED: [2026-03-26 Do 13:50]
+*** TODO fix naming of vars in theme.rs
+*** TODO dark mode
+** TODO expand logic for author and paper
+
+** bugs
+*** hover on infobox not implemented
+- this leads to the behaviour that if a infobox renders on top of a node it will close and open again every 2 frames
