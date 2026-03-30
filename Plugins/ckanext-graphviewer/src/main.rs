@@ -58,6 +58,125 @@ fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
 fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     Err("Direct file access is not supported in the browser.".to_string())
 }
+
+// wasm png download helper
+#[cfg(target_arch = "wasm32")]
+fn trigger_wasm_download(bytes: &[u8], filename: &str) {
+    use wasm_bindgen::JsCast;
+
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+
+    // 1. Create a Javascript Uint8Array from our Rust bytes
+    let uint8_arr = js_sys::Uint8Array::from(bytes);
+    let array = js_sys::Array::new();
+    array.push(&uint8_arr);
+
+    // 2. Wrap it in a Browser Blob
+    let mut blob_props = web_sys::BlobPropertyBag::new();
+    blob_props.type_("image/png");
+
+    if let Ok(blob) = web_sys::Blob::new_with_u8_array_sequence_and_options(&array, &blob_props) {
+        if let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) {
+
+            // 3. Create a hidden <a> element and click it to trigger the download!
+            if let Ok(a) = document.create_element("a") {
+                a.set_attribute("href", &url).unwrap();
+                a.set_attribute("download", filename).unwrap();
+                if let Ok(html_a) = a.dyn_into::<web_sys::HtmlElement>() {
+                    html_a.click();
+                }
+            }
+            // Cleanup the URL to prevent memory leaks
+            web_sys::Url::revoke_object_url(&url).unwrap();
+        }
+    }
+}
+
+impl App {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        cc.egui_ctx.style_mut(|style| {
+            style.interaction.tooltip_delay = 0.0;
+        });
+
+        let is_system_dark = match cc.integration_info.system_theme {
+            Some(eframe::Theme::Light) => false,
+            _ => true,
+        };
+
+        if is_system_dark {
+            cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            cc.egui_ctx.set_visuals(egui::Visuals::light());
+        }
+
+        let state = Arc::new(Mutex::new(AppState::Loading));
+        let state_clone = state.clone();
+        let mut app_state = state_clone.lock().unwrap();
+
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            if let Some(target_url) = get_n3_url_from_current_path() {
+                let state_clone = state.clone();
+                let ctx_clone = cc.egui_ctx.clone();
+
+                let request = ehttp::Request::get(&target_url);
+
+                ehttp::fetch(request, move |response| {
+                    let mut app_state = state_clone.lock().unwrap();
+                    match response {
+                        Ok(res) => {
+                            if let Some(text) = res.text() {
+                                let (nodes, edges) = parse_n3_to_graph(text);
+                                *app_state = AppState::Ready {
+                                    selected_entrypoint: "placeholder".to_string(),
+                                    nodes,
+                                    edges
+                                };
+                            } else {
+                                *app_state = AppState::Error("failed to read text from n3".into());
+                            }
+                        }
+                        Err(err) => *app_state = AppState::Error(format!("Network Error: {}", err)),
+                    }
+                    ctx_clone.request_repaint();
+                });
+            } else {
+                *state.lock().unwrap() =
+                    AppState::Error("Could not determine TTL path from URL".into());
+            }
+        }
+
+        // Try to load the file on startup (Native only)
+        #[cfg(not(target_arch = "wasm32"))]
+        match load_local_file("src/sample.n3") {
+            Ok((nodes, edges)) => {
+                *app_state = AppState::Ready {
+                    selected_entrypoint: "sample.n3".to_string(),
+                    nodes,
+                    edges
+                };
+            }
+            Err(e) => {
+                *app_state = AppState::Error(e);
+            }
+        }
+
+        Self {
+            state,
+            zoom: 1.0,
+            pan: egui::vec2(0.0, 0.0),
+            theme: Theme::dark(),
+            selected_node: None,
+            show_menu: false,
+            pending_click_node: None,
+            pending_click_time: 0.0,
+            is_dark_mode: true,
+        }
+    }
+}
+
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let main_app_frame = egui::Frame::central_panel(&ctx.style()).fill(self.theme.master_bg);
@@ -723,6 +842,7 @@ impl eframe::App for App {
                             }
                         }
                     }
+
                 } else if let AppState::Error(err_msg) = &*state_lock {
                     ui.heading("Something went wrong:");
                     ui.label(
@@ -734,6 +854,99 @@ impl eframe::App for App {
                     ui.heading("Loading...");
                 }
             });
+
+        // wasm png
+        #[cfg(target_arch = "wasm32")]
+        {
+            // Check if egui just handed us a fresh screenshot event
+            for event in ctx.input(|i| i.events.clone()) {
+                if let egui::Event::Screenshot { image, .. } = event {
+                    if let Some(rect) = self.canvas_rect {
+                        let ppp = ctx.pixels_per_point();
+
+                        let min_x = (rect.min.x * ppp).round() as u32;
+                        let min_y = (rect.min.y * ppp).round() as u32;
+                        let max_x = (rect.max.x * ppp).round() as u32;
+                        let max_y = (rect.max.y * ppp).round() as u32;
+
+                        let width = max_x.saturating_sub(min_x);
+                        let height = max_y.saturating_sub(min_y);
+
+                        if width > 0 && height > 0 {
+                            let mut img_buf = image::ImageBuffer::new(width, height);
+
+                            // Crop the raw full-screen image down to just the canvas area
+                            for y in 0..height {
+                                for x in 0..width {
+                                    let img_x = (min_x + x) as usize;
+                                    let img_y = (min_y + y) as usize;
+
+                                    if img_x < image.size[0] && img_y < image.size[1] {
+                                        let pixel = image.pixels[img_y * image.size[0] + img_x];
+                                        img_buf.put_pixel(x, y, image::Rgba([pixel.r(), pixel.g(), pixel.b(), pixel.a()]));
+                                    }
+                                }
+                            }
+
+                            // Encode the cropped image to PNG bytes directly in Memory
+                            let mut png_bytes: Vec<u8> = Vec::new();
+                            let mut cursor = std::io::Cursor::new(&mut png_bytes);
+
+                            if img_buf.write_to(&mut cursor, image::ImageOutputFormat::Png).is_ok() {
+                                // Hand the raw PNG bytes over to Javascript to download!
+                                trigger_wasm_download(&png_bytes, "graph_export.png");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // nativ png
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            // Check if egui just handed us a fresh screenshot event
+            for event in ctx.input(|i| i.events.clone()) {
+                if let egui::Event::Screenshot { image, .. } = event {
+                    if let Some(rect) = self.canvas_rect {
+                        let ppp = ctx.pixels_per_point();
+
+                        // Convert logical egui coordinates into physical monitor pixels
+                        let min_x = (rect.min.x * ppp).round() as u32;
+                        let min_y = (rect.min.y * ppp).round() as u32;
+                        let max_x = (rect.max.x * ppp).round() as u32;
+                        let max_y = (rect.max.y * ppp).round() as u32;
+
+                        let width = max_x.saturating_sub(min_x);
+                        let height = max_y.saturating_sub(min_y);
+
+                        if width > 0 && height > 0 {
+                            let mut img_buf = image::ImageBuffer::new(width, height);
+
+                            // Crop the raw full-screen image down to just the canvas area
+                            for y in 0..height {
+                                for x in 0..width {
+                                    let img_x = (min_x + x) as usize;
+                                    let img_y = (min_y + y) as usize;
+
+                                    if img_x < image.size[0] && img_y < image.size[1] {
+                                        // egui stores pixels in a 1D array: (y * width) + x
+                                        let pixel = image.pixels[img_y * image.size[0] + img_x];
+                                        img_buf.put_pixel(x, y, image::Rgba([pixel.r(), pixel.g(), pixel.b(), pixel.a()]));
+                                    }
+                                }
+                            }
+
+                            // Save it to the current directory!
+                            match img_buf.save("graph_export.png") {
+                                Ok(_) => println!("Successfully exported to graph_export.png!"),
+                                Err(e) => println!("Failed to save PNG: {}", e),
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
