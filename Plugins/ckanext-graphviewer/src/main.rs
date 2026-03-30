@@ -25,6 +25,10 @@ struct App {
     pan: egui::Vec2,
     theme: Theme,
     selected_node: Option<usize>,
+    show_menu: bool,
+    pending_click_node: Option<usize>,
+    pending_click_time: f64,
+    is_dark_mode: bool,
 }
 
 // obtain source file
@@ -59,6 +63,17 @@ impl App {
         cc.egui_ctx.style_mut(|style| {
             style.interaction.tooltip_delay = 0.0;
         });
+
+        let is_system_dark = match cc.integration_info.system_theme {
+            Some(eframe::Theme::Light) => false,
+            _ => true,
+        };
+
+        if is_system_dark {
+            cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            cc.egui_ctx.set_visuals(egui::Visuals::light());
+        }
 
         let state = Arc::new(Mutex::new(AppState::Loading));
         let state_clone = state.clone();
@@ -117,555 +132,664 @@ impl App {
             state,
             zoom: 1.0,
             pan: egui::vec2(0.0, 0.0),
-            theme: Theme::default(),
+            theme: Theme::dark(),
             selected_node: None,
+            show_menu: false,
+            pending_click_node: None,
+            pending_click_time: 0.0,
+            is_dark_mode: true,
         }
     }
 }
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Knowledge graph visualization");
+        let main_app_frame = egui::Frame::central_panel(&ctx.style()).fill(self.theme.master_bg);
 
-            ui.horizontal(|ui| {
-                ui.label("Graph Controls:");
+        egui::CentralPanel::default()
+            .frame(main_app_frame)
+            .show(ctx, |ui| {
+                ui.heading(egui::RichText::new("Graph Visualization").color(self.theme.text_fg));
 
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.button("Reset View").clicked() {
-                        self.zoom = 1.0;
-                        self.pan = egui::vec2(0.0, 0.0);
-                        self.selected_node = None;
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new("Graph Controls:").color(self.theme.text_fg));
 
-                        let mut state_lock = self.state.lock().unwrap();
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        let theme_string = if self.is_dark_mode {
+                            "Light Mode"
+                        } else {
+                            "Dark Mode"
+                        };
 
-                        if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
-                            // 1. Reset positions and hide everything except root nodes
-                            for node in nodes.iter_mut() {
-                                node.pos = node.original_pos;
-                                node.expanded = false;
+                        let theme_button = egui::Button::new(
+                            egui::RichText::new(theme_string).color(self.theme.text_fg),
+                        )
+                            .fill(self.theme.button_bg);
 
-                                // Only Datasets and DataServices stay visible on reset!
-                                let is_root = node.rdf_type.contains("Dataset") || node.rdf_type.contains("DataService");
-                                node.visible = is_root;
-                            }
+                        if ui.add(theme_button).clicked() {
+                            self.is_dark_mode = !self.is_dark_mode;
 
-                            // 2. Hide all connecting lines
-                            for edge in edges.iter_mut() {
-                                edge.visible = false;
-                            }
-
-                            // for node in nodes.iter_mut() {
-                            //     node.pos = node.original_pos;
-                            //     node.expanded = false;
-
-                            //     if node.node_type == "Attribute" {
-                            //         node.visible = false;
-                            //     }
-                            // }
-
-                            // for edge in edges.iter_mut() {
-                            //     if nodes[edge.target].node_type == "Attribute" {
-                            //         edge.visible = false;
-                            //     }
-                            // }
-                        }
-                    }
-
-                    // if ui.button("Load sample.n3").clicked() {
-                    //     let mut state_lock = self.state.lock().unwrap();
-                    //     *state_lock = AppState::Loading;
-
-                    //     match load_local_file("sample.n3") {
-                    //         Ok((nodes, edges)) => {
-                    //             *state_lock = AppState::Ready {
-                    //                 selected_entrypoint: "file_loaded".to_string(),
-                    //                 nodes,
-                    //                 edges,
-                    //             };
-                    //             self.zoom = 1.0;
-                    //             self.pan = egui::vec2(400.0, 300.0);
-                    //         }
-                    //         Err(err_msg) => {
-                    //             *state_lock = AppState::Error(err_msg);
-                    //         }
-                    //     }
-                    // }
-                });
-            });
-
-            let mut state_lock = self.state.lock().unwrap();
-
-            if let AppState::Ready { selected_entrypoint, nodes, edges } = &mut *state_lock {
-                let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
-                    egui::Grid::new(format!("tooltip_grid_{}", node.id))
-                        .num_columns(2)
-                        .spacing([10.0, 4.0])
-                        .show(ui, |ui| {
-                            let display_id = if node.node_type == "Attribute" {
-                                &node.label
+                            if self.is_dark_mode {
+                                ctx.set_visuals(egui::Visuals::dark());
+                                self.theme = Theme::dark();
                             } else {
-                                &node.id
-                            };
+                                ctx.set_visuals(egui::Visuals::light());
+                                self.theme = Theme::light();
+                            }
+                        }
 
-                            if !display_id.is_empty() {
-                                ui.strong("ID:");
-                                if display_id.len() > 60 {
-                                    egui::ScrollArea::vertical()
-                                        .id_source(format!("scroll_id_{}", node.id))
-                                        .max_height(60.0)
-                                        .min_scrolled_height(0.0)
-                                        .show(ui, |ui| {
-                                            ui.label(display_id);
-                                        });
-                                } else {
-                                    ui.label(display_id);
+                        let reset_view_button = egui::Button::new(
+                            egui::RichText::new("Reset View").color(self.theme.text_fg),
+                        )
+                            .fill(self.theme.button_bg);
+
+                        if ui.add(reset_view_button).clicked() {
+                            self.zoom = 1.0;
+                            self.pan = egui::vec2(0.0, 0.0);
+                            self.selected_node = None;
+
+                            let mut state_lock = self.state.lock().unwrap();
+
+                            if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
+                                for node in nodes.iter_mut() {
+                                    node.pos = node.original_pos;
+                                    node.expanded = false;
+
+                                    let is_root = node.rdf_type.contains("Dataset")
+                                        || node.rdf_type.contains("DataService");
+                                    node.visible = is_root;
                                 }
-                                ui.end_row();
-                            }
 
-                            if !node.rdf_type.is_empty() {
-                                ui.strong("RDF Type:");
-                                ui.label(&node.rdf_type);
-                                ui.end_row();
+                                for edge in edges.iter_mut() {
+                                    edge.visible = false;
+                                }
                             }
+                        }
+                    });
+                });
 
-                            if !node.node_type.is_empty() {
-                                ui.strong("Node Type:");
-                                ui.label(&node.node_type);
-                                ui.end_row();
-                            }
+                let mut state_lock = self.state.lock().unwrap();
 
-                            for (key, value) in &node.attributes {
-                                // pretty print
-                                let display_key = {
-                                    let mut c = key.chars();
-                                    match c.next() {
-                                        None => String::new(),
-                                        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
-                                    }
+                if let AppState::Ready {
+                    selected_entrypoint,
+                    nodes,
+                    edges,
+                } = &mut *state_lock
+                {
+                    let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
+                        egui::Grid::new(format!("tooltip_grid_{}", node.id))
+                            .num_columns(2)
+                            .spacing([10.0, 4.0])
+                            .show(ui, |ui| {
+                                let display_id = if node.node_type == "Attribute" {
+                                    &node.label
+                                } else {
+                                    &node.id
                                 };
 
-                                ui.strong(format!("{}:", display_key));
-
-                                if value.len() > 60 {
-                                    egui::ScrollArea::vertical()
-                                        .id_source(format!("scroll_{}_{}", node.id, key))
-                                        .max_height(100.0)
-                                        .min_scrolled_height(0.0)
-                                        .show(ui, |ui| {
-                                            ui.label(value);
-                                        });
-                                } else {
-                                    ui.label(value);
-                                }
-                                ui.end_row();
-                            }
-                        });
-                };
-
-                egui::Window::new("Legend")
-                    .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 60.0))
-                    .collapsible(true)
-                    .resizable(false)
-                    .show(ui.ctx(), |ui| {
-                        egui::Grid::new("legend_grid")
-                            .num_columns(2)
-                            .spacing([10.0, 8.0])
-                            .show(ui, |ui| {
-                                for (uri, colors) in &self.theme.node_map {
-                                    let display_name = uri.split('#').last().unwrap_or(uri);
-                                    let display_name = display_name.split('/').last().unwrap_or(display_name);
-
-                                    let (rect, _) = ui.allocate_exact_size(egui::vec2(12.0, 12.0), egui::Sense::hover());
-                                    ui.painter().circle_filled(rect.center(), 6.0, colors.normal);
-
-                                    ui.label(display_name);
+                                if !display_id.is_empty() {
+                                    ui.strong("ID:");
+                                    if display_id.len() > 60 {
+                                        egui::ScrollArea::vertical()
+                                            .id_source(format!("scroll_id_{}", node.id))
+                                            .max_height(60.0)
+                                            .min_scrolled_height(0.0)
+                                            .show(ui, |ui| {
+                                                ui.label(display_id);
+                                            });
+                                    } else {
+                                        ui.label(display_id);
+                                    }
                                     ui.end_row();
                                 }
 
-                                let (rect, _) = ui.allocate_exact_size(egui::vec2(12.0, 12.0), egui::Sense::hover());
-                                ui.painter().circle_filled(rect.center(), 6.0, self.theme.default_node.normal);
-                                ui.label("Other / Unknown");
-                                ui.end_row();
+                                if !node.rdf_type.is_empty() {
+                                    ui.strong("RDF Type:");
+                                    ui.label(&node.rdf_type);
+                                    ui.end_row();
+                                }
+
+                                if !node.node_type.is_empty() {
+                                    ui.strong("Node Type:");
+                                    ui.label(&node.node_type);
+                                    ui.end_row();
+                                }
+
+                                for edge in edges.iter() {
+                                    if nodes[edge.source].id == node.id
+                                        && nodes[edge.target].node_type == "Attribute"
+                                    {
+                                        let key = &edge.label;
+                                        let value = &nodes[edge.target].label;
+
+                                        let display_key = {
+                                            let mut c = key.chars();
+                                            match c.next() {
+                                                None => String::new(),
+                                                Some(f) => {
+                                                    f.to_uppercase().collect::<String>()
+                                                        + c.as_str()
+                                                }
+                                            }
+                                        };
+
+                                        ui.strong(format!("{}:", display_key));
+
+                                        if value.len() > 60 {
+                                            egui::ScrollArea::vertical()
+                                                .id_source(format!("scroll_{}_{}", node.id, key))
+                                                .max_height(100.0)
+                                                .min_scrolled_height(0.0)
+                                                .show(ui, |ui| {
+                                                    ui.label(value);
+                                                });
+                                        } else {
+                                            ui.label(value);
+                                        }
+                                        ui.end_row();
+                                    }
+                                }
                             });
-                    });
+                    };
 
-                let background_rect = ui.available_rect_before_wrap();
-                let area_to_fill = ui.available_rect_before_wrap();
+                    // define a frame that houses the color config for the legend
+                    let legend_outline = egui::Frame::window(&ui.ctx().style())
+                        .fill(self.theme.button_bg)
+                        .inner_margin(3.0)
+                        .rounding(5.0)
+                        .stroke(egui::Stroke::new(2.0, self.theme.master_bg));
 
-                let screen_center = area_to_fill.center().to_vec2();
+                    // render legend
+                    egui::Window::new(egui::RichText::new("Legend").color(self.theme.text_fg))
+                        .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 60.0))
+                        .collapsible(true)
+                        .resizable(false)
+                        .frame(legend_outline)
+                        .show(ui.ctx(), |ui| {
+                            ui.style_mut().visuals.override_text_color = Some(self.theme.text_fg);
+                            egui::Frame::none()
+                                .inner_margin(5.0)
+                                .rounding(5.0)
+                                .stroke(egui::Stroke::new(1.0, self.theme.edge_fg))
+                                .fill(self.theme.master_bg)
+                                .show(ui, |ui| {
+                                    egui::Grid::new("legend_grid")
+                                        .num_columns(2)
+                                        .spacing([10.0, 8.0])
+                                        .show(ui, |ui| {
+                                            for (uri, colors) in &self.theme.node_map {
+                                                let display_name =
+                                                    uri.split('#').last().unwrap_or(uri);
+                                                let display_name = display_name
+                                                    .split('/')
+                                                    .last()
+                                                    .unwrap_or(display_name);
 
-                let background_response = ui.interact(
-                    background_rect,
-                    ui.id().with("background"),
-                    egui::Sense::click_and_drag()
-                );
-                if background_response.dragged() {
-                    self.pan += background_response.drag_delta();
-                }
-                if background_response.clicked() {
-                    self.selected_node = None;
-                }
+                                                let (rect, _) = ui.allocate_exact_size(
+                                                    egui::vec2(12.0, 12.0),
+                                                    egui::Sense::hover(),
+                                                );
+                                                ui.painter().circle_filled(
+                                                    rect.center(),
+                                                    6.0,
+                                                    colors.normal,
+                                                );
 
-                let scroll_y = ui.input(|i| i.smooth_scroll_delta.y);
+                                                ui.label(display_name);
+                                                ui.end_row();
+                                            }
 
-                let pinch_zoom = ui.input(|i| i.zoom_delta());
+                                            let (rect, _) = ui.allocate_exact_size(
+                                                egui::vec2(12.0, 12.0),
+                                                egui::Sense::hover(),
+                                            );
+                                            ui.painter().circle_filled(
+                                                rect.center(),
+                                                6.0,
+                                                self.theme.default_node.normal,
+                                            );
+                                            ui.label("Other / Unknown");
+                                            ui.end_row();
+                                        });
+                                });
+                        });
 
-                let mut zoom_multiplier = pinch_zoom;
-                if scroll_y != 0.0 {
-                    zoom_multiplier *= (scroll_y * 0.005).exp();
-                }
+                    let background_rect = ui.available_rect_before_wrap();
+                    let area_to_fill = ui.available_rect_before_wrap();
 
-                if zoom_multiplier != 1.0 {
-                    if let Some(pointer_pos) = ui.ctx().pointer_hover_pos() {
-                        let pointer_vec = pointer_pos.to_vec2();
+                    let screen_center = area_to_fill.center().to_vec2();
 
-                        let graph_pos = (pointer_vec - screen_center - self.pan) / self.zoom;
-
-                        self.zoom *= zoom_multiplier;
-                        self.zoom = self.zoom.clamp(0.1, 5.0);
-
-                        self.pan = pointer_vec - screen_center - graph_pos * self.zoom;
-                    }
-                }
-
-                let to_screen = |p: egui::Pos2| -> egui::Pos2 {
-                    (screen_center + self.pan + p.to_vec2() * self.zoom).to_pos2()
-                };
-
-                let painter = ui.painter().with_clip_rect(area_to_fill);
-
-                painter.rect_filled(
-                    area_to_fill,
-                    0.0,
-                    self.theme.canvas_bg
-                );
-
-                // draw edge
-                for edge in edges.iter() {
-                    if !edge.visible { continue; }
-
-                    if let (Some(source_node), Some(target_node)) = (nodes.get(edge.source), nodes.get(edge.target)) {
-                        let p1 = to_screen(source_node.pos);
-                        let p2 = to_screen(target_node.pos);
-
-                        // edge line
-                        painter.line_segment(
-                            [p1, p2],
-                            egui::Stroke::new(2.0 * self.zoom, self.theme.edge_line),
-                        );
-
-                        // arrow head
-                        let vector = p2 - p1;
-                        let length = vector.length();
-
-                        if length > 0.0 {
-                            let dir = vector / length;
-
-                            let node_radius = 15.0 * self.zoom;
-                            let tip = p2 - (dir * node_radius);
-
-                            let arrow_len = 12.0 * self.zoom;
-                            let arrow_angle = 0.4;
-
-                            let line_angle = dir.y.atan2(dir.x);
-
-                            let angle_left = line_angle - arrow_angle;
-                            let p_left = tip - egui::vec2(angle_left.cos(), angle_left.sin()) * arrow_len;
-
-                            let angle_right = line_angle + arrow_angle;
-                            let p_right = tip - egui::vec2(angle_right.cos(), angle_right.sin()) * arrow_len;
-
-                            painter.add(egui::Shape::convex_polygon(
-                                vec![tip, p_left, p_right],
-                                self.theme.edge_line,
-                                egui::Stroke::NONE,
-                            ));
-                        }
-                    }
-                }
-
-                // draw edge label
-                for edge in edges.iter() {
-                    if !edge.visible { continue; }
-
-                    let s = &nodes[edge.source];
-                    let t = &nodes[edge.target];
-
-                    let center_point = to_screen(s.pos + (t.pos - s.pos) * 0.5);
-                    let font_size = 10.0 * self.zoom;
-
-                    if font_size > 4.0 {
-                        let galley = painter.layout_no_wrap(
-                            edge.label.clone(),
-                            egui::FontId::proportional(font_size),
-                            self.theme.edge_text,
-                        );
-
-                        let text_rect = egui::Align2::CENTER_CENTER
-                            .anchor_rect(egui::Rect::from_min_size(center_point, galley.size()));
-
-                        painter.rect_filled(
-                            text_rect.expand(2.0 * self.zoom),
-                            2.0 * self.zoom,
-                            self.theme.edge_text_bg,
-                        );
-
-                        painter.galley(text_rect.min, galley, egui::Color32::WHITE);
-                    }
-                }
-
-                // draw node
-                let mut clicked_to_expand = None;
-
-                let mut dragged_node_delta = None;
-
-                for (index, node) in nodes.iter_mut().enumerate() {
-                    if !node.visible { continue; }
-
-                    let screen_pos = to_screen(node.pos);
-                    let radius = 15.0 * self.zoom;
-
-                    let response = ui.interact(
-                        egui::Rect::from_center_size(screen_pos, egui::vec2(radius * 2.0, radius * 2.0)),
-                        ui.id().with(&node.id),
+                    let background_response = ui.interact(
+                        background_rect,
+                        ui.id().with("background"),
                         egui::Sense::click_and_drag(),
                     );
-
-                    if response.double_clicked() {
-                        clicked_to_expand = Some(index);
+                    if background_response.dragged() {
+                        self.pan += background_response.drag_delta();
                     }
-
-                    if response.dragged() {
-                        let delta = response.drag_delta() / self.zoom;
-                        node.pos += delta;
-                        self.selected_node = None;
-
-                        dragged_node_delta = Some((index, delta));
-                    }
-
-                    if response.hovered() && self.selected_node.is_some() && self.selected_node != Some(index) {
+                    if background_response.clicked() {
                         self.selected_node = None;
                     }
 
-                    if response.clicked() {
-                        if self.selected_node == Some(index) {
-                            self.selected_node = None;
-                        } else {
-                            self.selected_node = Some(index);
+                    let scroll_y = ui.input(|i| i.smooth_scroll_delta.y);
+
+                    let pinch_zoom = ui.input(|i| i.zoom_delta());
+
+                    let mut zoom_multiplier = pinch_zoom;
+                    if scroll_y != 0.0 {
+                        zoom_multiplier *= (scroll_y * 0.005).exp();
+                    }
+
+                    if zoom_multiplier != 1.0 {
+                        if let Some(pointer_pos) = ui.ctx().pointer_hover_pos() {
+                            let pointer_vec = pointer_pos.to_vec2();
+
+                            let graph_pos = (pointer_vec - screen_center - self.pan) / self.zoom;
+
+                            self.zoom *= zoom_multiplier;
+                            self.zoom = self.zoom.clamp(0.1, 5.0);
+
+                            self.pan = pointer_vec - screen_center - graph_pos * self.zoom;
                         }
                     }
 
-                    let is_pinned = self.selected_node == Some(index);
-                    let is_hovered = response.hovered() && !response.dragged();
+                    let to_screen = |p: egui::Pos2| -> egui::Pos2 {
+                        (screen_center + self.pan + p.to_vec2() * self.zoom).to_pos2()
+                    };
 
-                    if is_pinned || is_hovered {
-                        let offset = egui::vec2(20.0 * self.zoom, 20.0 * self.zoom);
+                    let painter = ui.painter().with_clip_rect(area_to_fill);
 
-                        egui::Window::new(format!("node_window_{}", node.id))
-                            .fixed_pos(screen_pos + offset)
-                            .title_bar(false)
-                            .resizable(false)
-                            .collapsible(false)
-                            .frame(egui::Frame::popup(&ctx.style()))
-                            .show(ctx, |ui| {
-                                ui.heading(&node.label);
-                                ui.separator();
+                    painter.rect_filled(area_to_fill, 0.0, self.theme.painter_bg);
 
-                                draw_node_details(ui, node);
+                    // draw edge
+                    for edge in edges.iter() {
+                        if !edge.visible {
+                            continue;
+                        }
 
-                                if is_pinned {
+                        if let (Some(source_node), Some(target_node)) =
+                            (nodes.get(edge.source), nodes.get(edge.target))
+                        {
+                            let p1 = to_screen(source_node.pos);
+                            let p2 = to_screen(target_node.pos);
+
+                            // edge line
+                            painter.line_segment(
+                                [p1, p2],
+                                egui::Stroke::new(2.0 * self.zoom, self.theme.edge_fg),
+                            );
+
+                            // arrow head
+                            let vector = p2 - p1;
+                            let length = vector.length();
+
+                            if length > 0.0 {
+                                let dir = vector / length;
+
+                                let node_radius = 15.0 * self.zoom;
+                                let tip = p2 - (dir * node_radius);
+
+                                let arrow_len = 12.0 * self.zoom;
+                                let arrow_angle = 0.4;
+
+                                let line_angle = dir.y.atan2(dir.x);
+
+                                let angle_left = line_angle - arrow_angle;
+                                let p_left = tip
+                                    - egui::vec2(angle_left.cos(), angle_left.sin()) * arrow_len;
+
+                                let angle_right = line_angle + arrow_angle;
+                                let p_right = tip
+                                    - egui::vec2(angle_right.cos(), angle_right.sin()) * arrow_len;
+
+                                painter.add(egui::Shape::convex_polygon(
+                                    vec![tip, p_left, p_right],
+                                    self.theme.edge_fg,
+                                    egui::Stroke::NONE,
+                                ));
+                            }
+                        }
+                    }
+
+                    // draw edge label
+                    for edge in edges.iter() {
+                        if !edge.visible {
+                            continue;
+                        }
+
+                        let s = &nodes[edge.source];
+                        let t = &nodes[edge.target];
+
+                        let center_point = to_screen(s.pos + (t.pos - s.pos) * 0.5);
+                        let font_size = 10.0 * self.zoom;
+
+                        if font_size > 4.0 {
+                            let galley = painter.layout_no_wrap(
+                                edge.label.clone(),
+                                egui::FontId::proportional(font_size),
+                                self.theme.text_fg,
+                            );
+
+                            let text_rect = egui::Align2::CENTER_CENTER.anchor_rect(
+                                egui::Rect::from_min_size(center_point, galley.size()),
+                            );
+
+                            painter.rect_filled(
+                                text_rect.expand(2.0 * self.zoom),
+                                2.0 * self.zoom,
+                                self.theme.painter_bg,
+                            );
+
+                            painter.galley(text_rect.min, galley, self.theme.text_fg);
+                        }
+                    }
+
+                    // draw node
+                    let mut clicked_to_expand = None;
+
+                    let mut dragged_node_delta = None;
+
+                    for (index, node) in nodes.iter().enumerate() {
+                        if !node.visible {
+                            continue;
+                        }
+
+                        let screen_pos = to_screen(node.pos);
+                        let radius = 15.0 * self.zoom;
+
+                        let response = ui.interact(
+                            egui::Rect::from_center_size(
+                                screen_pos,
+                                egui::vec2(radius * 2.0, radius * 2.0),
+                            ),
+                            ui.id().with(&node.id),
+                            egui::Sense::click_and_drag(),
+                        );
+
+                        let current_time = ui.input(|i| i.time);
+
+                        // node it dragged
+                        if response.dragged() {
+                            let delta = response.drag_delta() / self.zoom;
+                            self.selected_node = None;
+                            self.pending_click_node = None;
+                            dragged_node_delta = Some((index, delta));
+                        }
+
+                        // left double click / left click
+                        if response.double_clicked() {
+                            clicked_to_expand = Some(index);
+                            self.selected_node = None;
+                            self.pending_click_node = None;
+                        } else if response.clicked() {
+                            self.pending_click_node = Some(index);
+                            self.pending_click_time = current_time;
+                        }
+
+                        // right click
+                        if response.secondary_clicked() {
+                            self.selected_node = Some(index);
+                            self.show_menu = true;
+                            self.pending_click_node = None;
+                        }
+
+                        // delay infobox till we are sure no double click happend
+                        if self.pending_click_node == Some(index) {
+                            if (current_time - self.pending_click_time) > 0.25 {
+                                // 250 ms
+                                if self.selected_node == Some(index) && !self.show_menu {
+                                    self.selected_node = None;
+                                } else {
+                                    self.selected_node = Some(index);
+                                    self.show_menu = false;
+                                }
+                                self.pending_click_node = None; // Clear the timer
+                            } else {
+                                ui.ctx().request_repaint();
+                            }
+                        }
+
+                        let is_pinned = self.selected_node == Some(index) && !self.show_menu;
+
+                        if is_pinned {
+                            let offset = egui::vec2(20.0 * self.zoom, 20.0 * self.zoom);
+
+                            egui::Window::new(format!("node_window_{}", node.id))
+                                .fixed_pos(screen_pos + offset)
+                                .title_bar(false)
+                                .resizable(false)
+                                .collapsible(false)
+                                .frame(egui::Frame::popup(&ctx.style()))
+                                .show(ctx, |ui| {
+                                    ui.heading(&node.label);
+                                    ui.separator();
+
+                                    draw_node_details(ui, node);
+
                                     ui.add_space(5.0);
                                     if ui.button("Close").clicked() {
                                         self.selected_node = None;
                                     }
-                                } else {
-                                    ui.add_space(5.0);
-                                    ui.label(
-                                        egui::RichText::new("(Click to pin)")
-                                            .italics()
-                                            .color(egui::Color32::GRAY)
-                                    );
-                                }
-                            });
-                    }
+                                });
+                        }
 
-                    let node_theme = self.theme.get_node_colors(&node.rdf_type);
-                    let color = if is_hovered || is_pinned {
-                        node_theme.hovered
-                    } else {
-                        node_theme.normal
-                    };
+                        let node_theme = self.theme.get_node_colors(&node.rdf_type);
 
-                    painter.circle_filled(screen_pos, radius, color);
-
-                    let font_size = 12.0 * self.zoom;
-                    if font_size > 4.0 {
-
-                        let display_text = if node.label.len() > 50 {
-                            let pred_name = edges.iter()
-                                .find(|e| e.target == index)
-                                .map(|e| e.label.clone())
-                                .unwrap_or_else(|| "Description".to_string());
-                            let display_pred = {
-                                let mut c = pred_name.chars();
-                                match c.next() {
-                                    None => String::new(),
-                                    Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
-                                }
-                            };
-
-                            format!("{} (Click to show)", display_pred)
+                        let color = if response.hovered() {
+                            node_theme.hovered
                         } else {
-                            node.label.clone()
+                            node_theme.normal
                         };
 
-                        let galley = painter.layout_no_wrap(
-                            display_text.to_string(),
-                            egui::FontId::proportional(font_size),
-                            self.theme.node_text,
-                        );
+                        painter.circle_filled(screen_pos, radius, color);
 
-                        let text_pos = screen_pos + egui::vec2(0.0, 20.0 * self.zoom);
-                        let text_rect = egui::Align2::CENTER_TOP
-                            .anchor_rect(egui::Rect::from_min_size(text_pos, galley.size()));
+                        let font_size = 12.0 * self.zoom;
+                        if font_size > 4.0 {
+                            let display_text = if node.label.len() > 50 {
+                                let pred_name = edges
+                                    .iter()
+                                    .find(|e| e.target == index)
+                                    .map(|e| e.label.clone())
+                                    .unwrap_or_else(|| "Description".to_string());
+                                let display_pred = {
+                                    let mut c = pred_name.chars();
+                                    match c.next() {
+                                        None => String::new(),
+                                        Some(f) => {
+                                            f.to_uppercase().collect::<String>() + c.as_str()
+                                        }
+                                    }
+                                };
 
-                        painter.rect_filled(
-                            text_rect.expand(2.0 * self.zoom),
-                            2.0 * self.zoom,
-                            self.theme.edge_text_bg,
-                        );
+                                format!("{} (Click to show)", display_pred)
+                            } else {
+                                node.label.clone()
+                            };
 
-                        painter.galley(text_rect.min, galley, self.theme.node_text);
-                    }
-                }
+                            let galley = painter.layout_no_wrap(
+                                display_text.to_string(),
+                                egui::FontId::proportional(font_size),
+                                self.theme.text_fg,
+                            );
 
-                // move child node in sync
-                if let Some((parent_idx, delta)) = dragged_node_delta {
-                    for edge in edges.iter() {
-                        if edge.source == parent_idx && edge.visible {
-                            let child_idx = edge.target;
-                            nodes[child_idx].pos += delta;
+                            let text_pos = screen_pos + egui::vec2(0.0, 20.0 * self.zoom);
+                            let text_rect = egui::Align2::CENTER_TOP
+                                .anchor_rect(egui::Rect::from_min_size(text_pos, galley.size()));
+
+                            painter.rect_filled(
+                                text_rect.expand(2.0 * self.zoom),
+                                2.0 * self.zoom,
+                                self.theme.painter_bg,
+                            );
+
+                            painter.galley(text_rect.min, galley, self.theme.text_fg);
                         }
                     }
-                }
 
-                // expansion
-                if let Some(parent_idx) = clicked_to_expand {
-                    let is_currently_expanded = nodes[parent_idx].expanded;
+                    // node menu
+                    if let Some(menu_idx) = self.selected_node {
+                        if self.show_menu {
+                            let screen_pos = to_screen(nodes[menu_idx].pos);
+                            let menu_radius = 35.0 * self.zoom;
+                            let btn_radius = 12.0 * self.zoom;
 
-                    if is_currently_expanded {
-                        // cascade collapse
-                        let mut stack = vec![parent_idx];
+                            // button 1
+                            let expand_pos = screen_pos + egui::vec2(-menu_radius, 0.0);
+                            let expand_rect = egui::Rect::from_center_size(
+                                expand_pos,
+                                egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
+                            );
+                            let expand_resp = ui.interact(
+                                expand_rect,
+                                ui.id().with(format!("btn_exp_{}", menu_idx)),
+                                egui::Sense::click(),
+                            );
 
-                        while let Some(current_idx) = stack.pop() {
-                            nodes[current_idx].expanded = false;
+                            // Draw the blue circle and a +/- icon
+                            painter.circle_filled(
+                                expand_pos,
+                                btn_radius,
+                                egui::Color32::from_rgb(70, 130, 200),
+                            );
+                            let icon = if nodes[menu_idx].expanded { "-" } else { "+" };
+                            let galley = painter.layout_no_wrap(
+                                icon.into(),
+                                egui::FontId::proportional(16.0 * self.zoom),
+                                egui::Color32::WHITE,
+                            );
+                            painter.galley(
+                                expand_pos - galley.size() / 2.0,
+                                galley,
+                                egui::Color32::WHITE,
+                            );
 
-                            for edge_idx in 0..edges.len() {
-                                if edges[edge_idx].source == current_idx && edges[edge_idx].visible {
-                                    edges[edge_idx].visible = false;
-                                    let child_idx = edges[edge_idx].target;
+                            if expand_resp.clicked() {
+                                // Trigger the existing expansion engine!
+                                clicked_to_expand = Some(menu_idx);
+                                self.selected_node = None; // <-- FIXED: Close menu
+                            }
 
-                                    let has_other_active_parents = edges.iter().any(|e|
-                                        e.target == child_idx && e.visible
-                                    );
+                            // button 2
+                            let info_pos = screen_pos + egui::vec2(menu_radius, 0.0);
+                            let info_rect = egui::Rect::from_center_size(
+                                info_pos,
+                                egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
+                            );
+                            let info_resp = ui.interact(
+                                info_rect,
+                                ui.id().with(format!("btn_info_{}", menu_idx)),
+                                egui::Sense::click(),
+                            );
 
-                                    if !has_other_active_parents {
-                                        nodes[child_idx].visible = false;
+                            // Draw the green circle and an 'i' icon
+                            painter.circle_filled(
+                                info_pos,
+                                btn_radius,
+                                egui::Color32::from_rgb(100, 180, 100),
+                            );
+                            let galley = painter.layout_no_wrap(
+                                "i".into(),
+                                egui::FontId::proportional(14.0 * self.zoom),
+                                egui::Color32::WHITE,
+                            );
+                            painter.galley(
+                                info_pos - galley.size() / 2.0,
+                                galley,
+                                egui::Color32::WHITE,
+                            );
 
-                                        if nodes[child_idx].expanded {
-                                            stack.push(child_idx);
+                            if info_resp.clicked() {
+                                // Trigger the info box!
+                                self.show_menu = false; // <-- FIXED: Instantly toggle to info box
+                            }
+                        }
+                    }
+
+                    // move child node in sync
+                    if let Some((parent_idx, delta)) = dragged_node_delta {
+                        nodes[parent_idx].pos += delta;
+
+                        for edge in edges.iter() {
+                            if edge.source == parent_idx && edge.visible {
+                                let child_idx = edge.target;
+                                nodes[child_idx].pos += delta;
+                            }
+                        }
+                    }
+
+                    // expansion
+                    if let Some(parent_idx) = clicked_to_expand {
+                        let is_currently_expanded = nodes[parent_idx].expanded;
+
+                        if is_currently_expanded {
+                            // cascade collapse
+                            let mut stack = vec![parent_idx];
+
+                            while let Some(current_idx) = stack.pop() {
+                                nodes[current_idx].expanded = false;
+
+                                for edge_idx in 0..edges.len() {
+                                    if edges[edge_idx].source == current_idx
+                                        && edges[edge_idx].visible
+                                    {
+                                        edges[edge_idx].visible = false;
+                                        let child_idx = edges[edge_idx].target;
+
+                                        let has_other_active_parents = edges
+                                            .iter()
+                                            .any(|e| e.target == child_idx && e.visible);
+
+                                        if !has_other_active_parents {
+                                            nodes[child_idx].visible = false;
+
+                                            if nodes[child_idx].expanded {
+                                                stack.push(child_idx);
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    } else {
-                        // orbit expansion
-                        nodes[parent_idx].expanded = true;
-
-                        let attributes = nodes[parent_idx].attributes.clone();
-
-                        let mut structural_children_indices = Vec::new();
-                        for (edge_idx, edge) in edges.iter().enumerate() {
-                            if edge.source == parent_idx {
-                                structural_children_indices.push((edge_idx, edge.target));
-                            }
-                        }
-
-                        let total_children = attributes.len() + structural_children_indices.len();
-                        let mut angle: f32 = 0.0;
-                        let angle_step = std::f32::consts::TAU / (total_children.max(1) as f32);
-                        let spawn_radius = 250.0;
-
-                        for (edge_idx, target_idx) in structural_children_indices {
-                            let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
-                            angle += angle_step;
-
-                            if !nodes[target_idx].visible {
-                                nodes[target_idx].pos = target_pos;
-                            }
-                            nodes[target_idx].visible = true;
-                            edges[edge_idx].visible = true;
-                        }
-
-                        for (key, value) in attributes {
-                            let shared_attr_id = format!("shared_attr_{}_{}", key, value);
-                            let target_pos = nodes[parent_idx].pos + egui::vec2(angle.cos() * spawn_radius, angle.sin() * spawn_radius);
-                            angle += angle_step;
-
-                            let existing_node_idx = nodes.iter().position(|n| n.id == shared_attr_id);
-
-                            let target_idx = if let Some(idx) = existing_node_idx {
-                                if !nodes[idx].visible {
-                                    nodes[idx].pos = target_pos;
+                        } else {
+                            nodes[parent_idx].expanded = true;
+                            let mut children_indices = Vec::new();
+                            for (edge_idx, edge) in edges.iter().enumerate() {
+                                if edge.source == parent_idx {
+                                    children_indices.push((edge_idx, edge.target));
                                 }
-                                nodes[idx].visible = true;
-                                idx
-                            } else {
-                                let new_idx = nodes.len();
-                                nodes.push(Node {
-                                    id: shared_attr_id.clone(),
-                                    label: value.clone(),
-                                    rdf_type: "Literal".to_string(),
-                                    node_type: "Attribute".to_string(),
-                                    pos: target_pos,
-                                    original_pos: target_pos,
-                                    attributes: std::collections::HashMap::new(),
-                                    expanded: false,
-                                    visible: true,
-                                    parent_index: None,
-                                });
-                                new_idx
-                            };
+                            }
 
-                            let existing_edge_idx = edges.iter().position(|e| e.source == parent_idx && e.target == target_idx && e.label == key);
+                            let total_children = children_indices.len();
+                            let mut angle: f32 = 0.0;
+                            let angle_step = std::f32::consts::TAU / (total_children.max(1) as f32);
+                            let spawn_radius = 240.0;
 
-                            if let Some(edge_idx) = existing_edge_idx {
+                            for (edge_idx, target_idx) in children_indices {
+                                let target_pos = nodes[parent_idx].pos
+                                    + egui::vec2(
+                                        angle.cos() * spawn_radius,
+                                        angle.sin() * spawn_radius,
+                                    );
+                                angle += angle_step;
+
+                                if !nodes[target_idx].visible {
+                                    nodes[target_idx].pos = target_pos;
+                                }
+                                nodes[target_idx].visible = true;
                                 edges[edge_idx].visible = true;
-                            } else {
-                                edges.push(Edge {
-                                    source: parent_idx,
-                                    target: target_idx,
-                                    label: key.clone(),
-                                    visible: true,
-                                });
                             }
                         }
                     }
+                } else if let AppState::Error(err_msg) = &*state_lock {
+                    ui.heading("Something went wrong:");
+                    ui.label(
+                        egui::RichText::new(err_msg)
+                            .color(egui::Color32::RED)
+                            .strong(),
+                    );
+                } else {
+                    ui.heading("Loading...");
                 }
-            } else if let AppState::Error(err_msg) = &*state_lock {
-                ui.heading("Something went wrong:");
-                ui.label(
-                    egui::RichText::new(err_msg)
-                        .color(egui::Color32::RED)
-                        .strong()
-                );
-            } else {
-                ui.heading("Loading...");
-            }
-        });
+            });
     }
 }
 
