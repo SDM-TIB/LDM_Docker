@@ -1,3 +1,4 @@
+mod graph_processor;
 mod parser;
 mod theme;
 
@@ -7,7 +8,7 @@ use log::{error, info};
 use std::sync::{Arc, Mutex};
 
 use theme::Theme;
-use parser::{parse_n3_to_graph, Edge, Node};
+use graph_processor::{Edge, Node};
 
 enum AppState {
     Loading,
@@ -57,91 +58,6 @@ fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
 fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     Err("Direct file access is not supported in the browser.".to_string())
 }
-
-impl App {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.style_mut(|style| {
-            style.interaction.tooltip_delay = 0.0;
-        });
-
-        let is_system_dark = match cc.integration_info.system_theme {
-            Some(eframe::Theme::Light) => false,
-            _ => true,
-        };
-
-        if is_system_dark {
-            cc.egui_ctx.set_visuals(egui::Visuals::dark());
-        } else {
-            cc.egui_ctx.set_visuals(egui::Visuals::light());
-        }
-
-        let state = Arc::new(Mutex::new(AppState::Loading));
-        let state_clone = state.clone();
-        let mut app_state = state_clone.lock().unwrap();
-
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            if let Some(target_url) = get_n3_url_from_current_path() {
-                let state_clone = state.clone();
-                let ctx_clone = cc.egui_ctx.clone();
-
-                let request = ehttp::Request::get(&target_url);
-
-                ehttp::fetch(request, move |response| {
-                    let mut app_state = state_clone.lock().unwrap();
-                    match response {
-                        Ok(res) => {
-                            if let Some(text) = res.text() {
-                                let (nodes, edges) = parse_n3_to_graph(text);
-                                *app_state = AppState::Ready {
-                                    selected_entrypoint: "placeholder".to_string(),
-                                    nodes,
-                                    edges
-                                };
-                            } else {
-                                *app_state = AppState::Error("failed to read text from n3".into());
-                            }
-                        }
-                        Err(err) => *app_state = AppState::Error(format!("Network Error: {}", err)),
-                    }
-                    ctx_clone.request_repaint();
-                });
-            } else {
-                *state.lock().unwrap() =
-                    AppState::Error("Could not determine TTL path from URL".into());
-            }
-        }
-
-        // Try to load the file on startup (Native only)
-        #[cfg(not(target_arch = "wasm32"))]
-        match load_local_file("src/sample.n3") {
-            Ok((nodes, edges)) => {
-                *app_state = AppState::Ready {
-                    selected_entrypoint: "sample.n3".to_string(),
-                    nodes,
-                    edges
-                };
-            }
-            Err(e) => {
-                *app_state = AppState::Error(e);
-            }
-        }
-
-        Self {
-            state,
-            zoom: 1.0,
-            pan: egui::vec2(0.0, 0.0),
-            theme: Theme::dark(),
-            selected_node: None,
-            show_menu: false,
-            pending_click_node: None,
-            pending_click_time: 0.0,
-            is_dark_mode: true,
-        }
-    }
-}
-
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let main_app_frame = egui::Frame::central_panel(&ctx.style()).fill(self.theme.master_bg);
@@ -164,7 +80,7 @@ impl eframe::App for App {
                         let theme_button = egui::Button::new(
                             egui::RichText::new(theme_string).color(self.theme.text_fg),
                         )
-                            .fill(self.theme.button_bg);
+                        .fill(self.theme.button_bg);
 
                         if ui.add(theme_button).clicked() {
                             self.is_dark_mode = !self.is_dark_mode;
@@ -181,7 +97,7 @@ impl eframe::App for App {
                         let reset_view_button = egui::Button::new(
                             egui::RichText::new("Reset View").color(self.theme.text_fg),
                         )
-                            .fill(self.theme.button_bg);
+                        .fill(self.theme.button_bg);
 
                         if ui.add(reset_view_button).clicked() {
                             self.zoom = 1.0;
@@ -255,39 +171,31 @@ impl eframe::App for App {
                                     ui.end_row();
                                 }
 
-                                for edge in edges.iter() {
-                                    if nodes[edge.source].id == node.id
-                                        && nodes[edge.target].node_type == "Attribute"
-                                    {
-                                        let key = &edge.label;
-                                        let value = &nodes[edge.target].label;
-
-                                        let display_key = {
-                                            let mut c = key.chars();
-                                            match c.next() {
-                                                None => String::new(),
-                                                Some(f) => {
-                                                    f.to_uppercase().collect::<String>()
-                                                        + c.as_str()
-                                                }
+                                for (i, (key, value)) in node.properties.iter().enumerate() {
+                                    let display_key = {
+                                        let mut c = key.chars();
+                                        match c.next() {
+                                            None => String::new(),
+                                            Some(f) => {
+                                                f.to_uppercase().collect::<String>() + c.as_str()
                                             }
-                                        };
-
-                                        ui.strong(format!("{}:", display_key));
-
-                                        if value.len() > 60 {
-                                            egui::ScrollArea::vertical()
-                                                .id_source(format!("scroll_{}_{}", node.id, key))
-                                                .max_height(100.0)
-                                                .min_scrolled_height(0.0)
-                                                .show(ui, |ui| {
-                                                    ui.label(value);
-                                                });
-                                        } else {
-                                            ui.label(value);
                                         }
-                                        ui.end_row();
+                                    };
+
+                                    ui.strong(format!("{}:", display_key));
+
+                                    if value.len() > 60 {
+                                        egui::ScrollArea::vertical()
+                                            .id_source(format!("scroll_prop_{}_{}", node.id, i))
+                                            .max_height(100.0)
+                                            .min_scrolled_height(0.0)
+                                            .show(ui, |ui| {
+                                                ui.label(value);
+                                            });
+                                    } else {
+                                        ui.label(value);
                                     }
+                                    ui.end_row();
                                 }
                             });
                     };
@@ -401,57 +309,7 @@ impl eframe::App for App {
 
                     painter.rect_filled(area_to_fill, 0.0, self.theme.painter_bg);
 
-                    // draw edge
-                    for edge in edges.iter() {
-                        if !edge.visible {
-                            continue;
-                        }
-
-                        if let (Some(source_node), Some(target_node)) =
-                            (nodes.get(edge.source), nodes.get(edge.target))
-                        {
-                            let p1 = to_screen(source_node.pos);
-                            let p2 = to_screen(target_node.pos);
-
-                            // edge line
-                            painter.line_segment(
-                                [p1, p2],
-                                egui::Stroke::new(2.0 * self.zoom, self.theme.edge_fg),
-                            );
-
-                            // arrow head
-                            let vector = p2 - p1;
-                            let length = vector.length();
-
-                            if length > 0.0 {
-                                let dir = vector / length;
-
-                                let node_radius = 15.0 * self.zoom;
-                                let tip = p2 - (dir * node_radius);
-
-                                let arrow_len = 12.0 * self.zoom;
-                                let arrow_angle = 0.4;
-
-                                let line_angle = dir.y.atan2(dir.x);
-
-                                let angle_left = line_angle - arrow_angle;
-                                let p_left = tip
-                                    - egui::vec2(angle_left.cos(), angle_left.sin()) * arrow_len;
-
-                                let angle_right = line_angle + arrow_angle;
-                                let p_right = tip
-                                    - egui::vec2(angle_right.cos(), angle_right.sin()) * arrow_len;
-
-                                painter.add(egui::Shape::convex_polygon(
-                                    vec![tip, p_left, p_right],
-                                    self.theme.edge_fg,
-                                    egui::Stroke::NONE,
-                                ));
-                            }
-                        }
-                    }
-
-                    // draw edge label
+                    // draw edges and labels
                     for edge in edges.iter() {
                         if !edge.visible {
                             continue;
@@ -460,22 +318,108 @@ impl eframe::App for App {
                         let s = &nodes[edge.source];
                         let t = &nodes[edge.target];
 
-                        let center_point = to_screen(s.pos + (t.pos - s.pos) * 0.5);
-                        let font_size = 10.0 * self.zoom;
+                        let p1 = to_screen(s.pos);
+                        let p2 = to_screen(t.pos);
+                        let vector = p2 - p1;
+                        let length = vector.length();
+
+                        if length == 0.0 {
+                            continue;
+                        }
+                        let dir = vector / length;
+
+                        // draw edge
+                        painter.line_segment(
+                            [p1, p2],
+                            egui::Stroke::new(1.5 * self.zoom, self.theme.edge_fg),
+                        );
+
+                        let node_radius = 15.0 * self.zoom;
+                        let arrow_len = 12.0 * self.zoom;
+                        let arrow_angle = 0.4;
+                        let line_angle = dir.y.atan2(dir.x);
+
+                        // draw arrowhead
+                        let tip = p2 - (dir * node_radius);
+                        let angle_left = line_angle - arrow_angle;
+                        let p_left =
+                            tip - egui::vec2(angle_left.cos(), angle_left.sin()) * arrow_len;
+                        let angle_right = line_angle + arrow_angle;
+                        let p_right =
+                            tip - egui::vec2(angle_right.cos(), angle_right.sin()) * arrow_len;
+
+                        painter.add(egui::Shape::convex_polygon(
+                            vec![tip, p_left, p_right],
+                            self.theme.edge_fg,
+                            egui::Stroke::NONE,
+                        ));
+
+                        // draw arrowhead reverse
+                        if edge.bidirectional {
+                            let tip_rev = p1 + (dir * node_radius);
+                            let dir_rev = -dir;
+                            let line_angle_rev = dir_rev.y.atan2(dir_rev.x);
+
+                            let angle_left_rev = line_angle_rev - arrow_angle;
+                            let p_left_rev = tip_rev
+                                - egui::vec2(angle_left_rev.cos(), angle_left_rev.sin())
+                                    * arrow_len;
+                            let angle_right_rev = line_angle_rev + arrow_angle;
+                            let p_right_rev = tip_rev
+                                - egui::vec2(angle_right_rev.cos(), angle_right_rev.sin())
+                                    * arrow_len;
+
+                            painter.add(egui::Shape::convex_polygon(
+                                vec![tip_rev, p_left_rev, p_right_rev],
+                                self.theme.edge_fg,
+                                egui::Stroke::NONE,
+                            ));
+                        }
+
+                        // draw label
+                        let center_point = p1 + (dir * length * 0.5);
+
+                        let font_size = (10.0 * self.zoom).round();
 
                         if font_size > 4.0 {
+                            let is_flipped = dir.x < 0.0;
+
+                            let display_text = if !is_flipped {
+                                // target is to the right
+                                if let Some(rev) = &edge.reverse_label {
+                                    format!("{} ->\n<- {}", edge.label, rev)
+                                } else if edge.bidirectional {
+                                    format!("<- {} ->", edge.label)
+                                } else {
+                                    format!("{} ->", edge.label)
+                                }
+                            } else {
+                                // target is to the left
+                                if let Some(rev) = &edge.reverse_label {
+                                    format!("<- {}\n{} ->", edge.label, rev)
+                                } else if edge.bidirectional {
+                                    format!("<- {} ->", edge.label)
+                                } else {
+                                    format!("<- {}", edge.label)
+                                }
+                            };
+
                             let galley = painter.layout_no_wrap(
-                                edge.label.clone(),
+                                display_text,
                                 egui::FontId::proportional(font_size),
                                 self.theme.text_fg,
                             );
 
-                            let text_rect = egui::Align2::CENTER_CENTER.anchor_rect(
-                                egui::Rect::from_min_size(center_point, galley.size()),
-                            );
+                            let size = galley.size();
+                            let padding = 3.0 * self.zoom;
 
+                            let snapped_center =
+                                egui::pos2(center_point.x.round(), center_point.y.round());
+                            let text_rect = egui::Rect::from_center_size(snapped_center, size);
+
+                            // background box for label
                             painter.rect_filled(
-                                text_rect.expand(2.0 * self.zoom),
+                                text_rect.expand(padding),
                                 2.0 * self.zoom,
                                 self.theme.painter_bg,
                             );
