@@ -30,6 +30,7 @@ struct App {
     pending_click_node: Option<usize>,
     pending_click_time: f64,
     is_dark_mode: bool,
+    canvas_rect: Option<egui::Rect>,
 }
 
 // obtain source file
@@ -46,8 +47,13 @@ fn get_n3_url_from_current_path() -> Option<String> {
 fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     match std::fs::read_to_string(path) {
         Ok(content) => {
-            // Call the parser we fixed earlier!
-            Ok(parse_n3_to_graph(&content))
+            // extract pure data (N3 -> triples)
+            let raw_triples = parser::parse_n3_file(&content);
+
+            // format for UI (triples -> graph)
+            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples);
+
+            Ok((ui_nodes, ui_edges))
         }
         Err(e) => Err(format!("Failed to read file '{}': {}", path, e)),
     }
@@ -128,7 +134,10 @@ impl App {
                     match response {
                         Ok(res) => {
                             if let Some(text) = res.text() {
-                                let (nodes, edges) = parse_n3_to_graph(text);
+                                let raw_triples = parser::parse_n3_file(&text);
+
+                                let (nodes, edges) = graph_processor::build_ui_graph(raw_triples);
+
                                 *app_state = AppState::Ready {
                                     selected_entrypoint: "placeholder".to_string(),
                                     nodes,
@@ -173,6 +182,7 @@ impl App {
             pending_click_node: None,
             pending_click_time: 0.0,
             is_dark_mode: true,
+            canvas_rect: None,
         }
     }
 }
@@ -239,6 +249,15 @@ impl eframe::App for App {
                                     edge.visible = false;
                                 }
                             }
+                        }
+
+                        let export_button = egui::Button::new(
+                            egui::RichText::new("Export as PNG").color(self.theme.text_fg),
+                        )
+                            .fill(self.theme.button_bg);
+
+                        if ui.add(export_button).clicked() {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
                         }
                     });
                 });
