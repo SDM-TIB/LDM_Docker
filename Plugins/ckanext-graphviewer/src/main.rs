@@ -861,29 +861,15 @@ impl eframe::App for App {
                                     let ctx_clone = ctx.clone();
                                     let clicked_node_id = nodes[menu_idx].id.clone();
 
-                                    // fetch author
+                                    // fetch authors datasets
                                     if current_type.contains("http://purl.org/spar/pro/Author") {
-                                        let mut orcid_val = None;
-                                        for (k, v) in &nodes[menu_idx].properties {
-                                            if k == "sameAS" && v.contains("orcid.org") {
-                                                orcid_val = Some(v.clone());
-                                                break;
-                                            }
-                                        }
-
-                                        if let Some(orcid) = orcid_val {
-                                            // --- CLEAN CODE: Call the external file! ---
-                                            crate::button::fetch_author_datasets(
-                                                ctx_clone, 
-                                                state_clone, 
-                                                clicked_node_id, 
-                                                orcid
-                                            );
-                                        } else {
-                                            println!("Cannot fetch: This Author node does not have an ORCID property.");
-                                        }
+                                        crate::button::fetch_author_datasets(
+                                            ctx_clone,
+                                            state_clone,
+                                            clicked_node_id.clone(),
+                                            clicked_node_id
+                                        );
                                     }
-
 
                                 }
                             }
