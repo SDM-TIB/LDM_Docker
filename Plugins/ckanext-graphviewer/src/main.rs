@@ -954,10 +954,33 @@ impl eframe::App for App {
                                                             }
                                                         }
 
-                                                        // C. Feed everything back into your Graph Processor!
+// C. Feed everything back into your Graph Processor!
                                                         let (mut new_nodes, mut new_edges) = crate::graph_processor::build_ui_graph(raw_triples.clone());
 
-// D. RESTORE OLD STATE & LAYOUT NEW NODES
+                                                        // --- NEW: FIX THE HIERARCHY BUG! ---
+                                                        // Because Datasets sort higher than Authors in the processor, the new datasets 
+                                                        // accidentally became the "source" (parent) of the Author. This broke the expand/collapse math!
+                                                        // We fix this by forcing any brand new node to act as the "child" (target) of the existing node!
+                                                        for edge in &mut new_edges {
+                                                            let s_id = &new_nodes[edge.source].id;
+                                                            let t_id = &new_nodes[edge.target].id;
+                                                            
+                                                            let source_is_old = old_nodes.contains_key(s_id);
+                                                            let target_is_old = old_nodes.contains_key(t_id);
+                                                            
+                                                            // If the target is an old node, but the source is a new node, flip them!
+                                                            if target_is_old && !source_is_old {
+                                                                std::mem::swap(&mut edge.source, &mut edge.target);
+                                                                
+                                                                // Swap the directional text so the visual arrows still point the correct way!
+                                                                if let Some(rev) = edge.reverse_label.clone() {
+                                                                    edge.reverse_label = Some(edge.label.clone());
+                                                                    edge.label = rev;
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // D. RESTORE OLD STATE & LAYOUT NEW NODES
                                                         let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
                                                         let mut new_node_indices = Vec::new();
 
@@ -968,8 +991,7 @@ impl eframe::App for App {
                                                                 n.original_pos = old_n.original_pos;
                                                                 n.visible = old_n.visible;
                                                                 
-                                                                // --- NEW: Sync the expanded state! ---
-                                                                // If this is the Author we clicked, tell it that it is ALREADY expanded!
+                                                                // Keep expanded state synced so the first double-click triggers a collapse!
                                                                 if n.id == clicked_node_id {
                                                                     n.expanded = true;
                                                                 } else {
@@ -978,7 +1000,7 @@ impl eframe::App for App {
                                                             } else {
                                                                 // This is a BRAND NEW node from the API!
                                                                 n.visible = true; 
-                                                                n.expanded = false; // Ensure it starts collapsed
+                                                                n.expanded = false; 
                                                                 new_node_indices.push(i);
                                                             }
                                                         }
