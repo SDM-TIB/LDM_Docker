@@ -276,6 +276,8 @@ impl eframe::App for App {
                             .fill(self.theme.button_bg);
 
                         if ui.add(export_button).clicked() {
+                            info!("export button clicked");
+
                             // Desktop behavior (Native)
                             #[cfg(not(target_arch = "wasm32"))]
                             ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
