@@ -921,7 +921,7 @@ if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                     if let Some(parent_idx) = clicked_to_expand {
                         let is_currently_expanded = nodes[parent_idx].expanded;
 
-                        if is_currently_expanded {
+if is_currently_expanded {
                             // cascade collapse
                             let mut stack = vec![parent_idx];
 
@@ -929,15 +929,22 @@ if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                                 nodes[current_idx].expanded = false;
 
                                 for edge_idx in 0..edges.len() {
-                                    if edges[edge_idx].source == current_idx
-                                        && edges[edge_idx].visible
-                                    {
-                                        edges[edge_idx].visible = false;
-                                        let child_idx = edges[edge_idx].target;
+                                    let mut child_idx_opt = None;
 
+                                    // --- NEW: Collapse both outgoing AND incoming edges! ---
+                                    if edges[edge_idx].source == current_idx && edges[edge_idx].visible {
+                                        child_idx_opt = Some(edges[edge_idx].target);
+                                    } else if edges[edge_idx].target == current_idx && edges[edge_idx].visible {
+                                        child_idx_opt = Some(edges[edge_idx].source);
+                                    }
+
+                                    if let Some(child_idx) = child_idx_opt {
+                                        edges[edge_idx].visible = false;
+
+                                        // --- NEW: Check both directions for remaining connections! ---
                                         let has_other_active_parents = edges
                                             .iter()
-                                            .any(|e| e.target == child_idx && e.visible);
+                                            .any(|e| (e.target == child_idx || e.source == child_idx) && e.visible);
 
                                         if !has_other_active_parents {
                                             nodes[child_idx].visible = false;
@@ -952,9 +959,13 @@ if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                         } else {
                             nodes[parent_idx].expanded = true;
                             let mut children_indices = Vec::new();
+                            
                             for (edge_idx, edge) in edges.iter().enumerate() {
+                                // --- NEW: Expand both outgoing AND incoming edges! ---
                                 if edge.source == parent_idx {
                                     children_indices.push((edge_idx, edge.target));
+                                } else if edge.target == parent_idx {
+                                    children_indices.push((edge_idx, edge.source));
                                 }
                             }
 
