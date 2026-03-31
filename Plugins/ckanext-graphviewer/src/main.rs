@@ -863,7 +863,7 @@ impl eframe::App for App {
                                     // --- NEW: Capture the exact ID of the Author before we fetch! ---
                                     let clicked_node_id = nodes[menu_idx].id.clone();
 
-                                    let url = format!("http://194.95.157.131:5000/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
+                                    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
                                     let request = ehttp::Request::get(&url);
 
                                     ehttp::fetch(request, move |response| {
