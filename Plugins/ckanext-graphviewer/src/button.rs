@@ -227,6 +227,8 @@ pub fn fetch_dataset_information(
                     return;
                 }
 
+                debug!("{:?}", &new_triples);
+
                 let mut state_lock = state.lock().unwrap();
 
                 if let AppState::Ready { raw_triples, nodes, edges, .. } = &mut *state_lock {
