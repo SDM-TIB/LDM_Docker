@@ -8,7 +8,7 @@ pub fn fetch_author_datasets(
     clicked_node_id: String,
     orcid: String,
 ) {
-    let url = format!("http://127.0.0.1:5000/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
+    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
     let request = ehttp::Request::get(&url);
 
     ehttp::fetch(request, move |response| {
