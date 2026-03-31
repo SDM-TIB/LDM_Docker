@@ -746,7 +746,7 @@ impl eframe::App for App {
                             let menu_radius = 35.0 * self.zoom;
                             let btn_radius = 12.0 * self.zoom;
 
-                            // button 1
+                            // button 1 expand
                             let expand_pos = screen_pos + egui::vec2(-menu_radius, 0.0);
                             let expand_rect = egui::Rect::from_center_size(
                                 expand_pos,
@@ -853,7 +853,7 @@ impl eframe::App for App {
 
                                 // 4. Route the API logic based on the specific node type!
                                 if api_resp.clicked() {
-                                    self.show_menu = false;
+                                    //self.show_menu = false;
                                     let state_clone = self.state.clone();
                                     let ctx_clone = ctx.clone();
                                     let clicked_node_id = nodes[menu_idx].id.clone();
