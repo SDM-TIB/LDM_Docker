@@ -889,10 +889,17 @@ impl eframe::App for App {
                                     egui::Sense::click(),
                                 );
 
+                                // --- NEW: Grey out the button if we already fetched! ---
+                                let btn_color = if nodes[menu_idx].api_fetched {
+                                    egui::Color32::from_rgb(150, 150, 150) // Disabled Grey
+                                } else {
+                                    egui::Color32::from_rgb(220, 140, 50) // Active Orange
+                                };
+
                                 painter.circle_filled(
                                     api_pos,
                                     btn_radius,
-                                    egui::Color32::from_rgb(220, 140, 50),
+                                    btn_color,
                                 );
                                 let galley = painter.layout_no_wrap(
                                     "API".into(),
@@ -905,24 +912,22 @@ impl eframe::App for App {
                                     egui::Color32::WHITE,
                                 );
 
-                                // 4. Route the API logic based on the specific node type!
-                                if api_resp.clicked() {
+                                // --- NEW: Only allow the click if it HAS NOT been fetched! ---
+                                if api_resp.clicked() && !nodes[menu_idx].api_fetched {
                                     self.show_menu = false;
                                     self.selected_node = None;
                                     let state_clone = self.state.clone();
                                     let ctx_clone = ctx.clone();
                                     let clicked_node_id = nodes[menu_idx].id.clone();
 
-                                    // fetch authors datasets
                                     if current_type.contains("http://purl.org/spar/pro/Author") {
                                         crate::button::fetch_author_datasets(
-                                            ctx_clone,
-                                            state_clone,
-                                            clicked_node_id.clone(),
-                                            clicked_node_id
+                                            ctx_clone, 
+                                            state_clone, 
+                                            clicked_node_id.clone(), 
+                                            clicked_node_id 
                                         );
                                     }
-
                                 }
                             }
                         }
