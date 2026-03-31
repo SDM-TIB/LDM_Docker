@@ -367,6 +367,10 @@ function __wbg_get_imports() {
                 wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
             }
         },
+        __wbg_eval_c311194bb27c7836: function() { return handleError(function (arg0, arg1) {
+            const ret = eval(getStringFromWasm0(arg0, arg1));
+            return ret;
+        }, arguments); },
         __wbg_fetch_9848342fe2c78756: function(arg0) {
             const ret = fetch(arg0);
             return ret;

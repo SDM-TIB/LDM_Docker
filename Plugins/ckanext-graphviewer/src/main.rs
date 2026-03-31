@@ -70,8 +70,6 @@ fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
 fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
     use wasm_bindgen::JsCast;
 
-    info!("export triggered");
-
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
@@ -276,8 +274,6 @@ impl eframe::App for App {
                             .fill(self.theme.button_bg);
 
                         if ui.add(export_button).clicked() {
-                            info!("export button clicked");
-
                             // Desktop behavior (Native)
                             #[cfg(not(target_arch = "wasm32"))]
                             ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
@@ -285,7 +281,6 @@ impl eframe::App for App {
                             // Browser behavior (WASM)
                             #[cfg(target_arch = "wasm32")]
                             if let Some(rect) = self.canvas_rect {
-                                info!("inside if");
                                 let ppp = ctx.pixels_per_point();
                                 trigger_wasm_canvas_download(rect, ppp, "graph_export.png");
                             }
@@ -311,7 +306,7 @@ impl eframe::App for App {
                                 } else {
                                     &node.id
                                 };
-                                
+
                                 if !display_id.is_empty() {
                                     ui.strong("ID:");
                                     if display_id.len() > 60 {
@@ -977,6 +972,16 @@ fn main() -> eframe::Result<()> {
 fn main() {
     // Initialize web logger
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+
+    let _ = js_sys::eval(r#"
+        const ogGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+            if (type === 'webgl' || type === 'webgl2') {
+                attrs = Object.assign({}, attrs || {}, { preserveDrawingBuffer: true });
+            }
+            return ogGetContext.call(this, type, attrs);
+        };
+    "#);
 
     let web_options = eframe::WebOptions::default();
 
