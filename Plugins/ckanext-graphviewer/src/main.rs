@@ -285,6 +285,7 @@ impl eframe::App for App {
                             // Browser behavior (WASM)
                             #[cfg(target_arch = "wasm32")]
                             if let Some(rect) = self.canvas_rect {
+                                info!("inside if");
                                 let ppp = ctx.pixels_per_point();
                                 trigger_wasm_canvas_download(rect, ppp, "graph_export.png");
                             }
