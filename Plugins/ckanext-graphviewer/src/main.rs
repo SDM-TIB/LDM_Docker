@@ -179,11 +179,12 @@ impl App {
         // Try to load the file on startup (Native only)
         #[cfg(not(target_arch = "wasm32"))]
         match load_local_file("src/sample.n3") {
-            Ok((nodes, edges)) => {
+            Ok((ui_nodes, ui_edges, raw_triples))  => {
                 *app_state = AppState::Ready {
                     selected_entrypoint: "sample.n3".to_string(),
                     nodes,
-                    edges
+                    edges,
+                    raw_triples
                 };
             }
             Err(e) => {
@@ -853,7 +854,7 @@ impl eframe::App for App {
 
                                 // 4. Route the API logic based on the specific node type!
                                 if api_resp.clicked() {
-                                    //self.show_menu = false;
+                                    self.show_menu = false;
                                     let state_clone = self.state.clone();
                                     let ctx_clone = ctx.clone();
                                     let clicked_node_id = nodes[menu_idx].id.clone();
