@@ -106,3 +106,34 @@ pub fn parse_author_datasets_json(json_text: &str) -> Vec<RawTriple> {
 
     triples
 }
+
+pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawTriple> {
+    let mut triples = Vec::new();
+
+    if let Ok(json) = serde_json::from_str::<serde_json::Value>(json_text) {
+        if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
+            for item in results {
+                let p = item.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
+                let o = item.get("object").and_then(|v| v.as_str()).unwrap_or("");
+                let is_literal = item.get("is_literal").and_then(|v| v.as_bool()).unwrap_or(false);
+
+                if !p.is_empty() && !o.is_empty() {
+                    let object_str = if is_literal {
+                        format!("\"{}\"", o)
+                    } else {
+                        format!("<{}>", o)
+                    };
+
+                    triples.push(RawTriple {
+                        subject: format!("<{}>", dataset_id),
+                        predicate: format!("<{}>", p),
+                        object: object_str,
+                        is_object_literal: is_literal,
+                    });
+                }
+            }
+        }
+    }
+
+    triples
+}

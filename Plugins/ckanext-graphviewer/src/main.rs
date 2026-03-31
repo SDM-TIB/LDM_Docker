@@ -380,18 +380,6 @@ impl eframe::App for App {
                                     ui.end_row();
                                 }
 
-                                if !node.rdf_type.is_empty() {
-                                    ui.strong("RDF Type:");
-                                    ui.label(&node.rdf_type);
-                                    ui.end_row();
-                                }
-
-                                if !node.node_type.is_empty() {
-                                    ui.strong("Node Type:");
-                                    ui.label(&node.node_type);
-                                    ui.end_row();
-                                }
-
                                 let mut seen_props = std::collections::HashSet::new();
 
                                 for (i, (key, value)) in node.properties.iter().enumerate() {
@@ -878,6 +866,7 @@ impl eframe::App for App {
                             // vec containing fetchable nodes
                             let fetchable_types = vec![
                                 "http://purl.org/spar/pro/Author",
+                                "http://www.w3.org/ns/dcat#DataService",
                             ];
 
                             let current_type = nodes[menu_idx].rdf_type.clone();
@@ -895,11 +884,11 @@ impl eframe::App for App {
                                     egui::Sense::click(),
                                 );
 
-                                // --- NEW: Grey out the button if we already fetched! ---
+                                // TODO pull color via theme file
                                 let btn_color = if nodes[menu_idx].api_fetched {
-                                    egui::Color32::from_rgb(150, 150, 150) // Disabled Grey
+                                    egui::Color32::from_rgb(150, 150, 150)
                                 } else {
-                                    egui::Color32::from_rgb(220, 140, 50) // Active Orange
+                                    egui::Color32::from_rgb(220, 140, 50)
                                 };
 
                                 painter.circle_filled(
@@ -918,7 +907,6 @@ impl eframe::App for App {
                                     egui::Color32::WHITE,
                                 );
 
-                                // --- NEW: Only allow the click if it HAS NOT been fetched! ---
                                 if api_resp.clicked() && !nodes[menu_idx].api_fetched {
                                     self.show_menu = false;
                                     self.selected_node = None;
@@ -927,11 +915,20 @@ impl eframe::App for App {
                                     let clicked_node_id = nodes[menu_idx].id.clone();
 
                                     if current_type.contains("http://purl.org/spar/pro/Author") {
-                                        crate::button::fetch_author_datasets(
-                                            ctx_clone, 
-                                            state_clone, 
-                                            clicked_node_id.clone(), 
-                                            clicked_node_id 
+                                        crate::button::fetch_author_information(
+                                            ctx_clone.clone(),
+                                            state_clone.clone(),
+                                            clicked_node_id.clone(),
+                                            clicked_node_id.clone()
+                                        );
+                                    }
+
+                                    if current_type.contains("http://www.w3.org/ns/dcat#DataService") {
+                                        crate::button::fetch_dataset_information(
+                                            ctx_clone,
+                                            state_clone,
+                                            clicked_node_id.clone(),
+                                            clicked_node_id
                                         );
                                     }
                                 }
@@ -955,7 +952,7 @@ impl eframe::App for App {
                     if let Some(parent_idx) = clicked_to_expand {
                         let is_currently_expanded = nodes[parent_idx].expanded;
 
-if is_currently_expanded {
+                        if is_currently_expanded {
                             // cascade collapse
                             let mut stack = vec![parent_idx];
 
@@ -965,7 +962,6 @@ if is_currently_expanded {
                                 for edge_idx in 0..edges.len() {
                                     let mut child_idx_opt = None;
 
-                                    // --- NEW: Collapse both outgoing AND incoming edges! ---
                                     if edges[edge_idx].source == current_idx && edges[edge_idx].visible {
                                         child_idx_opt = Some(edges[edge_idx].target);
                                     } else if edges[edge_idx].target == current_idx && edges[edge_idx].visible {
@@ -975,7 +971,6 @@ if is_currently_expanded {
                                     if let Some(child_idx) = child_idx_opt {
                                         edges[edge_idx].visible = false;
 
-                                        // --- NEW: Check both directions for remaining connections! ---
                                         let has_other_active_parents = edges
                                             .iter()
                                             .any(|e| (e.target == child_idx || e.source == child_idx) && e.visible);
@@ -993,9 +988,8 @@ if is_currently_expanded {
                         } else {
                             nodes[parent_idx].expanded = true;
                             let mut children_indices = Vec::new();
-                            
+
                             for (edge_idx, edge) in edges.iter().enumerate() {
-                                // --- NEW: Expand both outgoing AND incoming edges! ---
                                 if edge.source == parent_idx {
                                     children_indices.push((edge_idx, edge.target));
                                 } else if edge.target == parent_idx {
