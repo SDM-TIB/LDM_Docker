@@ -392,7 +392,13 @@ impl eframe::App for App {
                                     ui.end_row();
                                 }
 
+                                let mut seen_props = std::collections::HashSet::new();
+
                                 for (i, (key, value)) in node.properties.iter().enumerate() {
+                                    if !seen_props.insert((key.clone(), value.clone())) {
+                                        continue;
+                                    }
+
                                     let display_key = {
                                         let mut c = key.chars();
                                         match c.next() {
