@@ -65,36 +65,53 @@ fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
     Err("Direct file access is not supported in the browser.".to_string())
 }
 
-// wasm png download helper
+// wasm png export
 #[cfg(target_arch = "wasm32")]
-fn trigger_wasm_download(bytes: &[u8], filename: &str) {
+fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
     use wasm_bindgen::JsCast;
 
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
-    // 1. Create a Javascript Uint8Array from our Rust bytes
-    let uint8_arr = js_sys::Uint8Array::from(bytes);
-    let array = js_sys::Array::new();
-    array.push(&uint8_arr);
+    // 1. Grab the actual web canvas that eframe is drawing to
+    if let Some(main_canvas_elem) = document.get_element_by_id("the_canvas_id") {
+        if let Ok(main_canvas) = main_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>() {
 
-    // 2. Wrap it in a Browser Blob
-    let mut blob_props = web_sys::BlobPropertyBag::new();
-    blob_props.type_("image/png");
+            // Calculate exact physical pixels
+            let sx = (rect.min.x * ppp).round() as f64;
+            let sy = (rect.min.y * ppp).round() as f64;
+            let s_width = (rect.width() * ppp).round() as f64;
+            let s_height = (rect.height() * ppp).round() as f64;
 
-    if let Ok(blob) = web_sys::Blob::new_with_u8_array_sequence_and_options(&array, &blob_props) {
-        if let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) {
+            if s_width > 0.0 && s_height > 0.0 {
+                // 2. Create a hidden, temporary HTML canvas just for cropping
+                if let Ok(temp_canvas_elem) = document.create_element("canvas") {
+                    if let Ok(temp_canvas) = temp_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>() {
+                        temp_canvas.set_width(s_width as u32);
+                        temp_canvas.set_height(s_height as u32);
 
-            // 3. Create a hidden <a> element and click it to trigger the download!
-            if let Ok(a) = document.create_element("a") {
-                a.set_attribute("href", &url).unwrap();
-                a.set_attribute("download", filename).unwrap();
-                if let Ok(html_a) = a.dyn_into::<web_sys::HtmlElement>() {
-                    html_a.click();
+                        // 3. Draw ONLY the cropped graph onto our temp canvas
+                        if let Ok(Some(ctx_obj)) = temp_canvas.get_context("2d") {
+                            if let Ok(ctx) = ctx_obj.dyn_into::<web_sys::CanvasRenderingContext2d>() {
+                                let _ = ctx.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
+                                    &main_canvas, sx, sy, s_width, s_height, 0.0, 0.0, s_width, s_height
+                                );
+
+                                // 4. Ask the browser to encode it to a base64 PNG URL and trigger a download!
+                                if let Ok(data_url) = temp_canvas.to_data_url_with_type("image/png") {
+                                    if let Ok(a) = document.create_element("a") {
+                                        a.set_attribute("href", &data_url).unwrap();
+                                        a.set_attribute("download", filename).unwrap();
+                                        if let Ok(html_a) = a.dyn_into::<web_sys::HtmlElement>() {
+                                            html_a.click();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            // Cleanup the URL to prevent memory leaks
-            web_sys::Url::revoke_object_url(&url).unwrap();
         }
     }
 }
@@ -257,7 +274,16 @@ impl eframe::App for App {
                             .fill(self.theme.button_bg);
 
                         if ui.add(export_button).clicked() {
+                            // Desktop behavior (Native)
+                            #[cfg(not(target_arch = "wasm32"))]
                             ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
+
+                            // Browser behavior (WASM)
+                            #[cfg(target_arch = "wasm32")]
+                            if let Some(rect) = self.canvas_rect {
+                                let ppp = ctx.pixels_per_point();
+                                trigger_wasm_canvas_download(rect, ppp, "graph_export.png");
+                            }
                         }
                     });
                 });
@@ -746,9 +772,8 @@ impl eframe::App for App {
                             );
 
                             if expand_resp.clicked() {
-                                // Trigger the existing expansion engine!
                                 clicked_to_expand = Some(menu_idx);
-                                self.selected_node = None; // <-- FIXED: Close menu
+                                self.selected_node = None;
                             }
 
                             // button 2
@@ -781,8 +806,7 @@ impl eframe::App for App {
                             );
 
                             if info_resp.clicked() {
-                                // Trigger the info box!
-                                self.show_menu = false; // <-- FIXED: Instantly toggle to info box
+                                self.show_menu = false;
                             }
                         }
                     }
@@ -873,53 +897,6 @@ impl eframe::App for App {
                     ui.heading("Loading...");
                 }
             });
-
-        // wasm png
-        #[cfg(target_arch = "wasm32")]
-        {
-            // Check if egui just handed us a fresh screenshot event
-            for event in ctx.input(|i| i.events.clone()) {
-                if let egui::Event::Screenshot { image, .. } = event {
-                    if let Some(rect) = self.canvas_rect {
-                        let ppp = ctx.pixels_per_point();
-
-                        let min_x = (rect.min.x * ppp).round() as u32;
-                        let min_y = (rect.min.y * ppp).round() as u32;
-                        let max_x = (rect.max.x * ppp).round() as u32;
-                        let max_y = (rect.max.y * ppp).round() as u32;
-
-                        let width = max_x.saturating_sub(min_x);
-                        let height = max_y.saturating_sub(min_y);
-
-                        if width > 0 && height > 0 {
-                            let mut img_buf = image::ImageBuffer::new(width, height);
-
-                            // Crop the raw full-screen image down to just the canvas area
-                            for y in 0..height {
-                                for x in 0..width {
-                                    let img_x = (min_x + x) as usize;
-                                    let img_y = (min_y + y) as usize;
-
-                                    if img_x < image.size[0] && img_y < image.size[1] {
-                                        let pixel = image.pixels[img_y * image.size[0] + img_x];
-                                        img_buf.put_pixel(x, y, image::Rgba([pixel.r(), pixel.g(), pixel.b(), pixel.a()]));
-                                    }
-                                }
-                            }
-
-                            // Encode the cropped image to PNG bytes directly in Memory
-                            let mut png_bytes: Vec<u8> = Vec::new();
-                            let mut cursor = std::io::Cursor::new(&mut png_bytes);
-
-                            if img_buf.write_to(&mut cursor, image::ImageOutputFormat::Png).is_ok() {
-                                // Hand the raw PNG bytes over to Javascript to download!
-                                trigger_wasm_download(&png_bytes, "graph_export.png");
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         // nativ png
         #[cfg(not(target_arch = "wasm32"))]

@@ -22,10 +22,12 @@ web-sys = { version = "0.3", features = [
     "Window",
     "Location",
     "UrlSearchParams",
-    "Document", 
-    "HtmlElement", 
-    "Element", 
-    "Blob", 
-    "BlobPropertyBag", 
+    "Document",
+    "HtmlElement",
+    "Element",
+    "Blob",
+    "BlobPropertyBag",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
     "Url"
 ] }
