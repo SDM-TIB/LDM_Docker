@@ -906,16 +906,16 @@ if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                     }
 
                     // move child node in sync
-                    // if let Some((parent_idx, delta)) = dragged_node_delta {
-                    //     nodes[parent_idx].pos += delta;
+                    if let Some((parent_idx, delta)) = dragged_node_delta {
+                        nodes[parent_idx].pos += delta;
 
-                    //     for edge in edges.iter() {
-                    //         if edge.source == parent_idx && edge.visible {
-                    //             let child_idx = edge.target;
-                    //             nodes[child_idx].pos += delta;
-                    //         }
-                    //     }
-                    // }
+                        // for edge in edges.iter() {
+                        //     if edge.source == parent_idx && edge.visible {
+                        //         let child_idx = edge.target;
+                        //         nodes[child_idx].pos += delta;
+                        //     }
+                        // }
+                    }
 
                     // expansion
                     if let Some(parent_idx) = clicked_to_expand {
