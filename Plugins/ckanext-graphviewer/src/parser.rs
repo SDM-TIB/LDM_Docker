@@ -1,4 +1,4 @@
-use log::error;
+use log::{error, debug};
 use oxttl::N3Parser;
 
 #[derive(Debug, Clone)]
@@ -113,6 +113,7 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(json_text) {
         if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
             for item in results {
+                debug!("{}", &item);
                 let p = item.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
                 let o = item.get("object").and_then(|v| v.as_str()).unwrap_or("");
                 let is_literal = item.get("is_literal").and_then(|v| v.as_bool()).unwrap_or(false);
