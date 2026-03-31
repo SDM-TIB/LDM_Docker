@@ -144,8 +144,11 @@ pub fn fetch_author_datasets(
                                 n.original_pos = old_n.original_pos;
                                 n.visible = old_n.visible;
 
+                                n.api_fetched = old_n.api_fetched;
+
                                 if n.id == clicked_node_id {
                                     n.expanded = true; // Mark author as expanded!
+                                    n.api_fetched = true; // --- NEW: Mark as officially fetched! ---
                                 } else if connected_nodes.contains(&n.id) && !n.visible {
                                     // An old node that was hidden but is now being expanded!
                                     n.visible = true;
@@ -155,6 +158,7 @@ pub fn fetch_author_datasets(
                                 }
                             } else {
                                 // BRAND NEW NODE
+                                n.api_fetched = false; // --- NEW: Safe default ---
                                 if connected_nodes.contains(&n.id) {
                                     n.visible = true;
                                     n.expanded = false; 
@@ -200,7 +204,7 @@ pub fn fetch_author_datasets(
                                 edge.visible = false;
                             }
                         }
-                        
+
                         *nodes = new_nodes;
                         *edges = new_edges;
                     }

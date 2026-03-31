@@ -16,6 +16,7 @@ pub struct Node {
     pub visible: bool,
     pub parent_index: Option<usize>,
     pub properties: Vec<(String, String)>,
+    pub api_fetched: bool,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -80,6 +81,7 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             visible: false,
             parent_index: None,
             properties: Vec::new(),
+            api_fetched: false,
         });
 
         let is_type_pred = clean_pred == RDF_TYPE.trim_matches('<').trim_matches('>');
@@ -105,6 +107,7 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
                 visible: false,
                 parent_index: None,
                 properties: Vec::new(),
+                api_fetched: false,
             });
         }
 
