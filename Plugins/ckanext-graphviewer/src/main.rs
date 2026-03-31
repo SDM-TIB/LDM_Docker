@@ -814,7 +814,7 @@ impl eframe::App for App {
                                 self.show_menu = false;
                             }
 
-// --- NEW: Button 3 (API Fetch) ---
+                            // --- NEW: Button 3 (API Fetch) ---
                             // 1. Check if the selected node has an ORCID
                             let mut orcid_val = None;
                             for (k, v) in &nodes[menu_idx].properties {
@@ -861,7 +861,7 @@ impl eframe::App for App {
                                     let ctx_clone = ctx.clone();
                                     
                                     // Query your python API!
-                                    let url = format!("http://127.0.0.1:5000/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
+                                    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
                                     let request = ehttp::Request::get(&url);
 
                                     ehttp::fetch(request, move |response| {
