@@ -867,6 +867,7 @@ impl eframe::App for App {
                             let fetchable_types = vec![
                                 "http://purl.org/spar/pro/Author",
                                 "http://www.w3.org/ns/dcat#DataService",
+                                "http://www.w3.org/ns/dcat#Dataset",
                             ];
 
                             let current_type = nodes[menu_idx].rdf_type.clone();
@@ -923,7 +924,8 @@ impl eframe::App for App {
                                         );
                                     }
 
-                                    if current_type.contains("http://www.w3.org/ns/dcat#DataService") {
+                                    if current_type.contains("http://www.w3.org/ns/dcat#DataService") ||
+                                        current_type.contains("http://www.w3.org/ns/dcat#Dataset"){
                                         crate::button::fetch_dataset_information(
                                             ctx_clone,
                                             state_clone,
