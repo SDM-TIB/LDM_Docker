@@ -302,9 +302,15 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     if let Some(&root_idx) = id_to_index.get(&start_node) {
         nodes[root_idx].expanded = true;
         for edge in &mut edges {
+            // Outgoing edges
             if edge.source == root_idx {
                 edge.visible = true;
                 nodes[edge.target].visible = true;
+            } 
+            // Incoming edges
+            else if edge.target == root_idx {
+                edge.visible = true;
+                nodes[edge.source].visible = true;
             }
         }
     }

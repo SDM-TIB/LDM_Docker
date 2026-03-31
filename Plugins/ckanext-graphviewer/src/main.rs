@@ -256,8 +256,8 @@ impl eframe::App for App {
 
                             let mut state_lock = self.state.lock().unwrap();
 
-                            if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
-                                // 1. Reset EVERYTHING to completely hidden and unexpanded
+if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
+                                // 1. Reset EVERYTHING to completely hidden
                                 for node in nodes.iter_mut() {
                                     node.pos = node.original_pos;
                                     node.expanded = false;
@@ -267,25 +267,34 @@ impl eframe::App for App {
                                     edge.visible = false;
                                 }
 
-                                // 2. Find ONLY the first Dataset/DataService and expand it (1-hop)
+                                // 2. Find the first Dataset/DataService and expand it (1-hop BOTH directions)
                                 if let Some(root_idx) = nodes.iter().position(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService")) {
                                     nodes[root_idx].visible = true;
                                     nodes[root_idx].expanded = true;
 
                                     for edge in edges.iter_mut() {
+                                        // Outgoing edges (Dataset -> Property)
                                         if edge.source == root_idx {
                                             edge.visible = true;
                                             nodes[edge.target].visible = true;
+                                        } 
+                                        // Incoming edges (Author -> Dataset)
+                                        else if edge.target == root_idx {
+                                            edge.visible = true;
+                                            nodes[edge.source].visible = true;
                                         }
                                     }
                                 } else if !nodes.is_empty() {
-                                    // 3. Safe fallback: If no dataset exists at all, just expand the first node loaded
+                                    // 3. Fallback
                                     nodes[0].visible = true;
                                     nodes[0].expanded = true;
                                     for edge in edges.iter_mut() {
                                         if edge.source == 0 {
                                             edge.visible = true;
                                             nodes[edge.target].visible = true;
+                                        } else if edge.target == 0 {
+                                            edge.visible = true;
+                                            nodes[edge.source].visible = true;
                                         }
                                     }
                                 }
