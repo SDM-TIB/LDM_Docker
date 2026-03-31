@@ -957,24 +957,32 @@ impl eframe::App for App {
                                                         // C. Feed everything back into your Graph Processor!
                                                         let (mut new_nodes, mut new_edges) = crate::graph_processor::build_ui_graph(raw_triples.clone());
 
-                                                        // D. RESTORE OLD STATE & LAYOUT NEW NODES
+// D. RESTORE OLD STATE & LAYOUT NEW NODES
                                                         let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
                                                         let mut new_node_indices = Vec::new();
 
                                                         for (i, n) in new_nodes.iter_mut().enumerate() {
                                                             if let Some(old_n) = old_nodes.get(&n.id) {
-                                                                // This node existed before. Put it exactly where it was!
+                                                                // This node existed before. Put it exactly where it was.
                                                                 n.pos = old_n.pos;
                                                                 n.original_pos = old_n.original_pos;
                                                                 n.visible = old_n.visible;
-                                                                n.expanded = old_n.expanded;
+                                                                
+                                                                // --- NEW: Sync the expanded state! ---
+                                                                // If this is the Author we clicked, tell it that it is ALREADY expanded!
+                                                                if n.id == clicked_node_id {
+                                                                    n.expanded = true;
+                                                                } else {
+                                                                    n.expanded = old_n.expanded;
+                                                                }
                                                             } else {
                                                                 // This is a BRAND NEW node from the API!
-                                                                n.visible = true;
+                                                                n.visible = true; 
+                                                                n.expanded = false; // Ensure it starts collapsed
                                                                 new_node_indices.push(i);
                                                             }
                                                         }
-
+                                                        
                                                         // Arrange all the new API nodes in a circle around the Author you clicked
                                                         let total_new = new_node_indices.len();
                                                         if total_new > 0 {
