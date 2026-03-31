@@ -70,6 +70,8 @@ fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
 fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
     use wasm_bindgen::JsCast;
 
+    info!("export triggered");
+
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
