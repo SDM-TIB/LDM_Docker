@@ -121,15 +121,6 @@ pub fn fetch_author_datasets(
                         let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
                         let mut new_node_indices = Vec::new();
 
-                        let mut direct_new_children = std::collections::HashSet::new();
-                        for edge in new_edges.iter() {
-                            let s_id = &new_nodes[edge.source].id;
-                            let t_id = &new_nodes[edge.target].id;
-                            if s_id == &clicked_node_id && !old_nodes.contains_key(t_id) {
-                                direct_new_children.insert(t_id.clone());
-                            }
-                        }
-
                         for (i, n) in new_nodes.iter_mut().enumerate() {
                             if let Some(old_n) = old_nodes.get(&n.id) {
                                 n.pos = old_n.pos;
@@ -141,14 +132,9 @@ pub fn fetch_author_datasets(
                                     n.expanded = old_n.expanded;
                                 }
                             } else {
+                                n.visible = true;
                                 n.expanded = false;
-
-                                if direct_new_children.contains(&n.id) {
-                                    n.visible = true;
-                                    new_node_indices.push(i);
-                                } else {
-                                    n.visible = false;
-                                }
+                                new_node_indices.push(i);
                             }
                         }
 
@@ -177,9 +163,7 @@ pub fn fetch_author_datasets(
 
                             if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) {
                                 edge.visible = true;
-                            } else if s_id == &clicked_node_id && direct_new_children.contains(t_id) {
-                                edge.visible = true;
-                            } else {
+                            } else if new_nodes[edge.source].visible && new_nodes[edge.target].visible {
                                 edge.visible = false;
                             }
                         }
