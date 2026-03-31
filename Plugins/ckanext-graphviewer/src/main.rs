@@ -313,8 +313,9 @@ impl eframe::App for App {
                                 for edge in edges.iter_mut() {
                                     let s_id = &nodes[edge.source].id;
                                     let t_id = &nodes[edge.target].id;
-                                    // Only show lines that existed in the snapshot!
-                                    edge.visible = init_snapshot.visible_edges.contains(&(s_id.clone(), t_id.clone()));
+
+                                    edge.visible = init_snapshot.visible_edges.contains(&(s_id.clone(), t_id.clone()))
+                                        || init_snapshot.visible_edges.contains(&(t_id.clone(), s_id.clone()));
                                 }
 
                                 // 3. That state becomes the new init snapshot!
