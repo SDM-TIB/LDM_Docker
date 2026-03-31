@@ -17,6 +17,7 @@ enum AppState {
         selected_entrypoint: String,
         nodes: Vec<Node>,
         edges: Vec<Edge>,
+        raw_triples: Vec<parser::RawTriple>,
     },
 }
 
@@ -44,16 +45,16 @@ fn get_n3_url_from_current_path() -> Option<String> {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
+fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>, Vec<parser::RawTriple>), String> {
     match std::fs::read_to_string(path) {
         Ok(content) => {
             // extract pure data (N3 -> triples)
             let raw_triples = parser::parse_n3_file(&content);
 
             // format for UI (triples -> graph)
-            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples);
+            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples).clone();
 
-            Ok((ui_nodes, ui_edges))
+            Ok((ui_nodes, ui_edges, raw_triples))
         }
         Err(e) => Err(format!("Failed to read file '{}': {}", path, e)),
     }
@@ -153,12 +154,13 @@ impl App {
                             if let Some(text) = res.text() {
                                 let raw_triples = parser::parse_n3_file(&text);
 
-                                let (nodes, edges) = graph_processor::build_ui_graph(raw_triples);
+                                let (nodes, edges) = graph_processor::build_ui_graph(raw_triples.clone());
 
                                 *app_state = AppState::Ready {
                                     selected_entrypoint: "placeholder".to_string(),
                                     nodes,
-                                    edges
+                                    edges,
+                                    raw_triples
                                 };
                             } else {
                                 *app_state = AppState::Error("failed to read text from n3".into());
@@ -294,6 +296,7 @@ impl eframe::App for App {
                     selected_entrypoint,
                     nodes,
                     edges,
+                    raw_triples,
                 } = &mut *state_lock
                 {
                     let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
@@ -810,6 +813,145 @@ impl eframe::App for App {
                             if info_resp.clicked() {
                                 self.show_menu = false;
                             }
+
+// --- NEW: Button 3 (API Fetch) ---
+                            // 1. Check if the selected node has an ORCID
+                            let mut orcid_val = None;
+                            for (k, v) in &nodes[menu_idx].properties {
+                                if k == "sameAS" && v.contains("orcid.org") {
+                                    orcid_val = Some(v.clone());
+                                    break;
+                                }
+                            }
+
+                            // 2. If it has an ORCID, draw the Orange API button!
+                            if let Some(orcid) = orcid_val {
+                                let api_pos = screen_pos + egui::vec2(0.0, -menu_radius);
+                                let api_rect = egui::Rect::from_center_size(
+                                    api_pos,
+                                    egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
+                                );
+                                let api_resp = ui.interact(
+                                    api_rect,
+                                    ui.id().with(format!("btn_api_{}", menu_idx)),
+                                    egui::Sense::click(),
+                                );
+
+                                painter.circle_filled(
+                                    api_pos,
+                                    btn_radius,
+                                    egui::Color32::from_rgb(220, 140, 50),
+                                );
+                                let galley = painter.layout_no_wrap(
+                                    "API".into(),
+                                    egui::FontId::proportional(10.0 * self.zoom),
+                                    egui::Color32::WHITE,
+                                );
+                                painter.galley(
+                                    api_pos - galley.size() / 2.0,
+                                    galley,
+                                    egui::Color32::WHITE,
+                                );
+
+                                // 3. Fetch the data when clicked!
+                                if api_resp.clicked() {
+                                    self.show_menu = false;
+                                    
+                                    let state_clone = self.state.clone();
+                                    let ctx_clone = ctx.clone();
+                                    
+                                    // Query your python API!
+                                    let url = format!("http://127.0.0.1:5000/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
+                                    let request = ehttp::Request::get(&url);
+
+                                    ehttp::fetch(request, move |response| {
+                                        if let Ok(res) = response {
+                                            if let Some(text) = res.text() {
+                                                if let Ok(json) = serde_json::from_str::<serde_json::Value>(text) {
+                                                    let mut state_lock = state_clone.lock().unwrap();
+                                                    
+                                                    if let AppState::Ready { raw_triples, nodes, edges, .. } = &mut *state_lock {
+                                                        
+                                                        // A. Save the physical screen positions of our existing graph
+                                                        let mut old_positions = std::collections::HashMap::new();
+                                                        for n in nodes.iter() {
+                                                            old_positions.insert(n.id.clone(), n.pos);
+                                                        }
+
+                                                        // B. Convert the API JSON into RawTriples!
+                                                        if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
+                                                            for item in results {
+                                                                let dataset = item.get("dataset").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                                                                let author = item.get("author").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                                                                let author_label = item.get("author_label").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                                                                let title = item.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                                                                
+                                                                if !dataset.is_empty() {
+                                                                    // Dataset Type
+                                                                    raw_triples.push(crate::parser::RawTriple {
+                                                                        subject: format!("<{}>", dataset),
+                                                                        predicate: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>".to_string(),
+                                                                        object: "<http://www.w3.org/ns/dcat#Dataset>".to_string(),
+                                                                        is_object_literal: false,
+                                                                    });
+
+                                                                    // Author Connection
+                                                                    if !author.is_empty() {
+                                                                        raw_triples.push(crate::parser::RawTriple {
+                                                                            subject: format!("<{}>", dataset),
+                                                                            predicate: "<http://purl.org/dc/terms/creator>".to_string(),
+                                                                            object: format!("<{}>", author),
+                                                                            is_object_literal: false,
+                                                                        });
+                                                                        
+                                                                        // Author Display Name
+                                                                        if !author_label.is_empty() {
+                                                                            raw_triples.push(crate::parser::RawTriple {
+                                                                                subject: format!("<{}>", author),
+                                                                                predicate: "<http://www.w3.org/2000/01/rdf-schema#label>".to_string(),
+                                                                                object: format!("\"{}\"", author_label),
+                                                                                is_object_literal: true,
+                                                                            });
+                                                                        }
+                                                                    }
+
+                                                                    // Dataset Display Title
+                                                                    if !title.is_empty() {
+                                                                        raw_triples.push(crate::parser::RawTriple {
+                                                                            subject: format!("<{}>", dataset),
+                                                                            predicate: "<http://purl.org/dc/terms/title>".to_string(),
+                                                                            object: format!("\"{}\"", title),
+                                                                            is_object_literal: true,
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // C. Feed everything back into your Graph Processor!
+                                                        let (mut new_nodes, new_edges) = crate::graph_processor::build_ui_graph(raw_triples.clone());
+
+                                                        // D. Restore the old positions so the graph doesn't jump!
+                                                        for n in &mut new_nodes {
+                                                            if let Some(old_pos) = old_positions.get(&n.id) {
+                                                                n.pos = *old_pos;
+                                                                n.original_pos = *old_pos;
+                                                                n.visible = true; // ensure existing nodes remain visible
+                                                            }
+                                                        }
+
+                                                        // E. Overwrite the state and wake up the UI
+                                                        *nodes = new_nodes;
+                                                        *edges = new_edges;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ctx_clone.request_repaint();
+                                    });
+                                }
+                            }
+
                         }
                     }
 
