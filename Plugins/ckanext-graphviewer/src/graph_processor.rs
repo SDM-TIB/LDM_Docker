@@ -82,8 +82,10 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             properties: Vec::new(),
         });
 
+        let is_type_pred = clean_pred == RDF_TYPE.trim_matches('<').trim_matches('>');
+
         // ensure object node exists
-        if pred_label != "label" && pred_label != "title" && pred_label != "fn" {
+        if pred_label != "label" && pred_label != "title" && pred_label != "fn" && !is_type_pred {
             nodes_map.entry(clean_obj.clone()).or_insert_with(|| Node {
                 id: clean_obj.clone(),
                 label: extract_label(&clean_obj),

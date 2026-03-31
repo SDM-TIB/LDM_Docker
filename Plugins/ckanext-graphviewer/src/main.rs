@@ -703,7 +703,7 @@ impl eframe::App for App {
                                     .iter()
                                     .find(|e| e.target == index)
                                     .map(|e| e.label.clone())
-                                    .unwrap_or_else(|| "Description".to_string());
+                                    .unwrap_or_else(|| "Dataset".to_string());
                                 let display_pred = {
                                     let mut c = pred_name.chars();
                                     match c.next() {
