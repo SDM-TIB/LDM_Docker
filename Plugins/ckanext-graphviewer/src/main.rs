@@ -257,17 +257,37 @@ impl eframe::App for App {
                             let mut state_lock = self.state.lock().unwrap();
 
                             if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
+                                // 1. Reset EVERYTHING to completely hidden and unexpanded
                                 for node in nodes.iter_mut() {
                                     node.pos = node.original_pos;
                                     node.expanded = false;
-
-                                    let is_root = node.rdf_type.contains("Dataset")
-                                        || node.rdf_type.contains("DataService");
-                                    node.visible = is_root;
+                                    node.visible = false;
                                 }
-
                                 for edge in edges.iter_mut() {
                                     edge.visible = false;
+                                }
+
+                                // 2. Find ONLY the first Dataset/DataService and expand it (1-hop)
+                                if let Some(root_idx) = nodes.iter().position(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService")) {
+                                    nodes[root_idx].visible = true;
+                                    nodes[root_idx].expanded = true;
+
+                                    for edge in edges.iter_mut() {
+                                        if edge.source == root_idx {
+                                            edge.visible = true;
+                                            nodes[edge.target].visible = true;
+                                        }
+                                    }
+                                } else if !nodes.is_empty() {
+                                    // 3. Safe fallback: If no dataset exists at all, just expand the first node loaded
+                                    nodes[0].visible = true;
+                                    nodes[0].expanded = true;
+                                    for edge in edges.iter_mut() {
+                                        if edge.source == 0 {
+                                            edge.visible = true;
+                                            nodes[edge.target].visible = true;
+                                        }
+                                    }
                                 }
                             }
                         }
