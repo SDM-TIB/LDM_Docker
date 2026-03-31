@@ -1,3 +1,4 @@
+use log::debug;
 use crate::{AppState, graph_processor, parser::RawTriple};
 use eframe::egui;
 use std::sync::{Arc, Mutex};
@@ -221,6 +222,7 @@ pub fn fetch_dataset_information(
         if let Ok(res) = response {
             if let Some(text) = res.text() {
                 let new_triples = crate::parser::parse_dataset_details_json(&text, &dataset_id);
+                debug!("{}", &text);
                 if new_triples.is_empty() {
                     return;
                 }
