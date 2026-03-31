@@ -856,12 +856,14 @@ impl eframe::App for App {
                                 // 3. Fetch the data when clicked!
                                 if api_resp.clicked() {
                                     self.show_menu = false;
-                                    
+
                                     let state_clone = self.state.clone();
                                     let ctx_clone = ctx.clone();
-                                    
-                                    // Query your python API!
-                                    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
+
+                                    // --- NEW: Capture the exact ID of the Author before we fetch! ---
+                                    let clicked_node_id = nodes[menu_idx].id.clone();
+
+                                    let url = format!("http://127.0.0.1:5000/get_dataset_attributes_by_author_orcid?orcid={}", orcid);
                                     let request = ehttp::Request::get(&url);
 
                                     ehttp::fetch(request, move |response| {
@@ -869,25 +871,36 @@ impl eframe::App for App {
                                             if let Some(text) = res.text() {
                                                 if let Ok(json) = serde_json::from_str::<serde_json::Value>(text) {
                                                     let mut state_lock = state_clone.lock().unwrap();
-                                                    
+
                                                     if let AppState::Ready { raw_triples, nodes, edges, .. } = &mut *state_lock {
-                                                        
-                                                        // A. Save the physical screen positions of our existing graph
-                                                        let mut old_positions = std::collections::HashMap::new();
+
+                                                        // A. SNAPSHOT THE OLD STATE
+                                                        // Save old nodes by their unique ID
+                                                        let mut old_nodes = std::collections::HashMap::new();
                                                         for n in nodes.iter() {
-                                                            old_positions.insert(n.id.clone(), n.pos);
+                                                            old_nodes.insert(n.id.clone(), n.clone());
                                                         }
 
-                                                        // B. Convert the API JSON into RawTriples!
+                                                        // Save old edge visibility by their source/target IDs
+                                                        let mut old_edges_vis = std::collections::HashSet::new();
+                                                        for e in edges.iter() {
+                                                            if e.visible {
+                                                                let s_id = nodes[e.source].id.clone();
+                                                                let t_id = nodes[e.target].id.clone();
+                                                                old_edges_vis.insert((s_id, t_id));
+                                                            }
+                                                        }
+
+                                                        // B. Convert the API JSON into RawTriples
                                                         if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
                                                             for item in results {
                                                                 let dataset = item.get("dataset").and_then(|v| v.as_str()).unwrap_or("").to_string();
                                                                 let author = item.get("author").and_then(|v| v.as_str()).unwrap_or("").to_string();
                                                                 let author_label = item.get("author_label").and_then(|v| v.as_str()).unwrap_or("").to_string();
                                                                 let title = item.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                                                                
+                                                                let license = item.get("license").and_then(|v| v.as_str()).unwrap_or("").to_string();
+
                                                                 if !dataset.is_empty() {
-                                                                    // Dataset Type
                                                                     raw_triples.push(crate::parser::RawTriple {
                                                                         subject: format!("<{}>", dataset),
                                                                         predicate: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>".to_string(),
@@ -895,7 +908,24 @@ impl eframe::App for App {
                                                                         is_object_literal: false,
                                                                     });
 
-                                                                    // Author Connection
+                                                                    if !title.is_empty() {
+                                                                        raw_triples.push(crate::parser::RawTriple {
+                                                                            subject: format!("<{}>", dataset),
+                                                                            predicate: "<http://purl.org/dc/terms/title>".to_string(),
+                                                                            object: format!("\"{}\"", title),
+                                                                            is_object_literal: true,
+                                                                        });
+                                                                    }
+
+                                                                    if !license.is_empty() {
+                                                                        raw_triples.push(crate::parser::RawTriple {
+                                                                            subject: format!("<{}>", dataset),
+                                                                            predicate: "<http://purl.org/dc/terms/license>".to_string(),
+                                                                            object: format!("<{}>", license),
+                                                                            is_object_literal: false,
+                                                                        });
+                                                                    }
+
                                                                     if !author.is_empty() {
                                                                         raw_triples.push(crate::parser::RawTriple {
                                                                             subject: format!("<{}>", dataset),
@@ -903,8 +933,14 @@ impl eframe::App for App {
                                                                             object: format!("<{}>", author),
                                                                             is_object_literal: false,
                                                                         });
-                                                                        
-                                                                        // Author Display Name
+
+                                                                        raw_triples.push(crate::parser::RawTriple {
+                                                                            subject: format!("<{}>", author),
+                                                                            predicate: "<http://purl.org/spar/pro/authorOf>".to_string(),
+                                                                            object: format!("<{}>", dataset),
+                                                                            is_object_literal: false,
+                                                                        });
+
                                                                         if !author_label.is_empty() {
                                                                             raw_triples.push(crate::parser::RawTriple {
                                                                                 subject: format!("<{}>", author),
@@ -914,33 +950,66 @@ impl eframe::App for App {
                                                                             });
                                                                         }
                                                                     }
-
-                                                                    // Dataset Display Title
-                                                                    if !title.is_empty() {
-                                                                        raw_triples.push(crate::parser::RawTriple {
-                                                                            subject: format!("<{}>", dataset),
-                                                                            predicate: "<http://purl.org/dc/terms/title>".to_string(),
-                                                                            object: format!("\"{}\"", title),
-                                                                            is_object_literal: true,
-                                                                        });
-                                                                    }
                                                                 }
                                                             }
                                                         }
 
                                                         // C. Feed everything back into your Graph Processor!
-                                                        let (mut new_nodes, new_edges) = crate::graph_processor::build_ui_graph(raw_triples.clone());
+                                                        let (mut new_nodes, mut new_edges) = crate::graph_processor::build_ui_graph(raw_triples.clone());
 
-                                                        // D. Restore the old positions so the graph doesn't jump!
-                                                        for n in &mut new_nodes {
-                                                            if let Some(old_pos) = old_positions.get(&n.id) {
-                                                                n.pos = *old_pos;
-                                                                n.original_pos = *old_pos;
-                                                                n.visible = true; // ensure existing nodes remain visible
+                                                        // D. RESTORE OLD STATE & LAYOUT NEW NODES
+                                                        let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
+                                                        let mut new_node_indices = Vec::new();
+
+                                                        for (i, n) in new_nodes.iter_mut().enumerate() {
+                                                            if let Some(old_n) = old_nodes.get(&n.id) {
+                                                                // This node existed before. Put it exactly where it was!
+                                                                n.pos = old_n.pos;
+                                                                n.original_pos = old_n.original_pos;
+                                                                n.visible = old_n.visible;
+                                                                n.expanded = old_n.expanded;
+                                                            } else {
+                                                                // This is a BRAND NEW node from the API!
+                                                                n.visible = true;
+                                                                new_node_indices.push(i);
                                                             }
                                                         }
 
-                                                        // E. Overwrite the state and wake up the UI
+                                                        // Arrange all the new API nodes in a circle around the Author you clicked
+                                                        let total_new = new_node_indices.len();
+                                                        if total_new > 0 {
+                                                            let mut angle: f32 = 0.0;
+                                                            let angle_step = std::f32::consts::TAU / (total_new as f32);
+                                                            // Make the circle wider if there are a ton of datasets!
+                                                            let spawn_radius = 200.0 * (1.0 + (total_new as f32 / 10.0));
+
+                                                            for idx in new_node_indices {
+                                                                let target_pos = clicked_pos + egui::vec2(
+                                                                    angle.cos() * spawn_radius,
+                                                                    angle.sin() * spawn_radius,
+                                                                );
+                                                                angle += angle_step;
+
+                                                                new_nodes[idx].pos = target_pos;
+                                                                new_nodes[idx].original_pos = target_pos;
+                                                            }
+                                                        }
+
+                                                        // E. RESTORE EDGE VISIBILITY
+                                                        for edge in &mut new_edges {
+                                                            let s_id = &new_nodes[edge.source].id;
+                                                            let t_id = &new_nodes[edge.target].id;
+
+                                                            if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) {
+                                                                // It was visible before, keep it visible!
+                                                                edge.visible = true;
+                                                            } else if new_nodes[edge.source].visible && new_nodes[edge.target].visible {
+                                                                // It's a new connection between the Author and the new Datasets! Show it!
+                                                                edge.visible = true;
+                                                            }
+                                                        }
+
+                                                        // F. Overwrite the state and wake up the UI!
                                                         *nodes = new_nodes;
                                                         *edges = new_edges;
                                                     }
