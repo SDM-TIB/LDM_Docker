@@ -1,6 +1,7 @@
 mod graph_processor;
 mod parser;
 mod theme;
+pub mod button;
 
 use eframe::egui;
 use env_logger;
@@ -10,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use theme::Theme;
 use graph_processor::{Edge, Node};
 
-enum AppState {
+pub enum AppState {
     Loading,
     Error(String),
     Ready {
@@ -855,9 +856,35 @@ impl eframe::App for App {
                                 // 4. Route the API logic based on the specific node type!
                                 if api_resp.clicked() {
                                     self.show_menu = false;
+                                    self.selected_node = None;
                                     let state_clone = self.state.clone();
                                     let ctx_clone = ctx.clone();
                                     let clicked_node_id = nodes[menu_idx].id.clone();
+
+                                    // fetch author
+                                    if current_type.contains("http://purl.org/spar/pro/Author") {
+                                        let mut orcid_val = None;
+                                        for (k, v) in &nodes[menu_idx].properties {
+                                            if k == "sameAS" && v.contains("orcid.org") {
+                                                orcid_val = Some(v.clone());
+                                                break;
+                                            }
+                                        }
+
+                                        if let Some(orcid) = orcid_val {
+                                            // --- CLEAN CODE: Call the external file! ---
+                                            crate::button::fetch_author_datasets(
+                                                ctx_clone, 
+                                                state_clone, 
+                                                clicked_node_id, 
+                                                orcid
+                                            );
+                                        } else {
+                                            println!("Cannot fetch: This Author node does not have an ORCID property.");
+                                        }
+                                    }
+
+
                                 }
                             }
                         }
