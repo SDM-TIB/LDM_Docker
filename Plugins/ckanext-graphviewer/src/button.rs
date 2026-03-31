@@ -186,15 +186,17 @@ pub fn fetch_author_datasets(
                             let s_id = &new_nodes[edge.source].id;
                             let t_id = &new_nodes[edge.target].id;
 
-                            if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) {
-                                edge.visible = true; // Preserve old lines (Author A -> Dataset)
-                            } else if s_id == &clicked_node_id && clicked_author_datasets.contains(t_id) {
-                                edge.visible = true; // Show line to shared datasets (Author B -> Dataset)
-                            } else {
-                                edge.visible = false;
-                            }
+                            // --- NEW: Check BOTH directions to survive hierarchy swaps! ---
+                            if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) || 
+                                old_edges_vis.contains(&(t_id.clone(), s_id.clone())) {
+                                    edge.visible = true; // Preserve old lines
+                                } else if s_id == &clicked_node_id && clicked_author_datasets.contains(t_id) {
+                                    edge.visible = true; // Show line to shared datasets
+                                } else {
+                                    edge.visible = false;
+                                }
                         }
-
+                        
                         *nodes = new_nodes;
                         *edges = new_edges;
                     }
