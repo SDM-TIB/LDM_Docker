@@ -311,7 +311,7 @@ impl eframe::App for App {
                                 } else {
                                     &node.id
                                 };
-
+                                
                                 if !display_id.is_empty() {
                                     ui.strong("ID:");
                                     if display_id.len() > 60 {
@@ -433,6 +433,8 @@ impl eframe::App for App {
 
                     let background_rect = ui.available_rect_before_wrap();
                     let area_to_fill = ui.available_rect_before_wrap();
+
+                    self.canvas_rect = Some(area_to_fill);
 
                     let screen_center = area_to_fill.center().to_vec2();
 
