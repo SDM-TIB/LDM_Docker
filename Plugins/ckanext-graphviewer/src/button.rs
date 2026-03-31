@@ -118,21 +118,24 @@ pub fn fetch_author_datasets(
                             }
                         }
 
-                        // --- FIX 2: IDENTIFY ALL DATASETS BELONGING TO THE CLICKED AUTHOR ---
-                        let mut clicked_author_datasets = std::collections::HashSet::new();
+// --- FIX 2: IDENTIFY ALL 1-HOP CONNECTIONS TO THE AUTHOR ---
+                        // Instead of just datasets, we want to reveal EVERY edge connected to this node
+                        let mut connected_nodes = std::collections::HashSet::new();
                         for edge in new_edges.iter() {
                             let s_id = &new_nodes[edge.source].id;
                             let t_id = &new_nodes[edge.target].id;
-                            let target_is_dataset = new_nodes[edge.target].rdf_type.contains("Dataset") || new_nodes[edge.target].rdf_type.contains("DataService");
 
-                            if s_id == &clicked_node_id && target_is_dataset {
-                                clicked_author_datasets.insert(t_id.clone());
+                            // Capture both outgoing AND incoming connections!
+                            if s_id == &clicked_node_id {
+                                connected_nodes.insert(t_id.clone());
+                            } else if t_id == &clicked_node_id {
+                                connected_nodes.insert(s_id.clone());
                             }
                         }
 
-                        // D. RESTORE OLD STATE
+                        // D. RESTORE OLD STATE & PREPARE EXPANSION
                         let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
-                        let mut new_dataset_indices = Vec::new();
+                        let mut nodes_to_layout = Vec::new();
 
                         for (i, n) in new_nodes.iter_mut().enumerate() {
                             if let Some(old_n) = old_nodes.get(&n.id) {
@@ -142,19 +145,20 @@ pub fn fetch_author_datasets(
                                 n.visible = old_n.visible;
 
                                 if n.id == clicked_node_id {
-                                    n.expanded = true;
-                                } else if clicked_author_datasets.contains(&n.id) {
-                                    // Make sure SHARED datasets become visible if they were hidden!
+                                    n.expanded = true; // Mark author as expanded!
+                                } else if connected_nodes.contains(&n.id) && !n.visible {
+                                    // An old node that was hidden but is now being expanded!
                                     n.visible = true;
+                                    nodes_to_layout.push(i);
                                 } else {
                                     n.expanded = old_n.expanded;
                                 }
                             } else {
                                 // BRAND NEW NODE
-                                if clicked_author_datasets.contains(&n.id) {
+                                if connected_nodes.contains(&n.id) {
                                     n.visible = true;
                                     n.expanded = false; 
-                                    new_dataset_indices.push(i); // Only lay out brand new ones
+                                    nodes_to_layout.push(i); // Needs to be laid out!
                                 } else {
                                     n.visible = false;
                                     n.expanded = false;
@@ -162,14 +166,14 @@ pub fn fetch_author_datasets(
                             }
                         }
 
-                        // E. ONLY LAYOUT BRAND NEW DATASETS
-                        let total_new = new_dataset_indices.len();
-                        if total_new > 0 {
+                        // E. LAYOUT ALL NEWLY VISIBLE NODES IN A CIRCLE
+                        let total_layout = nodes_to_layout.len();
+                        if total_layout > 0 {
                             let mut angle: f32 = 0.0;
-                            let angle_step = std::f32::consts::TAU / (total_new as f32);
-                            let spawn_radius = 200.0 * (1.0 + (total_new as f32 / 10.0));
+                            let angle_step = std::f32::consts::TAU / (total_layout as f32);
+                            let spawn_radius = 240.0; // Matching the expansion radius from main.rs!
 
-                            for idx in new_dataset_indices {
+                            for idx in nodes_to_layout {
                                 let target_pos = clicked_pos + egui::vec2(
                                     angle.cos() * spawn_radius,
                                     angle.sin() * spawn_radius,
@@ -186,15 +190,15 @@ pub fn fetch_author_datasets(
                             let s_id = &new_nodes[edge.source].id;
                             let t_id = &new_nodes[edge.target].id;
 
-                            // --- NEW: Check BOTH directions to survive hierarchy swaps! ---
                             if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) || 
-                                old_edges_vis.contains(&(t_id.clone(), s_id.clone())) {
-                                    edge.visible = true; // Preserve old lines
-                                } else if s_id == &clicked_node_id && clicked_author_datasets.contains(t_id) {
-                                    edge.visible = true; // Show line to shared datasets
-                                } else {
-                                    edge.visible = false;
-                                }
+                               old_edges_vis.contains(&(t_id.clone(), s_id.clone())) {
+                                edge.visible = true; // Preserve old visible lines
+                            } else if s_id == &clicked_node_id || t_id == &clicked_node_id {
+                                // Show ALL 1-hop lines connected to the Author (both incoming and outgoing)!
+                                edge.visible = true; 
+                            } else {
+                                edge.visible = false;
+                            }
                         }
                         
                         *nodes = new_nodes;

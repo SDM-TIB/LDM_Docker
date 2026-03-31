@@ -11,6 +11,41 @@ use std::sync::{Arc, Mutex};
 use theme::Theme;
 use graph_processor::{Edge, Node};
 
+#[derive(Clone)]
+pub struct GraphSnapshot {
+    pub node_positions: std::collections::HashMap<String, egui::Pos2>,
+    pub visible_nodes: std::collections::HashSet<String>,
+    pub expanded_nodes: std::collections::HashSet<String>,
+    pub visible_edges: std::collections::HashSet<(String, String)>,
+}
+
+impl GraphSnapshot {
+    pub fn new(nodes: &[Node], edges: &[Edge]) -> Self {
+        let mut node_positions = std::collections::HashMap::new();
+        let mut visible_nodes = std::collections::HashSet::new();
+        let mut expanded_nodes = std::collections::HashSet::new();
+        let mut visible_edges = std::collections::HashSet::new();
+
+        for n in nodes {
+            node_positions.insert(n.id.clone(), n.pos);
+            if n.visible { visible_nodes.insert(n.id.clone()); }
+            if n.expanded { expanded_nodes.insert(n.id.clone()); }
+        }
+        for e in edges {
+            if e.visible {
+                visible_edges.insert((nodes[e.source].id.clone(), nodes[e.target].id.clone()));
+            }
+        }
+
+        Self {
+            node_positions,
+            visible_nodes,
+            expanded_nodes,
+            visible_edges,
+        }
+    }
+}
+
 pub enum AppState {
     Loading,
     Error(String),
@@ -19,6 +54,7 @@ pub enum AppState {
         nodes: Vec<Node>,
         edges: Vec<Edge>,
         raw_triples: Vec<parser::RawTriple>,
+        init_snapshot: GraphSnapshot,
     },
 }
 
@@ -157,11 +193,14 @@ impl App {
 
                                 let (nodes, edges) = graph_processor::build_ui_graph(raw_triples.clone());
 
+                                let init_snapshot = GraphSnapshot::new(&nodes, &edges);
+
                                 *app_state = AppState::Ready {
                                     selected_entrypoint: "placeholder".to_string(),
                                     nodes,
                                     edges,
-                                    raw_triples
+                                    raw_triples,
+                                    init_snapshot,
                                 };
                             } else {
                                 *app_state = AppState::Error("failed to read text from n3".into());
@@ -181,11 +220,13 @@ impl App {
         #[cfg(not(target_arch = "wasm32"))]
         match load_local_file("src/sample.n3") {
             Ok((ui_nodes, ui_edges, raw_triples))  => {
+                let init_snapshot = GraphSnapshot::new(&ui_nodes, &ui_edges);
                 *app_state = AppState::Ready {
                     selected_entrypoint: "sample.n3".to_string(),
                     nodes,
                     edges,
-                    raw_triples
+                    raw_triples,
+                    init_snapshot,
                 };
             }
             Err(e) => {
@@ -256,48 +297,28 @@ impl eframe::App for App {
 
                             let mut state_lock = self.state.lock().unwrap();
 
-if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
-                                // 1. Reset EVERYTHING to completely hidden
+                            if let AppState::Ready { nodes, edges, init_snapshot, .. } = &mut *state_lock {
+                                // 1 & 2. Make everything invisible, and ONLY restore the items in the Snapshot!
                                 for node in nodes.iter_mut() {
-                                    node.pos = node.original_pos;
-                                    node.expanded = false;
-                                    node.visible = false;
+                                    if let Some(&pos) = init_snapshot.node_positions.get(&node.id) {
+                                        node.pos = pos;
+                                    } else {
+                                        node.pos = node.original_pos;
+                                    }
+                                    // If it wasn't visible in the snapshot (like new API fetches), it becomes hidden!
+                                    node.visible = init_snapshot.visible_nodes.contains(&node.id);
+                                    node.expanded = init_snapshot.expanded_nodes.contains(&node.id);
                                 }
+
                                 for edge in edges.iter_mut() {
-                                    edge.visible = false;
+                                    let s_id = &nodes[edge.source].id;
+                                    let t_id = &nodes[edge.target].id;
+                                    // Only show lines that existed in the snapshot!
+                                    edge.visible = init_snapshot.visible_edges.contains(&(s_id.clone(), t_id.clone()));
                                 }
 
-                                // 2. Find the first Dataset/DataService and expand it (1-hop BOTH directions)
-                                if let Some(root_idx) = nodes.iter().position(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService")) {
-                                    nodes[root_idx].visible = true;
-                                    nodes[root_idx].expanded = true;
-
-                                    for edge in edges.iter_mut() {
-                                        // Outgoing edges (Dataset -> Property)
-                                        if edge.source == root_idx {
-                                            edge.visible = true;
-                                            nodes[edge.target].visible = true;
-                                        } 
-                                        // Incoming edges (Author -> Dataset)
-                                        else if edge.target == root_idx {
-                                            edge.visible = true;
-                                            nodes[edge.source].visible = true;
-                                        }
-                                    }
-                                } else if !nodes.is_empty() {
-                                    // 3. Fallback
-                                    nodes[0].visible = true;
-                                    nodes[0].expanded = true;
-                                    for edge in edges.iter_mut() {
-                                        if edge.source == 0 {
-                                            edge.visible = true;
-                                            nodes[edge.target].visible = true;
-                                        } else if edge.target == 0 {
-                                            edge.visible = true;
-                                            nodes[edge.source].visible = true;
-                                        }
-                                    }
-                                }
+                                // 3. That state becomes the new init snapshot!
+                                *init_snapshot = GraphSnapshot::new(nodes, edges);
                             }
                         }
 
@@ -328,6 +349,7 @@ if let AppState::Ready { nodes, edges, .. } = &mut *state_lock {
                     nodes,
                     edges,
                     raw_triples,
+                    ..
                 } = &mut *state_lock
                 {
                     let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
