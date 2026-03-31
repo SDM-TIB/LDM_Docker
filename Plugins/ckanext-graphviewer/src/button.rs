@@ -214,7 +214,7 @@ pub fn fetch_dataset_information(
     clicked_node_id: String,
     dataset_id: String,
 ) {
-    let url = format!("http://194.95.157.131:5742/get_dataset_details_by_id?dataset_id={}", dataset_id);
+    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_dataset_id?dataset_id={}", dataset_id);
     let request = ehttp::Request::get(&url);
 
     ehttp::fetch(request, move |response| {
