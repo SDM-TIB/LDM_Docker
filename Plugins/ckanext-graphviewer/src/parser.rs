@@ -125,17 +125,15 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
 
         if let Some(results) = results_array {
             for item in results {
-                let mut s_val = dataset_id.to_string(); // Default to dataset if subject is missing
+                let mut s_val = dataset_id.to_string(); // Default fallback
                 let mut p_val = String::new();
                 let mut o_val = String::new();
                 let mut is_lit = false;
 
-                // --- NEW: Read the exact Subject from the sub-queries! ---
+                // Try structured format
                 if let Some(s) = item.get("subject").and_then(|v| v.as_str()) {
                     s_val = s.to_string();
                 }
-
-                // Try structured format
                 if let Some(p) = item.get("predicate").and_then(|v| v.as_str()) {
                     p_val = p.to_string();
                 }
@@ -146,8 +144,16 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
                     is_lit = lit;
                 }
 
-                // Try RAW SPARQL format
+                // --- NEW: Upgraded RAW SPARQL format parser ---
                 if p_val.is_empty() {
+                    // Explicitly extract the ?s variable!
+                    if let Some(s_data) = item.get("s") {
+                        if let Some(s_str) = s_data.as_str() {
+                            s_val = s_str.to_string();
+                        } else if let Some(s_obj) = s_data.as_object() {
+                            s_val = s_obj.get("value").and_then(|v| v.as_str()).unwrap_or(&s_val).to_string();
+                        }
+                    }
                     if let Some(p_data) = item.get("p") {
                         if let Some(p_str) = p_data.as_str() {
                             p_val = p_str.to_string();
@@ -167,7 +173,7 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
                     }
                 }
 
-                // Build the Triple using the extracted Subject!
+                // Build the Triple
                 if !p_val.is_empty() && !o_val.is_empty() {
                     let object_str = if is_lit {
                         format!("\"{}\"", o_val)
@@ -176,7 +182,7 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
                     };
 
                     triples.push(RawTriple {
-                        subject: format!("<{}>", s_val), // <--- Uses the specific subject!
+                        subject: format!("<{}>", s_val), // <--- Uses the perfectly extracted Subject!
                         predicate: format!("<{}>", p_val),
                         object: object_str,
                         is_object_literal: is_lit,
