@@ -59,15 +59,17 @@ write_config () {
     "ckan.datapusher.url = CKAN_DATAPUSHER_URL" \
     "ckan.datastore.write_url = CKAN_DATASTORE_WRITE_URL" \
     "ckan.datastore.read_url = CKAN_DATASTORE_READ_URL" \
-	"smtp.server = postfix" \
+    "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view videoviewer officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
     "ckan.plugins = graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view videoviewer TIBtheme TIBdcat pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer ldm_sparql falcon tib_matomo tibnotify Code2NB" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
-	"ckan.site_title = LDM" \
-	"ckan.site_logo = /images/TIB_logo.png" \
-	"ckan.favicon = /images/TIB_logo.png"
+    "ckan.site_title = LDM" \
+    "ckan.site_logo = /images/TIB_logo.png" \
+    "ckan.favicon = /images/TIB_logo.png" \
+    "ckan.views.default_views = image_view text_view datacomparison_view videoviewer officedocs_view pdf_view tib_cadviewer jupyternotebook" \
+    "ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json ipynb"
 
   echo "CONFIG tibimport vars"
   ckan config-tool -s app:main $CONFIG \
@@ -133,7 +135,6 @@ write_config () {
 #  echo "CONFIG root_path DONE"
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
-#     "ckan.plugins = stats text_view image_view recline_view resource_proxy datastore datapusher webpage_view videoviewer TIBtheme dcat dcat_json_interface graph_viewer" \
 
   echo "CONFIG PLUGINS DONE"
 }
