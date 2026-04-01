@@ -107,33 +107,89 @@ pub fn parse_author_datasets_json(json_text: &str) -> Vec<RawTriple> {
     triples
 }
 
+// --- NEW: Bulletproof Dataset Parser ---
 pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawTriple> {
     let mut triples = Vec::new();
 
+    // 1. Check if we can parse the string as JSON
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(json_text) {
-        if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
-            for item in results {
-                debug!("{}", &item);
-                let p = item.get("predicate").and_then(|v| v.as_str()).unwrap_or("");
-                let o = item.get("object").and_then(|v| v.as_str()).unwrap_or("");
-                let is_literal = item.get("is_literal").and_then(|v| v.as_bool()).unwrap_or(false);
+        
+        // 2. Extract the array regardless of whether it's wrapped in {"results": [...]} or is just [...] directly
+        let results_array = if let Some(arr) = json.as_array() {
+            Some(arr)
+        } else if let Some(arr) = json.get("results").and_then(|r| r.as_array()) {
+            Some(arr)
+        } else {
+            None
+        };
 
-                if !p.is_empty() && !o.is_empty() {
-                    let object_str = if is_literal {
-                        format!("\"{}\"", o)
+        if let Some(results) = results_array {
+            for item in results {
+                let mut s_val = dataset_id.to_string(); // Default to dataset if subject is missing
+                let mut p_val = String::new();
+                let mut o_val = String::new();
+                let mut is_lit = false;
+
+                // --- NEW: Read the exact Subject from the sub-queries! ---
+                if let Some(s) = item.get("subject").and_then(|v| v.as_str()) {
+                    s_val = s.to_string();
+                }
+
+                // Try structured format
+                if let Some(p) = item.get("predicate").and_then(|v| v.as_str()) {
+                    p_val = p.to_string();
+                }
+                if let Some(o) = item.get("object").and_then(|v| v.as_str()) {
+                    o_val = o.to_string();
+                }
+                if let Some(lit) = item.get("is_literal").and_then(|v| v.as_bool()) {
+                    is_lit = lit;
+                }
+
+                // Try RAW SPARQL format
+                if p_val.is_empty() {
+                    if let Some(p_data) = item.get("p") {
+                        if let Some(p_str) = p_data.as_str() {
+                            p_val = p_str.to_string();
+                        } else if let Some(p_obj) = p_data.as_object() {
+                            p_val = p_obj.get("value").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                        }
+                    }
+                    if let Some(o_data) = item.get("o") {
+                        if let Some(o_str) = o_data.as_str() {
+                            o_val = o_str.to_string();
+                            is_lit = !o_val.starts_with("http");
+                        } else if let Some(o_obj) = o_data.as_object() {
+                            o_val = o_obj.get("value").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                            let o_type = o_obj.get("type").and_then(|v| v.as_str()).unwrap_or("");
+                            is_lit = o_type == "literal" || o_type == "typed-literal";
+                        }
+                    }
+                }
+
+                // Build the Triple using the extracted Subject!
+                if !p_val.is_empty() && !o_val.is_empty() {
+                    let object_str = if is_lit {
+                        format!("\"{}\"", o_val)
                     } else {
-                        format!("<{}>", o)
+                        format!("<{}>", o_val)
                     };
 
                     triples.push(RawTriple {
-                        subject: format!("<{}>", dataset_id),
-                        predicate: format!("<{}>", p),
+                        subject: format!("<{}>", s_val), // <--- Uses the specific subject!
+                        predicate: format!("<{}>", p_val),
                         object: object_str,
-                        is_object_literal: is_literal,
+                        is_object_literal: is_lit,
                     });
                 }
             }
         }
+    }
+
+    // --- NEW: Safety net for debugging! ---
+    // If it STILL fails, it will print exactly what Python sent so you can instantly see the problem in your terminal.
+    if triples.is_empty() {
+        println!("WARNING: Parser returned 0 triples! Raw API response was:\n{}", json_text);
     }
 
     triples
