@@ -185,7 +185,13 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
         visited.insert(start_node.clone());
 
         let mut queue = VecDeque::new();
-        queue.push_back((start_node.clone(), root_pos, 250.0, 0.0, std::f32::consts::TAU));
+        queue.push_back((
+            start_node.clone(),
+            root_pos,
+            250.0,
+            0.0,
+            std::f32::consts::TAU,
+        ));
 
         while let Some((curr_id, parent_pos, radius, start_angle, end_angle)) = queue.pop_front() {
             if let Some(children) = adjacency.get(&curr_id) {
@@ -309,7 +315,7 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             if edge.source == root_idx {
                 edge.visible = true;
                 nodes[edge.target].visible = true;
-            } 
+            }
             // Incoming edges
             else if edge.target == root_idx {
                 edge.visible = true;

@@ -1,4 +1,4 @@
-use log::{error, debug};
+use log::{debug, error};
 use oxttl::N3Parser;
 use serde_json::Value;
 
@@ -37,18 +37,37 @@ pub fn parse_n3_file(file_content: &str) -> Vec<RawTriple> {
     triples
 }
 
-
 pub fn parse_author_datasets_json(json_text: &str) -> Vec<RawTriple> {
     let mut triples = Vec::new();
 
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(json_text) {
         if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
             for item in results {
-                let dataset = item.get("dataset").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                let author = item.get("author").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                let author_label = item.get("author_label").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                let title = item.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                let license = item.get("license").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                let dataset = item
+                    .get("dataset")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let author = item
+                    .get("author")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let author_label = item
+                    .get("author_label")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let title = item
+                    .get("title")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let license = item
+                    .get("license")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
 
                 if !dataset.is_empty() {
                     triples.push(RawTriple {
@@ -94,7 +113,8 @@ pub fn parse_author_datasets_json(json_text: &str) -> Vec<RawTriple> {
                         if !author_label.is_empty() {
                             triples.push(RawTriple {
                                 subject: format!("<{}>", author),
-                                predicate: "<http://www.w3.org/2000/01/rdf-schema#label>".to_string(),
+                                predicate: "<http://www.w3.org/2000/01/rdf-schema#label>"
+                                    .to_string(),
                                 object: format!("\"{}\"", author_label),
                                 is_object_literal: true,
                             });
@@ -119,7 +139,10 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
     }
 
     if triples.is_empty() {
-        println!("WARNING: Parser returned 0 triples! Raw API response was:\n{}", json_text);
+        println!(
+            "WARNING: Parser returned 0 triples! Raw API response was:\n{}",
+            json_text
+        );
     }
 
     triples
@@ -129,7 +152,7 @@ pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawT
 fn parse_nested_properties(
     subject: &str,
     properties: &serde_json::Map<String, Value>,
-    triples: &mut Vec<RawTriple>
+    triples: &mut Vec<RawTriple>,
 ) {
     let subj_str = format!("<{}>", subject);
 
@@ -161,8 +184,10 @@ fn parse_nested_properties(
                                 parse_leaf_value(&subj_str, &pred_str, obj, triples);
                             }
                             // Or is it a deeply nested node? (e.g., {"uri": "...", "properties": {...}})
-                            else if let (Some(Value::String(uri)), Some(Value::Object(nested_props))) =
-                                (obj.get("uri"), obj.get("properties"))
+                            else if let (
+                                Some(Value::String(uri)),
+                                Some(Value::Object(nested_props)),
+                            ) = (obj.get("uri"), obj.get("properties"))
                             {
                                 // 1. Create a Triple connecting the parent to this new sub-node
                                 triples.push(RawTriple {
@@ -190,11 +215,11 @@ fn parse_leaf_value(
     subj_str: &str,
     pred_str: &str,
     obj: &serde_json::Map<String, Value>,
-    triples: &mut Vec<RawTriple>
+    triples: &mut Vec<RawTriple>,
 ) {
     if let (Some(t_val), Some(v_val)) = (
         obj.get("type").and_then(|v| v.as_str()),
-        obj.get("value").and_then(|v| v.as_str())
+        obj.get("value").and_then(|v| v.as_str()),
     ) {
         let is_literal = t_val == "literal" || t_val == "typed-literal";
         let obj_str = if is_literal {

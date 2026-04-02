@@ -1,6 +1,6 @@
-use log::debug;
 use crate::{AppState, graph_processor, parser::RawTriple};
 use eframe::egui;
+use log::debug;
 use std::sync::{Arc, Mutex};
 
 pub fn fetch_author_information(
@@ -9,7 +9,10 @@ pub fn fetch_author_information(
     clicked_node_id: String,
     author_id: String,
 ) {
-    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_author_id?author_id={}", author_id);
+    let url = format!(
+        "http://194.95.157.131:5742/get_dataset_attributes_by_author_id?author_id={}",
+        author_id
+    );
     let request = ehttp::Request::get(&url);
 
     ehttp::fetch(request, move |response| {
@@ -18,8 +21,13 @@ pub fn fetch_author_information(
                 if let Ok(json) = serde_json::from_str::<serde_json::Value>(&text) {
                     let mut state_lock = state.lock().unwrap();
 
-                    if let AppState::Ready { raw_triples, nodes, edges, .. } = &mut *state_lock {
-
+                    if let AppState::Ready {
+                        raw_triples,
+                        nodes,
+                        edges,
+                        ..
+                    } = &mut *state_lock
+                    {
                         // snapshot old state
                         let mut old_nodes = std::collections::HashMap::new();
                         for n in nodes.iter() {
@@ -38,16 +46,38 @@ pub fn fetch_author_information(
                         // parse json
                         if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
                             for item in results {
-                                let dataset = item.get("dataset").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                                let author = item.get("author").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                                let author_label = item.get("author_label").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                                let title = item.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                                let license = item.get("license").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                                let dataset = item
+                                    .get("dataset")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let author = item
+                                    .get("author")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let author_label = item
+                                    .get("author_label")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let title = item
+                                    .get("title")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+                                let license = item
+                                    .get("license")
+                                    .and_then(|v| v.as_str())
+                                    .unwrap_or("")
+                                    .to_string();
 
                                 if !dataset.is_empty() {
                                     raw_triples.push(RawTriple {
                                         subject: format!("<{}>", dataset),
-                                        predicate: "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>".to_string(),
+                                        predicate:
+                                            "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>"
+                                                .to_string(),
                                         object: "<http://www.w3.org/ns/dcat#Dataset>".to_string(),
                                         is_object_literal: false,
                                     });
@@ -55,7 +85,8 @@ pub fn fetch_author_information(
                                     if !title.is_empty() {
                                         raw_triples.push(RawTriple {
                                             subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/title>".to_string(),
+                                            predicate: "<http://purl.org/dc/terms/title>"
+                                                .to_string(),
                                             object: format!("\"{}\"", title),
                                             is_object_literal: true,
                                         });
@@ -64,7 +95,8 @@ pub fn fetch_author_information(
                                     if !license.is_empty() {
                                         raw_triples.push(RawTriple {
                                             subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/license>".to_string(),
+                                            predicate: "<http://purl.org/dc/terms/license>"
+                                                .to_string(),
                                             object: format!("<{}>", license),
                                             is_object_literal: false,
                                         });
@@ -73,14 +105,16 @@ pub fn fetch_author_information(
                                     if !author.is_empty() {
                                         raw_triples.push(RawTriple {
                                             subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/creator>".to_string(),
+                                            predicate: "<http://purl.org/dc/terms/creator>"
+                                                .to_string(),
                                             object: format!("<{}>", author),
                                             is_object_literal: false,
                                         });
 
                                         raw_triples.push(RawTriple {
                                             subject: format!("<{}>", author),
-                                            predicate: "<http://purl.org/spar/pro/authorOf>".to_string(),
+                                            predicate: "<http://purl.org/spar/pro/authorOf>"
+                                                .to_string(),
                                             object: format!("<{}>", dataset),
                                             is_object_literal: false,
                                         });
@@ -88,7 +122,9 @@ pub fn fetch_author_information(
                                         if !author_label.is_empty() {
                                             raw_triples.push(RawTriple {
                                                 subject: format!("<{}>", author),
-                                                predicate: "<http://www.w3.org/2000/01/rdf-schema#label>".to_string(),
+                                                predicate:
+                                                    "<http://www.w3.org/2000/01/rdf-schema#label>"
+                                                        .to_string(),
                                                 object: format!("\"{}\"", author_label),
                                                 is_object_literal: true,
                                             });
@@ -98,13 +134,15 @@ pub fn fetch_author_information(
                             }
                         }
 
-                        let (mut new_nodes, mut new_edges) = graph_processor::build_ui_graph(raw_triples.clone());
+                        let (mut new_nodes, mut new_edges) =
+                            graph_processor::build_ui_graph(raw_triples.clone());
 
                         for edge in &mut new_edges {
                             let source_type = &new_nodes[edge.source].rdf_type;
                             let target_type = &new_nodes[edge.target].rdf_type;
 
-                            let source_is_dataset = source_type.contains("Dataset") || source_type.contains("DataService");
+                            let source_is_dataset = source_type.contains("Dataset")
+                                || source_type.contains("DataService");
                             let target_is_author = target_type.contains("Author");
 
                             if source_is_dataset && target_is_author {
@@ -130,7 +168,10 @@ pub fn fetch_author_information(
                         }
 
                         // restore old state
-                        let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
+                        let clicked_pos = old_nodes
+                            .get(&clicked_node_id)
+                            .map(|n| n.pos)
+                            .unwrap_or(egui::Pos2::ZERO);
                         let mut nodes_to_layout = Vec::new();
 
                         for (i, n) in new_nodes.iter_mut().enumerate() {
@@ -173,10 +214,11 @@ pub fn fetch_author_information(
                             let spawn_radius = 240.0; // TODO this magic number shoul dbe a const
 
                             for idx in nodes_to_layout {
-                                let target_pos = clicked_pos + egui::vec2(
-                                    angle.cos() * spawn_radius,
-                                    angle.sin() * spawn_radius,
-                                );
+                                let target_pos = clicked_pos
+                                    + egui::vec2(
+                                        angle.cos() * spawn_radius,
+                                        angle.sin() * spawn_radius,
+                                    );
                                 angle += angle_step;
 
                                 new_nodes[idx].pos = target_pos;
@@ -189,14 +231,15 @@ pub fn fetch_author_information(
                             let s_id = &new_nodes[edge.source].id;
                             let t_id = &new_nodes[edge.target].id;
 
-                            if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) ||
-                                old_edges_vis.contains(&(t_id.clone(), s_id.clone())) {
-                                    edge.visible = true;
-                                } else if s_id == &clicked_node_id || t_id == &clicked_node_id {
-                                    edge.visible = true;
-                                } else {
-                                    edge.visible = false;
-                                }
+                            if old_edges_vis.contains(&(s_id.clone(), t_id.clone()))
+                                || old_edges_vis.contains(&(t_id.clone(), s_id.clone()))
+                            {
+                                edge.visible = true;
+                            } else if s_id == &clicked_node_id || t_id == &clicked_node_id {
+                                edge.visible = true;
+                            } else {
+                                edge.visible = false;
+                            }
                         }
 
                         *nodes = new_nodes;
@@ -215,7 +258,10 @@ pub fn fetch_dataset_information(
     clicked_node_id: String,
     dataset_id: String,
 ) {
-    let url = format!("http://194.95.157.131:5742/get_dataset_attributes_by_dataset_id?dataset_id={}", dataset_id);
+    let url = format!(
+        "http://194.95.157.131:5742/get_dataset_attributes_by_dataset_id?dataset_id={}",
+        dataset_id
+    );
     let request = ehttp::Request::get(&url);
 
     ehttp::fetch(request, move |response| {
@@ -231,7 +277,13 @@ pub fn fetch_dataset_information(
 
                 let mut state_lock = state.lock().unwrap();
 
-                if let AppState::Ready { raw_triples, nodes, edges, .. } = &mut *state_lock {
+                if let AppState::Ready {
+                    raw_triples,
+                    nodes,
+                    edges,
+                    ..
+                } = &mut *state_lock
+                {
                     // snapshot
                     let mut old_nodes = std::collections::HashMap::new();
                     for n in nodes.iter() {
@@ -249,13 +301,15 @@ pub fn fetch_dataset_information(
 
                     // rebuild
                     raw_triples.extend(new_triples);
-                    let (mut new_nodes, mut new_edges) = graph_processor::build_ui_graph(raw_triples.clone());
+                    let (mut new_nodes, mut new_edges) =
+                        graph_processor::build_ui_graph(raw_triples.clone());
 
                     for edge in &mut new_edges {
                         let source_type = &new_nodes[edge.source].rdf_type;
                         let target_type = &new_nodes[edge.target].rdf_type;
 
-                        let source_is_dataset = source_type.contains("Dataset") || source_type.contains("DataService");
+                        let source_is_dataset =
+                            source_type.contains("Dataset") || source_type.contains("DataService");
                         let target_is_author = target_type.contains("Author");
 
                         if source_is_dataset && target_is_author {
@@ -279,7 +333,10 @@ pub fn fetch_dataset_information(
                     }
 
                     // visability and fetch information
-                    let clicked_pos = old_nodes.get(&clicked_node_id).map(|n| n.pos).unwrap_or(egui::Pos2::ZERO);
+                    let clicked_pos = old_nodes
+                        .get(&clicked_node_id)
+                        .map(|n| n.pos)
+                        .unwrap_or(egui::Pos2::ZERO);
                     let mut nodes_to_layout = Vec::new();
 
                     for (i, n) in new_nodes.iter_mut().enumerate() {
@@ -319,10 +376,11 @@ pub fn fetch_dataset_information(
                         let spawn_radius = 240.0;
 
                         for idx in nodes_to_layout {
-                            let target_pos = clicked_pos + egui::vec2(
-                                angle.cos() * spawn_radius,
-                                angle.sin() * spawn_radius,
-                            );
+                            let target_pos = clicked_pos
+                                + egui::vec2(
+                                    angle.cos() * spawn_radius,
+                                    angle.sin() * spawn_radius,
+                                );
                             angle += angle_step;
 
                             new_nodes[idx].pos = target_pos;
@@ -335,8 +393,9 @@ pub fn fetch_dataset_information(
                         let s_id = &new_nodes[edge.source].id;
                         let t_id = &new_nodes[edge.target].id;
 
-                        if old_edges_vis.contains(&(s_id.clone(), t_id.clone())) ||
-                           old_edges_vis.contains(&(t_id.clone(), s_id.clone())) {
+                        if old_edges_vis.contains(&(s_id.clone(), t_id.clone()))
+                            || old_edges_vis.contains(&(t_id.clone(), s_id.clone()))
+                        {
                             edge.visible = true;
                         } else if s_id == &clicked_node_id || t_id == &clicked_node_id {
                             edge.visible = true;

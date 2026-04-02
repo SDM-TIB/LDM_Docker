@@ -102,7 +102,7 @@ impl Theme {
             painter_bg: Color32::from_rgb(50, 50, 55),
             button_bg: Color32::from_rgb(70, 70, 75),
             text_fg: Color32::from_rgb(240, 240, 245),
-            edge_fg: Color32::from_rgb(120,120,130),
+            edge_fg: Color32::from_rgb(120, 120, 130),
             default_node: NodeColors {
                 normal: Color32::from_rgb(140, 140, 140),
                 hovered: Color32::from_rgb(180, 180, 180),
@@ -118,10 +118,10 @@ impl Theme {
             button_bg: Color32::from_rgb(220, 220, 225),
             painter_bg: Color32::from_rgb(255, 255, 255),
             text_fg: Color32::from_rgb(30, 30, 35),
-            edge_fg: Color32::from_rgb(170,170,180),
+            edge_fg: Color32::from_rgb(170, 170, 180),
             default_node: NodeColors {
-                normal: Color32::from_rgb(150,150,150),
-                hovered: Color32::from_rgb(110,110,110),
+                normal: Color32::from_rgb(150, 150, 150),
+                hovered: Color32::from_rgb(110, 110, 110),
             },
             node_map: Self::node_color_map(),
         }
