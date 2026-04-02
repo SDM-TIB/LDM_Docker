@@ -272,6 +272,8 @@ impl eframe::App for App {
             .frame(main_app_frame)
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
+                    ui.visuals_mut().selection.bg_fill = self.theme.button_bg;
+
                     ui.selectable_value(
                         &mut self.current_scene,
                         Scene::Graph,
@@ -287,6 +289,8 @@ impl eframe::App for App {
                             .color(self.theme.text_fg),
                     );
                 });
+
+                ui.separator();
 
                 ui.horizontal(|ui| {
                     ui.label(egui::RichText::new("Graph Controls:").color(self.theme.text_fg));
@@ -451,14 +455,12 @@ impl eframe::App for App {
                                     })
                                     .collect();
 
-                                // Sort alphabetically (case-insensitive so 'A' and 'a' stay together)
                                 sorted_types.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
 
                                 egui::Grid::new("analytics_grid")
                                     .num_columns(2)
                                     .spacing([40.0, 8.0])
                                     .show(ui, |ui| {
-                                        // --- NEW: Loop through the sorted list instead of the raw HashMap ---
                                         for (display_name, count) in sorted_types {
                                             ui.label(egui::RichText::new(display_name).strong().color(self.theme.text_fg));
                                             ui.label(egui::RichText::new(count.to_string()).color(self.theme.text_fg));
