@@ -3,9 +3,6 @@ import ckan.plugins.toolkit as toolkit
 
 from flask import Blueprint
 
-def graph_view():
-    return toolkit.render('graph_viewer.html')
-
 class GraphViewerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
@@ -22,11 +19,15 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
         u'''Return a Flask Blueprint object to be registered by the app.'''
 
         # Create Blueprint for plugin
-        blueprint = Blueprint(self.name, self.__module__,)
+        blueprint = Blueprint(u'graph_viewer', self.__module__,)
         blueprint.template_folder = u'templates'
 
-        #
-        def show_graph_viewer(_type, _id):
+        # show graph viewer with selection boxes
+        def show_global_graph_viewer():
+            return toolkit.render('graph_viewer.html')
+
+        # show graph viewer without selection boxes and a starting with a dataset
+        def show_dataset_graph_viewer(_type, _id):
             try:
                 pkg_dict = toolkit.get_action('package_show')({}, {'id': _id})
             except toolkit.ObjectNotFound:
@@ -40,8 +41,8 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
 
         # Add plugin url rules to Blueprint object
         rules = [
-            (u'/graph', u'show_graph', show_graph_viewer),
-            (u'/<_type>/<_id>/graph', u'show_graph', show_graph_viewer),
+            (u'/graph', u'index', show_global_graph_viewer),
+            (u'/<_type>/<_id>/graph', u'show_graph', show_dataset_graph_viewer),
         ]
         for rule in rules:
             blueprint.add_url_rule(*rule)
