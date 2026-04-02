@@ -474,10 +474,42 @@ impl eframe::App for App {
                                 let blank_nodes =
                                     nodes.iter().filter(|n| n.node_type == "BlankNode").count();
 
-                                // --- 2. DRAW THE SIDE-BY-SIDE CARDS ---
+                                // --- 2. CALCULATE NODE TYPES ---
+                                // (We do this first so we can draw it cleanly below)
+                                let mut type_counts = std::collections::HashMap::new();
+                                for n in nodes.iter() {
+                                    let t = if n.rdf_type.is_empty() {
+                                        "Untyped Node".to_string()
+                                    } else {
+                                        n.rdf_type.clone()
+                                    };
+                                    *type_counts.entry(t).or_insert(0) += 1;
+                                }
+
+                                let mut sorted_types: Vec<(String, i32)> = type_counts
+                                    .into_iter()
+                                    .map(|(t, count)| {
+                                        let display_name = t.split('#').last().unwrap_or(&t);
+                                        let display_name = display_name
+                                            .split('/')
+                                            .last()
+                                            .unwrap_or(display_name)
+                                            .to_string();
+                                        (display_name, count)
+                                    })
+                                    .collect();
+
+                                sorted_types
+                                    .sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+
+                                // --- 3. DRAW THE 2x2 UNIFORM DASHBOARD ---
+                                let card_height = 260.0; // Force all 4 boxes to be exactly this tall!
+
+                                // ROW 1
                                 ui.columns(2, |cols| {
-                                    // Left Column: Triple Composition
+                                    // TOP LEFT: Triple Composition
                                     cols[0].group(|ui| {
+                                        ui.set_min_height(card_height);
                                         ui.heading(
                                             egui::RichText::new("Triple Composition")
                                                 .color(self.theme.text_fg),
@@ -523,8 +555,9 @@ impl eframe::App for App {
                                         });
                                     });
 
-                                    // Right Column: Ontology Statistics
+                                    // TOP RIGHT: Ontology Statistics
                                     cols[1].group(|ui| {
+                                        ui.set_min_height(card_height);
                                         ui.heading(
                                             egui::RichText::new("Ontology Statistics")
                                                 .color(self.theme.text_fg),
@@ -556,73 +589,61 @@ impl eframe::App for App {
                                     });
                                 });
 
-                                ui.add_space(20.0);
+                                ui.add_space(10.0);
 
-                                // --- Keep your existing Node Breakdown here ---
-                                ui.heading(
-                                    egui::RichText::new("Node Types Breakdown")
-                                        .size(16.0)
-                                        .color(self.theme.text_fg),
-                                );
-                                ui.add_space(5.0);
+                                // ROW 2
+                                ui.columns(2, |cols| {
+                                    // BOTTOM LEFT: Node Types Breakdown
+                                    cols[0].group(|ui| {
+                                        ui.set_min_height(card_height);
+                                        ui.heading(
+                                            egui::RichText::new("Node Types Breakdown")
+                                                .color(self.theme.text_fg),
+                                        );
+                                        ui.add_space(10.0);
 
-                                let mut type_counts = std::collections::HashMap::new();
-                                for n in nodes.iter() {
-                                    let t = if n.rdf_type.is_empty() {
-                                        "Untyped Node".to_string()
-                                    } else {
-                                        n.rdf_type.clone()
-                                    };
-                                    *type_counts.entry(t).or_insert(0) += 1;
-                                }
-
-                                let mut sorted_types: Vec<(String, i32)> = type_counts
-                                    .into_iter()
-                                    .map(|(t, count)| {
-                                        let display_name = t.split('#').last().unwrap_or(&t);
-                                        let display_name = display_name
-                                            .split('/')
-                                            .last()
-                                            .unwrap_or(display_name)
-                                            .to_string();
-                                        (display_name, count)
-                                    })
-                                    .collect();
-
-                                sorted_types
-                                    .sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
-
-                                egui::Grid::new("analytics_grid")
-                                    .num_columns(2)
-                                    .spacing([40.0, 8.0])
-                                    .show(ui, |ui| {
-                                        for (display_name, count) in sorted_types {
-                                            ui.label(
-                                                egui::RichText::new(display_name)
-                                                    .strong()
-                                                    .color(self.theme.text_fg),
-                                            );
-                                            ui.label(
-                                                egui::RichText::new(count.to_string())
-                                                    .color(self.theme.text_fg),
-                                            );
-                                            ui.end_row();
-                                        }
+                                        // Wrap the grid in a scroll area so it never stretches the box out of proportion!
+                                        egui::ScrollArea::vertical()
+                                            .id_source("types_breakdown_scroll")
+                                            .max_height(card_height - 50.0)
+                                            .show(ui, |ui| {
+                                                egui::Grid::new("analytics_grid")
+                                                    .num_columns(2)
+                                                    .spacing([40.0, 8.0])
+                                                    .show(ui, |ui| {
+                                                        for (display_name, count) in sorted_types {
+                                                            ui.label(
+                                                                egui::RichText::new(display_name)
+                                                                    .strong()
+                                                                    .color(self.theme.text_fg),
+                                                            );
+                                                            ui.label(
+                                                                egui::RichText::new(
+                                                                    count.to_string(),
+                                                                )
+                                                                .color(self.theme.text_fg),
+                                                            );
+                                                            ui.end_row();
+                                                        }
+                                                    });
+                                            });
                                     });
 
-                                ui.add_space(15.0);
-                                ui.heading(
-                                    egui::RichText::new("Raw Data")
-                                        .size(16.0)
-                                        .color(self.theme.text_fg),
-                                );
-                                ui.label(
-                                    egui::RichText::new(format!(
-                                        "Raw Triples Parsed: {}",
-                                        raw_triples.len()
-                                    ))
-                                    .color(self.theme.text_fg),
-                                );
+                                    // BOTTOM RIGHT: Raw Data
+                                    cols[1].group(|ui| {
+                                        ui.set_min_height(card_height);
+                                        ui.heading(
+                                            egui::RichText::new("Raw Data")
+                                                .color(self.theme.text_fg),
+                                        );
+                                        ui.add_space(10.0);
+
+                                        ui.horizontal(|ui| {
+                                            ui.strong("Raw Triples Parsed:");
+                                            ui.label(raw_triples.len().to_string());
+                                        });
+                                    });
+                                });
                             });
                     }
                     // render graph
