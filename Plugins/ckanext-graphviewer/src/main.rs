@@ -393,7 +393,7 @@ impl eframe::App for App {
                     ..
                 } = &mut *state_lock
                 {
-                    // render nalytics
+                    // render analytics
                     if self.current_scene == Scene::Analytics {
                         egui::ScrollArea::vertical()
                             .auto_shrink([false, false])
@@ -442,26 +442,26 @@ impl eframe::App for App {
                                     *type_counts.entry(t).or_insert(0) += 1;
                                 }
 
+                                let mut sorted_types: Vec<(String, i32)> = type_counts
+                                    .into_iter()
+                                    .map(|(t, count)| {
+                                        let display_name = t.split('#').last().unwrap_or(&t);
+                                        let display_name = display_name.split('/').last().unwrap_or(display_name).to_string();
+                                        (display_name, count)
+                                    })
+                                    .collect();
+
+                                // Sort alphabetically (case-insensitive so 'A' and 'a' stay together)
+                                sorted_types.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+
                                 egui::Grid::new("analytics_grid")
                                     .num_columns(2)
                                     .spacing([40.0, 8.0])
                                     .show(ui, |ui| {
-                                        for (t, count) in type_counts {
-                                            let display_name = t.split('#').last().unwrap_or(&t);
-                                            let display_name = display_name
-                                                .split('/')
-                                                .last()
-                                                .unwrap_or(display_name);
-
-                                            ui.label(
-                                                egui::RichText::new(display_name)
-                                                    .strong()
-                                                    .color(self.theme.text_fg),
-                                            );
-                                            ui.label(
-                                                egui::RichText::new(count.to_string())
-                                                    .color(self.theme.text_fg),
-                                            );
+                                        // --- NEW: Loop through the sorted list instead of the raw HashMap ---
+                                        for (display_name, count) in sorted_types {
+                                            ui.label(egui::RichText::new(display_name).strong().color(self.theme.text_fg));
+                                            ui.label(egui::RichText::new(count.to_string()).color(self.theme.text_fg));
                                             ui.end_row();
                                         }
                                     });
