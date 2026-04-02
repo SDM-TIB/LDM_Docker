@@ -100,7 +100,7 @@ fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>, Vec<parser::RawT
             let raw_triples = parser::parse_n3_file(&content);
 
             // format for UI (triples -> graph)
-            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples).clone();
+            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples.clone());
 
             Ok((ui_nodes, ui_edges, raw_triples))
         }
@@ -230,22 +230,16 @@ impl App {
             }
         }
 
-        // Try to load the file on startup (Native only)
+        // load empty painter whis cargo run
         #[cfg(not(target_arch = "wasm32"))]
-        match load_local_file("src/sample.n3") {
-            Ok((ui_nodes, ui_edges, raw_triples)) => {
-                let init_snapshot = GraphSnapshot::new(&ui_nodes, &ui_edges);
-                *app_state = AppState::Ready {
-                    selected_entrypoint: "sample.n3".to_string(),
-                    nodes,
-                    edges,
-                    raw_triples,
-                    init_snapshot,
-                };
-            }
-            Err(e) => {
-                *app_state = AppState::Error(e);
-            }
+        {
+            *app_state = AppState::Ready {
+                selected_entrypoint: "Empty Workspace".to_string(),
+                nodes: Vec::new(),
+                edges: Vec::new(),
+                raw_triples: Vec::new(),
+                init_snapshot: GraphSnapshot::new(&[], &[]),
+            };
         }
 
         Self {

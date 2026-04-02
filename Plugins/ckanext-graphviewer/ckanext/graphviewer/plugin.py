@@ -3,6 +3,9 @@ import ckan.plugins.toolkit as toolkit
 
 from flask import Blueprint
 
+def graph_view():
+    return toolkit.render('graph_viewer.html')
+
 class GraphViewerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
@@ -37,6 +40,7 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
 
         # Add plugin url rules to Blueprint object
         rules = [
+            (u'/graph', u'show_graph', show_graph_viewer),
             (u'/<_type>/<_id>/graph', u'show_graph', show_graph_viewer),
         ]
         for rule in rules:
