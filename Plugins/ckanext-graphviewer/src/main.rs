@@ -271,29 +271,46 @@ impl eframe::App for App {
         egui::CentralPanel::default()
             .frame(main_app_frame)
             .show(ctx, |ui| {
+                // --- NEW: Tabbed Navigation Bar ---
                 ui.horizontal(|ui| {
-                    ui.visuals_mut().selection.bg_fill = self.theme.button_bg;
+                    let active_color = if self.is_dark_mode {
+                        egui::Color32::from_rgb(100, 100, 105)
+                    } else {
+                        egui::Color32::from_rgb(255, 255, 255)
+                    };
 
-                    ui.selectable_value(
-                        &mut self.current_scene,
-                        Scene::Graph,
-                        egui::RichText::new("Graph Visualization")
-                            .heading()
-                            .color(self.theme.text_fg),
-                    );
-                    ui.selectable_value(
-                        &mut self.current_scene,
-                        Scene::Analytics,
-                        egui::RichText::new("Analytics")
-                            .heading()
-                            .color(self.theme.text_fg),
-                    );
-                });
+                    let (graph_bg, analytics_bg) = if self.current_scene == Scene::Graph {
+                        (active_color, self.theme.button_bg)
+                    } else {
+                        (self.theme.button_bg, active_color)
+                    };
 
-                ui.separator();
-
-                ui.horizontal(|ui| {
-                    ui.label(egui::RichText::new("Graph Controls:").color(self.theme.text_fg));
+                    if ui
+                        .add(
+                            egui::Button::new(
+                                egui::RichText::new("Graph Visualization")
+                                    .heading()
+                                    .color(self.theme.text_fg),
+                            )
+                            .fill(graph_bg),
+                        )
+                        .clicked()
+                    {
+                        self.current_scene = Scene::Graph;
+                    }
+                    if ui
+                        .add(
+                            egui::Button::new(
+                                egui::RichText::new("Analytics")
+                                    .heading()
+                                    .color(self.theme.text_fg),
+                            )
+                            .fill(analytics_bg),
+                        )
+                        .clicked()
+                    {
+                        self.current_scene = Scene::Analytics;
+                    }
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         let theme_string = if self.is_dark_mode {
@@ -301,15 +318,12 @@ impl eframe::App for App {
                         } else {
                             "Dark Mode"
                         };
-
                         let theme_button = egui::Button::new(
                             egui::RichText::new(theme_string).color(self.theme.text_fg),
                         )
                         .fill(self.theme.button_bg);
-
                         if ui.add(theme_button).clicked() {
                             self.is_dark_mode = !self.is_dark_mode;
-
                             if self.is_dark_mode {
                                 ctx.set_visuals(egui::Visuals::dark());
                                 self.theme = Theme::dark();
@@ -318,74 +332,9 @@ impl eframe::App for App {
                                 self.theme = Theme::light();
                             }
                         }
-
-                        let reset_view_button = egui::Button::new(
-                            egui::RichText::new("Reset View").color(self.theme.text_fg),
-                        )
-                        .fill(self.theme.button_bg);
-
-                        if ui.add(reset_view_button).clicked() {
-                            self.zoom = 1.0;
-                            self.pan = egui::vec2(0.0, 0.0);
-                            self.selected_node = None;
-
-                            let mut state_lock = self.state.lock().unwrap();
-
-                            if let AppState::Ready {
-                                nodes,
-                                edges,
-                                init_snapshot,
-                                ..
-                            } = &mut *state_lock
-                            {
-                                // 1 & 2. Make everything invisible, and ONLY restore the items in the Snapshot!
-                                for node in nodes.iter_mut() {
-                                    if let Some(&pos) = init_snapshot.node_positions.get(&node.id) {
-                                        node.pos = pos;
-                                    } else {
-                                        node.pos = node.original_pos;
-                                    }
-                                    // If it wasn't visible in the snapshot (like new API fetches), it becomes hidden!
-                                    node.visible = init_snapshot.visible_nodes.contains(&node.id);
-                                    node.expanded = init_snapshot.expanded_nodes.contains(&node.id);
-                                }
-
-                                for edge in edges.iter_mut() {
-                                    let s_id = &nodes[edge.source].id;
-                                    let t_id = &nodes[edge.target].id;
-
-                                    edge.visible = init_snapshot
-                                        .visible_edges
-                                        .contains(&(s_id.clone(), t_id.clone()))
-                                        || init_snapshot
-                                            .visible_edges
-                                            .contains(&(t_id.clone(), s_id.clone()));
-                                }
-
-                                // 3. That state becomes the new init snapshot!
-                                *init_snapshot = GraphSnapshot::new(nodes, edges);
-                            }
-                        }
-
-                        let export_button = egui::Button::new(
-                            egui::RichText::new("Export as PNG").color(self.theme.text_fg),
-                        )
-                        .fill(self.theme.button_bg);
-
-                        if ui.add(export_button).clicked() {
-                            // Desktop behavior (Native)
-                            #[cfg(not(target_arch = "wasm32"))]
-                            ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
-
-                            // Browser behavior (WASM)
-                            #[cfg(target_arch = "wasm32")]
-                            if let Some(rect) = self.canvas_rect {
-                                let ppp = ctx.pixels_per_point();
-                                trigger_wasm_canvas_download(rect, ppp, "graph_export.png");
-                            }
-                        }
                     });
                 });
+                ui.separator();
 
                 let mut state_lock = self.state.lock().unwrap();
 
@@ -394,6 +343,7 @@ impl eframe::App for App {
                     nodes,
                     edges,
                     raw_triples,
+                    init_snapshot,
                     ..
                 } = &mut *state_lock
                 {
@@ -648,6 +598,74 @@ impl eframe::App for App {
                     }
                     // render graph
                     else if self.current_scene == Scene::Graph {
+                        ui.horizontal(|ui| {
+                            ui.label(
+                                egui::RichText::new("Graph Controls:").color(self.theme.text_fg),
+                            );
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    let export_button = egui::Button::new(
+                                        egui::RichText::new("Export as PNG")
+                                            .color(self.theme.text_fg),
+                                    )
+                                    .fill(self.theme.button_bg);
+                                    if ui.add(export_button).clicked() {
+                                        #[cfg(not(target_arch = "wasm32"))]
+                                        ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
+                                        #[cfg(target_arch = "wasm32")]
+                                        if let Some(rect) = self.canvas_rect {
+                                            let ppp = ctx.pixels_per_point();
+                                            trigger_wasm_canvas_download(
+                                                rect,
+                                                ppp,
+                                                "graph_export.png",
+                                            );
+                                        }
+                                    }
+
+                                    let reset_view_button = egui::Button::new(
+                                        egui::RichText::new("Reset View").color(self.theme.text_fg),
+                                    )
+                                    .fill(self.theme.button_bg);
+                                    if ui.add(reset_view_button).clicked() {
+                                        self.zoom = 1.0;
+                                        self.pan = egui::vec2(0.0, 0.0);
+                                        self.selected_node = None;
+
+                                        for node in nodes.iter_mut() {
+                                            if let Some(&pos) =
+                                                init_snapshot.node_positions.get(&node.id)
+                                            {
+                                                node.pos = pos;
+                                            } else {
+                                                node.pos = node.original_pos;
+                                            }
+                                            node.visible =
+                                                init_snapshot.visible_nodes.contains(&node.id);
+                                            node.expanded =
+                                                init_snapshot.expanded_nodes.contains(&node.id);
+                                        }
+
+                                        for edge in edges.iter_mut() {
+                                            let s_id = &nodes[edge.source].id;
+                                            let t_id = &nodes[edge.target].id;
+
+                                            edge.visible = init_snapshot
+                                                .visible_edges
+                                                .contains(&(s_id.clone(), t_id.clone()))
+                                                || init_snapshot
+                                                    .visible_edges
+                                                    .contains(&(t_id.clone(), s_id.clone()));
+                                        }
+
+                                        *init_snapshot = GraphSnapshot::new(nodes, edges);
+                                    }
+                                },
+                            );
+                        });
+                        ui.add_space(5.0);
+
                         let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
                             egui::Grid::new(format!("tooltip_grid_{}", node.id))
                                 .num_columns(2)
