@@ -1,5 +1,6 @@
 use log::{error, debug};
 use oxttl::N3Parser;
+use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub struct RawTriple {
@@ -107,96 +108,106 @@ pub fn parse_author_datasets_json(json_text: &str) -> Vec<RawTriple> {
     triples
 }
 
-// --- NEW: Bulletproof Dataset Parser ---
+// parse a the api response for dataset id call
 pub fn parse_dataset_details_json(json_text: &str, dataset_id: &str) -> Vec<RawTriple> {
     let mut triples = Vec::new();
 
-    // 1. Check if we can parse the string as JSON
-    if let Ok(json) = serde_json::from_str::<serde_json::Value>(json_text) {
-        
-        // 2. Extract the array regardless of whether it's wrapped in {"results": [...]} or is just [...] directly
-        let results_array = if let Some(arr) = json.as_array() {
-            Some(arr)
-        } else if let Some(arr) = json.get("results").and_then(|r| r.as_array()) {
-            Some(arr)
-        } else {
-            None
-        };
-
-        if let Some(results) = results_array {
-            for item in results {
-                let mut s_val = dataset_id.to_string(); // Default fallback
-                let mut p_val = String::new();
-                let mut o_val = String::new();
-                let mut is_lit = false;
-
-                // Try structured format
-                if let Some(s) = item.get("subject").and_then(|v| v.as_str()) {
-                    s_val = s.to_string();
-                }
-                if let Some(p) = item.get("predicate").and_then(|v| v.as_str()) {
-                    p_val = p.to_string();
-                }
-                if let Some(o) = item.get("object").and_then(|v| v.as_str()) {
-                    o_val = o.to_string();
-                }
-                if let Some(lit) = item.get("is_literal").and_then(|v| v.as_bool()) {
-                    is_lit = lit;
-                }
-
-                // --- NEW: Upgraded RAW SPARQL format parser ---
-                if p_val.is_empty() {
-                    // Explicitly extract the ?s variable!
-                    if let Some(s_data) = item.get("s") {
-                        if let Some(s_str) = s_data.as_str() {
-                            s_val = s_str.to_string();
-                        } else if let Some(s_obj) = s_data.as_object() {
-                            s_val = s_obj.get("value").and_then(|v| v.as_str()).unwrap_or(&s_val).to_string();
-                        }
-                    }
-                    if let Some(p_data) = item.get("p") {
-                        if let Some(p_str) = p_data.as_str() {
-                            p_val = p_str.to_string();
-                        } else if let Some(p_obj) = p_data.as_object() {
-                            p_val = p_obj.get("value").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                        }
-                    }
-                    if let Some(o_data) = item.get("o") {
-                        if let Some(o_str) = o_data.as_str() {
-                            o_val = o_str.to_string();
-                            is_lit = !o_val.starts_with("http");
-                        } else if let Some(o_obj) = o_data.as_object() {
-                            o_val = o_obj.get("value").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                            let o_type = o_obj.get("type").and_then(|v| v.as_str()).unwrap_or("");
-                            is_lit = o_type == "literal" || o_type == "typed-literal";
-                        }
-                    }
-                }
-
-                // Build the Triple
-                if !p_val.is_empty() && !o_val.is_empty() {
-                    let object_str = if is_lit {
-                        format!("\"{}\"", o_val)
-                    } else {
-                        format!("<{}>", o_val)
-                    };
-
-                    triples.push(RawTriple {
-                        subject: format!("<{}>", s_val), // <--- Uses the perfectly extracted Subject!
-                        predicate: format!("<{}>", p_val),
-                        object: object_str,
-                        is_object_literal: is_lit,
-                    });
-                }
-            }
+    if let Ok(json) = serde_json::from_str::<Value>(json_text) {
+        if let Some(results_obj) = json.get("results").and_then(|r| r.as_object()) {
+            parse_nested_properties(dataset_id, results_obj, &mut triples);
         }
     }
 
-    // --- NEW: Safety net for debugging! ---
-    // If it STILL fails, it will print exactly what Python sent so you can instantly see the problem in your terminal.
     if triples.is_empty() {
         println!("WARNING: Parser returned 0 triples! Raw API response was:\n{}", json_text);
     }
 
     triples
+}
+
+// Helper function that Recursively extracts properties
+fn parse_nested_properties(
+    subject: &str,
+    properties: &serde_json::Map<String, Value>,
+    triples: &mut Vec<RawTriple>
+) {
+    let subj_str = format!("<{}>", subject);
+
+    for (predicate, value) in properties {
+        let pred_str = format!("<{}>", predicate);
+
+        match value {
+            // CASE 1: A single leaf object (e.g., {"type": "literal", "value": "EDTA"})
+            Value::Object(obj) => {
+                parse_leaf_value(&subj_str, &pred_str, obj, triples);
+            }
+            // CASE 2: An array of items (e.g., Multiple distributions, or array of types)
+            Value::Array(arr) => {
+                for item in arr {
+                    match item {
+                        // 2A: An array of direct URI strings (like the 'type' array)
+                        Value::String(s) => {
+                            triples.push(RawTriple {
+                                subject: subj_str.clone(),
+                                predicate: pred_str.clone(),
+                                object: format!("<{}>", s),
+                                is_object_literal: false,
+                            });
+                        }
+                        // 2B: An array of complex Objects
+                        Value::Object(obj) => {
+                            // Is it a simple leaf value inside an array?
+                            if obj.contains_key("type") && obj.contains_key("value") {
+                                parse_leaf_value(&subj_str, &pred_str, obj, triples);
+                            }
+                            // Or is it a deeply nested node? (e.g., {"uri": "...", "properties": {...}})
+                            else if let (Some(Value::String(uri)), Some(Value::Object(nested_props))) =
+                                (obj.get("uri"), obj.get("properties"))
+                            {
+                                // 1. Create a Triple connecting the parent to this new sub-node
+                                triples.push(RawTriple {
+                                    subject: subj_str.clone(),
+                                    predicate: pred_str.clone(),
+                                    object: format!("<{}>", uri),
+                                    is_object_literal: false,
+                                });
+
+                                // 2. RECURSION: Dive into the sub-node and parse its properties!
+                                parse_nested_properties(uri, nested_props, triples);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+// Helper function to extract {"type": "...", "value": "..."} blocks
+fn parse_leaf_value(
+    subj_str: &str,
+    pred_str: &str,
+    obj: &serde_json::Map<String, Value>,
+    triples: &mut Vec<RawTriple>
+) {
+    if let (Some(t_val), Some(v_val)) = (
+        obj.get("type").and_then(|v| v.as_str()),
+        obj.get("value").and_then(|v| v.as_str())
+    ) {
+        let is_literal = t_val == "literal" || t_val == "typed-literal";
+        let obj_str = if is_literal {
+            format!("\"{}\"", v_val)
+        } else {
+            format!("<{}>", v_val)
+        };
+
+        triples.push(RawTriple {
+            subject: subj_str.to_string(),
+            predicate: pred_str.to_string(),
+            object: obj_str,
+            is_object_literal: is_literal,
+        });
+    }
 }
