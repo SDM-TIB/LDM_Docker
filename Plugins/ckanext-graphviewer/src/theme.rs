@@ -15,6 +15,12 @@ pub struct Theme {
     pub master_bg: Color32,
     pub painter_bg: Color32,
     pub button_bg: Color32,
+    pub button_active_bg: Color32,
+
+    pub menu_expand_bg: Color32,
+    pub menu_info_bg: Color32,
+    pub menu_api_bg: Color32,
+    pub menu_api_fetched_bg: Color32,
 
     // text color
     pub text_fg: Color32,
@@ -101,6 +107,11 @@ impl Theme {
             master_bg: Color32::from_rgb(30, 30, 35),
             painter_bg: Color32::from_rgb(50, 50, 55),
             button_bg: Color32::from_rgb(70, 70, 75),
+            button_active_bg: Color32::from_rgb(100, 100, 105),
+            menu_expand_bg: Color32::from_rgb(70, 130, 200),
+            menu_info_bg: Color32::from_rgb(100, 180, 100),
+            menu_api_bg: Color32::from_rgb(220, 140, 50),
+            menu_api_fetched_bg: Color32::from_rgb(150, 150, 150),
             text_fg: Color32::from_rgb(240, 240, 245),
             edge_fg: Color32::from_rgb(120, 120, 130),
             default_node: NodeColors {
@@ -116,6 +127,11 @@ impl Theme {
             debug: Color32::RED,
             master_bg: Color32::from_rgb(240, 240, 245),
             button_bg: Color32::from_rgb(220, 220, 225),
+            button_active_bg: Color32::from_rgb(255, 255, 255),
+            menu_expand_bg: Color32::from_rgb(70, 130, 200),
+            menu_info_bg: Color32::from_rgb(100, 180, 100),
+            menu_api_bg: Color32::from_rgb(220, 140, 50),
+            menu_api_fetched_bg: Color32::from_rgb(150, 150, 150),
             painter_bg: Color32::from_rgb(255, 255, 255),
             text_fg: Color32::from_rgb(30, 30, 35),
             edge_fg: Color32::from_rgb(170, 170, 180),

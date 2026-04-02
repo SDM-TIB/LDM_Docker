@@ -271,13 +271,8 @@ impl eframe::App for App {
         egui::CentralPanel::default()
             .frame(main_app_frame)
             .show(ctx, |ui| {
-                // --- NEW: Tabbed Navigation Bar ---
                 ui.horizontal(|ui| {
-                    let active_color = if self.is_dark_mode {
-                        egui::Color32::from_rgb(100, 100, 105)
-                    } else {
-                        egui::Color32::from_rgb(255, 255, 255)
-                    };
+                    let active_color = self.theme.button_active_bg;
 
                     let (graph_bg, analytics_bg) = if self.current_scene == Scene::Graph {
                         (active_color, self.theme.button_bg)
@@ -352,11 +347,7 @@ impl eframe::App for App {
                         egui::ScrollArea::vertical()
                             .auto_shrink([false, false])
                             .show(ui, |ui| {
-                                ui.heading(
-                                    egui::RichText::new("Graph Memory Analytics")
-                                        .color(self.theme.text_fg),
-                                );
-                                ui.add_space(10.0);
+                                ui.add_space(5.0);
 
                                 // --- 1. CALCULATE GRAPH STATISTICS ---
                                 let mut unique_subjects = std::collections::HashSet::new();
@@ -738,7 +729,7 @@ impl eframe::App for App {
 
                         // render legend
                         egui::Window::new(egui::RichText::new("Legend").color(self.theme.text_fg))
-                            .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 60.0))
+                            .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 75.0))
                             .collapsible(true)
                             .resizable(false)
                             .frame(legend_outline)
@@ -1127,7 +1118,7 @@ impl eframe::App for App {
                                 painter.circle_filled(
                                     expand_pos,
                                     btn_radius,
-                                    egui::Color32::from_rgb(70, 130, 200),
+                                    self.theme.menu_expand_bg,
                                 );
                                 let icon = if nodes[menu_idx].expanded { "-" } else { "+" };
                                 let galley = painter.layout_no_wrap(
@@ -1162,7 +1153,7 @@ impl eframe::App for App {
                                 painter.circle_filled(
                                     info_pos,
                                     btn_radius,
-                                    egui::Color32::from_rgb(100, 180, 100),
+                                    self.theme.menu_info_bg,
                                 );
                                 let galley = painter.layout_no_wrap(
                                     "i".into(),
@@ -1203,11 +1194,10 @@ impl eframe::App for App {
                                         egui::Sense::click(),
                                     );
 
-                                    // TODO pull color via theme file
                                     let btn_color = if nodes[menu_idx].api_fetched {
-                                        egui::Color32::from_rgb(150, 150, 150)
+                                        self.theme.menu_api_fetched_bg
                                     } else {
-                                        egui::Color32::from_rgb(220, 140, 50)
+                                        self.theme.menu_api_bg
                                     };
 
                                     painter.circle_filled(api_pos, btn_radius, btn_color);
