@@ -24,7 +24,7 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
 
         # show graph viewer with selection boxes
         def show_global_graph_viewer():
-            return toolkit.render('graph_viewer.html')
+            return toolkit.render('package/graph_viewer.html')
 
         # show graph viewer without selection boxes and a starting with a dataset
         def show_dataset_graph_viewer(_type, _id):
