@@ -21,9 +21,11 @@ pub enum Scene {
 pub enum SearchType {
     AuthorOrcid,
     AuthorLdmId,
+    PaperDoi,
+    PaperTitle,
     DatasetDoi,
     DatasetTitle,
-    DatasetId,
+    DatasetLdmId,
 }
 
 impl SearchType {
@@ -31,9 +33,11 @@ impl SearchType {
         match self {
             SearchType::AuthorOrcid => "Author ORCID",
             SearchType::AuthorLdmId => "Author LDM ID",
+            SearchType::PaperDoi => "Paper DOI",
+            SearchType::PaperTitle => "Paper Title",
             SearchType::DatasetDoi => "Dataset DOI",
             SearchType::DatasetTitle => "Dataset Title",
-            SearchType::DatasetId => "Dataset ID",
+            SearchType::DatasetLdmId => "Dataset LDM ID",
         }
     }
 }
@@ -257,10 +261,22 @@ impl App {
             let mut dataset_id = String::new();
 
             if let Some(pkg_dict) = get_dataset_metadata_from_dom() {
-                dataset_title = pkg_dict.get("title").and_then(|v| v.as_str()).unwrap_or("Unknown Title").to_string();
-                dataset_id = pkg_dict.get("id").and_then(|v| v.as_str()).unwrap_or("Unknown ID").to_string();
+                dataset_title = pkg_dict
+                    .get("title")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown Title")
+                    .to_string();
+                dataset_id = pkg_dict
+                    .get("id")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown ID")
+                    .to_string();
 
-                log::info!("successfully figured out dataset information: {} ({})", dataset_title, dataset_id);
+                log::info!(
+                    "successfully figured out dataset information: {} ({})",
+                    dataset_title,
+                    dataset_id
+                );
             }
 
             if let Some(target_url) = get_n3_url_from_dom() {
@@ -350,9 +366,14 @@ impl App {
             search_input: String::new(),
             api_url: {
                 #[cfg(target_arch = "wasm32")]
-                { get_api_url_from_dom().unwrap_or_else(|| "http://194.95.157.131:5742".to_string()) }
+                {
+                    get_api_url_from_dom()
+                        .unwrap_or_else(|| "http://194.95.157.131:5742".to_string())
+                }
                 #[cfg(not(target_arch = "wasm32"))]
-                { "http://194.95.157.131:5742".to_string() }
+                {
+                    "http://194.95.157.131:5742".to_string()
+                }
             },
             is_global_viewer,
             search_failed: Arc::new(Mutex::new(false)),
@@ -371,22 +392,55 @@ impl eframe::App for App {
                     ui.add_space(5.0);
                     ui.horizontal(|ui| {
                         ui.scope(|ui| {
-                            ui.label(egui::RichText::new("Select start point:").color(self.theme.text_fg).strong());
+                            ui.label(
+                                egui::RichText::new("Select a start point:")
+                                    .color(self.theme.text_fg)
+                                    .strong(),
+                            );
 
                             egui::ComboBox::from_id_source("fetch_dropdown")
                                 .selected_text(self.search_type.as_str())
                                 .show_ui(ui, |ui| {
-                                    ui.selectable_value(&mut self.search_type, SearchType::AuthorOrcid, "Author ORCID");
-                                    ui.selectable_value(&mut self.search_type, SearchType::AuthorLdmId, "Author LDM ID");
-                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetDoi, "Dataset DOI");
-                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetTitle, "Dataset Title");
-                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetId, "Dataset ID");
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::AuthorOrcid,
+                                        SearchType::AuthorOrcid.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::AuthorLdmId,
+                                        SearchType::AuthorLdmId.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::PaperDoi,
+                                        SearchType::PaperDoi.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::PaperTitle,
+                                        SearchType::PaperTitle.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::DatasetDoi,
+                                        SearchType::DatasetDoi.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::DatasetTitle,
+                                        SearchType::DatasetTitle.as_str(),
+                                    );
+                                    ui.selectable_value(
+                                        &mut self.search_type,
+                                        SearchType::DatasetLdmId,
+                                        SearchType::DatasetLdmId.as_str(),
+                                    );
                                 });
-
 
                             let is_failed = *self.search_failed.lock().unwrap();
 
-                            // If the fetch failed, turn the borders red!
+                            // fail indicator
                             if is_failed {
                                 let red_stroke = egui::Stroke::new(1.5, egui::Color32::RED);
                                 ui.visuals_mut().widgets.inactive.bg_stroke = red_stroke;
@@ -394,36 +448,68 @@ impl eframe::App for App {
                                 ui.visuals_mut().widgets.active.bg_stroke = red_stroke;
                             }
 
-                            let response = ui.add(egui::TextEdit::singleline(&mut self.search_input).desired_width(300.0));
+                            let response = ui.add(
+                                egui::TextEdit::singleline(&mut self.search_input)
+                                    .desired_width(300.0),
+                            );
 
-                            // Clear the red outline as soon as they start typing a new query!
+                            // reset fail indicator
                             if response.changed() && is_failed {
                                 *self.search_failed.lock().unwrap() = false;
                             }
                         });
 
-                        let start_point_confirm_button = egui::Button::new(egui::RichText::new("Confirm").color(self.theme.text_fg))
-                            .fill(self.theme.button_bg);
+                        let start_point_confirm_button = egui::Button::new(
+                            egui::RichText::new("Confirm").color(self.theme.text_fg),
+                        )
+                        .fill(self.theme.button_bg);
 
                         if ui.add(start_point_confirm_button).clicked() {
-                            log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
+                            log::info!(
+                                "Requested Fetch! Type: {}, Input: {}",
+                                self.search_type.as_str(),
+                                self.search_input
+                            );
 
-                            // Reset the error state immediately when a new search starts
+                            // reset error state
                             *self.search_failed.lock().unwrap() = false;
 
                             let state_clone = self.state.clone();
                             let ctx_clone = ctx.clone();
                             let input = self.search_input.clone();
                             let search_type = self.search_type.clone();
-                            let failed_clone = self.search_failed.clone(); // <--- Pass the flag to the background thread
+                            let failed_clone = self.search_failed.clone();
 
                             let base_url = &self.api_url;
                             let target_url = match search_type {
-                                SearchType::AuthorOrcid => format!("{}/get_dataset_attributes_by_author_orcid?orcid={}", base_url, input),
-                                SearchType::AuthorLdmId => format!("{}/get_dataset_attributes_by_author_id?author_id={}", base_url, input),
-                                SearchType::DatasetDoi => format!("{}/get_dataset_attributes_by_paper_doi?doi={}", base_url, input),
-                                SearchType::DatasetId => format!("{}/get_dataset_attributes_by_dataset_id?dataset_id={}", base_url, input),
-                                SearchType::DatasetTitle => format!("{}/get_dataset_attributes_by_dataset_title?title={}", base_url, input),
+                                SearchType::AuthorOrcid => format!(
+                                    "{}/get_dataset_attributes_by_author_orcid?author_orcid={}",
+                                    base_url, input
+                                ),
+                                SearchType::AuthorLdmId => format!(
+                                    "{}/get_dataset_attributes_by_author_ldm_id?author_ldm_id={}",
+                                    base_url, input
+                                ),
+                                SearchType::PaperDoi => format!(
+                                    "{}/get_dataset_attributes_by_paper_doi?paper_doi={}",
+                                    base_url, input
+                                ),
+                                SearchType::PaperTitle => format!(
+                                    "{}/get_dataset_attributes_by_paper_title?paper_title={}",
+                                    base_url, input
+                                ),
+                                SearchType::DatasetDoi => format!(
+                                    "{}/get_dataset_attributes_by_dataset_doi?dataset_doi={}",
+                                    base_url, input
+                                ),
+                                SearchType::DatasetTitle => format!(
+                                    "{}/get_dataset_attributes_by_dataset_title?dataset_title={}",
+                                    base_url, input
+                                ),
+                                SearchType::DatasetLdmId => format!(
+                                    "{}/get_dataset_attributes_by_dataset_ldm_id?dataset_ldm_id={}",
+                                    base_url, input
+                                ),
                             };
 
                             let request = ehttp::Request::get(&target_url);
@@ -434,17 +520,24 @@ impl eframe::App for App {
 
                                 if let Ok(res) = response {
                                     if let Some(text) = res.text() {
-                                        let new_triples = if matches!(search_type, SearchType::DatasetId) {
-                                            crate::parser::parse_dataset_details_json(&text, &input)
-                                        } else {
-                                            crate::parser::parse_author_datasets_json(&text)
-                                        };
+                                        let new_triples =
+                                            if matches!(search_type, SearchType::DatasetLdmId) {
+                                                crate::parser::parse_dataset_details_json(
+                                                    &text, &input,
+                                                )
+                                            } else {
+                                                crate::parser::parse_author_datasets_json(&text)
+                                            };
 
                                         if !new_triples.is_empty() {
                                             fetch_successful = true; // Data found!
 
-                                            let (nodes, edges) = crate::graph_processor::build_ui_graph(new_triples.clone());
-                                            let init_snapshot = crate::GraphSnapshot::new(&nodes, &edges);
+                                            let (nodes, edges) =
+                                                crate::graph_processor::build_ui_graph(
+                                                    new_triples.clone(),
+                                                );
+                                            let init_snapshot =
+                                                crate::GraphSnapshot::new(&nodes, &edges);
 
                                             let mut state_lock = state_clone.lock().unwrap();
                                             *state_lock = crate::AppState::Ready {
@@ -460,7 +553,16 @@ impl eframe::App for App {
 
                                 // Trigger the red outline if anything failed or returned empty!
                                 if !fetch_successful {
-                                    log::warn!("API request failed or returned no usable data.");
+                                    #[cfg(not(target_arch = "wasm32"))]
+                                    {
+                                        dbg!("API request failed or returned no usable data.");
+                                    }
+
+                                    #[cfg(target_arch = "wasm32")]
+                                    {
+                                        log::warn!("API request failed or returned no usable data.");
+                                    }
+
                                     *failed_clone.lock().unwrap() = true;
                                 }
 

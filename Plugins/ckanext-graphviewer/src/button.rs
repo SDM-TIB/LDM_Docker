@@ -262,8 +262,7 @@ pub fn fetch_dataset_information(
 ) {
     let url = format!(
         "{}/get_dataset_attributes_by_dataset_id?dataset_id={}",
-        api_url,
-        dataset_id,
+        api_url, dataset_id,
     );
     let request = ehttp::Request::get(&url);
 
