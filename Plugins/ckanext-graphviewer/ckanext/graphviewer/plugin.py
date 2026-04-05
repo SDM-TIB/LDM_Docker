@@ -35,7 +35,7 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
 
             # Render the template and pass the dataset metadata
             return toolkit.render(
-                'package/graph_export.html',
+                'package/graph_viewer.html',
                 extra_vars={'pkg_dict': pkg_dict, 'pkg_type': _type}
             )
 
