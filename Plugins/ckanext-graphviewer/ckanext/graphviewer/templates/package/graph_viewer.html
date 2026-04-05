@@ -9,25 +9,26 @@
     </div>
 
     <canvas
+        {% if pkg_dict %}
         id="the_canvas_id"
         data-pkg-dict="{{ pkg_dict | tojson | forceescape }}"
-        data-site-url="{{ h.url_for('home', qualified=True) }}"
-        style="width: 100%; height: 100vh;">
+        data-n3-url="{{ h.url_for('home', qualified=True) }}{{ pkg_type }}/{{ pkg_dict.id }}.n3"
+        {% endif %}
     </canvas>
 
     <script type="module">
-        import init from '/graph_viewer/rdf_wasm_graph.js';
+     import init from '/graph_viewer/rdf_wasm_graph.js';
 
-        async function run() {
-            try {
-                await init('/graph_viewer/rdf_wasm_graph_bg.wasm');
-                console.log("WASM Initialized");
-            } catch (e) {
-                console.error("WASM Loading Failed:", e);
-            }
-        }
+     async function run() {
+         try {
+             await init('/graph_viewer/rdf_wasm_graph_bg.wasm');
+             console.log("WASM Initialized");
+         } catch (e) {
+             console.error("WASM Loading Failed:", e);
+         }
+     }
 
-        run();
+     run();
     </script>
 </div>
 {% endblock %}
