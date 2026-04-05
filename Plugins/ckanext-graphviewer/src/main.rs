@@ -104,6 +104,8 @@ struct App {
     search_type: SearchType,
     search_input: String,
     api_url: String,
+    is_global_viewer: bool,
+    search_failed: Arc<Mutex<bool>>,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -319,6 +321,19 @@ impl App {
             };
         }
 
+        let is_global_viewer = {
+            #[cfg(target_arch = "wasm32")]
+            {
+                // if there is not n3 -> global view
+                get_n3_url_from_dom().is_none()
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                // outside wasm -> global view
+                true
+            }
+        };
+
         Self {
             state,
             zoom: 1.0,
@@ -339,6 +354,8 @@ impl App {
                 #[cfg(not(target_arch = "wasm32"))]
                 { "http://194.95.157.131:5742".to_string() }
             },
+            is_global_viewer,
+            search_failed: Arc::new(Mutex::new(false)),
         }
     }
 }
@@ -350,79 +367,111 @@ impl eframe::App for App {
         egui::CentralPanel::default()
             .frame(main_app_frame)
             .show(ctx, |ui| {
-                ui.add_space(5.0);
-                ui.horizontal(|ui| {
-                    ui.label(egui::RichText::new("Select start point:").color(self.theme.text_fg).strong());
+                if self.is_global_viewer {
+                    ui.add_space(5.0);
+                    ui.horizontal(|ui| {
+                        ui.scope(|ui| {
+                            ui.label(egui::RichText::new("Select start point:").color(self.theme.text_fg).strong());
 
-                    egui::ComboBox::from_id_source("fetch_dropdown")
-                        .selected_text(self.search_type.as_str())
-                        .show_ui(ui, |ui| {
-                            ui.selectable_value(&mut self.search_type, SearchType::AuthorOrcid, "Author ORCID");
-                            ui.selectable_value(&mut self.search_type, SearchType::AuthorLdmId, "Author LDM ID");
-                            ui.selectable_value(&mut self.search_type, SearchType::DatasetDoi, "Dataset DOI");
-                            ui.selectable_value(&mut self.search_type, SearchType::DatasetTitle, "Dataset Title");
-                            ui.selectable_value(&mut self.search_type, SearchType::DatasetId, "Dataset ID");
-                        });
+                            egui::ComboBox::from_id_source("fetch_dropdown")
+                                .selected_text(self.search_type.as_str())
+                                .show_ui(ui, |ui| {
+                                    ui.selectable_value(&mut self.search_type, SearchType::AuthorOrcid, "Author ORCID");
+                                    ui.selectable_value(&mut self.search_type, SearchType::AuthorLdmId, "Author LDM ID");
+                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetDoi, "Dataset DOI");
+                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetTitle, "Dataset Title");
+                                    ui.selectable_value(&mut self.search_type, SearchType::DatasetId, "Dataset ID");
+                                });
 
-                    ui.add(egui::TextEdit::singleline(&mut self.search_input).desired_width(300.0));
 
-                    let start_point_confirm_button = egui::Button::new(egui::RichText::new("Confirm").color(self.theme.text_fg))
-                        .fill(self.theme.button_bg);
+                            let is_failed = *self.search_failed.lock().unwrap();
 
-                    if ui.add(start_point_confirm_button).clicked() {
-                        log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
+                            // If the fetch failed, turn the borders red!
+                            if is_failed {
+                                let red_stroke = egui::Stroke::new(1.5, egui::Color32::RED);
+                                ui.visuals_mut().widgets.inactive.bg_stroke = red_stroke;
+                                ui.visuals_mut().widgets.hovered.bg_stroke = red_stroke;
+                                ui.visuals_mut().widgets.active.bg_stroke = red_stroke;
+                            }
 
-                        let state_clone = self.state.clone();
-                        let ctx_clone = ctx.clone();
-                        let input = self.search_input.clone();
-                        let search_type = self.search_type.clone();
+                            let response = ui.add(egui::TextEdit::singleline(&mut self.search_input).desired_width(300.0));
 
-                        let base_url = &self.api_url;
-                        let target_url = match search_type {
-                            SearchType::AuthorOrcid => format!("{}/get_dataset_attributes_by_author_orcid?orcid={}", base_url, input),
-                            SearchType::AuthorLdmId => format!("{}/get_dataset_attributes_by_author_id?author_id={}", base_url, input),
-                            SearchType::DatasetDoi => format!("{}/get_dataset_attributes_by_paper_doi?doi={}", base_url, input),
-                            SearchType::DatasetId => format!("{}/get_dataset_attributes_by_dataset_id?dataset_id={}", base_url, input),
-                            SearchType::DatasetTitle => format!("{}/get_dataset_attributes_by_dataset_title?title={}", base_url, input),
-                        };
-
-                        let request = ehttp::Request::get(&target_url);
-
-                        ehttp::fetch(request, move |response| {
-                            if let Ok(res) = response {
-                                if let Some(text) = res.text() {
-
-                                    let new_triples = if matches!(search_type, SearchType::DatasetId) {
-                                        parser::parse_dataset_details_json(&text, &input)
-                                    } else {
-                                        parser::parse_author_datasets_json(&text)
-                                    };
-
-                                    if !new_triples.is_empty() {
-                                        let (nodes, edges) = graph_processor::build_ui_graph(new_triples.clone());
-                                        let init_snapshot = GraphSnapshot::new(&nodes, &edges);
-
-                                        let mut state_lock = state_clone.lock().unwrap();
-                                        *state_lock = AppState::Ready {
-                                            selected_entrypoint: input,
-                                            nodes,
-                                            edges,
-                                            raw_triples: new_triples,
-                                            init_snapshot,
-                                        };
-
-                                        ctx_clone.request_repaint();
-                                    } else {
-                                        log::warn!("API returned no usable data.");
-                                    }
-                                }
+                            // Clear the red outline as soon as they start typing a new query!
+                            if response.changed() && is_failed {
+                                *self.search_failed.lock().unwrap() = false;
                             }
                         });
-                    }
-                });
-                ui.add_space(5.0);
-                ui.separator();
 
+                        let start_point_confirm_button = egui::Button::new(egui::RichText::new("Confirm").color(self.theme.text_fg))
+                            .fill(self.theme.button_bg);
+
+                        if ui.add(start_point_confirm_button).clicked() {
+                            log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
+
+                            // Reset the error state immediately when a new search starts
+                            *self.search_failed.lock().unwrap() = false;
+
+                            let state_clone = self.state.clone();
+                            let ctx_clone = ctx.clone();
+                            let input = self.search_input.clone();
+                            let search_type = self.search_type.clone();
+                            let failed_clone = self.search_failed.clone(); // <--- Pass the flag to the background thread
+
+                            let base_url = &self.api_url;
+                            let target_url = match search_type {
+                                SearchType::AuthorOrcid => format!("{}/get_dataset_attributes_by_author_orcid?orcid={}", base_url, input),
+                                SearchType::AuthorLdmId => format!("{}/get_dataset_attributes_by_author_id?author_id={}", base_url, input),
+                                SearchType::DatasetDoi => format!("{}/get_dataset_attributes_by_paper_doi?doi={}", base_url, input),
+                                SearchType::DatasetId => format!("{}/get_dataset_attributes_by_dataset_id?dataset_id={}", base_url, input),
+                                SearchType::DatasetTitle => format!("{}/get_dataset_attributes_by_dataset_title?title={}", base_url, input),
+                            };
+
+                            let request = ehttp::Request::get(&target_url);
+
+                            ehttp::fetch(request, move |response| {
+                                // Assume failure unless we explicitly succeed below
+                                let mut fetch_successful = false;
+
+                                if let Ok(res) = response {
+                                    if let Some(text) = res.text() {
+                                        let new_triples = if matches!(search_type, SearchType::DatasetId) {
+                                            crate::parser::parse_dataset_details_json(&text, &input)
+                                        } else {
+                                            crate::parser::parse_author_datasets_json(&text)
+                                        };
+
+                                        if !new_triples.is_empty() {
+                                            fetch_successful = true; // Data found!
+
+                                            let (nodes, edges) = crate::graph_processor::build_ui_graph(new_triples.clone());
+                                            let init_snapshot = crate::GraphSnapshot::new(&nodes, &edges);
+
+                                            let mut state_lock = state_clone.lock().unwrap();
+                                            *state_lock = crate::AppState::Ready {
+                                                selected_entrypoint: input,
+                                                nodes,
+                                                edges,
+                                                raw_triples: new_triples,
+                                                init_snapshot,
+                                            };
+                                        }
+                                    }
+                                }
+
+                                // Trigger the red outline if anything failed or returned empty!
+                                if !fetch_successful {
+                                    log::warn!("API request failed or returned no usable data.");
+                                    *failed_clone.lock().unwrap() = true;
+                                }
+
+                                // Always tell the UI to repaint so the red outline (or graph) renders instantly
+                                ctx_clone.request_repaint();
+                            });
+                        }
+                    });
+                    ui.add_space(5.0);
+                    ui.separator();
+                }
                 ui.horizontal(|ui| {
                     let active_color = self.theme.button_active_bg;
 
@@ -881,7 +930,7 @@ impl eframe::App for App {
 
                         // render legend
                         egui::Window::new(egui::RichText::new("Legend").color(self.theme.text_fg))
-                            .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 75.0))
+                            .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 115.0))
                             .collapsible(true)
                             .resizable(false)
                             .frame(legend_outline)
