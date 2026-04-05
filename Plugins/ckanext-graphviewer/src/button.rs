@@ -8,6 +8,7 @@ pub fn fetch_author_information(
     state: Arc<Mutex<AppState>>,
     clicked_node_id: String,
     author_id: String,
+    api_url: &str,
 ) {
     let url = format!(
         "http://194.95.157.131:5742/get_dataset_attributes_by_author_id?author_id={}",
@@ -257,10 +258,12 @@ pub fn fetch_dataset_information(
     state: Arc<Mutex<AppState>>,
     clicked_node_id: String,
     dataset_id: String,
+    api_url: &str,
 ) {
     let url = format!(
-        "http://194.95.157.131:5742/get_dataset_attributes_by_dataset_id?dataset_id={}",
-        dataset_id
+        "{}/get_dataset_attributes_by_dataset_id?dataset_id={}",
+        api_url,
+        dataset_id,
     );
     let request = ehttp::Request::get(&url);
 

@@ -9,8 +9,10 @@
     </div>
 
     <canvas
-        {% if pkg_dict %}
         id="the_canvas_id"
+        data-api-url="{{ api_url }}"
+
+        {% if pkg_dict %}
         data-pkg-dict="{{ pkg_dict | tojson | forceescape }}"
         data-n3-url="{{ h.url_for('home', qualified=True) }}{{ pkg_type }}/{{ pkg_dict.id }}.n3"
         {% endif %}

@@ -1,3 +1,5 @@
+import os
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -24,7 +26,11 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
 
         # show graph viewer with selection boxes
         def show_global_graph_viewer():
-            return toolkit.render('package/graph_viewer.html')
+            api_url = os.environ.get('LDM_KNOWLEDGE_GRAPH_EXPLORATION_API')
+            return toolkit.render(
+                'package/graph_viewer.html',
+                extra_vars={'api_url': api_url}
+            )
 
         # show graph viewer without selection boxes and a starting with a dataset
         def show_dataset_graph_viewer(_type, _id):
@@ -33,10 +39,16 @@ class GraphViewerPlugin(plugins.SingletonPlugin):
             except toolkit.ObjectNotFound:
                 toolkit.abort(404, 'Dataset not found')
 
+            api_url = os.environ.get('LDM_KNOWLEDGE_GRAPH_EXPLORATION_API')
+
             # Render the template and pass the dataset metadata
             return toolkit.render(
                 'package/graph_viewer.html',
-                extra_vars={'pkg_dict': pkg_dict, 'pkg_type': _type}
+                extra_vars={
+                    'pkg_dict': pkg_dict,
+                    'pkg_type': _type,
+                    'api_url': api_url,
+                }
             )
 
         # Add plugin url rules to Blueprint object

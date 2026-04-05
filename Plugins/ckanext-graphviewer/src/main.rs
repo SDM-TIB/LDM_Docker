@@ -17,7 +17,7 @@ pub enum Scene {
     Analytics,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum SearchType {
     AuthorOrcid,
     AuthorLdmId,
@@ -103,6 +103,19 @@ struct App {
     current_scene: Scene,
     search_type: SearchType,
     search_input: String,
+    api_url: String,
+}
+
+#[cfg(target_arch = "wasm32")]
+fn get_api_url_from_dom() -> Option<String> {
+    let window = web_sys::window()?;
+    let document = window.document()?;
+    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
+        if let Some(url) = canvas.get_attribute("data-api-url") {
+            return Some(url.trim_end_matches('/').to_string());
+        }
+    }
+    None
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -320,6 +333,12 @@ impl App {
             current_scene: Scene::Graph,
             search_type: SearchType::AuthorOrcid,
             search_input: String::new(),
+            api_url: {
+                #[cfg(target_arch = "wasm32")]
+                { get_api_url_from_dom().unwrap_or_else(|| "http://194.95.157.131:5742".to_string()) }
+                #[cfg(not(target_arch = "wasm32"))]
+                { "http://194.95.157.131:5742".to_string() }
+            },
         }
     }
 }
@@ -352,7 +371,53 @@ impl eframe::App for App {
 
                     if ui.add(start_point_confirm_button).clicked() {
                         log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
-                        // TODO: API logic will go here!
+
+                        let state_clone = self.state.clone();
+                        let ctx_clone = ctx.clone();
+                        let input = self.search_input.clone();
+                        let search_type = self.search_type.clone();
+
+                        let base_url = &self.api_url;
+                        let target_url = match search_type {
+                            SearchType::AuthorOrcid => format!("{}/get_dataset_attributes_by_author_orcid?orcid={}", base_url, input),
+                            SearchType::AuthorLdmId => format!("{}/get_dataset_attributes_by_author_id?author_id={}", base_url, input),
+                            SearchType::DatasetDoi => format!("{}/get_dataset_attributes_by_paper_doi?doi={}", base_url, input),
+                            SearchType::DatasetId => format!("{}/get_dataset_attributes_by_dataset_id?dataset_id={}", base_url, input),
+                            SearchType::DatasetTitle => format!("{}/get_dataset_attributes_by_dataset_title?title={}", base_url, input),
+                        };
+
+                        let request = ehttp::Request::get(&target_url);
+
+                        ehttp::fetch(request, move |response| {
+                            if let Ok(res) = response {
+                                if let Some(text) = res.text() {
+
+                                    let new_triples = if matches!(search_type, SearchType::DatasetId) {
+                                        parser::parse_dataset_details_json(&text, &input)
+                                    } else {
+                                        parser::parse_author_datasets_json(&text)
+                                    };
+
+                                    if !new_triples.is_empty() {
+                                        let (nodes, edges) = graph_processor::build_ui_graph(new_triples.clone());
+                                        let init_snapshot = GraphSnapshot::new(&nodes, &edges);
+
+                                        let mut state_lock = state_clone.lock().unwrap();
+                                        *state_lock = AppState::Ready {
+                                            selected_entrypoint: input,
+                                            nodes,
+                                            edges,
+                                            raw_triples: new_triples,
+                                            init_snapshot,
+                                        };
+
+                                        ctx_clone.request_repaint();
+                                    } else {
+                                        log::warn!("API returned no usable data.");
+                                    }
+                                }
+                            }
+                        });
                     }
                 });
                 ui.add_space(5.0);
@@ -1313,6 +1378,7 @@ impl eframe::App for App {
                                                 state_clone.clone(),
                                                 clicked_node_id.clone(),
                                                 clicked_node_id.clone(),
+                                                &self.api_url,
                                             );
                                         }
 
@@ -1326,6 +1392,7 @@ impl eframe::App for App {
                                                 state_clone,
                                                 clicked_node_id.clone(),
                                                 clicked_node_id,
+                                                &self.api_url,
                                             );
                                         }
                                     }
@@ -1337,6 +1404,7 @@ impl eframe::App for App {
                         if let Some((parent_idx, delta)) = dragged_node_delta {
                             nodes[parent_idx].pos += delta;
 
+                            // TODO decide on a movement strategie
                             // for edge in edges.iter() {
                             //     if edge.source == parent_idx && edge.visible {
                             //         let child_idx = edge.target;
