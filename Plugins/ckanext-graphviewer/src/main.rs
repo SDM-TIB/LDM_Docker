@@ -17,6 +17,27 @@ pub enum Scene {
     Analytics,
 }
 
+#[derive(PartialEq)]
+pub enum SearchType {
+    AuthorOrcid,
+    AuthorLdmId,
+    DatasetDoi,
+    DatasetTitle,
+    DatasetId,
+}
+
+impl SearchType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SearchType::AuthorOrcid => "Author ORCID",
+            SearchType::AuthorLdmId => "Author LDM ID",
+            SearchType::DatasetDoi => "Dataset DOI",
+            SearchType::DatasetTitle => "Dataset Title",
+            SearchType::DatasetId => "Dataset ID",
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct GraphSnapshot {
     pub node_positions: std::collections::HashMap<String, egui::Pos2>,
@@ -80,9 +101,10 @@ struct App {
     is_dark_mode: bool,
     canvas_rect: Option<egui::Rect>,
     current_scene: Scene,
+    search_type: SearchType,
+    search_input: String,
 }
 
-// --- NEW: Cleanly read the target URL directly from the Canvas ---
 #[cfg(target_arch = "wasm32")]
 fn get_n3_url_from_dom() -> Option<String> {
     let window = web_sys::window()?;
@@ -296,6 +318,8 @@ impl App {
             is_dark_mode: true,
             canvas_rect: None,
             current_scene: Scene::Graph,
+            search_type: SearchType::AuthorOrcid,
+            search_input: String::new(),
         }
     }
 }
@@ -307,6 +331,33 @@ impl eframe::App for App {
         egui::CentralPanel::default()
             .frame(main_app_frame)
             .show(ctx, |ui| {
+                ui.add_space(5.0);
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new("Select start point:").color(self.theme.text_fg).strong());
+
+                    egui::ComboBox::from_id_source("fetch_dropdown")
+                        .selected_text(self.search_type.as_str())
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(&mut self.search_type, SearchType::AuthorOrcid, "Author ORCID");
+                            ui.selectable_value(&mut self.search_type, SearchType::AuthorLdmId, "Author LDM ID");
+                            ui.selectable_value(&mut self.search_type, SearchType::DatasetDoi, "Dataset DOI");
+                            ui.selectable_value(&mut self.search_type, SearchType::DatasetTitle, "Dataset Title");
+                            ui.selectable_value(&mut self.search_type, SearchType::DatasetId, "Dataset ID");
+                        });
+
+                    ui.add(egui::TextEdit::singleline(&mut self.search_input).desired_width(300.0));
+
+                    let start_point_confirm_button = egui::Button::new(egui::RichText::new("Confirm").color(self.theme.text_fg))
+                        .fill(self.theme.button_bg);
+
+                    if ui.add(start_point_confirm_button).clicked() {
+                        log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
+                        // TODO: API logic will go here!
+                    }
+                });
+                ui.add_space(5.0);
+                ui.separator();
+
                 ui.horizontal(|ui| {
                     let active_color = self.theme.button_active_bg;
 
