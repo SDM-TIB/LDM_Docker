@@ -82,14 +82,39 @@ struct App {
     current_scene: Scene,
 }
 
-// obtain source file
+// --- NEW: Cleanly read the target URL directly from the Canvas ---
 #[cfg(target_arch = "wasm32")]
-fn get_n3_url_from_current_path() -> Option<String> {
+fn get_n3_url_from_dom() -> Option<String> {
     let window = web_sys::window()?;
-    let location = window.location();
-    let pathname = location.pathname().ok()?;
-    let pathname2 = pathname.strip_suffix("/graph")?;
-    Some(format!("{}.n3", pathname2))
+    let document = window.document()?;
+
+    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
+        if let Some(url) = canvas.get_attribute("data-n3-url") {
+            if !url.is_empty() {
+                return Some(url);
+            }
+        }
+    }
+    None
+}
+
+#[cfg(target_arch = "wasm32")]
+fn get_dataset_metadata_from_dom() -> Option<serde_json::Value> {
+    let window = web_sys::window()?;
+    let document = window.document()?;
+
+    // 1. Find the canvas element
+    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
+        // 2. Read the data-pkg-dict attribute we set in Jinja
+        if let Some(json_string) = canvas.get_attribute("data-pkg-dict") {
+            // 3. Parse it into a usable JSON object!
+            if let Ok(json_data) = serde_json::from_str::<serde_json::Value>(&json_string) {
+                info!("{}", json_data);
+                return Some(json_data);
+            }
+        }
+    }
+    None
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -191,7 +216,18 @@ impl App {
 
         #[cfg(target_arch = "wasm32")]
         {
-            if let Some(target_url) = get_n3_url_from_current_path() {
+            let mut dataset_title = String::new();
+            let mut dataset_id = String::new();
+
+            if let Some(pkg_dict) = get_dataset_metadata_from_dom() {
+                dataset_title = pkg_dict.get("title").and_then(|v| v.as_str()).unwrap_or("Unknown Title").to_string();
+                dataset_id = pkg_dict.get("id").and_then(|v| v.as_str()).unwrap_or("Unknown ID").to_string();
+
+                log::info!("successfully figured out dataset information: {} ({})", dataset_title, dataset_id);
+            }
+
+            if let Some(target_url) = get_n3_url_from_dom() {
+                // load provided n3 as starting point for the graph
                 let state_clone = state.clone();
                 let ctx_clone = cc.egui_ctx.clone();
 
@@ -225,8 +261,14 @@ impl App {
                     ctx_clone.request_repaint();
                 });
             } else {
-                *state.lock().unwrap() =
-                    AppState::Error("Could not determine TTL path from URL".into());
+                // load empty workspace if ne n3 was supplyed
+                *app_state = AppState::Ready {
+                    selected_entrypoint: "Empty Workspace".to_string(),
+                    nodes: Vec::new(),
+                    edges: Vec::new(),
+                    raw_triples: Vec::new(),
+                    init_snapshot: GraphSnapshot::new(&[], &[]),
+                };
             }
         }
 
