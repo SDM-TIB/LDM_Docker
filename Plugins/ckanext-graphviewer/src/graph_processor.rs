@@ -17,6 +17,7 @@ pub struct Node {
     pub parent_index: Option<usize>,
     pub properties: Vec<(String, String)>,
     pub api_fetched: bool,
+    pub is_root: bool,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -82,7 +83,15 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             parent_index: None,
             properties: Vec::new(),
             api_fetched: false,
+            is_root: false,
         });
+
+        if clean_pred == "http://app.local/isRootNode" {
+            if let Some(node) = nodes_map.get_mut(&clean_sub) {
+                node.is_root = true;
+            }
+            continue;
+        }
 
         let is_type_pred = clean_pred == RDF_TYPE.trim_matches('<').trim_matches('>');
 
@@ -108,6 +117,7 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
                 parent_index: None,
                 properties: Vec::new(),
                 api_fetched: false,
+                is_root: false,
             });
         }
 
@@ -172,15 +182,41 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     let root_pos = egui::pos2(0.0, 0.0);
 
     // center
-    let start_node = nodes_map
-        .iter()
-        .find(|(_, n)| n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService"))
-        .map(|(id, _)| id.clone())
-        .unwrap_or_else(|| nodes_map.keys().next().cloned().unwrap_or_default());
+    let mut degree_map: HashMap<String, usize> = HashMap::new();
+    for (src, tgt) in edges_map.keys() {
+        *degree_map.entry(src.clone()).or_insert(0) += 1;
+        *degree_map.entry(tgt.clone()).or_insert(0) += 1;
+    }
+
+    let mut root_candidates = Vec::new();
+    for (id, node) in &nodes_map {
+        // Now checks our hidden boolean instead of the properties array!
+        if node.is_root {
+            root_candidates.push(id.clone());
+        }
+    }
+
+    let start_node = if !root_candidates.is_empty() {
+        root_candidates
+            .into_iter()
+            .max_by_key(|id| {
+                let base_deg = *degree_map.get(id).unwrap_or(&0);
+                let is_author = nodes_map.get(id).map_or(false, |n| n.rdf_type.contains("Author"));
+                if is_author { base_deg + 1000 } else { base_deg }
+            })
+            .unwrap()
+    } else {
+        degree_map
+            .into_iter()
+            .max_by_key(|(_, deg)| *deg)
+            .map(|(id, _)| id)
+            .unwrap_or_else(|| nodes_map.keys().next().cloned().unwrap_or_default())
+    };
 
     if !start_node.is_empty() {
         if let Some(root_node) = nodes_map.get_mut(&start_node) {
             root_node.pos = root_pos;
+            root_node.api_fetched = true;
         }
         visited.insert(start_node.clone());
 
@@ -242,12 +278,8 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     // sort the edge keys
     let mut sorted_keys: Vec<_> = edges_map.keys().collect();
     sorted_keys.sort_by(|a, b| {
-        let a_is_root = nodes_map.get(&a.0).map_or(false, |n| {
-            n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService")
-        });
-        let b_is_root = nodes_map.get(&b.0).map_or(false, |n| {
-            n.rdf_type.contains("Dataset") || n.rdf_type.contains("DataService")
-        });
+        let a_is_root = a.0 == start_node || a.1 == start_node;
+        let b_is_root = b.0 == start_node || b.1 == start_node;
         b_is_root.cmp(&a_is_root)
     });
 
@@ -310,6 +342,8 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     // expand center dataset block
     if let Some(&root_idx) = id_to_index.get(&start_node) {
         nodes[root_idx].expanded = true;
+        nodes[root_idx].visible = true; // <--- ADD THIS LINE!
+
         for edge in &mut edges {
             // Outgoing edges
             if edge.source == root_idx {

@@ -368,11 +368,11 @@ impl App {
                 #[cfg(target_arch = "wasm32")]
                 {
                     get_api_url_from_dom()
-                        .unwrap_or_else(|| "http://194.95.157.131:5742".to_string())
+                        .unwrap_or_else(|| "http://0.0.0.0:5742".to_string())
                 }
                 #[cfg(not(target_arch = "wasm32"))]
                 {
-                    "http://194.95.157.131:5742".to_string()
+                    "http://0.0.0.0:5742".to_string()
                 }
             },
             is_global_viewer,
@@ -483,31 +483,31 @@ impl eframe::App for App {
                             let base_url = &self.api_url;
                             let target_url = match search_type {
                                 SearchType::AuthorOrcid => format!(
-                                    "{}/get_dataset_attributes_by_author_orcid?author_orcid={}",
+                                    "{}/get_dataset_information_by_author_orcid?author_orcid={}",
                                     base_url, input
                                 ),
                                 SearchType::AuthorLdmId => format!(
-                                    "{}/get_dataset_attributes_by_author_ldm_id?author_ldm_id={}",
+                                    "{}/get_dataset_information_by_author_ldm_id?author_ldm_id={}",
                                     base_url, input
                                 ),
                                 SearchType::PaperDoi => format!(
-                                    "{}/get_dataset_attributes_by_paper_doi?paper_doi={}",
+                                    "{}/get_dataset_information_by_paper_doi?paper_doi={}",
                                     base_url, input
                                 ),
                                 SearchType::PaperTitle => format!(
-                                    "{}/get_dataset_attributes_by_paper_title?paper_title={}",
+                                    "{}/get_dataset_information_by_paper_title?paper_title={}",
                                     base_url, input
                                 ),
                                 SearchType::DatasetDoi => format!(
-                                    "{}/get_dataset_attributes_by_dataset_doi?dataset_doi={}",
+                                    "{}/get_dataset_information_by_dataset_doi?dataset_doi={}",
                                     base_url, input
                                 ),
                                 SearchType::DatasetTitle => format!(
-                                    "{}/get_dataset_attributes_by_dataset_title?dataset_title={}",
+                                    "{}/get_dataset_information_by_dataset_title?dataset_title={}",
                                     base_url, input
                                 ),
                                 SearchType::DatasetLdmId => format!(
-                                    "{}/get_dataset_attributes_by_dataset_ldm_id?dataset_ldm_id={}",
+                                    "{}/get_dataset_information_by_dataset_ldm_id?dataset_ldm_id={}",
                                     base_url, input
                                 ),
                             };
@@ -520,14 +520,7 @@ impl eframe::App for App {
 
                                 if let Ok(res) = response {
                                     if let Some(text) = res.text() {
-                                        let new_triples =
-                                            if matches!(search_type, SearchType::DatasetLdmId) {
-                                                crate::parser::parse_dataset_details_json(
-                                                    &text, &input,
-                                                )
-                                            } else {
-                                                crate::parser::parse_author_datasets_json(&text)
-                                            };
+                                        let new_triples = crate::parser::parse_dynamic_api_json(&text);
 
                                         if !new_triples.is_empty() {
                                             fetch_successful = true; // Data found!

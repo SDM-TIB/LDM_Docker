@@ -11,8 +11,8 @@ pub fn fetch_author_information(
     api_url: &str,
 ) {
     let url = format!(
-        "http://194.95.157.131:5742/get_dataset_attributes_by_author_id?author_id={}",
-        author_id
+        "{}/get_dataset_attributes_by_author_id?author_id={}",
+        api_url, author_id,
     );
     let request = ehttp::Request::get(&url);
 
@@ -45,95 +45,8 @@ pub fn fetch_author_information(
                         }
 
                         // parse json
-                        if let Some(results) = json.get("results").and_then(|r| r.as_array()) {
-                            for item in results {
-                                let dataset = item
-                                    .get("dataset")
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let author = item
-                                    .get("author")
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let author_label = item
-                                    .get("author_label")
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let title = item
-                                    .get("title")
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let license = item
-                                    .get("license")
-                                    .and_then(|v| v.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-
-                                if !dataset.is_empty() {
-                                    raw_triples.push(RawTriple {
-                                        subject: format!("<{}>", dataset),
-                                        predicate:
-                                            "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>"
-                                                .to_string(),
-                                        object: "<http://www.w3.org/ns/dcat#Dataset>".to_string(),
-                                        is_object_literal: false,
-                                    });
-
-                                    if !title.is_empty() {
-                                        raw_triples.push(RawTriple {
-                                            subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/title>"
-                                                .to_string(),
-                                            object: format!("\"{}\"", title),
-                                            is_object_literal: true,
-                                        });
-                                    }
-
-                                    if !license.is_empty() {
-                                        raw_triples.push(RawTriple {
-                                            subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/license>"
-                                                .to_string(),
-                                            object: format!("<{}>", license),
-                                            is_object_literal: false,
-                                        });
-                                    }
-
-                                    if !author.is_empty() {
-                                        raw_triples.push(RawTriple {
-                                            subject: format!("<{}>", dataset),
-                                            predicate: "<http://purl.org/dc/terms/creator>"
-                                                .to_string(),
-                                            object: format!("<{}>", author),
-                                            is_object_literal: false,
-                                        });
-
-                                        raw_triples.push(RawTriple {
-                                            subject: format!("<{}>", author),
-                                            predicate: "<http://purl.org/spar/pro/authorOf>"
-                                                .to_string(),
-                                            object: format!("<{}>", dataset),
-                                            is_object_literal: false,
-                                        });
-
-                                        if !author_label.is_empty() {
-                                            raw_triples.push(RawTriple {
-                                                subject: format!("<{}>", author),
-                                                predicate:
-                                                    "<http://www.w3.org/2000/01/rdf-schema#label>"
-                                                        .to_string(),
-                                                object: format!("\"{}\"", author_label),
-                                                is_object_literal: true,
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        let new_triples = crate::parser::parse_dynamic_api_json(&text);
+                        raw_triples.extend(new_triples);
 
                         let (mut new_nodes, mut new_edges) =
                             graph_processor::build_ui_graph(raw_triples.clone());
@@ -269,7 +182,7 @@ pub fn fetch_dataset_information(
     ehttp::fetch(request, move |response| {
         if let Ok(res) = response {
             if let Some(text) = res.text() {
-                let new_triples = crate::parser::parse_dataset_details_json(&text, &dataset_id);
+                let new_triples = crate::parser::parse_dynamic_api_json(&text);
                 debug!("{}", &text);
                 if new_triples.is_empty() {
                     return;
