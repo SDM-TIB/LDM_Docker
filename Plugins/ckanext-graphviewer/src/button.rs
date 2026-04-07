@@ -11,7 +11,7 @@ pub fn fetch_author_information(
     api_url: &str,
 ) {
     let url = format!(
-        "{}/get_dataset_attributes_by_author_id?author_id={}",
+        "{}/get_dataset_information_by_author_ldm_id?author_ldm_id={}",
         api_url, author_id,
     );
     let request = ehttp::Request::get(&url);
@@ -174,7 +174,7 @@ pub fn fetch_dataset_information(
     api_url: &str,
 ) {
     let url = format!(
-        "{}/get_dataset_attributes_by_dataset_id?dataset_id={}",
+        "{}/get_dataset_information_by_dataset_ldm_id?dataset_ldm_id={}",
         api_url, dataset_id,
     );
     let request = ehttp::Request::get(&url);
