@@ -15,6 +15,7 @@ use theme::Theme;
 pub enum Scene {
     Graph,
     Analytics,
+    NodeInspector,
 }
 
 #[derive(PartialEq, Clone)]
@@ -85,7 +86,6 @@ pub enum AppState {
     Loading,
     Error(String),
     Ready {
-        selected_entrypoint: String,
         nodes: Vec<Node>,
         edges: Vec<Edge>,
         raw_triples: Vec<parser::RawTriple>,
@@ -105,6 +105,7 @@ struct App {
     is_dark_mode: bool,
     canvas_rect: Option<egui::Rect>,
     current_scene: Scene,
+    inspector_selected_node: Option<String>,
     search_type: SearchType,
     search_input: String,
     api_url: String,
@@ -137,47 +138,6 @@ fn get_n3_url_from_dom() -> Option<String> {
         }
     }
     None
-}
-
-#[cfg(target_arch = "wasm32")]
-fn get_dataset_metadata_from_dom() -> Option<serde_json::Value> {
-    let window = web_sys::window()?;
-    let document = window.document()?;
-
-    // 1. Find the canvas element
-    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
-        // 2. Read the data-pkg-dict attribute we set in Jinja
-        if let Some(json_string) = canvas.get_attribute("data-pkg-dict") {
-            // 3. Parse it into a usable JSON object!
-            if let Ok(json_data) = serde_json::from_str::<serde_json::Value>(&json_string) {
-                info!("{}", json_data);
-                return Some(json_data);
-            }
-        }
-    }
-    None
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn load_local_file(path: &str) -> Result<(Vec<Node>, Vec<Edge>, Vec<parser::RawTriple>), String> {
-    match std::fs::read_to_string(path) {
-        Ok(content) => {
-            // extract pure data (N3 -> triples)
-            let raw_triples = parser::parse_n3_file(&content);
-
-            // format for UI (triples -> graph)
-            let (ui_nodes, ui_edges) = graph_processor::build_ui_graph(raw_triples.clone());
-
-            Ok((ui_nodes, ui_edges, raw_triples))
-        }
-        Err(e) => Err(format!("Failed to read file '{}': {}", path, e)),
-    }
-}
-
-// A dummy version for WASM so it still compiles
-#[cfg(target_arch = "wasm32")]
-fn load_local_file(_path: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
-    Err("Direct file access is not supported in the browser.".to_string())
 }
 
 // wasm png export
@@ -257,28 +217,6 @@ impl App {
 
         #[cfg(target_arch = "wasm32")]
         {
-            let mut dataset_title = String::new();
-            let mut dataset_id = String::new();
-
-            if let Some(pkg_dict) = get_dataset_metadata_from_dom() {
-                dataset_title = pkg_dict
-                    .get("title")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("Unknown Title")
-                    .to_string();
-                dataset_id = pkg_dict
-                    .get("id")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("Unknown ID")
-                    .to_string();
-
-                log::info!(
-                    "successfully figured out dataset information: {} ({})",
-                    dataset_title,
-                    dataset_id
-                );
-            }
-
             if let Some(target_url) = get_n3_url_from_dom() {
                 // load provided n3 as starting point for the graph
                 let state_clone = state.clone();
@@ -299,7 +237,6 @@ impl App {
                                 let init_snapshot = GraphSnapshot::new(&nodes, &edges);
 
                                 *app_state = AppState::Ready {
-                                    selected_entrypoint: "placeholder".to_string(),
                                     nodes,
                                     edges,
                                     raw_triples,
@@ -316,7 +253,6 @@ impl App {
             } else {
                 // load empty workspace if ne n3 was supplyed
                 *app_state = AppState::Ready {
-                    selected_entrypoint: "Empty Workspace".to_string(),
                     nodes: Vec::new(),
                     edges: Vec::new(),
                     raw_triples: Vec::new(),
@@ -329,7 +265,6 @@ impl App {
         #[cfg(not(target_arch = "wasm32"))]
         {
             *app_state = AppState::Ready {
-                selected_entrypoint: "Empty Workspace".to_string(),
                 nodes: Vec::new(),
                 edges: Vec::new(),
                 raw_triples: Vec::new(),
@@ -362,13 +297,13 @@ impl App {
             is_dark_mode: true,
             canvas_rect: None,
             current_scene: Scene::Graph,
+            inspector_selected_node: None,
             search_type: SearchType::AuthorOrcid,
             search_input: String::new(),
             api_url: {
                 #[cfg(target_arch = "wasm32")]
                 {
-                    get_api_url_from_dom()
-                        .unwrap_or_else(|| "http://0.0.0.0:5742".to_string())
+                    get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string())
                 }
                 #[cfg(not(target_arch = "wasm32"))]
                 {
@@ -534,7 +469,6 @@ impl eframe::App for App {
 
                                             let mut state_lock = state_clone.lock().unwrap();
                                             *state_lock = crate::AppState::Ready {
-                                                selected_entrypoint: input,
                                                 nodes,
                                                 edges,
                                                 raw_triples: new_triples,
@@ -570,10 +504,10 @@ impl eframe::App for App {
                 ui.horizontal(|ui| {
                     let active_color = self.theme.button_active_bg;
 
-                    let (graph_bg, analytics_bg) = if self.current_scene == Scene::Graph {
-                        (active_color, self.theme.button_bg)
-                    } else {
-                        (self.theme.button_bg, active_color)
+                    let (graph_bg, analytics_bg, inspector_bg) = match self.current_scene {
+                        Scene::Graph => (active_color, self.theme.button_bg, self.theme.button_bg),
+                        Scene::Analytics => (self.theme.button_bg, active_color, self.theme.button_bg),
+                        Scene::NodeInspector => (self.theme.button_bg, self.theme.button_bg, active_color),
                     };
 
                     if ui
@@ -603,6 +537,10 @@ impl eframe::App for App {
                         self.current_scene = Scene::Analytics;
                     }
 
+                    if ui.add(egui::Button::new(egui::RichText::new("Node Inspector").heading().color(self.theme.text_fg)).fill(inspector_bg)).clicked() {
+                        self.current_scene = Scene::NodeInspector;
+                    }
+
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         let theme_string = if self.is_dark_mode {
                             "Light Mode"
@@ -630,7 +568,6 @@ impl eframe::App for App {
                 let mut state_lock = self.state.lock().unwrap();
 
                 if let AppState::Ready {
-                    selected_entrypoint,
                     nodes,
                     edges,
                     raw_triples,
@@ -645,7 +582,7 @@ impl eframe::App for App {
                             .show(ui, |ui| {
                                 ui.add_space(5.0);
 
-                                // --- 1. CALCULATE GRAPH STATISTICS ---
+                                // calculate graph statistics
                                 let mut unique_subjects = std::collections::HashSet::new();
                                 let mut unique_predicates = std::collections::HashSet::new();
                                 let mut unique_objects = std::collections::HashSet::new();
@@ -711,40 +648,37 @@ impl eframe::App for App {
                                 let blank_nodes =
                                     nodes.iter().filter(|n| n.node_type == "BlankNode").count();
 
-                                // --- 2. CALCULATE NODE TYPES ---
-                                // (We do this first so we can draw it cleanly below)
+                                // calculate node types
                                 let mut type_counts = std::collections::HashMap::new();
                                 for n in nodes.iter() {
-                                    let t = if n.rdf_type.is_empty() {
-                                        "Untyped Node".to_string()
+                                    if n.rdf_type.is_empty() {
+                                        *type_counts.entry("Untyped Node".to_string()).or_insert(0) += 1;
                                     } else {
-                                        n.rdf_type.clone()
-                                    };
-                                    *type_counts.entry(t).or_insert(0) += 1;
+                                        // Split the string in case the node has multiple types!
+                                        for single_type in n.rdf_type.split(", ") {
+                                            // Clean up the URI to get just the display name
+                                            let display_name = single_type.split('#').last().unwrap_or(single_type);
+                                            let display_name = display_name
+                                                .split('/')
+                                                .last()
+                                                .unwrap_or(display_name)
+                                                .to_string();
+                                            *type_counts.entry(display_name).or_insert(0) += 1;
+                                        }
+                                    }
                                 }
 
-                                let mut sorted_types: Vec<(String, i32)> = type_counts
-                                    .into_iter()
-                                    .map(|(t, count)| {
-                                        let display_name = t.split('#').last().unwrap_or(&t);
-                                        let display_name = display_name
-                                            .split('/')
-                                            .last()
-                                            .unwrap_or(display_name)
-                                            .to_string();
-                                        (display_name, count)
-                                    })
-                                    .collect();
+                                // Convert to a vector and sort alphabetically
+                                let mut sorted_types: Vec<(String, i32)> = type_counts.into_iter().collect();
+                                sorted_types.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
 
-                                sorted_types
-                                    .sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
 
-                                // --- 3. DRAW THE 2x2 UNIFORM DASHBOARD ---
-                                let card_height = 260.0; // Force all 4 boxes to be exactly this tall!
+                                // draw the 2x2 dashboard
+                                let card_height = 260.0;
 
-                                // ROW 1
+                                // row 1
                                 ui.columns(2, |cols| {
-                                    // TOP LEFT: Triple Composition
+                                    // left
                                     cols[0].group(|ui| {
                                         ui.set_min_height(card_height);
                                         ui.heading(
@@ -792,7 +726,7 @@ impl eframe::App for App {
                                         });
                                     });
 
-                                    // TOP RIGHT: Ontology Statistics
+                                    // right
                                     cols[1].group(|ui| {
                                         ui.set_min_height(card_height);
                                         ui.heading(
@@ -830,7 +764,7 @@ impl eframe::App for App {
 
                                 // ROW 2
                                 ui.columns(2, |cols| {
-                                    // BOTTOM LEFT: Node Types Breakdown
+                                    // left
                                     cols[0].group(|ui| {
                                         ui.set_min_height(card_height);
                                         ui.heading(
@@ -839,7 +773,6 @@ impl eframe::App for App {
                                         );
                                         ui.add_space(10.0);
 
-                                        // Wrap the grid in a scroll area so it never stretches the box out of proportion!
                                         egui::ScrollArea::vertical()
                                             .id_source("types_breakdown_scroll")
                                             .max_height(card_height - 50.0)
@@ -866,7 +799,7 @@ impl eframe::App for App {
                                             });
                                     });
 
-                                    // BOTTOM RIGHT: Raw Data
+                                    // right
                                     cols[1].group(|ui| {
                                         ui.set_min_height(card_height);
                                         ui.heading(
@@ -883,6 +816,96 @@ impl eframe::App for App {
                                 });
                             });
                     }
+                    // render node inspector
+                    else if self.current_scene == Scene::NodeInspector {
+                        egui::ScrollArea::vertical()
+                            .auto_shrink([false, false])
+                            .show(ui, |ui| {
+                                ui.add_space(10.0);
+                                ui.heading(egui::RichText::new("Node Inspector").color(self.theme.text_fg));
+                                ui.add_space(10.0);
+
+                                // sort nodes
+                                let mut sorted_nodes: Vec<_> = nodes
+                                    .iter()
+                                    .filter(|n| !n.properties.is_empty())
+                                    .collect();
+
+                                sorted_nodes.sort_by(|a, b| a.label.to_lowercase().cmp(&b.label.to_lowercase()));
+
+                                // draw the dropdown menu
+                                ui.horizontal(|ui| {
+                                    ui.label(egui::RichText::new("Select Node:").color(self.theme.text_fg).strong());
+
+                                    let selected_label = if let Some(id) = &self.inspector_selected_node {
+                                        nodes.iter().find(|n| n.id == *id).map(|n| n.label.clone()).unwrap_or_else(|| "Unknown Node".to_string())
+                                    } else {
+                                        "--- Select a Node ---".to_string()
+                                    };
+
+                                    egui::ComboBox::from_id_source("node_inspector_dropdown")
+                                        .width(400.0)
+                                        .selected_text(selected_label)
+                                        .show_ui(ui, |ui| {
+                                            for node in sorted_nodes {
+                                                let uri_tail = node.id.split('/').last().unwrap_or(&node.id).split('#').last().unwrap_or(&node.id);
+                                                let display_text = format!("{} ({})", node.label, uri_tail);
+
+                                                ui.selectable_value(
+                                                    &mut self.inspector_selected_node,
+                                                    Some(node.id.clone()),
+                                                    display_text,
+                                                );
+                                            }
+                                        });
+                                });
+
+                                ui.add_space(20.0);
+                                ui.separator();
+                                ui.add_space(10.0);
+
+                                // display node information
+                                if let Some(selected_id) = &self.inspector_selected_node {
+                                    if let Some(node) = nodes.iter().find(|n| n.id == *selected_id) {
+
+                                        ui.heading(egui::RichText::new(&node.label).color(self.theme.text_fg));
+                                        ui.label(egui::RichText::new(format!("URI: {}", node.id)).color(self.theme.edge_fg));
+                                        ui.add_space(15.0);
+
+                                        egui::Grid::new("inspector_properties_grid")
+                                            .num_columns(2)
+                                            .spacing([40.0, 15.0])
+                                            .striped(true)
+                                            .show(ui, |ui| {
+                                                let mut seen_props = std::collections::HashSet::new();
+
+                                                for (key, value) in &node.properties {
+                                                    if !seen_props.insert((key.clone(), value.clone())) {
+                                                        continue;
+                                                    }
+
+                                                    let display_key = {
+                                                        let mut c = key.chars();
+                                                        match c.next() {
+                                                            None => String::new(),
+                                                            Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                                                        }
+                                                    };
+
+                                                    ui.label(egui::RichText::new(display_key).strong().color(self.theme.text_fg));
+                                                    ui.add(egui::Label::new(egui::RichText::new(value).color(self.theme.text_fg)).wrap(true));
+                                                    ui.end_row();
+                                                }
+                                            });
+                                    }
+                                } else {
+                                    ui.label(egui::RichText::new("Please select a node from the dropdown above to view its properties.")
+                                             .color(self.theme.edge_fg)
+                                             .italics());
+                                }
+                            });
+                    }
+
                     // render graph
                     else if self.current_scene == Scene::Graph {
                         ui.horizontal(|ui| {
@@ -1655,7 +1678,7 @@ impl eframe::App for App {
                     if let Some(rect) = self.canvas_rect {
                         let ppp = ctx.pixels_per_point();
 
-                        // Convert logical egui coordinates into physical monitor pixels
+                        // Convert logicalegui coordinates into physical monitor pixels
                         let min_x = (rect.min.x * ppp).round() as u32;
                         let min_y = (rect.min.y * ppp).round() as u32;
                         let max_x = (rect.max.x * ppp).round() as u32;

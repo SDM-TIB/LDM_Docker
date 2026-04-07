@@ -1,4 +1,4 @@
-use crate::{AppState, graph_processor, parser::RawTriple};
+use crate::{AppState, graph_processor};
 use eframe::egui;
 use log::debug;
 use std::sync::{Arc, Mutex};
@@ -19,7 +19,7 @@ pub fn fetch_author_information(
     ehttp::fetch(request, move |response| {
         if let Ok(res) = response {
             if let Some(text) = res.text() {
-                if let Ok(json) = serde_json::from_str::<serde_json::Value>(&text) {
+                if let Ok(_json) = serde_json::from_str::<serde_json::Value>(&text) {
                     let mut state_lock = state.lock().unwrap();
 
                     if let AppState::Ready {

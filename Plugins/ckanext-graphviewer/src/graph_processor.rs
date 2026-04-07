@@ -201,7 +201,9 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             .into_iter()
             .max_by_key(|id| {
                 let base_deg = *degree_map.get(id).unwrap_or(&0);
-                let is_author = nodes_map.get(id).map_or(false, |n| n.rdf_type.contains("Author"));
+                let is_author = nodes_map
+                    .get(id)
+                    .map_or(false, |n| n.rdf_type.contains("Author"));
                 if is_author { base_deg + 1000 } else { base_deg }
             })
             .unwrap()

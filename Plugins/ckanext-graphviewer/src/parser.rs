@@ -58,7 +58,10 @@ pub fn parse_dynamic_api_json(json_text: &str) -> Vec<RawTriple> {
     }
 
     if triples.is_empty() {
-        println!("WARNING: Parser returned 0 triples! Raw API response was:\n{}", json_text);
+        println!(
+            "WARNING: Parser returned 0 triples! Raw API response was:\n{}",
+            json_text
+        );
     }
 
     triples
