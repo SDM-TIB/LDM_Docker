@@ -4,8 +4,7 @@ mod parser;
 mod theme;
 
 use eframe::egui;
-use env_logger;
-use log::{error, info};
+use log::info;
 use std::sync::{Arc, Mutex};
 
 use graph_processor::{Edge, Node};
@@ -18,8 +17,9 @@ pub enum Scene {
     NodeInspector,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone)]
 pub enum SearchType {
+    AuthorName,
     AuthorOrcid,
     AuthorLdmId,
     PaperDoi,
@@ -32,6 +32,7 @@ pub enum SearchType {
 impl SearchType {
     pub fn as_str(&self) -> &'static str {
         match self {
+            SearchType::AuthorName => "Author Name",
             SearchType::AuthorOrcid => "Author ORCID",
             SearchType::AuthorLdmId => "Author LDM ID",
             SearchType::PaperDoi => "Paper DOI",
@@ -40,6 +41,19 @@ impl SearchType {
             SearchType::DatasetTitle => "Dataset Title",
             SearchType::DatasetLdmId => "Dataset LDM ID",
         }
+    }
+
+    pub fn all() -> Vec<SearchType> {
+        vec![
+            SearchType::AuthorName,
+            SearchType::AuthorOrcid,
+            SearchType::AuthorLdmId,
+            SearchType::PaperDoi,
+            SearchType::PaperTitle,
+            SearchType::DatasetDoi,
+            SearchType::DatasetTitle,
+            SearchType::DatasetLdmId,
+        ]
     }
 }
 
@@ -148,17 +162,14 @@ fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
-    // 1. Grab the actual web canvas that eframe is drawing to
     if let Some(main_canvas_elem) = document.get_element_by_id("the_canvas_id") {
         if let Ok(main_canvas) = main_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>() {
-            // Calculate exact physical pixels
             let sx = (rect.min.x * ppp).round() as f64;
             let sy = (rect.min.y * ppp).round() as f64;
             let s_width = (rect.width() * ppp).round() as f64;
             let s_height = (rect.height() * ppp).round() as f64;
 
             if s_width > 0.0 && s_height > 0.0 {
-                // 2. Create a hidden, temporary HTML canvas just for cropping
                 if let Ok(temp_canvas_elem) = document.create_element("canvas") {
                     if let Ok(temp_canvas) =
                         temp_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>()
@@ -166,7 +177,6 @@ fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
                         temp_canvas.set_width(s_width as u32);
                         temp_canvas.set_height(s_height as u32);
 
-                        // 3. Draw ONLY the cropped graph onto our temp canvas
                         if let Ok(Some(ctx_obj)) = temp_canvas.get_context("2d") {
                             if let Ok(ctx) = ctx_obj.dyn_into::<web_sys::CanvasRenderingContext2d>()
                             {
@@ -174,7 +184,6 @@ fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
                                     &main_canvas, sx, sy, s_width, s_height, 0.0, 0.0, s_width, s_height
                                 );
 
-                                // 4. Ask the browser to encode it to a base64 PNG URL and trigger a download!
                                 if let Ok(data_url) = temp_canvas.to_data_url_with_type("image/png")
                                 {
                                     if let Ok(a) = document.create_element("a") {
@@ -196,14 +205,11 @@ fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
 
 impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.style_mut(|style| {
+        cc.egui_ctx.global_style_mut(|style| {
             style.interaction.tooltip_delay = 0.0;
         });
 
-        let is_system_dark = match cc.integration_info.system_theme {
-            Some(eframe::Theme::Light) => false,
-            _ => true,
-        };
+        let is_system_dark = cc.egui_ctx.global_style().visuals.dark_mode;
 
         if is_system_dark {
             cc.egui_ctx.set_visuals(egui::Visuals::dark());
@@ -212,78 +218,67 @@ impl App {
         }
 
         let state = Arc::new(Mutex::new(AppState::Loading));
-        let state_clone = state.clone();
-        let mut app_state = state_clone.lock().unwrap();
+        
+        #[cfg(target_arch = "wasm32")]
+        let api_url = get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string());
+        #[cfg(not(target_arch = "wasm32"))]
+        let api_url = "http://0.0.0.0:5742".to_string();
 
         #[cfg(target_arch = "wasm32")]
-        {
-            if let Some(target_url) = get_n3_url_from_dom() {
-                // load provided n3 as starting point for the graph
-                let state_clone = state.clone();
-                let ctx_clone = cc.egui_ctx.clone();
-
-                let request = ehttp::Request::get(&target_url);
-
-                ehttp::fetch(request, move |response| {
-                    let mut app_state = state_clone.lock().unwrap();
-                    match response {
-                        Ok(res) => {
-                            if let Some(text) = res.text() {
-                                let raw_triples = parser::parse_n3_file(&text);
-
-                                let (nodes, edges) =
-                                    graph_processor::build_ui_graph(raw_triples.clone());
-
-                                let init_snapshot = GraphSnapshot::new(&nodes, &edges);
-
-                                *app_state = AppState::Ready {
-                                    nodes,
-                                    edges,
-                                    raw_triples,
-                                    init_snapshot,
-                                };
-                            } else {
-                                *app_state = AppState::Error("failed to read text from n3".into());
-                            }
-                        }
-                        Err(err) => *app_state = AppState::Error(format!("Network Error: {}", err)),
-                    }
-                    ctx_clone.request_repaint();
-                });
-            } else {
-                // load empty workspace if ne n3 was supplyed
-                *app_state = AppState::Ready {
-                    nodes: Vec::new(),
-                    edges: Vec::new(),
-                    raw_triples: Vec::new(),
-                    init_snapshot: GraphSnapshot::new(&[], &[]),
-                };
-            }
-        }
-
-        // load empty painter whis cargo run
+        let n3_target_url = get_n3_url_from_dom();
         #[cfg(not(target_arch = "wasm32"))]
-        {
-            *app_state = AppState::Ready {
+        let n3_target_url: Option<String> = None;
+
+        let is_global_viewer = {
+            #[cfg(target_arch = "wasm32")]
+            {
+                get_n3_url_from_dom().is_none()
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                true
+            }
+        };
+
+        // Fetch N3 File (If Applicable) or mark Ready directly
+        if let Some(target_url) = n3_target_url {
+            let state_guard_clone = state.clone();
+            let ctx_guard_clone = cc.egui_ctx.clone();
+
+            let request = ehttp::Request::get(&target_url);
+            ehttp::fetch(request, move |response| {
+                match response {
+                    Ok(res) => {
+                        if let Some(text) = res.text() {
+                            let raw_triples = parser::parse_n3_file(&text);
+                            let (nodes, edges) = graph_processor::build_ui_graph(raw_triples.clone());
+                            let init_snapshot = GraphSnapshot::new(&nodes, &edges);
+                            
+                            *state_guard_clone.lock().unwrap() = AppState::Ready {
+                                nodes,
+                                edges,
+                                raw_triples,
+                                init_snapshot,
+                            };
+                        } else {
+                            *state_guard_clone.lock().unwrap() = AppState::Error("failed to read text from n3".into());
+                        }
+                    }
+                    Err(err) => {
+                        *state_guard_clone.lock().unwrap() = AppState::Error(format!("Network Error: {}", err));
+                    }
+                }
+                ctx_guard_clone.request_repaint();
+            });
+        } else {
+            // Global viewer without predefined n3 file, jump straight to Ready
+            *state.lock().unwrap() = AppState::Ready {
                 nodes: Vec::new(),
                 edges: Vec::new(),
                 raw_triples: Vec::new(),
                 init_snapshot: GraphSnapshot::new(&[], &[]),
             };
         }
-
-        let is_global_viewer = {
-            #[cfg(target_arch = "wasm32")]
-            {
-                // if there is not n3 -> global view
-                get_n3_url_from_dom().is_none()
-            }
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                // outside wasm -> global view
-                true
-            }
-        };
 
         Self {
             state,
@@ -298,18 +293,9 @@ impl App {
             canvas_rect: None,
             current_scene: Scene::Graph,
             inspector_selected_node: None,
-            search_type: SearchType::AuthorOrcid,
+            search_type: SearchType::AuthorName,
             search_input: String::new(),
-            api_url: {
-                #[cfg(target_arch = "wasm32")]
-                {
-                    get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string())
-                }
-                #[cfg(not(target_arch = "wasm32"))]
-                {
-                    "http://0.0.0.0:5742".to_string()
-                }
-            },
+            api_url,
             is_global_viewer,
             search_failed: Arc::new(Mutex::new(false)),
         }
@@ -317,254 +303,14 @@ impl App {
 }
 
 impl eframe::App for App {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let main_app_frame = egui::Frame::central_panel(&ctx.style()).fill(self.theme.master_bg);
+    fn ui(&mut self, app_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        let ctx = app_ui.ctx().clone();
+        
+        let main_app_frame = egui::Frame::central_panel(&ctx.global_style()).fill(self.theme.master_bg);
 
         egui::CentralPanel::default()
             .frame(main_app_frame)
-            .show(ctx, |ui| {
-                if self.is_global_viewer {
-                    ui.add_space(5.0);
-                    ui.horizontal(|ui| {
-                        ui.scope(|ui| {
-                            ui.label(
-                                egui::RichText::new("Select a start point:")
-                                    .color(self.theme.text_fg)
-                                    .strong(),
-                            );
-
-                            egui::ComboBox::from_id_source("fetch_dropdown")
-                                .selected_text(self.search_type.as_str())
-                                .show_ui(ui, |ui| {
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::AuthorOrcid,
-                                        SearchType::AuthorOrcid.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::AuthorLdmId,
-                                        SearchType::AuthorLdmId.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::PaperDoi,
-                                        SearchType::PaperDoi.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::PaperTitle,
-                                        SearchType::PaperTitle.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::DatasetDoi,
-                                        SearchType::DatasetDoi.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::DatasetTitle,
-                                        SearchType::DatasetTitle.as_str(),
-                                    );
-                                    ui.selectable_value(
-                                        &mut self.search_type,
-                                        SearchType::DatasetLdmId,
-                                        SearchType::DatasetLdmId.as_str(),
-                                    );
-                                });
-
-                            let is_failed = *self.search_failed.lock().unwrap();
-
-                            // fail indicator
-                            if is_failed {
-                                let red_stroke = egui::Stroke::new(1.5, egui::Color32::RED);
-                                ui.visuals_mut().widgets.inactive.bg_stroke = red_stroke;
-                                ui.visuals_mut().widgets.hovered.bg_stroke = red_stroke;
-                                ui.visuals_mut().widgets.active.bg_stroke = red_stroke;
-                            }
-
-                            let response = ui.add(
-                                egui::TextEdit::singleline(&mut self.search_input)
-                                    .desired_width(300.0),
-                            );
-
-                            // reset fail indicator
-                            if response.changed() && is_failed {
-                                *self.search_failed.lock().unwrap() = false;
-                            }
-                        });
-
-                        let start_point_confirm_button = egui::Button::new(
-                            egui::RichText::new("Confirm").color(self.theme.text_fg),
-                        )
-                        .fill(self.theme.button_bg);
-
-                        if ui.add(start_point_confirm_button).clicked() {
-                            log::info!(
-                                "Requested Fetch! Type: {}, Input: {}",
-                                self.search_type.as_str(),
-                                self.search_input
-                            );
-
-                            // reset error state
-                            *self.search_failed.lock().unwrap() = false;
-
-                            let state_clone = self.state.clone();
-                            let ctx_clone = ctx.clone();
-                            let input = self.search_input.clone();
-                            let search_type = self.search_type.clone();
-                            let failed_clone = self.search_failed.clone();
-
-                            let base_url = &self.api_url;
-                            let target_url = match search_type {
-                                SearchType::AuthorOrcid => format!(
-                                    "{}/get_dataset_information_by_author_orcid?author_orcid={}",
-                                    base_url, input
-                                ),
-                                SearchType::AuthorLdmId => format!(
-                                    "{}/get_dataset_information_by_author_ldm_id?author_ldm_id={}",
-                                    base_url, input
-                                ),
-                                SearchType::PaperDoi => format!(
-                                    "{}/get_dataset_information_by_paper_doi?paper_doi={}",
-                                    base_url, input
-                                ),
-                                SearchType::PaperTitle => format!(
-                                    "{}/get_dataset_information_by_paper_title?paper_title={}",
-                                    base_url, input
-                                ),
-                                SearchType::DatasetDoi => format!(
-                                    "{}/get_dataset_information_by_dataset_doi?dataset_doi={}",
-                                    base_url, input
-                                ),
-                                SearchType::DatasetTitle => format!(
-                                    "{}/get_dataset_information_by_dataset_title?dataset_title={}",
-                                    base_url, input
-                                ),
-                                SearchType::DatasetLdmId => format!(
-                                    "{}/get_dataset_information_by_dataset_ldm_id?dataset_ldm_id={}",
-                                    base_url, input
-                                ),
-                            };
-
-                            let request = ehttp::Request::get(&target_url);
-
-                            ehttp::fetch(request, move |response| {
-                                // Assume failure unless we explicitly succeed below
-                                let mut fetch_successful = false;
-
-                                if let Ok(res) = response {
-                                    if let Some(text) = res.text() {
-                                        let new_triples = crate::parser::parse_dynamic_api_json(&text);
-
-                                        if !new_triples.is_empty() {
-                                            fetch_successful = true; // Data found!
-
-                                            let (nodes, edges) =
-                                                crate::graph_processor::build_ui_graph(
-                                                    new_triples.clone(),
-                                                );
-                                            let init_snapshot =
-                                                crate::GraphSnapshot::new(&nodes, &edges);
-
-                                            let mut state_lock = state_clone.lock().unwrap();
-                                            *state_lock = crate::AppState::Ready {
-                                                nodes,
-                                                edges,
-                                                raw_triples: new_triples,
-                                                init_snapshot,
-                                            };
-                                        }
-                                    }
-                                }
-
-                                // Trigger the red outline if anything failed or returned empty!
-                                if !fetch_successful {
-                                    #[cfg(not(target_arch = "wasm32"))]
-                                    {
-                                        dbg!("API request failed or returned no usable data.");
-                                    }
-
-                                    #[cfg(target_arch = "wasm32")]
-                                    {
-                                        log::warn!("API request failed or returned no usable data.");
-                                    }
-
-                                    *failed_clone.lock().unwrap() = true;
-                                }
-
-                                // Always tell the UI to repaint so the red outline (or graph) renders instantly
-                                ctx_clone.request_repaint();
-                            });
-                        }
-                    });
-                    ui.add_space(5.0);
-                    ui.separator();
-                }
-                ui.horizontal(|ui| {
-                    let active_color = self.theme.button_active_bg;
-
-                    let (graph_bg, analytics_bg, inspector_bg) = match self.current_scene {
-                        Scene::Graph => (active_color, self.theme.button_bg, self.theme.button_bg),
-                        Scene::Analytics => (self.theme.button_bg, active_color, self.theme.button_bg),
-                        Scene::NodeInspector => (self.theme.button_bg, self.theme.button_bg, active_color),
-                    };
-
-                    if ui
-                        .add(
-                            egui::Button::new(
-                                egui::RichText::new("Graph Visualization")
-                                    .heading()
-                                    .color(self.theme.text_fg),
-                            )
-                            .fill(graph_bg),
-                        )
-                        .clicked()
-                    {
-                        self.current_scene = Scene::Graph;
-                    }
-                    if ui
-                        .add(
-                            egui::Button::new(
-                                egui::RichText::new("Analytics")
-                                    .heading()
-                                    .color(self.theme.text_fg),
-                            )
-                            .fill(analytics_bg),
-                        )
-                        .clicked()
-                    {
-                        self.current_scene = Scene::Analytics;
-                    }
-
-                    if ui.add(egui::Button::new(egui::RichText::new("Node Inspector").heading().color(self.theme.text_fg)).fill(inspector_bg)).clicked() {
-                        self.current_scene = Scene::NodeInspector;
-                    }
-
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        let theme_string = if self.is_dark_mode {
-                            "Light Mode"
-                        } else {
-                            "Dark Mode"
-                        };
-                        let theme_button = egui::Button::new(
-                            egui::RichText::new(theme_string).color(self.theme.text_fg),
-                        )
-                        .fill(self.theme.button_bg);
-                        if ui.add(theme_button).clicked() {
-                            self.is_dark_mode = !self.is_dark_mode;
-                            if self.is_dark_mode {
-                                ctx.set_visuals(egui::Visuals::dark());
-                                self.theme = Theme::dark();
-                            } else {
-                                ctx.set_visuals(egui::Visuals::light());
-                                self.theme = Theme::light();
-                            }
-                        }
-                    });
-                });
-                ui.separator();
-
+            .show_inside(app_ui, |ui| {
                 let mut state_lock = self.state.lock().unwrap();
 
                 if let AppState::Ready {
@@ -575,6 +321,219 @@ impl eframe::App for App {
                     ..
                 } = &mut *state_lock
                 {
+                    if self.is_global_viewer {
+                        ui.add_space(5.0);
+                        ui.horizontal(|ui| {
+                            ui.scope(|ui| {
+                                ui.label(
+                                    egui::RichText::new("Select a start point:")
+                                        .color(self.theme.text_fg)
+                                        .strong(),
+                                );
+
+                                let combo_response = egui::ComboBox::from_id_salt("fetch_dropdown")
+                                    .selected_text(self.search_type.as_str())
+                                    .show_ui(ui, |ui| {
+                                        let mut changed = false;
+                                        for st in SearchType::all() {
+                                            if ui.selectable_value(&mut self.search_type, st.clone(), st.as_str()).changed() {
+                                                changed = true;
+                                            }
+                                        }
+                                        changed
+                                    });
+
+                                if combo_response.inner.unwrap_or(false) {
+                                    self.search_input.clear();
+                                }
+
+                                let is_failed = *self.search_failed.lock().unwrap();
+
+                                // fail indicator
+                                if is_failed {
+                                    let red_stroke = egui::Stroke::new(1.5, egui::Color32::RED);
+                                    ui.visuals_mut().widgets.inactive.bg_stroke = red_stroke;
+                                    ui.visuals_mut().widgets.hovered.bg_stroke = red_stroke;
+                                    ui.visuals_mut().widgets.active.bg_stroke = red_stroke;
+                                }
+
+                                let text_response = ui.add(
+                                    egui::TextEdit::singleline(&mut self.search_input)
+                                        .desired_width(300.0),
+                                );
+
+                                if text_response.changed() && is_failed {
+                                    *self.search_failed.lock().unwrap() = false;
+                                }
+                            });
+
+                            let start_point_confirm_button = egui::Button::new(
+                                egui::RichText::new("Confirm").color(self.theme.text_fg),
+                            )
+                            .fill(self.theme.button_bg);
+
+                            if ui.add(start_point_confirm_button).clicked() {
+                                log::info!(
+                                    "Requested Fetch! Type: {}, Input: {}",
+                                    self.search_type.as_str(),
+                                    self.search_input
+                                );
+
+                                *self.search_failed.lock().unwrap() = false;
+
+                                let state_clone = self.state.clone();
+                                let ctx_clone = ctx.clone();
+                                let input = self.search_input.clone();
+                                let search_type = self.search_type.clone();
+                                let failed_clone = self.search_failed.clone();
+
+                                let base_url = &self.api_url;
+                                let target_url = match search_type {
+                                    SearchType::AuthorName => format!( 
+                                        "{}/get_dataset_information_by_author_name?author_name={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::AuthorOrcid => format!(
+                                        "{}/get_dataset_information_by_author_orcid?author_orcid={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::AuthorLdmId => format!(
+                                        "{}/get_dataset_information_by_author_ldm_id?author_ldm_id={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::PaperDoi => format!(
+                                        "{}/get_dataset_information_by_paper_doi?paper_doi={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::PaperTitle => format!(
+                                        "{}/get_dataset_information_by_paper_title?paper_title={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::DatasetDoi => format!(
+                                        "{}/get_dataset_information_by_dataset_doi?dataset_doi={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::DatasetTitle => format!(
+                                        "{}/get_dataset_information_by_dataset_title?dataset_title={}",
+                                        base_url, input
+                                    ),
+                                    SearchType::DatasetLdmId => format!(
+                                        "{}/get_dataset_information_by_dataset_ldm_id?dataset_ldm_id={}",
+                                        base_url, input
+                                    ),
+                                };
+
+                                let request = ehttp::Request::get(&target_url);
+
+                                ehttp::fetch(request, move |response| {
+                                    let mut fetch_successful = false;
+
+                                    if let Ok(res) = response {
+                                        if let Some(text) = res.text() {
+                                            let new_triples = crate::parser::parse_dynamic_api_json(&text);
+
+                                            if !new_triples.is_empty() {
+                                                fetch_successful = true;
+
+                                                let (nodes, edges) =
+                                                    crate::graph_processor::build_ui_graph(
+                                                        new_triples.clone(),
+                                                    );
+                                                let init_snapshot =
+                                                    crate::GraphSnapshot::new(&nodes, &edges);
+
+                                                let mut state_lock = state_clone.lock().unwrap();
+                                                *state_lock = crate::AppState::Ready {
+                                                    nodes,
+                                                    edges,
+                                                    raw_triples: new_triples,
+                                                    init_snapshot,
+                                                };
+                                            }
+                                        }
+                                    }
+
+                                    if !fetch_successful {
+                                        #[cfg(not(target_arch = "wasm32"))]
+                                        dbg!("API request failed or returned no usable data.");
+                                        #[cfg(target_arch = "wasm32")]
+                                        log::warn!("API request failed or returned no usable data.");
+
+                                        *failed_clone.lock().unwrap() = true;
+                                    }
+
+                                    ctx_clone.request_repaint();
+                                });
+                            }
+                        });
+                        ui.add_space(5.0);
+                        ui.separator();
+                    }
+
+                    ui.horizontal(|ui| {
+                        let active_color = self.theme.button_active_bg;
+
+                        let (graph_bg, analytics_bg, inspector_bg) = match self.current_scene {
+                            Scene::Graph => (active_color, self.theme.button_bg, self.theme.button_bg),
+                            Scene::Analytics => (self.theme.button_bg, active_color, self.theme.button_bg),
+                            Scene::NodeInspector => (self.theme.button_bg, self.theme.button_bg, active_color),
+                        };
+
+                        if ui
+                            .add(
+                                egui::Button::new(
+                                    egui::RichText::new("Graph Visualization")
+                                        .heading()
+                                        .color(self.theme.text_fg),
+                                )
+                                .fill(graph_bg),
+                            )
+                            .clicked()
+                        {
+                            self.current_scene = Scene::Graph;
+                        }
+                        if ui
+                            .add(
+                                egui::Button::new(
+                                    egui::RichText::new("Analytics")
+                                        .heading()
+                                        .color(self.theme.text_fg),
+                                )
+                                .fill(analytics_bg),
+                            )
+                            .clicked()
+                        {
+                            self.current_scene = Scene::Analytics;
+                        }
+
+                        if ui.add(egui::Button::new(egui::RichText::new("Node Inspector").heading().color(self.theme.text_fg)).fill(inspector_bg)).clicked() {
+                            self.current_scene = Scene::NodeInspector;
+                        }
+
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            let theme_string = if self.is_dark_mode {
+                                "Light Mode"
+                            } else {
+                                "Dark Mode"
+                            };
+                            let theme_button = egui::Button::new(
+                                egui::RichText::new(theme_string).color(self.theme.text_fg),
+                            )
+                            .fill(self.theme.button_bg);
+                            if ui.add(theme_button).clicked() {
+                                self.is_dark_mode = !self.is_dark_mode;
+                                if self.is_dark_mode {
+                                    ctx.set_visuals(egui::Visuals::dark());
+                                    self.theme = Theme::dark();
+                                } else {
+                                    ctx.set_visuals(egui::Visuals::light());
+                                    self.theme = Theme::light();
+                                }
+                            }
+                        });
+                    });
+                    ui.separator();
+
                     // render analytics
                     if self.current_scene == Scene::Analytics {
                         egui::ScrollArea::vertical()
@@ -774,7 +733,7 @@ impl eframe::App for App {
                                         ui.add_space(10.0);
 
                                         egui::ScrollArea::vertical()
-                                            .id_source("types_breakdown_scroll")
+                                            .id_salt("types_breakdown_scroll")
                                             .max_height(card_height - 50.0)
                                             .show(ui, |ui| {
                                                 egui::Grid::new("analytics_grid")
@@ -822,8 +781,6 @@ impl eframe::App for App {
                             .auto_shrink([false, false])
                             .show(ui, |ui| {
                                 ui.add_space(10.0);
-                                ui.heading(egui::RichText::new("Node Inspector").color(self.theme.text_fg));
-                                ui.add_space(10.0);
 
                                 // sort nodes
                                 let mut sorted_nodes: Vec<_> = nodes
@@ -835,7 +792,7 @@ impl eframe::App for App {
 
                                 // draw the dropdown menu
                                 ui.horizontal(|ui| {
-                                    ui.label(egui::RichText::new("Select Node:").color(self.theme.text_fg).strong());
+                                    ui.label(egui::RichText::new("Select a Node:").color(self.theme.text_fg).strong());
 
                                     let selected_label = if let Some(id) = &self.inspector_selected_node {
                                         nodes.iter().find(|n| n.id == *id).map(|n| n.label.clone()).unwrap_or_else(|| "Unknown Node".to_string())
@@ -843,8 +800,9 @@ impl eframe::App for App {
                                         "--- Select a Node ---".to_string()
                                     };
 
-                                    egui::ComboBox::from_id_source("node_inspector_dropdown")
-                                        .width(400.0)
+                                    egui::ComboBox::from_id_salt("node_inspector_dropdown")
+                                        .width(ui.available_width())
+                                        .height(ui.ctx().content_rect().height() * 0.5)
                                         .selected_text(selected_label)
                                         .show_ui(ui, |ui| {
                                             for node in sorted_nodes {
@@ -860,7 +818,7 @@ impl eframe::App for App {
                                         });
                                 });
 
-                                ui.add_space(20.0);
+                                ui.add_space(10.0);
                                 ui.separator();
                                 ui.add_space(10.0);
 
@@ -893,7 +851,7 @@ impl eframe::App for App {
                                                     };
 
                                                     ui.label(egui::RichText::new(display_key).strong().color(self.theme.text_fg));
-                                                    ui.add(egui::Label::new(egui::RichText::new(value).color(self.theme.text_fg)).wrap(true));
+                                                    ui.add(egui::Label::new(egui::RichText::new(value).color(self.theme.text_fg)).wrap());
                                                     ui.end_row();
                                                 }
                                             });
@@ -922,7 +880,7 @@ impl eframe::App for App {
                                     .fill(self.theme.button_bg);
                                     if ui.add(export_button).clicked() {
                                         #[cfg(not(target_arch = "wasm32"))]
-                                        ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot);
+                                        ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot(Default::default()));
                                         #[cfg(target_arch = "wasm32")]
                                         if let Some(rect) = self.canvas_rect {
                                             let ppp = ctx.pixels_per_point();
@@ -991,7 +949,7 @@ impl eframe::App for App {
                                         ui.strong("ID:");
                                         if display_id.len() > 60 {
                                             egui::ScrollArea::vertical()
-                                                .id_source(format!("scroll_id_{}", node.id))
+                                                .id_salt(format!("scroll_id_{}", node.id))
                                                 .max_height(60.0)
                                                 .min_scrolled_height(0.0)
                                                 .show(ui, |ui| {
@@ -1025,7 +983,7 @@ impl eframe::App for App {
 
                                         if value.len() > 60 {
                                             egui::ScrollArea::vertical()
-                                                .id_source(format!("scroll_prop_{}_{}", node.id, i))
+                                                .id_salt(format!("scroll_prop_{}_{}", node.id, i))
                                                 .max_height(100.0)
                                                 .min_scrolled_height(0.0)
                                                 .show(ui, |ui| {
@@ -1040,10 +998,10 @@ impl eframe::App for App {
                         };
 
                         // define a frame that houses the color config for the legend
-                        let legend_outline = egui::Frame::window(&ui.ctx().style())
+                        let legend_outline = egui::Frame::window(&ui.ctx().global_style())
                             .fill(self.theme.button_bg)
                             .inner_margin(3.0)
-                            .rounding(5.0)
+                            .corner_radius(5.0)
                             .stroke(egui::Stroke::new(2.0, self.theme.master_bg));
 
                         // render legend
@@ -1055,9 +1013,9 @@ impl eframe::App for App {
                             .show(ui.ctx(), |ui| {
                                 ui.style_mut().visuals.override_text_color =
                                     Some(self.theme.text_fg);
-                                egui::Frame::none()
+                                egui::Frame::NONE
                                     .inner_margin(5.0)
-                                    .rounding(5.0)
+                                    .corner_radius(5.0)
                                     .stroke(egui::Stroke::new(1.0, self.theme.edge_fg))
                                     .fill(self.theme.master_bg)
                                     .show(ui, |ui| {
@@ -1346,8 +1304,8 @@ impl eframe::App for App {
                                     .title_bar(false)
                                     .resizable(false)
                                     .collapsible(false)
-                                    .frame(egui::Frame::popup(&ctx.style()))
-                                    .show(ctx, |ui| {
+                                    .frame(egui::Frame::popup(&ctx.global_style()))
+                                    .show(&ctx, |ui| {
                                         ui.heading(&node.label);
                                         ui.separator();
 
@@ -1665,71 +1623,16 @@ impl eframe::App for App {
                             .strong(),
                     );
                 } else {
-                    ui.heading("Loading...");
+                    ui.heading("Loading Workspace and Fetching Dictionaries...");
+                    ui.add(egui::Spinner::new());
                 }
             });
-
-        // nativ png
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            // Check if egui just handed us a fresh screenshot event
-            for event in ctx.input(|i| i.events.clone()) {
-                if let egui::Event::Screenshot { image, .. } = event {
-                    if let Some(rect) = self.canvas_rect {
-                        let ppp = ctx.pixels_per_point();
-
-                        // Convert logicalegui coordinates into physical monitor pixels
-                        let min_x = (rect.min.x * ppp).round() as u32;
-                        let min_y = (rect.min.y * ppp).round() as u32;
-                        let max_x = (rect.max.x * ppp).round() as u32;
-                        let max_y = (rect.max.y * ppp).round() as u32;
-
-                        let width = max_x.saturating_sub(min_x);
-                        let height = max_y.saturating_sub(min_y);
-
-                        if width > 0 && height > 0 {
-                            let mut img_buf = image::ImageBuffer::new(width, height);
-
-                            // Crop the raw full-screen image down to just the canvas area
-                            for y in 0..height {
-                                for x in 0..width {
-                                    let img_x = (min_x + x) as usize;
-                                    let img_y = (min_y + y) as usize;
-
-                                    if img_x < image.size[0] && img_y < image.size[1] {
-                                        // egui stores pixels in a 1D array: (y * width) + x
-                                        let pixel = image.pixels[img_y * image.size[0] + img_x];
-                                        img_buf.put_pixel(
-                                            x,
-                                            y,
-                                            image::Rgba([
-                                                pixel.r(),
-                                                pixel.g(),
-                                                pixel.b(),
-                                                pixel.a(),
-                                            ]),
-                                        );
-                                    }
-                                }
-                            }
-
-                            // Save it to the current directory!
-                            match img_buf.save("graph_export.png") {
-                                Ok(_) => println!("Successfully exported to graph_export.png!"),
-                                Err(e) => println!("Failed to save PNG: {}", e),
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
 // native entrypoint
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
-    // Initialize native logger
     env_logger::init();
 
     let native_options = eframe::NativeOptions {
@@ -1740,14 +1643,13 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Standalone Test App",
         native_options,
-        Box::new(|cc| Box::new(App::new(cc))),
+        Box::new(|cc| Ok(Box::new(App::new(cc)))),
     )
 }
 
 // wasm entrypoint
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    // Initialize web logger
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
 
     let _ = js_sys::eval(
@@ -1759,17 +1661,26 @@ fn main() {
             }
             return ogGetContext.call(this, type, attrs);
         };
-    "#,
+    "#
     );
 
     let web_options = eframe::WebOptions::default();
 
     wasm_bindgen_futures::spawn_local(async {
+        use wasm_bindgen::JsCast; // Required in 0.34 to cast DOM elements
+        
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document
+            .get_element_by_id("the_canvas_id")
+            .expect("Failed to find 'the_canvas_id' in DOM")
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .expect("Element was not a HtmlCanvasElement");
+
         eframe::WebRunner::new()
             .start(
-                "the_canvas_id",
+                canvas,
                 web_options,
-                Box::new(|cc| Box::new(App::new(cc))),
+                Box::new(|cc| Ok(Box::new(App::new(cc)))),
             )
             .await
             .expect("failed to start eframe");

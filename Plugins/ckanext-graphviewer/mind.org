@@ -19,13 +19,44 @@ CLOSED: [2026-03-26 Do 13:49]
 CLOSED: [2026-03-26 Do 13:49]
 *** DONE create legend
 CLOSED: [2026-03-26 Do 13:49]
-** TODO color schema
+** DONE color schema
+CLOSED: [2026-04-09 Do 09:47]
 *** DONE node color logic
 CLOSED: [2026-03-26 Do 13:50]
-*** TODO fix naming of vars in theme.rs
-*** TODO dark mode
-** TODO expand logic for author and paper
+*** DONE fix naming of vars in theme.rs
+CLOSED: [2026-04-09 Do 09:47]
+*** DONE dark mode
+CLOSED: [2026-04-09 Do 09:47]
+** DONE expand logic for author and paper
+CLOSED: [2026-04-09 Do 09:47]
+** TODO text suggesting on start point field
+** TODO authro name as start point logic
+** TODO keep current logic of only 1 start point
+** TODO 2 start point for comparison
+** TODO change order of drop down menu to have author name first
+** TODO rename legend other field to not include unkown
+** TODO export to svg and build png from that
 
-** bugs
-*** hover on infobox not implemented
-- this leads to the behaviour that if a infobox renders on top of a node it will close and open again every 2 frames
+
+* data for query
+
+- author orcid
+  https://orcid.org/0000-0003-1160-8727
+
+- author ldm id
+  https://research.tib.eu/ldm/22
+
+- paper doi
+  https://doi.org/10.1016/j.websem.2005.06.005
+
+- paper title
+  not implemented
+
+- dataset doi
+  http://data.europa.eu/88u/dataset/094cfd98-b5be-4134-8bfc-5126a8c68309
+
+- dataset title
+  Measurement results for radioactivity in: Marzipan raw mass (10.11.2016)
+
+- dataset ldm id
+  https://research.tib.eu/ldm/3424eec1-17da-4340-a33d-0932807e8425
