@@ -287,11 +287,11 @@ function __wbg_get_imports() {
             const ret = arg0.clientWaitSync(arg1, arg2 >>> 0, arg3 >>> 0);
             return ret;
         },
-        __wbg_clientX_7db5d6e77c921464: function(arg0) {
+        __wbg_clientX_51eb1976d50e9aa7: function(arg0) {
             const ret = arg0.clientX;
             return ret;
         },
-        __wbg_clientX_eff94e775c0667a2: function(arg0) {
+        __wbg_clientX_7db5d6e77c921464: function(arg0) {
             const ret = arg0.clientX;
             return ret;
         },
@@ -299,7 +299,7 @@ function __wbg_get_imports() {
             const ret = arg0.clientY;
             return ret;
         },
-        __wbg_clientY_6293e127369957bf: function(arg0) {
+        __wbg_clientY_bf90b5a826653c23: function(arg0) {
             const ret = arg0.clientY;
             return ret;
         },
@@ -2443,7 +2443,13 @@ function __wbg_get_imports() {
         __wbg_texSubImage2D_dd1d50234b61de4b: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) {
             arg0.texSubImage2D(arg1 >>> 0, arg2, arg3, arg4, arg5, arg6, arg7 >>> 0, arg8 >>> 0, arg9);
         }, arguments); },
+        __wbg_texSubImage2D_eed9b8496b4c88ec: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) {
+            arg0.texSubImage2D(arg1 >>> 0, arg2, arg3, arg4, arg5, arg6, arg7 >>> 0, arg8 >>> 0, arg9);
+        }, arguments); },
         __wbg_texSubImage3D_09cc863aedf44a21: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) {
+            arg0.texSubImage3D(arg1 >>> 0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 >>> 0, arg10 >>> 0, arg11);
+        }, arguments); },
+        __wbg_texSubImage3D_2f39df2a5c3de8a0: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) {
             arg0.texSubImage3D(arg1 >>> 0, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 >>> 0, arg10 >>> 0, arg11);
         }, arguments); },
         __wbg_texSubImage3D_4665e67a8f0f7806: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) {
