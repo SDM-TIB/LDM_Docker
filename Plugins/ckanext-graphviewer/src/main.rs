@@ -1,5 +1,6 @@
 pub mod button;
 mod graph_processor;
+mod node_menu;
 mod parser;
 mod theme;
 
@@ -222,7 +223,7 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         let api_url = get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string());
         #[cfg(not(target_arch = "wasm32"))]
-        let api_url = "http://0.0.0.0:5742".to_string();
+        let api_url = "http://194.95.157.131:5742".to_string();
 
         #[cfg(target_arch = "wasm32")]
         let n3_target_url = get_n3_url_from_dom();
@@ -1376,152 +1377,23 @@ impl eframe::App for App {
                         if let Some(menu_idx) = self.selected_node {
                             if self.show_menu {
                                 let screen_pos = to_screen(nodes[menu_idx].pos);
-                                let menu_radius = 35.0 * self.zoom;
-                                let btn_radius = 12.0 * self.zoom;
 
-                                // button 1 expand
-                                let expand_pos = screen_pos + egui::vec2(-menu_radius, 0.0);
-                                let expand_rect = egui::Rect::from_center_size(
-                                    expand_pos,
-                                    egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
+                                crate::node_menu::draw_radial_menu(
+                                    ui,
+                                    &ctx,
+                                    &painter,
+                                    menu_idx,
+                                    screen_pos,
+                                    self.zoom,
+                                    &self.theme,
+                                    nodes,
+                                    edges,
+                                    &self.api_url,
+                                    self.state.clone(),
+                                    &mut self.show_menu,
+                                    &mut self.selected_node,
+                                    &mut clicked_to_expand,
                                 );
-                                let expand_resp = ui.interact(
-                                    expand_rect,
-                                    ui.id().with(format!("btn_exp_{}", menu_idx)),
-                                    egui::Sense::click(),
-                                );
-
-                                // Draw the blue circle and a +/- icon
-                                painter.circle_filled(
-                                    expand_pos,
-                                    btn_radius,
-                                    self.theme.menu_expand_bg,
-                                );
-                                let icon = if nodes[menu_idx].expanded { "-" } else { "+" };
-                                let galley = painter.layout_no_wrap(
-                                    icon.into(),
-                                    egui::FontId::proportional(16.0 * self.zoom),
-                                    egui::Color32::WHITE,
-                                );
-                                painter.galley(
-                                    expand_pos - galley.size() / 2.0,
-                                    galley,
-                                    egui::Color32::WHITE,
-                                );
-
-                                if expand_resp.clicked() {
-                                    clicked_to_expand = Some(menu_idx);
-                                    self.selected_node = None;
-                                }
-
-                                // button 2
-                                let info_pos = screen_pos + egui::vec2(menu_radius, 0.0);
-                                let info_rect = egui::Rect::from_center_size(
-                                    info_pos,
-                                    egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
-                                );
-                                let info_resp = ui.interact(
-                                    info_rect,
-                                    ui.id().with(format!("btn_info_{}", menu_idx)),
-                                    egui::Sense::click(),
-                                );
-
-                                // Draw the green circle and an 'i' icon
-                                painter.circle_filled(
-                                    info_pos,
-                                    btn_radius,
-                                    self.theme.menu_info_bg,
-                                );
-                                let galley = painter.layout_no_wrap(
-                                    "i".into(),
-                                    egui::FontId::proportional(14.0 * self.zoom),
-                                    egui::Color32::WHITE,
-                                );
-                                painter.galley(
-                                    info_pos - galley.size() / 2.0,
-                                    galley,
-                                    egui::Color32::WHITE,
-                                );
-
-                                if info_resp.clicked() {
-                                    self.show_menu = false;
-                                }
-
-                                // button 3 api fetch
-                                // vec containing fetchable nodes
-                                let fetchable_types = vec![
-                                    "http://purl.org/spar/pro/Author",
-                                    "http://www.w3.org/ns/dcat#DataService",
-                                    "http://www.w3.org/ns/dcat#Dataset",
-                                ];
-
-                                let current_type = nodes[menu_idx].rdf_type.clone();
-                                let is_fetchable =
-                                    fetchable_types.iter().any(|&t| current_type.contains(t));
-
-                                if is_fetchable {
-                                    let api_pos = screen_pos + egui::vec2(0.0, -menu_radius);
-                                    let api_rect = egui::Rect::from_center_size(
-                                        api_pos,
-                                        egui::vec2(btn_radius * 2.0, btn_radius * 2.0),
-                                    );
-                                    let api_resp = ui.interact(
-                                        api_rect,
-                                        ui.id().with(format!("btn_api_{}", menu_idx)),
-                                        egui::Sense::click(),
-                                    );
-
-                                    let btn_color = if nodes[menu_idx].api_fetched {
-                                        self.theme.menu_api_fetched_bg
-                                    } else {
-                                        self.theme.menu_api_bg
-                                    };
-
-                                    painter.circle_filled(api_pos, btn_radius, btn_color);
-                                    let galley = painter.layout_no_wrap(
-                                        "API".into(),
-                                        egui::FontId::proportional(10.0 * self.zoom),
-                                        egui::Color32::WHITE,
-                                    );
-                                    painter.galley(
-                                        api_pos - galley.size() / 2.0,
-                                        galley,
-                                        egui::Color32::WHITE,
-                                    );
-
-                                    if api_resp.clicked() && !nodes[menu_idx].api_fetched {
-                                        self.show_menu = false;
-                                        self.selected_node = None;
-                                        let state_clone = self.state.clone();
-                                        let ctx_clone = ctx.clone();
-                                        let clicked_node_id = nodes[menu_idx].id.clone();
-
-                                        if current_type.contains("http://purl.org/spar/pro/Author")
-                                        {
-                                            crate::button::fetch_author_information(
-                                                ctx_clone.clone(),
-                                                state_clone.clone(),
-                                                clicked_node_id.clone(),
-                                                clicked_node_id.clone(),
-                                                &self.api_url,
-                                            );
-                                        }
-
-                                        if current_type
-                                            .contains("http://www.w3.org/ns/dcat#DataService")
-                                            || current_type
-                                                .contains("http://www.w3.org/ns/dcat#Dataset")
-                                        {
-                                            crate::button::fetch_dataset_information(
-                                                ctx_clone,
-                                                state_clone,
-                                                clicked_node_id.clone(),
-                                                clicked_node_id,
-                                                &self.api_url,
-                                            );
-                                        }
-                                    }
-                                }
                             }
                         }
 

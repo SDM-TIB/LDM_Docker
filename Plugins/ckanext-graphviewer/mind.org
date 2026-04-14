@@ -3,40 +3,9 @@
 - description
   this module handels the representation of a KG inside a html container
 
-* state of features and bugs
-** DONE obtain n3 file from path
-CLOSED: [2026-03-26 Do 13:47]
-** DONE parse n3 and build graph
-CLOSED: [2026-03-26 Do 13:47]
-** render graph
-*** DONE basic graph from dataset
-CLOSED: [2026-03-26 Do 13:49]
-*** DONE show everthing in infobox
-CLOSED: [2026-03-26 Do 13:49]
-*** DONE expand expandable node
-CLOSED: [2026-03-26 Do 13:49]
-*** DONE pin infobox
-CLOSED: [2026-03-26 Do 13:49]
-*** DONE create legend
-CLOSED: [2026-03-26 Do 13:49]
-** DONE color schema
-CLOSED: [2026-04-09 Do 09:47]
-*** DONE node color logic
-CLOSED: [2026-03-26 Do 13:50]
-*** DONE fix naming of vars in theme.rs
-CLOSED: [2026-04-09 Do 09:47]
-*** DONE dark mode
-CLOSED: [2026-04-09 Do 09:47]
-** DONE expand logic for author and paper
-CLOSED: [2026-04-09 Do 09:47]
-** TODO text suggesting on start point field
-** TODO authro name as start point logic
-** TODO keep current logic of only 1 start point
-** TODO 2 start point for comparison
-** TODO change order of drop down menu to have author name first
-** TODO rename legend other field to not include unkown
-** TODO export to svg and build png from that
-
+* state of bugs
+- copy out of egui via strg c not supported in http
+  https://github.com/emilk/egui/discussions/4516
 
 * data for query
 
