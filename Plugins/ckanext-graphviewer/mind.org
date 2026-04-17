@@ -6,6 +6,8 @@
 * state of bugs
 - copy out of egui via strg c not supported in http
   https://github.com/emilk/egui/discussions/4516
+- the node inspector combobox does some magic for the height calculation resulting in wierd behaviour
+
 
 * data for query
 

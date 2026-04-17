@@ -2,7 +2,7 @@ use log::{debug, error};
 use oxttl::N3Parser;
 use serde_json::Value;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RawTriple {
     pub subject: String,
     pub predicate: String,
@@ -58,21 +58,14 @@ pub fn parse_dynamic_api_json(json_text: &str) -> Vec<RawTriple> {
     }
 
     if triples.is_empty() {
-        println!(
-            "WARNING: Parser returned 0 triples! Raw API response was:\n{}",
-            json_text
-        );
+        println!("WARNING: Parser returned 0 triples! Raw API response was:\n{}", json_text);
     }
 
     triples
 }
 
 // helper function for dynamic json
-fn parse_nested_properties(
-    subject: &str,
-    properties: &serde_json::Map<String, Value>,
-    triples: &mut Vec<RawTriple>,
-) {
+fn parse_nested_properties(subject: &str, properties: &serde_json::Map<String, Value>, triples: &mut Vec<RawTriple>) {
     let subj_str = format!("<{}>", subject);
 
     for (predicate, value) in properties {
@@ -100,10 +93,8 @@ fn parse_nested_properties(
                         Value::Object(obj) => {
                             if obj.contains_key("type") && obj.contains_key("value") {
                                 parse_leaf_value(&subj_str, &pred_str, obj, triples);
-                            } else if let (
-                                Some(Value::String(uri)),
-                                Some(Value::Object(nested_props)),
-                            ) = (obj.get("uri"), obj.get("properties"))
+                            } else if let (Some(Value::String(uri)), Some(Value::Object(nested_props))) =
+                                (obj.get("uri"), obj.get("properties"))
                             {
                                 triples.push(RawTriple {
                                     subject: subj_str.clone(),
@@ -124,16 +115,8 @@ fn parse_nested_properties(
     }
 }
 
-fn parse_leaf_value(
-    subj_str: &str,
-    pred_str: &str,
-    obj: &serde_json::Map<String, Value>,
-    triples: &mut Vec<RawTriple>,
-) {
-    if let (Some(t_val), Some(v_val)) = (
-        obj.get("type").and_then(|v| v.as_str()),
-        obj.get("value").and_then(|v| v.as_str()),
-    ) {
+fn parse_leaf_value(subj_str: &str, pred_str: &str, obj: &serde_json::Map<String, Value>, triples: &mut Vec<RawTriple>) {
+    if let (Some(t_val), Some(v_val)) = (obj.get("type").and_then(|v| v.as_str()), obj.get("value").and_then(|v| v.as_str())) {
         let is_literal = t_val == "literal" || t_val == "typed-literal";
         let obj_str = if is_literal {
             format!("\"{}\"", v_val)

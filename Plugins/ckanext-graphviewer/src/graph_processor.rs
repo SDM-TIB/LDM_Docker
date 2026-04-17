@@ -1,8 +1,7 @@
+use crate::constants::*;
 use crate::parser::RawTriple;
 use eframe::egui;
 use std::collections::{HashMap, HashSet, VecDeque};
-
-const RDF_TYPE: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 #[derive(Debug, Clone)]
 pub struct Node {
@@ -30,14 +29,9 @@ pub struct Edge {
     pub bidirectional: bool,
 }
 
-// used to display the label of a node
 fn extract_label(uri_or_literal: &str) -> String {
     if uri_or_literal.starts_with('"') {
-        return uri_or_literal
-            .split('"')
-            .nth(1)
-            .unwrap_or(uri_or_literal)
-            .to_string();
+        return uri_or_literal.split('"').nth(1).unwrap_or(uri_or_literal).to_string();
     }
     let cleaned = uri_or_literal.trim_matches('<').trim_matches('>');
     cleaned
@@ -50,13 +44,26 @@ fn extract_label(uri_or_literal: &str) -> String {
         .to_string()
 }
 
-// output a lean vec of filtered information
 pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
+    // build topology
+    let (mut nodes_map, mut edges_map) = build_topology(&triples);
+
+    // figure out the center
+    let start_node = determine_start_node(&nodes_map, &edges_map);
+
+    // apply circular layout
+    apply_circular_layout(&mut nodes_map, &edges_map, &start_node);
+
+    // convert to vec for speed
+    finalize_graph(nodes_map, edges_map, &start_node)
+}
+
+fn build_topology(triples: &[RawTriple]) -> (HashMap<String, Node>, HashMap<(String, String), Vec<String>>) {
     let mut nodes_map: HashMap<String, Node> = HashMap::new();
     let mut edges_map: HashMap<(String, String), Vec<String>> = HashMap::new();
 
-    // nodes
-    for pt in &triples {
+    // 1. pass nodes
+    for pt in triples {
         let clean_sub = pt.subject.trim_matches('<').trim_matches('>').to_string();
         let clean_pred = pt.predicate.trim_matches('<').trim_matches('>').to_string();
         let pred_label = extract_label(&pt.predicate);
@@ -66,7 +73,6 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             pt.object.trim_matches('<').trim_matches('>').to_string()
         };
 
-        // ensure subject node exists
         nodes_map.entry(clean_sub.clone()).or_insert_with(|| Node {
             id: clean_sub.clone(),
             label: extract_label(&clean_sub),
@@ -86,17 +92,16 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             is_root: false,
         });
 
-        if clean_pred == "http://app.local/isRootNode" {
+        if clean_pred == PRED_IS_ROOT {
             if let Some(node) = nodes_map.get_mut(&clean_sub) {
                 node.is_root = true;
             }
             continue;
         }
 
-        let is_type_pred = clean_pred == RDF_TYPE.trim_matches('<').trim_matches('>');
+        let is_type_pred = clean_pred == RDF_TYPE;
 
-        // ensure object node exists
-        if pred_label != "label" && pred_label != "title" && pred_label != "fn" && !is_type_pred {
+        if pred_label != PRED_LABEL && pred_label != PRED_TITLE && pred_label != PRED_FN && !is_type_pred {
             nodes_map.entry(clean_obj.clone()).or_insert_with(|| Node {
                 id: clean_obj.clone(),
                 label: extract_label(&clean_obj),
@@ -122,66 +127,80 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
         }
 
         if let Some(node) = nodes_map.get_mut(&clean_sub) {
-            node.properties
-                .push((pred_label.clone(), clean_obj.clone()));
+            node.properties.push((pred_label.clone(), clean_obj.clone()));
         }
 
-        // apply rules based on predicate
-        if clean_pred == RDF_TYPE.trim_matches('<').trim_matches('>') {
+        if is_type_pred {
             if let Some(node) = nodes_map.get_mut(&clean_sub) {
                 if !node.rdf_type.is_empty() {
                     node.rdf_type.push_str(", ");
                 }
                 node.rdf_type.push_str(&clean_obj);
-
-                // dataset dataservice
                 if clean_obj.contains("Dataset") || clean_obj.contains("DataService") {
                     node.visible = true;
                 }
             }
-        } else if pred_label == "label" || pred_label == "title" {
-            // set label string of parent
+        } else if pred_label == PRED_LABEL || pred_label == PRED_TITLE {
             if let Some(node) = nodes_map.get_mut(&clean_sub) {
                 node.label = extract_label(&clean_obj);
             }
-        } else if pred_label == "fn" {
-            // ignore vcard:fn entirely
-            continue;
+        }
+    }
+
+    // 2. pass edges
+    for pt in triples {
+        let clean_sub = pt.subject.trim_matches('<').trim_matches('>').to_string();
+        let clean_pred = pt.predicate.trim_matches('<').trim_matches('>').to_string();
+        let pred_label = extract_label(&pt.predicate);
+        let clean_obj = if pt.is_object_literal {
+            pt.object.clone()
         } else {
-            // all other edges
-            let src = clean_sub.clone();
-            let tgt = clean_obj.clone();
-            let lbl = pred_label.clone();
+            pt.object.trim_matches('<').trim_matches('>').to_string()
+        };
+        let is_type_pred = clean_pred == RDF_TYPE;
 
-            let key = (src.clone(), tgt.clone());
-            let entry = edges_map.entry(key).or_insert_with(Vec::new);
-            if !entry.contains(&lbl) {
-                entry.push(lbl.clone());
-            }
+        if pt.is_object_literal
+            || is_type_pred
+            || pred_label == PRED_LABEL
+            || pred_label == PRED_TITLE
+            || pred_label == PRED_FN
+            || clean_pred == PRED_IS_ROOT
+        {
+            continue;
+        }
 
-            // Inject 'author' into the forward path deterministically!
-            if lbl == "authorOf" {
-                let reverse_key = (tgt, src);
-                let rev_entry = edges_map.entry(reverse_key).or_insert_with(Vec::new);
-                let author_lbl = "author".to_string();
+        let key = (clean_sub.clone(), clean_obj.clone());
+        let entry = edges_map.entry(key.clone()).or_insert_with(Vec::new);
+        if !entry.contains(&pred_label) {
+            entry.push(pred_label.clone());
+        }
 
-                if !rev_entry.contains(&author_lbl) {
-                    rev_entry.push(author_lbl);
+        // handel author creator
+        if pred_label == PRED_CREATOR {
+            if let (Some(dataset_node), Some(person_node)) = (nodes_map.get(&clean_sub), nodes_map.get(&clean_obj)) {
+                let mut dataset_author_name = None;
+                for (k, v) in &dataset_node.properties {
+                    if k == PRED_FN || k.contains(PRED_VCARD_FN) {
+                        dataset_author_name = Some(v.trim_matches('"'));
+                        break;
+                    }
+                }
+                if let Some(author_name) = dataset_author_name {
+                    if person_node.label.trim_matches('"') == author_name {
+                        let author_lbl = "author".to_string();
+                        if !entry.contains(&author_lbl) {
+                            entry.push(author_lbl);
+                        }
+                    }
                 }
             }
         }
     }
 
-    // circular layout
-    let mut adjacency: HashMap<String, Vec<String>> = HashMap::new();
-    for (src, tgt) in edges_map.keys() {
-        adjacency.entry(src.clone()).or_default().push(tgt.clone());
-    }
+    (nodes_map, edges_map)
+}
 
-    let mut visited = HashSet::new();
-    let root_pos = egui::pos2(0.0, 0.0);
-
-    // center
+fn determine_start_node(nodes_map: &HashMap<String, Node>, edges_map: &HashMap<(String, String), Vec<String>>) -> String {
     let mut degree_map: HashMap<String, usize> = HashMap::new();
     for (src, tgt) in edges_map.keys() {
         *degree_map.entry(src.clone()).or_insert(0) += 1;
@@ -189,21 +208,18 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     }
 
     let mut root_candidates = Vec::new();
-    for (id, node) in &nodes_map {
-        // Now checks our hidden boolean instead of the properties array!
+    for (id, node) in nodes_map {
         if node.is_root {
             root_candidates.push(id.clone());
         }
     }
 
-    let start_node = if !root_candidates.is_empty() {
+    if !root_candidates.is_empty() {
         root_candidates
             .into_iter()
             .max_by_key(|id| {
                 let base_deg = *degree_map.get(id).unwrap_or(&0);
-                let is_author = nodes_map
-                    .get(id)
-                    .map_or(false, |n| n.rdf_type.contains("Author"));
+                let is_author = nodes_map.get(id).map_or(false, |n| n.rdf_type.contains("Author"));
                 if is_author { base_deg + 1000 } else { base_deg }
             })
             .unwrap()
@@ -213,31 +229,31 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             .max_by_key(|(_, deg)| *deg)
             .map(|(id, _)| id)
             .unwrap_or_else(|| nodes_map.keys().next().cloned().unwrap_or_default())
-    };
+    }
+}
+
+fn apply_circular_layout(nodes_map: &mut HashMap<String, Node>, edges_map: &HashMap<(String, String), Vec<String>>, start_node: &str) {
+    let mut adjacency: HashMap<String, Vec<String>> = HashMap::new();
+    for (src, tgt) in edges_map.keys() {
+        adjacency.entry(src.clone()).or_default().push(tgt.clone());
+    }
+
+    let mut visited = HashSet::new();
+    let root_pos = egui::pos2(0.0, 0.0);
 
     if !start_node.is_empty() {
-        if let Some(root_node) = nodes_map.get_mut(&start_node) {
+        if let Some(root_node) = nodes_map.get_mut(start_node) {
             root_node.pos = root_pos;
             root_node.api_fetched = true;
         }
-        visited.insert(start_node.clone());
+        visited.insert(start_node.to_string());
 
         let mut queue = VecDeque::new();
-        queue.push_back((
-            start_node.clone(),
-            root_pos,
-            250.0,
-            0.0,
-            std::f32::consts::TAU,
-        ));
+        queue.push_back((start_node.to_string(), root_pos, 250.0, 0.0, std::f32::consts::TAU));
 
         while let Some((curr_id, parent_pos, radius, start_angle, end_angle)) = queue.pop_front() {
             if let Some(children) = adjacency.get(&curr_id) {
-                let unvisited_children: Vec<String> = children
-                    .iter()
-                    .filter(|c| !visited.contains(*c))
-                    .cloned()
-                    .collect();
+                let unvisited_children: Vec<String> = children.iter().filter(|c| !visited.contains(*c)).cloned().collect();
                 let n = unvisited_children.len();
 
                 if n > 0 {
@@ -245,10 +261,7 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
                     for (i, child_id) in unvisited_children.into_iter().enumerate() {
                         visited.insert(child_id.clone());
                         let child_angle = start_angle + (i as f32 + 0.5) * angle_step;
-                        let child_pos = egui::pos2(
-                            parent_pos.x + radius * child_angle.cos(),
-                            parent_pos.y + radius * child_angle.sin(),
-                        );
+                        let child_pos = egui::pos2(parent_pos.x + radius * child_angle.cos(), parent_pos.y + radius * child_angle.sin());
                         if let Some(node) = nodes_map.get_mut(&child_id) {
                             node.pos = child_pos;
                         }
@@ -275,9 +288,13 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
             unvisited_idx += 1;
         }
     }
+}
 
-    // cleanup
-    // sort the edge keys
+fn finalize_graph(
+    nodes_map: HashMap<String, Node>,
+    edges_map: HashMap<(String, String), Vec<String>>,
+    start_node: &str,
+) -> (Vec<Node>, Vec<Edge>) {
     let mut sorted_keys: Vec<_> = edges_map.keys().collect();
     sorted_keys.sort_by(|a, b| {
         let a_is_root = a.0 == start_node || a.1 == start_node;
@@ -285,7 +302,6 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
         b_is_root.cmp(&a_is_root)
     });
 
-    // build vector
     let mut nodes: Vec<Node> = Vec::with_capacity(nodes_map.len());
     let mut id_to_index: HashMap<String, usize> = HashMap::new();
 
@@ -302,7 +318,6 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
         if processed_edges.contains(key) {
             continue;
         }
-
         let (source_id, target_id) = key;
 
         let mut fwd_list = edges_map.get(key).unwrap().clone();
@@ -315,11 +330,9 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
 
         if is_bidirectional {
             processed_edges.insert(reverse_key.clone());
-
             let mut rev_list = edges_map.get(reverse_key).unwrap().clone();
             rev_list.sort();
             let reverse_label = rev_list.join(", ");
-
             if label != reverse_label {
                 rev_label_opt = Some(reverse_label);
             }
@@ -327,13 +340,11 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
 
         processed_edges.insert(key.clone());
 
-        if let (Some(&source_idx), Some(&target_idx)) =
-            (id_to_index.get(source_id), id_to_index.get(target_id))
-        {
+        if let (Some(&source_idx), Some(&target_idx)) = (id_to_index.get(source_id), id_to_index.get(target_id)) {
             edges.push(Edge {
                 source: source_idx,
                 target: target_idx,
-                label: label,
+                label,
                 reverse_label: rev_label_opt,
                 visible: false,
                 bidirectional: is_bidirectional,
@@ -341,19 +352,15 @@ pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
         }
     }
 
-    // expand center dataset block
-    if let Some(&root_idx) = id_to_index.get(&start_node) {
+    if let Some(&root_idx) = id_to_index.get(start_node) {
         nodes[root_idx].expanded = true;
-        nodes[root_idx].visible = true; // <--- ADD THIS LINE!
+        nodes[root_idx].visible = true;
 
         for edge in &mut edges {
-            // Outgoing edges
             if edge.source == root_idx {
                 edge.visible = true;
                 nodes[edge.target].visible = true;
-            }
-            // Incoming edges
-            else if edge.target == root_idx {
+            } else if edge.target == root_idx {
                 edge.visible = true;
                 nodes[edge.source].visible = true;
             }
