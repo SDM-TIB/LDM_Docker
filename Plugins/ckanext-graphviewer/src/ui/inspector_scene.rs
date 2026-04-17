@@ -6,7 +6,7 @@ impl App {
     pub fn render_inspector_scene(&mut self, ui: &mut egui::Ui, nodes: &mut [Node], edges: &mut [Edge]) {
         // render node inspector
         egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
-            ui.add_space(10.0);
+            ui.add_space(1.0);
 
             // Fetch all non-literal nodes for the dropdown
             let mut sorted_nodes: Vec<_> = nodes.iter().filter(|n| n.node_type != "Attribute").collect();
@@ -40,14 +40,7 @@ impl App {
                     });
             });
 
-            ui.add_space(10.0);
             ui.separator();
-            ui.add_space(10.0);
-
-            let total_width = ui.available_width();
-            let grid_spacing = 20.0;
-            let col1_width = (total_width - grid_spacing) * 0.30;
-            let col2_width = (total_width - grid_spacing) * 0.70;
 
             if let Some(selected_id) = self.inspector_selected_node.clone() {
                 if let Some(node_idx) = nodes.iter().position(|n| n.id == selected_id) {
@@ -62,81 +55,107 @@ impl App {
                     ui.heading("As Subject");
                     ui.add_space(5.0);
 
-                    egui::Grid::new("inspector_subject_grid")
-                        .num_columns(2)
-                        .spacing([grid_spacing, 15.0])
-                        .striped(true)
+                    egui::Frame::NONE
+                        .fill(self.theme.painter_bg)
+                        .corner_radius(5.0)
+                        .inner_margin(8.0)
                         .show(ui, |ui| {
-                            let mut seen_props = std::collections::HashSet::new();
+                            let total_width = ui.available_width();
+                            let grid_spacing = 20.0;
+                            let col1_width = (total_width - grid_spacing) * 0.30;
+                            let col2_width = (total_width - grid_spacing) * 0.70;
 
-                            for (key, value) in &node.properties {
-                                if !seen_props.insert((key.clone(), value.clone())) {
-                                    continue;
-                                }
+                            ui.add_space(3.0);
 
-                                ui.vertical(|ui| {
-                                    ui.set_min_width(col1_width);
-                                    ui.set_max_width(col1_width);
-                                    ui.label(key);
+                            egui::Grid::new("inspector_subject_grid")
+                                .num_columns(2)
+                                .spacing([grid_spacing - 10.0, 15.0])
+                                .striped(true)
+                                .show(ui, |ui| {
+                                    let mut seen_props = std::collections::HashSet::new();
+
+                                    for (key, value) in &node.properties {
+                                        if !seen_props.insert((key.clone(), value.clone())) {
+                                            continue;
+                                        }
+
+                                        ui.vertical(|ui| {
+                                            ui.set_min_width(col1_width);
+                                            ui.set_max_width(col1_width);
+                                            ui.label(key);
+                                        });
+
+                                        ui.vertical(|ui| {
+                                            ui.set_min_width(col2_width);
+                                            ui.set_max_width(col2_width);
+                                            ui.label(value);
+                                        });
+
+                                        ui.end_row();
+                                    }
                                 });
-
-                                ui.vertical(|ui| {
-                                    ui.set_min_width(col2_width);
-                                    ui.set_max_width(col2_width);
-                                    ui.label(value);
-                                });
-
-                                ui.end_row();
-                            }
+                            ui.add_space(7.0);
                         });
 
-                    ui.separator();
-                    ui.add_space(10.0);
-
+                    ui.add_space(5.0);
                     ui.heading("As Object");
                     ui.add_space(5.0);
 
-                    egui::Grid::new("inspector_object_grid")
-                        .num_columns(2)
-                        .spacing([grid_spacing, 15.0])
-                        .striped(true)
+                    egui::Frame::NONE
+                        .fill(self.theme.painter_bg)
+                        .corner_radius(5.0)
+                        .inner_margin(8.0)
                         .show(ui, |ui| {
-                            let mut has_incoming = false;
+                            let frame_width = ui.available_width();
+                            let grid_spacing = 20.0;
+                            let col1_width = (frame_width - grid_spacing) * 0.30;
+                            let col2_width = (frame_width - grid_spacing) * 0.70;
 
-                            for edge in edges.iter() {
-                                let mut is_incoming = false;
-                                let mut source_id = "";
-                                let mut display_label = edge.label.clone();
+                            ui.add_space(3.0);
 
-                                if edge.target == node_idx {
-                                    is_incoming = true;
-                                    source_id = nodes[edge.source].id.as_str();
-                                } else if edge.source == node_idx && edge.bidirectional {
-                                    is_incoming = true;
-                                    source_id = nodes[edge.target].id.as_str();
-                                    if let Some(rev) = &edge.reverse_label {
-                                        display_label = rev.clone();
+                            egui::Grid::new("inspector_object_grid")
+                                .num_columns(2)
+                                .spacing([grid_spacing - 10.0, 15.0])
+                                .striped(true)
+                                .show(ui, |ui| {
+                                    let mut has_incoming = false;
+
+                                    for edge in edges.iter() {
+                                        let mut is_incoming = false;
+                                        let mut source_id = "";
+                                        let mut display_label = edge.label.clone();
+
+                                        if edge.target == node_idx {
+                                            is_incoming = true;
+                                            source_id = nodes[edge.source].id.as_str();
+                                        } else if edge.source == node_idx && edge.bidirectional {
+                                            is_incoming = true;
+                                            source_id = nodes[edge.target].id.as_str();
+                                            if let Some(rev) = &edge.reverse_label {
+                                                display_label = rev.clone();
+                                            }
+                                        }
+
+                                        if is_incoming {
+                                            has_incoming = true;
+
+                                            ui.vertical(|ui| {
+                                                ui.set_min_width(col2_width);
+                                                ui.set_max_width(col2_width);
+                                                ui.label(source_id);
+                                            });
+
+                                            ui.vertical(|ui| {
+                                                ui.set_min_width(col1_width);
+                                                ui.set_max_width(col1_width);
+                                                ui.label(display_label);
+                                            });
+
+                                            ui.end_row();
+                                        }
                                     }
-                                }
-
-                                if is_incoming {
-                                    has_incoming = true;
-
-                                    ui.vertical(|ui| {
-                                        ui.set_min_width(col2_width);
-                                        ui.set_max_width(col2_width);
-                                        ui.label(source_id);
-                                    });
-
-                                    ui.vertical(|ui| {
-                                        ui.set_min_width(col1_width);
-                                        ui.set_max_width(col1_width);
-                                        ui.label(display_label);
-                                    });
-
-                                    ui.end_row();
-                                }
-                            }
+                                });
+                            ui.add_space(7.0);
                         });
                 } else {
                     ui.label(

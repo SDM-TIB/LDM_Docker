@@ -329,7 +329,9 @@ impl eframe::App for App {
 
         ctx.set_visuals(self.theme.to_egui_visuals());
 
-        let main_app_frame = egui::Frame::central_panel(&ctx.global_style()).fill(self.theme.master_bg);
+        let main_app_frame = egui::Frame::central_panel(&ctx.global_style())
+            .fill(self.theme.master_bg)
+            .inner_margin(6.0);
 
         egui::CentralPanel::default().frame(main_app_frame).show_inside(app_ui, |ui| {
             let state_arc = self.state.clone();
@@ -345,53 +347,47 @@ impl eframe::App for App {
                     raw_triples,
                     init_snapshot,
                 } => {
-                    // scene select button
+                    ui.spacing_mut().interact_size.y = 19.0;
+
+                    // scene select tabs
+                    ui.add_space(1.0); // to ocd or not to ocd
                     ui.horizontal(|ui| {
                         let graph_bg = if self.current_scene == crate::Scene::Graph {
                             self.theme.menu_expand_bg
                         } else {
                             self.theme.button_bg
                         };
+                        if ui.add(egui::Button::new("Graph View").fill(graph_bg)).clicked() {
+                            self.current_scene = crate::Scene::Graph;
+                        }
+
                         let analytics_bg = if self.current_scene == crate::Scene::Analytics {
                             self.theme.menu_expand_bg
                         } else {
                             self.theme.button_bg
                         };
+                        if ui.add(egui::Button::new("Analytics View").fill(analytics_bg)).clicked() {
+                            self.current_scene = crate::Scene::Analytics;
+                        }
+
                         let inspector_bg = if self.current_scene == crate::Scene::NodeInspector {
                             self.theme.menu_expand_bg
                         } else {
                             self.theme.button_bg
                         };
-
-                        // Draw them as actual buttons and manually assign the fill color
-                        if ui
-                            .add(egui::Button::new(egui::RichText::new("Graph View").color(self.theme.text_fg)).fill(graph_bg))
-                            .clicked()
-                        {
-                            self.current_scene = crate::Scene::Graph;
-                        }
-                        if ui
-                            .add(egui::Button::new(egui::RichText::new("Analytics View").color(self.theme.text_fg)).fill(analytics_bg))
-                            .clicked()
-                        {
-                            self.current_scene = crate::Scene::Analytics;
-                        }
-                        if ui
-                            .add(egui::Button::new(egui::RichText::new("Node Inspector").color(self.theme.text_fg)).fill(inspector_bg))
-                            .clicked()
-                        {
+                        if ui.add(egui::Button::new("Node Inspector View").fill(inspector_bg)).clicked() {
                             self.current_scene = crate::Scene::NodeInspector;
                         }
 
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            // theme button
                             let theme_string = match self.theme_mode {
                                 ThemeMode::Dark => "Dark Mode",
                                 ThemeMode::Light => "Light Mode",
                                 ThemeMode::TestingRed => "Testing Red",
                             };
 
-                            let theme_button =
-                                egui::Button::new(egui::RichText::new(theme_string).color(self.theme.text_fg)).fill(self.theme.button_bg);
+                            let theme_button = egui::Button::new(theme_string);
 
                             if ui.add(theme_button).clicked() {
                                 match self.theme_mode {
@@ -410,35 +406,22 @@ impl eframe::App for App {
                                 }
                             }
 
-                            // 2. Export Dropdown Menu
                             let mut dummy = 0;
                             egui::ComboBox::from_id_salt("export_menu")
-                                .selected_text(egui::RichText::new("Export").color(self.theme.text_fg))
+                                .selected_text("Export")
                                 .show_ui(ui, |ui| {
-                                    if ui
-                                        .selectable_value(&mut dummy, 1, egui::RichText::new("Export as SVG").color(self.theme.text_fg))
-                                        .clicked()
-                                    {
+                                    if ui.selectable_value(&mut dummy, 1, "Export as SVG").clicked() {
                                         let _svg_data = crate::export::generate_svg(nodes, edges, &self.theme);
                                         log::info!("Generated SVG");
                                     }
-                                    if ui
-                                        .selectable_value(&mut dummy, 2, egui::RichText::new("Export as PNG").color(self.theme.text_fg))
-                                        .clicked()
-                                    {
+                                    if ui.selectable_value(&mut dummy, 2, "Export as PNG").clicked() {
                                         log::info!("PNG export requested");
                                     }
-                                    if ui
-                                        .selectable_value(&mut dummy, 3, egui::RichText::new("Export as N3").color(self.theme.text_fg))
-                                        .clicked()
-                                    {
+                                    if ui.selectable_value(&mut dummy, 3, "Export as N3").clicked() {
                                         let _n3_data = crate::export::generate_n3(nodes, edges);
                                         log::info!("Generated N3");
                                     }
-                                    if ui
-                                        .selectable_value(&mut dummy, 4, egui::RichText::new("Export as JSON").color(self.theme.text_fg))
-                                        .clicked()
-                                    {
+                                    if ui.selectable_value(&mut dummy, 4, "Export as JSON").clicked() {
                                         let _json_data = crate::export::generate_json(nodes, edges);
                                         log::info!("Generated JSON");
                                     }

@@ -12,6 +12,7 @@ impl App {
         init_snapshot: &mut GraphSnapshot,
     ) {
         // render graph
+        ui.add_space(1.0);
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new("Graph Controls:").color(self.theme.text_fg));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -44,7 +45,7 @@ impl App {
                 }
             });
         });
-        ui.add_space(5.0);
+        ui.add_space(3.0);
 
         let draw_node_details = |ui: &mut egui::Ui, node: &Node| {
             egui::Grid::new(format!("tooltip_grid_{}", node.id))
