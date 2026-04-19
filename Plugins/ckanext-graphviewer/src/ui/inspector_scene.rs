@@ -5,14 +5,15 @@ use eframe::egui;
 impl App {
     pub fn render_inspector_scene(&mut self, ui: &mut egui::Ui, nodes: &mut [Node], edges: &mut [Edge]) {
         // render node inspector
+        let max_width = ui.available_width() - 12.0; // magic number for margin
+        let max_height = ui.available_height() - 34.0; // magic number for margin
+
         egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
             ui.add_space(1.0);
 
-            // Fetch all non-literal nodes for the dropdown
             let mut sorted_nodes: Vec<_> = nodes.iter().filter(|n| n.node_type != "Attribute").collect();
             sorted_nodes.sort_by(|a, b| a.label.to_lowercase().cmp(&b.label.to_lowercase()));
 
-            // 1. Draw the Dropdown Menu
             ui.horizontal(|ui| {
                 ui.label("Select a Node:");
 
@@ -26,18 +27,76 @@ impl App {
                     "--- Select a Node ---".to_string()
                 };
 
-                egui::ComboBox::from_id_salt("node_inspector_dropdown")
-                    .width(ui.available_width())
-                    .height(ui.ctx().content_rect().height())
-                    .selected_text(selected_label)
-                    .show_ui(ui, |ui| {
+                let popup_id = ui.id().with("inspector_searchable_popup");
+                let mut is_open = egui::Popup::is_id_open(ui.ctx(), popup_id);
+
+                let target_width = ui.available_width() - 0.0;
+                let default_height = ui.spacing().interact_size.y;
+
+                let button_response = ui.add_sized(
+                    [target_width, default_height],
+                    egui::Button::new(selected_label)
+                );
+
+                if button_response.clicked() {
+                    is_open = !is_open;
+                }
+
+                if is_open && ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                    is_open = false;
+                }
+
+                if is_open {
+                    egui::Popup::open_id(ui.ctx(), popup_id);
+                } else {
+                    egui::Popup::close_id(ui.ctx(), popup_id);
+                }
+
+                egui::Popup::from_response(&button_response).id(popup_id).open(is_open).show(|ui| {
+                    ui.set_min_width(max_width);
+                    ui.set_max_width(max_width);
+                    ui.set_min_height(max_height);
+                    ui.set_max_height(max_height);
+
+                    ui.add_sized(
+                        [max_width, 0.0],
+                        egui::TextEdit::singleline(&mut self.inspector_search_text)
+                            .hint_text("Search nodes...")
+                    );
+
+                    ui.separator();
+
+                    let search_term = self.inspector_search_text.to_lowercase();
+                    let mut match_found = false;
+
+                    egui::ScrollArea::vertical().show(ui, |ui| {
                         for node in sorted_nodes {
                             let uri_tail = node.id.split('/').last().unwrap_or(&node.id).split('#').last().unwrap_or(&node.id);
                             let display_text = format!("{} ({})", node.label, uri_tail);
 
-                            ui.selectable_value(&mut self.inspector_selected_node, Some(node.id.clone()), display_text);
+                            if search_term.is_empty() || display_text.to_lowercase().contains(&search_term) {
+                                match_found = true;
+
+                                let is_selected = self.inspector_selected_node == Some(node.id.clone());
+
+                                let row_response = ui.add_sized(
+                                    [max_width, 0.0],
+                                    egui::SelectableLabel::new(is_selected, display_text)
+                                );
+
+                                if row_response.clicked() {
+                                    self.inspector_selected_node = Some(node.id.clone());
+                                    self.inspector_search_text.clear();
+                                    egui::Popup::close_id(ui.ctx(), popup_id);
+                                }
+                            }
+                        }
+
+                        if !match_found {
+                            ui.label(egui::RichText::new("No matching nodes found.").color(self.theme.dimmed_text_fg).italics());
                         }
                     });
+                });
             });
 
             ui.separator();
