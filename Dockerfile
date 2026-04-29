@@ -149,6 +149,7 @@ ARG VER_CKANEXT_KGCREATION="4ae50fa"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="628a18e"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
 ARG VER_CKANEXT_SHOWCASE="1.6.1"
+ARG VER_CKANEXT_DOWNLOADALL="0.3.0"
 
 # TEXTVIEW
 # ********
@@ -208,6 +209,11 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dwgviewer/requirements.txt
 COPY ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-fedorkg@v${VER_CKANEXT_FEDORKG}#egg=ckanext-fedorkg --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-fedorkg/refs/tags/v${VER_CKANEXT_FEDORKG}/requirements.txt
+
+# downloadall Plugin:
+# ******************
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-downloadall@v${VER_CKANEXT_DOWNLOADALL}#egg=ckanext-downloadall --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-downloadall/refs/tags/v${VER_CKANEXT_DOWNLOADALL}/requirements.txt
 
 # Showcase Plugin:
 # ******************

@@ -62,7 +62,7 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme TIBdcat pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer ldm_sparql falcon tib_matomo tibnotify Code2NB" \
+    "ckan.plugins = downloadall graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme TIBdcat pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer ldm_sparql falcon tib_matomo tibnotify Code2NB" \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
@@ -71,13 +71,18 @@ write_config () {
     "ckan.views.default_views = image_view text_view datacomparison_view video_view officedocs_view pdf_view tib_cadviewer jupyternotebook" \
     "ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json ipynb"
 
+  echo "CONFIG downloadall"
+  ckan config-tool -s app:main $CONFIG \
+    "ckanext.downloadall.stream_threshold_bytes = 0" \
+    "ckanext.downloadall.job_queue_name = tib_ur"
+  echo "CONFIG downloadall DONE"
+
   echo "CONFIG tibimport vars"
   ckan config-tool -s app:main $CONFIG \
 	"tibimport.show_vdatasets_virtual_ribbon = true" \
 	"tibimport.show_vdatasets_virtual_source_ribbon = true" \
     "tibimport.updatedatasets_enabled = false" \
 	"tibimport.updatedatasets_crontab_user = root"
-	
   echo "CONFIG tibimport vars DONE"
 
   echo "CONFIG scheming vars"
