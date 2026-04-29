@@ -95,7 +95,7 @@ write_config () {
     "ckanext.doi.account_password = ${DOI_Account_Password}" \
     "ckanext.doi.prefix = ${DOI_Prefix}" \
     "ckanext.doi.publisher = ${DOI_Publisher}" \
-    "ckanext.doi.test_mode = false"
+    "ckanext.doi.test_mode = ${DOI_Test_Mode}"
   echo "CONFIG DOI plugin DONE"
 
   echo "CONFIG AutoUpdate Resources plugin"
