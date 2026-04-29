@@ -150,6 +150,7 @@ ARG VER_CKANEXT_JUPYTERNOTEBOOK="628a18e"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
 ARG VER_CKANEXT_SHOWCASE="1.6.1"
 ARG VER_CKANEXT_DOWNLOADALL="0.3.0"
+ARG VER_CKANEXT_PDFVIEW="0.0.7"
 
 # TEXTVIEW
 # ********
@@ -180,8 +181,7 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-TIBdcat/requirements.txt
 
 # PDF viewer Plugin:
 # ******************
-COPY ./Plugins/ckanext-pdfview $CKAN_HOME_L/src/ckanext-pdfview
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-pdfview
+RUN ckan-pip install -e git+https://github.com/ckan/ckanext-pdfview@${VER_CKANEXT_PDFVIEW}#egg=ckanext-pdfview --src $CKAN_HOME_L/src/
 
 # Falcon Plugin:
 # ******************
