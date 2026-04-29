@@ -151,6 +151,7 @@ ARG VER_CKANEXT_CODE2NB="7a217a9"
 ARG VER_CKANEXT_SHOWCASE="1.6.1"
 ARG VER_CKANEXT_DOWNLOADALL="0.3.0"
 ARG VER_CKANEXT_PDFVIEW="0.0.7"
+ARG VER_CKANEXT_OFFICEDOCS="1.1.1"
 
 # TEXTVIEW
 # ********
@@ -222,8 +223,7 @@ RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDMoauth2/requirements.txt
 
 # MS and OpenOffice docs viewer
 # ***************************** 
-COPY ./Plugins/ckanext-officedocs $CKAN_HOME_L/src/ckanext-officedocs
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-officedocs
+RUN ckan-pip install -e git+https://github.com/jqnatividad/ckanext-officedocs@v${VER_CKANEXT_OFFICEDOCS}#egg=ckanext-officedocs --src $CKAN_HOME_L/src/
 
 # KG Creation Plugin:
 # ******************
