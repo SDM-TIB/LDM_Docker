@@ -155,11 +155,6 @@ ARG VER_CKANEXT_SHOWCASE="1.6.1"
 # Patch for message in case of big files error
 COPY ./Plugins/ckanext-textview/text_view_patched.js $CKAN_HOME_L/src/ckan/ckanext/textview/theme/public/text_view.js
 
-# VIDEOVIEWER
-# ***********
-COPY ./Plugins/ckanext-videoviewer $CKAN_HOME_L/src/ckanext-videoviewer
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-videoviewer
-
 # CADVIEWER
 # ***********
 COPY ./Plugins/ckanext-tib_cadviewer $CKAN_HOME_L/src/ckanext-tib_cadviewer

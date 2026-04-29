@@ -1415,11 +1415,11 @@ ba5e8b5b-81f6-4561-80d1-1474f4818ff8	4577e551-96f8-4e13-ac81-012a866d00ac	view		
 d9c34cef-7daa-46f4-a67d-32054d97662e	036bcac0-c857-4bf0-bc71-1c78ed35d93a	view		webpage_view	0	{"page_url": "http://vocol.kbs.uni-hannover.de:8000/user/auer/notebooks/ckan22012018/ckan_tib/files/Labeled%20Faces%20in%20the%20Wild%20recognition.ipynb"}
 c0442c6b-9d26-4f1d-9337-75b9fecb1f14	1e335b61-123e-4ba4-9c5b-9d1d6309dba9	view		webpage_view	0	{"page_url": "http://vocol.kbs.uni-hannover.de:8000/user/auer/notebooks/ckan22012018/ckan_tib/files/Example%20Machine%20Learning%20Notebook.ipynb"}
 3ca5593a-c5f5-403b-bbab-1c6a03ca66f6	0ce74f0d-bf35-4627-9f69-92d5c1150dff	Example CAD		webpage_view	0	{"page_url": "https://myhub.autodesk360.com/ue2a46308/shares/public/SH7f1edQT22b515c761ee0288183ac670a79?mode=embed"}
-7d6f355f-ea2e-4f93-900f-abad36d4c10f	8649545f-f1d0-49d2-b9cd-88f2593ec059	Video		videoviewer	0	\N
+7d6f355f-ea2e-4f93-900f-abad36d4c10f	8649545f-f1d0-49d2-b9cd-88f2593ec059	Video		video_view	0	\N
 e89ce4cd-f3a2-47a9-88be-b3867f2eda61	cc05a1c2-948b-4965-aea7-de09abdad953	Data Explorer		recline_view	0	\N
 9cc3c0d7-3b0b-44d3-9811-8e4a41ac5267	aad9e24e-1046-4b70-9bb8-7d17a8371969	Data Explorer		recline_view	0	\N
-5c21c0f1-637e-4898-814b-33df383bd92a	849a62dc-45fe-4f7e-9687-09543b7f8512	Video		videoviewer	0	\N
-9f7bdf2b-e420-4c4a-9e9a-6cc14aad5516	a86b71e3-c68a-421e-b995-b172d603df62	Video		videoviewer	0	\N
+5c21c0f1-637e-4898-814b-33df383bd92a	849a62dc-45fe-4f7e-9687-09543b7f8512	Video		video_view	0	\N
+9f7bdf2b-e420-4c4a-9e9a-6cc14aad5516	a86b71e3-c68a-421e-b995-b172d603df62	Video		video_view	0	\N
 44f9c2f8-439e-4b80-931f-13f4e4b86fff	ce24e635-7fef-47e2-9f70-a0b214805867	Text		text_view	0	\N
 1eaddbb2-8a82-4c31-972c-c4028b71d138	4a7d7059-b168-4772-9b81-ffb11f0f6d70	PDF		pdf_view	0	{"pdf_url": "https://data.uni-hannover.de/dataset/bcdf26cd-3b02-4f15-80dd-3b3eb83de9dc/resource/abf53e9f-0e55-48fa-b2b2-6c211c22b72c/download/data_description.pdf"}
 6c337624-8a4b-408b-98cc-11a5d3fa1a3a	43670f2e-4bcc-4835-8f95-5eb6c8a0ace6	Image		image_view	0	\N
