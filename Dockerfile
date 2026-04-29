@@ -198,12 +198,6 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-advancedstats@v${
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-datacomparison@v${VER_CKANEXT_DATACOMPARISON}#egg=ckanext-datacomparison --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-datacomparison/refs/tags/v${VER_CKANEXT_DATACOMPARISON}/requirements.txt
 
-# Dwgviewer Plugin:
-# ******************
-COPY ./Plugins/ckanext-dwgviewer $CKAN_HOME_L/src/ckanext-dwgviewer
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-dwgviewer
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-dwgviewer/requirements.txt
-
 # FedORKG Plugin:
 # ******************
 COPY ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
