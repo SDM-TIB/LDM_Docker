@@ -1,548 +1,506 @@
+pub mod api_client;
+pub mod constants;
+pub mod export;
+mod graph_processor;
+mod node_menu;
+mod parser;
+mod theme;
+pub mod ui;
+
 use eframe::egui;
-use log::{error, info};
-use oxttl::TurtleParser;
-use std::collections::HashMap;
+use log::info;
 use std::sync::{Arc, Mutex};
-use oxrdf::Triple;
 
-const RDF_TYPE: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-const RDF_LABEL: &str = "http://www.w3.org/2000/01/rdf-schema#label";
+use graph_processor::{Edge, Node};
+use theme::Theme;
 
-const VCARD_FN: &str = "http://www.w3.org/2006/vcard/ns#fn";
-
-const PRO_AUTHOR: &str = "http://purl.org/spar/pro/Author";
-const DCAT_DISTRIBUTION: &str = "http://www.w3.org/ns/dcat#Distribution";
-const DCAT_DISTRIBUTION_PROP: &str = "http://www.w3.org/ns/dcat#distribution";
-const DCAT_DATASERVICE: &str = "http://www.w3.org/ns/dcat#DataService";
-const DCAT_DATASET: &str = "http://www.w3.org/ns/dcat#Dataset";
-const DCAT_KEYWORD_PROP: &str = "http://www.w3.org/ns/dcat#keyword";
-
-const DCAT_LANDING_PAGE: &str = "http://www.w3.org/ns/dcat#landingPage";
-const DCTERMS_DESCRIBED_BY: &str = "http://purl.org/dc/terms/isReferencedBy";
-const DCTERMS_CITATION: &str = "http://purl.org/dc/terms/bibliographicCitation";
-
-const VCARD_ORGANIZATION: &str = "http://www.w3.org/2006/vcard/ns#Organization";
-const SKOS_CONCEPT: &str = "http://www.w3.org/2004/02/skos/core#Concept";
-
-const DCTERMS_TITLE: &str = "http://purl.org/dc/terms/title";
-const DCTERMS_MODIFIED: &str = "http://purl.org/dc/terms/modified";
-const DCTERMS_LICENSE: &str = "http://purl.org/dc/terms/license";
-const DCTERMS_DESCRIPTION: &str = "http://purl.org/dc/terms/description";
-const DCTERMS_IDENTIFIER: &str = "http://purl.org/dc/terms/identifier";
-const DCTERMS_ISSUED: &str = "http://purl.org/dc/terms/issued";
-const DCTERMS_PUBLISHER: &str = "http://purl.org/dc/terms/publisher";
-const DCTERMS_CREATOR: &str = "http://purl.org/dc/terms/creator";
-
-// srtuct representing a subject or object
-#[derive(Debug)]
-struct RDFNode {
-    id: String,
-    label: String,
-    rdf_type: String,
-    node_type: String,
-    pos: egui::Pos2,
+#[derive(PartialEq)]
+pub enum Scene {
+    Graph,
+    Analytics,
+    NodeInspector,
 }
 
-// struct representing a predicate
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
-struct RDFEdge {
-    source: String,
-    target: String,
-    label: String,
+#[derive(PartialEq, Eq, Hash, Clone)]
+pub enum SearchType {
+    AuthorName,
+    AuthorOrcid,
+    AuthorLdmId,
+    PaperDoi,
+    PaperTitle,
+    DatasetDoi,
+    DatasetTitle,
+    DatasetLdmId,
 }
 
-enum AppState {
+#[derive(PartialEq)]
+pub enum ThemeMode {
+    Light,
+    Dark,
+    TestingRed,
+}
+
+impl SearchType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SearchType::AuthorName => "Author Name",
+            SearchType::AuthorOrcid => "Author ORCID",
+            SearchType::AuthorLdmId => "Author LDM ID",
+            SearchType::PaperDoi => "Paper DOI",
+            SearchType::PaperTitle => "Paper Title",
+            SearchType::DatasetDoi => "Dataset DOI",
+            SearchType::DatasetTitle => "Dataset Title",
+            SearchType::DatasetLdmId => "Dataset LDM ID",
+        }
+    }
+
+    pub fn all() -> Vec<SearchType> {
+        vec![
+            SearchType::AuthorName,
+            SearchType::AuthorOrcid,
+            SearchType::AuthorLdmId,
+            SearchType::PaperDoi,
+            SearchType::PaperTitle,
+            SearchType::DatasetDoi,
+            SearchType::DatasetTitle,
+            SearchType::DatasetLdmId,
+        ]
+    }
+}
+
+#[derive(Clone)]
+pub struct GraphSnapshot {
+    pub node_positions: std::collections::HashMap<String, egui::Pos2>,
+    pub visible_nodes: std::collections::HashSet<String>,
+    pub expanded_nodes: std::collections::HashSet<String>,
+    pub visible_edges: std::collections::HashSet<(String, String)>,
+}
+
+impl GraphSnapshot {
+    pub fn new(nodes: &[Node], edges: &[Edge]) -> Self {
+        let mut node_positions = std::collections::HashMap::new();
+        let mut visible_nodes = std::collections::HashSet::new();
+        let mut expanded_nodes = std::collections::HashSet::new();
+        let mut visible_edges = std::collections::HashSet::new();
+
+        for n in nodes {
+            node_positions.insert(n.id.clone(), n.pos);
+            if n.visible {
+                visible_nodes.insert(n.id.clone());
+            }
+            if n.expanded {
+                expanded_nodes.insert(n.id.clone());
+            }
+        }
+        for e in edges {
+            if e.visible {
+                visible_edges.insert((nodes[e.source].id.clone(), nodes[e.target].id.clone()));
+            }
+        }
+
+        Self {
+            node_positions,
+            visible_nodes,
+            expanded_nodes,
+            visible_edges,
+        }
+    }
+}
+
+pub enum AppState {
     Loading,
     Error(String),
     Ready {
-        nodes: HashMap<String, RDFNode>,
-        edges: HashMap<(String, String), RDFEdge>,
+        nodes: Vec<Node>,
+        edges: Vec<Edge>,
+        raw_triples: Vec<parser::RawTriple>,
+        init_snapshot: GraphSnapshot,
     },
 }
 
-struct RdfGraphApp {
+struct App {
     state: Arc<Mutex<AppState>>,
-    color_map: HashMap<String, NodeColors>,
+    zoom: f32,
+    pan: egui::Vec2,
+    theme: Theme,
+    selected_node: Option<usize>,
+    show_menu: bool,
+    pending_click_node: Option<usize>,
+    pending_click_time: f64,
+    pub theme_mode: ThemeMode,
+    canvas_rect: Option<egui::Rect>,
+    current_scene: Scene,
+    inspector_selected_node: Option<String>,
+    inspector_search_text: String,
+    search_type: SearchType,
+    search_input: String,
+    api_url: String,
+    is_global_viewer: bool,
+    pub is_fetching: Arc<Mutex<bool>>,
+    pub search_failed: Arc<Mutex<bool>>,
+    pub highlighted_index: usize,
+    pub suggestions: Arc<Mutex<std::collections::HashMap<crate::SearchType, Vec<String>>>>,
 }
 
-#[derive(Debug)]
-struct NodeColors {
-    normal: egui::Color32,
-    selected: egui::Color32,
-}
-
-// obtain source ttl file
 #[cfg(target_arch = "wasm32")]
-fn get_ttl_url_from_current_path() -> Option<String> {
+fn get_api_url_from_dom() -> Option<String> {
     let window = web_sys::window()?;
-    let location = window.location();
-    let pathname = location.pathname().ok()?;
-    let pathname2 = pathname.strip_suffix("/graph")?;
-    Some(format!("{}.ttl", pathname2))
-}
-
-struct ParsedTriple {
-    subject: String,
-    subject_type: String,
-    predicate: String,
-    object: String,
-}
-
-impl ParsedTriple {
-    fn from_triple(triple: &Triple) -> Self {
-        let (subject, subject_type) = match &triple.subject {
-            oxrdf::NamedOrBlankNode::NamedNode(node) => {
-                (node.as_str().to_string(), "NamedNode".to_string())
-            }
-            oxrdf::NamedOrBlankNode::BlankNode(node) => {
-                (node.as_str().to_string(), "BlankNode".to_string())
-            }
-        };
-
-        let object = match &triple.object {
-            oxrdf::Term::NamedNode(node) => node.as_str().to_string(),
-            oxrdf::Term::BlankNode(node) => node.as_str().to_string(),
-            oxrdf::Term::Literal(literal) => literal.value().to_string(),
-        };
-
-        Self {
-            subject,
-            subject_type,
-            predicate: triple.predicate.as_str().to_string(),
-            object,
+    let document = window.document()?;
+    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
+        if let Some(url) = canvas.get_attribute("data-api-url") {
+            return Some(url.trim_end_matches('/').to_string());
         }
     }
+    None
 }
 
-fn extract_label(uri: &str) -> String {
-    uri.trim_matches('<')
-        .trim_matches('>')
-        .split('/')
-        .last()
-        .unwrap_or(uri)
-        .to_string()
-}
+#[cfg(target_arch = "wasm32")]
+fn get_n3_url_from_dom() -> Option<String> {
+    let window = web_sys::window()?;
+    let document = window.document()?;
 
-// TODO debug author
-fn add_or_update_edge(
-    edges: &mut HashMap<(String, String), RDFEdge>,
-    source: String,
-    target: String,
-    label: String,
-) {
-    let key = (source.clone(), target.clone());
-    edges
-        .entry(key)
-        .and_modify(|e| {
-            if !e.label.contains(&label) {
-                e.label.push_str(", ");
-                e.label.push_str(&label);
-            }
-        })
-        .or_insert(RDFEdge { source, target, label });
-}
-
-// parse ttl file and populate graph struct
-fn parse_ttl_to_graph(ttl_text: &str) -> (HashMap<String, RDFNode>, HashMap<(String, String), RDFEdge>) {
-    let mut nodes: HashMap<String, RDFNode> = HashMap::new();
-    let mut edges: HashMap<(String, String), RDFEdge> = HashMap::new();
-
-    let mut center_subject = String::new();
-    let center_pos = egui::pos2(500.0, 600.0);
-
-    let modified_pos = egui::pos2(200.0, 400.0);
-    let issued_pos = egui::pos2(200.0, 500.0);
-    let publisher_pos = egui::pos2(200.0, 800.0);
-
-    let license_pos = egui::pos2(800.0, 700.0);
-    let description_pos = egui::pos2(800.0, 600.0);
-    let id_pos = egui::pos2(800.0, 800.0);
-
-    let mut creator_pos = egui::pos2(250.0, 900.0);
-    let mut distribution_pos = egui::pos2(750.0, 900.0);
-    let mut keyword_pos = egui::pos2(400.0, 900.0);
-
-    let mut citation_pos = egui::pos2(800.0, 300.0);
-    let mut landing_page_pos = egui::pos2(800.0, 300.0);
-    let mut described_by_pos = egui::pos2(600.0, 900.0);
-
-    let iteration_delta = 50.0;
-
-    let mut author_names: Vec<String> = Vec::new();
-
-    let triples: Vec<Triple> = TurtleParser::new()
-        .for_slice(ttl_text.as_bytes())
-        .filter_map(|r| r.map_err(|e| error!("Parse error: {}", e)).ok())
-        .collect();
-
-    let parsed_triples: Vec<ParsedTriple> = triples.iter().map(|t| {
-        // info!("{:?}", t);
-        let pt = ParsedTriple::from_triple(t);
-        // info!("triple:\n\ts: {}\n\tp: {}\n\to: {}\n", pt.subject, pt.predicate, pt.object);
-        pt
-    }).collect();
-
-    let insert_literal_node = |nodes: &mut HashMap<String, RDFNode>,
-    edges: &mut HashMap<(String, String), RDFEdge>,
-    pt: &ParsedTriple,
-    pos: egui::Pos2| {
-
-        if nodes.contains_key(&pt.subject) {
-            nodes.insert(
-                pt.object.clone(),
-                RDFNode {
-                    id: pt.object.clone(),
-                    label: pt.object.clone(),
-                    rdf_type: "Literal".to_string(),
-                    node_type: pt.subject_type.clone(),
-                    pos,
-                },
-            );
-            add_or_update_edge(edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-        }
-    };
-
-    // 1. pass to find all types present in the ttl
-    for pt in &parsed_triples {
-        if pt.predicate == RDF_TYPE {
-            match pt.object.as_str() {
-                DCAT_DATASERVICE | DCAT_DATASET => {
-                    center_subject = pt.subject.clone();
-                    nodes.entry(pt.subject.clone())
-                        .and_modify(|entry| {
-                            entry.rdf_type.push_str(", ");
-                            entry.rdf_type.push_str(&pt.object);
-                        })
-                        .or_insert_with(|| RDFNode {
-                            id: pt.subject.clone(),
-                            label: extract_label(&pt.subject),
-                            rdf_type: pt.object.clone(),
-                            node_type: pt.subject_type.clone(),
-                            pos: center_pos,
-                        });
-                }
-                PRO_AUTHOR | DCAT_DISTRIBUTION | SKOS_CONCEPT => {
-                    nodes.insert(
-                        pt.subject.clone(),
-                        RDFNode {
-                            id: pt.subject.clone(),
-                            label: extract_label(&pt.subject),
-                            rdf_type: pt.object.clone(),
-                            node_type: pt.subject_type.clone(),
-                            pos: egui::pos2(0.0, 0.0),
-                        },
-                    );
-                }
-                VCARD_ORGANIZATION => {
-                    nodes.insert(
-                        pt.subject.clone(),
-                        RDFNode {
-                            id: pt.subject.clone(),
-                            label: extract_label(&pt.subject),
-                            rdf_type: pt.object.clone(),
-                            node_type: pt.subject_type.clone(),
-                            pos: publisher_pos,
-                        },
-                    );
-                }
-                _ => {}
+    if let Some(canvas) = document.get_element_by_id("the_canvas_id") {
+        if let Some(url) = canvas.get_attribute("data-n3-url") {
+            if !url.is_empty() {
+                return Some(url);
             }
         }
     }
+    None
+}
 
-    // 2. pass to fill in label and edges
-for pt in &parsed_triples {
-        let is_dataset_or_service = nodes.get(&pt.subject)
-            .map(|n| n.rdf_type.contains("Dataset") || n.rdf_type.contains("Service"))
-            .unwrap_or(false);
+// wasm png export
+#[cfg(target_arch = "wasm32")]
+fn trigger_wasm_canvas_download(rect: egui::Rect, ppp: f32, filename: &str) {
+    use wasm_bindgen::JsCast;
 
-        match pt.predicate.as_str() {
-            // Labels
-            RDF_LABEL | DCTERMS_TITLE => {
-                if let Some(entry) = nodes.get_mut(&pt.subject) {
-                    entry.label.clear();
-                    entry.label.push_str(&pt.object);
-                }
-            }
-            DCTERMS_DESCRIPTION => {
-                if pt.subject == center_subject {
-                    insert_literal_node(&mut nodes, &mut edges, pt, description_pos);
-                }
-            }
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
 
-            // Collect Author Names (vcard:fn)
-            VCARD_FN => {
-                if pt.subject == center_subject {
-                    author_names.push(pt.object.clone());
-                }
-            }
+    if let Some(main_canvas_elem) = document.get_element_by_id("the_canvas_id") {
+        if let Ok(main_canvas) = main_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>() {
+            let sx = (rect.min.x * ppp).round() as f64;
+            let sy = (rect.min.y * ppp).round() as f64;
+            let s_width = (rect.width() * ppp).round() as f64;
+            let s_height = (rect.height() * ppp).round() as f64;
 
-            // Literals requiring Dataset/Service verification
-            DCTERMS_MODIFIED => {
-                if is_dataset_or_service {
-                    insert_literal_node(&mut nodes, &mut edges, pt, modified_pos);
-                }
-            }
-            DCTERMS_ISSUED => {
-                if is_dataset_or_service {
-                    insert_literal_node(&mut nodes, &mut edges, pt, issued_pos);
-                }
-            }
-            DCTERMS_PUBLISHER => {
-                if is_dataset_or_service {
-                    add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                    if let Some(obj_entry) = nodes.get_mut(&pt.object) {
-                        obj_entry.pos = publisher_pos;
+            if s_width > 0.0 && s_height > 0.0 {
+                if let Ok(temp_canvas_elem) = document.create_element("canvas") {
+                    if let Ok(temp_canvas) = temp_canvas_elem.dyn_into::<web_sys::HtmlCanvasElement>() {
+                        temp_canvas.set_width(s_width as u32);
+                        temp_canvas.set_height(s_height as u32);
+
+                        if let Ok(Some(ctx_obj)) = temp_canvas.get_context("2d") {
+                            if let Ok(ctx) = ctx_obj.dyn_into::<web_sys::CanvasRenderingContext2d>() {
+                                let _ = ctx.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
+                                    &main_canvas,
+                                    sx,
+                                    sy,
+                                    s_width,
+                                    s_height,
+                                    0.0,
+                                    0.0,
+                                    s_width,
+                                    s_height,
+                                );
+
+                                if let Ok(data_url) = temp_canvas.to_data_url_with_type("image/png") {
+                                    if let Ok(a) = document.create_element("a") {
+                                        a.set_attribute("href", &data_url).unwrap();
+                                        a.set_attribute("download", filename).unwrap();
+                                        if let Ok(html_a) = a.dyn_into::<web_sys::HtmlElement>() {
+                                            html_a.click();
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-
-            // General Literals
-            DCTERMS_LICENSE => insert_literal_node(&mut nodes, &mut edges, pt, license_pos),
-            DCTERMS_IDENTIFIER => insert_literal_node(&mut nodes, &mut edges, pt, id_pos),
-
-            // Relational Edges
-            DCTERMS_CREATOR => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = creator_pos;
-                    creator_pos.y += iteration_delta;
-                }
-            }
-            DCAT_DISTRIBUTION_PROP => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = distribution_pos;
-                    distribution_pos.y += iteration_delta;
-                }
-            }
-            DCAT_KEYWORD_PROP => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = keyword_pos;
-                    keyword_pos.y += iteration_delta;
-                }
-            }
-            DCAT_LANDING_PAGE => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = landing_page_pos;
-                    landing_page_pos.y += iteration_delta;
-                }
-            }
-            DCTERMS_DESCRIBED_BY => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = described_by_pos;
-                    described_by_pos.y += iteration_delta;
-                }
-            }
-            DCTERMS_CITATION => {
-                add_or_update_edge(&mut edges, pt.subject.clone(), pt.object.clone(), extract_label(&pt.predicate));
-                if let Some(entry) = nodes.get_mut(&pt.object) {
-                    entry.pos = citation_pos;
-                    citation_pos.y += iteration_delta;
-                }
-            }
-            _ => {}
         }
     }
-
-    // add author the creator edge
-    for author_name in author_names {
-        if let Some((node_id, _)) = nodes.iter().find(|(_, n)| n.label == author_name) {
-            add_or_update_edge(&mut edges, center_subject.clone(), node_id.clone(), "author".to_string());
-        }
-    }
-
-    (nodes, edges)
 }
-impl RdfGraphApp {
+
+impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.style_mut(|style| {
+        cc.egui_ctx.global_style_mut(|style| {
             style.interaction.tooltip_delay = 0.0;
         });
 
-        let state = Arc::new(Mutex::new(AppState::Loading));
+        let is_system_dark = cc.egui_ctx.global_style().visuals.dark_mode;
 
-        let mut color_map = HashMap::new();
-        color_map.insert(
-            DCAT_DATASET.to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(255, 165, 0),
-                selected: egui::Color32::from_rgb(255, 200, 100),
-            },
-        );
-        color_map.insert(
-            PRO_AUTHOR.to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(250, 50, 50),
-                selected: egui::Color32::from_rgb(255, 100, 100),
-            },
-        );
-        color_map.insert(
-            DCAT_DISTRIBUTION.to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(50, 120, 220),
-                selected: egui::Color32::from_rgb(100, 180, 255),
-            },
-        );
-        color_map.insert(
-            SKOS_CONCEPT.to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(50, 180, 50),
-                selected: egui::Color32::from_rgb(120, 255, 120),
-            },
-        );
-        color_map.insert(
-            VCARD_ORGANIZATION.to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(150, 80, 220),
-                selected: egui::Color32::from_rgb(200, 150, 255),
-            },
-        );
-        color_map.insert(
-            "Literal".to_string(),
-            NodeColors {
-                normal: egui::Color32::from_rgb(220, 200, 0),
-                selected: egui::Color32::from_rgb(255, 240, 100),
-            },
-        );
-
-        #[cfg(target_arch = "wasm32")]
-        {
-            if let Some(target_url) = get_ttl_url_from_current_path() {
-                let state_clone = state.clone();
-                let ctx_clone = cc.egui_ctx.clone();
-
-                let request = ehttp::Request::get(&target_url);
-
-                ehttp::fetch(request, move |response| {
-                    let mut app_state = state_clone.lock().unwrap();
-                    match response {
-                        Ok(res) => {
-                            if let Some(text) = res.text() {
-                                let (nodes, edges) = parse_ttl_to_graph(text);
-                                *app_state = AppState::Ready { nodes, edges };
-                            } else {
-                                *app_state = AppState::Error("Failed to read text from TTL".into());
-                            }
-                        }
-                        Err(err) => *app_state = AppState::Error(format!("Network Error: {}", err)),
-                    }
-                    ctx_clone.request_repaint();
-                });
-            } else {
-                *state.lock().unwrap() =
-                    AppState::Error("Could not determine TTL path from URL".into());
-            }
+        if is_system_dark {
+            cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        } else {
+            cc.egui_ctx.set_visuals(egui::Visuals::light());
         }
 
-        Self { state, color_map }
+        let state = Arc::new(Mutex::new(AppState::Loading));
+
+        #[cfg(target_arch = "wasm32")]
+        let api_url = get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string());
+        #[cfg(not(target_arch = "wasm32"))]
+        let api_url = "http://194.95.157.131:5742".to_string();
+
+        #[cfg(target_arch = "wasm32")]
+        let n3_target_url = get_n3_url_from_dom();
+        #[cfg(not(target_arch = "wasm32"))]
+        let n3_target_url: Option<String> = None;
+
+        let is_global_viewer = {
+            #[cfg(target_arch = "wasm32")]
+            {
+                get_n3_url_from_dom().is_none()
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                true
+            }
+        };
+
+        // Fetch N3 File (If Applicable) or mark Ready directly
+        if let Some(target_url) = n3_target_url {
+            let state_guard_clone = state.clone();
+            let ctx_guard_clone = cc.egui_ctx.clone();
+
+            let request = ehttp::Request::get(&target_url);
+            ehttp::fetch(request, move |response| {
+                match response {
+                    Ok(res) => {
+                        if let Some(text) = res.text() {
+                            let raw_triples = parser::parse_n3_file(&text);
+                            let (nodes, edges) = graph_processor::build_ui_graph(raw_triples.clone());
+                            let init_snapshot = GraphSnapshot::new(&nodes, &edges);
+
+                            *state_guard_clone.lock().unwrap() = AppState::Ready {
+                                nodes,
+                                edges,
+                                raw_triples,
+                                init_snapshot,
+                            };
+                        } else {
+                            *state_guard_clone.lock().unwrap() = AppState::Error("failed to read text from n3".into());
+                        }
+                    }
+                    Err(err) => {
+                        *state_guard_clone.lock().unwrap() = AppState::Error(format!("Network Error: {}", err));
+                    }
+                }
+                ctx_guard_clone.request_repaint();
+            });
+        } else {
+            // Global viewer without predefined n3 file, jump straight to Ready
+            *state.lock().unwrap() = AppState::Ready {
+                nodes: Vec::new(),
+                edges: Vec::new(),
+                raw_triples: Vec::new(),
+                init_snapshot: GraphSnapshot::new(&[], &[]),
+            };
+        }
+
+        Self {
+            state,
+            zoom: 1.0,
+            pan: egui::vec2(0.0, 0.0),
+            theme: Theme::dark(),
+            selected_node: None,
+            show_menu: false,
+            pending_click_node: None,
+            pending_click_time: 0.0,
+            theme_mode: ThemeMode::Dark,
+            canvas_rect: None,
+            current_scene: Scene::Graph,
+            inspector_selected_node: None,
+            inspector_search_text: String::new(),
+            search_type: SearchType::AuthorName,
+            search_input: String::new(),
+            api_url,
+            is_global_viewer,
+            search_failed: Arc::new(Mutex::new(false)),
+            is_fetching: Arc::new(Mutex::new(false)),
+            highlighted_index: 0,
+            suggestions: Arc::new(Mutex::new(std::collections::HashMap::new())),
+        }
     }
 }
 
-impl eframe::App for RdfGraphApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // background
-        let custom_frame = egui::Frame::default().fill(egui::Color32::from_rgb(60, 60, 60));
+impl eframe::App for App {
+    fn ui(&mut self, app_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        let ctx = app_ui.ctx().clone();
 
-        egui::CentralPanel::default().frame(custom_frame).show(ctx, |ui| {
-            let mut state_lock = self.state.lock().unwrap();
+        ctx.set_visuals(self.theme.to_egui_visuals());
 
-            if let AppState::Ready { nodes, edges } = &mut *state_lock {
-                let painter = ui.painter();
+        let main_app_frame = egui::Frame::central_panel(&ctx.global_style())
+            .fill(self.theme.master_bg)
+            .inner_margin(6.0);
 
-                // 1. edge line
-                for edge in edges.values() {
-                    if let (Some(s), Some(t)) = (nodes.get(&edge.source), nodes.get(&edge.target)) {
-                        painter.line_segment([s.pos, t.pos], (2.0, egui::Color32::from_gray(100)));
-                    }
-                }
+        egui::CentralPanel::default().frame(main_app_frame).show_inside(app_ui, |ui| {
+            let state_arc = self.state.clone();
+            let mut state_lock = state_arc.lock().unwrap();
 
-                // 2. edge label
-                for edge in edges.values() {
-                    if let (Some(s), Some(t)) = (nodes.get(&edge.source), nodes.get(&edge.target)) {
-                        let center_point = s.pos + (t.pos - s.pos) * 0.5;
+            if let AppState::Ready { .. } = &mut *state_lock {
+                self.render_search_bar(ui, &ctx);
+            }
+            match &mut *state_lock {
+                AppState::Ready {
+                    nodes,
+                    edges,
+                    raw_triples,
+                    init_snapshot,
+                } => {
+                    ui.spacing_mut().interact_size.y = 19.0;
 
-                        let galley = painter.layout_no_wrap(
-                            edge.label.clone(),
-                            egui::FontId::proportional(10.0),
-                            egui::Color32::WHITE,
-                        );
+                    // scene select tabs
+                    ui.add_space(1.0); // to ocd or not to ocd
+                    ui.horizontal(|ui| {
+                        let graph_bg = if self.current_scene == crate::Scene::Graph {
+                            self.theme.menu_expand_bg
+                        } else {
+                            self.theme.button_bg
+                        };
+                        if ui.add(egui::Button::new("Graph View").fill(graph_bg)).clicked() {
+                            self.current_scene = crate::Scene::Graph;
+                        }
 
-                        let text_rect = egui::Align2::CENTER_CENTER
-                            .anchor_rect(egui::Rect::from_min_size(center_point, galley.size()));
+                        let analytics_bg = if self.current_scene == crate::Scene::Analytics {
+                            self.theme.menu_expand_bg
+                        } else {
+                            self.theme.button_bg
+                        };
+                        if ui.add(egui::Button::new("Analytics View").fill(analytics_bg)).clicked() {
+                            self.current_scene = crate::Scene::Analytics;
+                        }
 
-                        painter.rect_filled(
-                            text_rect.expand(2.0),
-                            2.0,
-                            egui::Color32::from_gray(10),
-                        );
+                        let inspector_bg = if self.current_scene == crate::Scene::NodeInspector {
+                            self.theme.menu_expand_bg
+                        } else {
+                            self.theme.button_bg
+                        };
+                        if ui.add(egui::Button::new("Node Inspector View").fill(inspector_bg)).clicked() {
+                            self.current_scene = crate::Scene::NodeInspector;
+                        }
 
-                        painter.galley(text_rect.min, galley, egui::Color32::WHITE);
-                    }
-                }
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            // theme button
+                            let theme_string = match self.theme_mode {
+                                ThemeMode::Dark => "Dark Mode",
+                                ThemeMode::Light => "Light Mode",
+                                ThemeMode::TestingRed => "Testing Red",
+                            };
 
-                // draw node
-                for node in nodes.values_mut() {
-                    let response = ui.interact(
-                        egui::Rect::from_center_size(node.pos, egui::vec2(30.0, 30.0)),
-                        ui.id().with(&node.id),
-                        egui::Sense::click_and_drag(),
-                    )
-                        .on_hover_text(format!("ID : {}\nRDF Type : {}\nNode type : {}", node.id, node.rdf_type, node.node_type));
+                            let theme_button = egui::Button::new(theme_string);
 
-                    if response.dragged() {
-                        node.pos += response.drag_delta();
-                    }
+                            if ui.add(theme_button).clicked() {
+                                match self.theme_mode {
+                                    ThemeMode::Dark => {
+                                        self.theme_mode = ThemeMode::Light;
+                                        self.theme = Theme::light();
+                                    }
+                                    ThemeMode::Light => {
+                                        self.theme_mode = ThemeMode::TestingRed;
+                                        self.theme = Theme::testing_red();
+                                    }
+                                    ThemeMode::TestingRed => {
+                                        self.theme_mode = ThemeMode::Dark;
+                                        self.theme = Theme::dark();
+                                    }
+                                }
+                            }
 
-                    let theme = self.color_map.get(&node.rdf_type).unwrap_or(&NodeColors {
-                        normal: egui::Color32::GRAY,
-                        selected: egui::Color32::WHITE,
+                            let mut dummy = 0;
+                            egui::ComboBox::from_id_salt("export_menu")
+                                .selected_text("Export")
+                                .show_ui(ui, |ui| {
+                                    if ui.selectable_value(&mut dummy, 1, "Export as SVG").clicked() {
+                                        let _svg_data = crate::export::generate_svg(nodes, edges, &self.theme);
+                                        log::info!("Generated SVG");
+                                    }
+                                    if ui.selectable_value(&mut dummy, 2, "Export as PNG").clicked() {
+                                        log::info!("PNG export requested");
+                                    }
+                                    if ui.selectable_value(&mut dummy, 3, "Export as N3").clicked() {
+                                        let _n3_data = crate::export::generate_n3(nodes, edges);
+                                        log::info!("Generated N3");
+                                    }
+                                    if ui.selectable_value(&mut dummy, 4, "Export as JSON").clicked() {
+                                        let _json_data = crate::export::generate_json(nodes, edges);
+                                        log::info!("Generated JSON");
+                                    }
+                                });
+                        });
                     });
+                    ui.separator();
 
-                    let color = if response.hovered() { theme.selected } else { theme.normal };
-
-                    // Node Circle
-                    painter.circle_filled(node.pos, 15.0, color);
-
-                    // Node Text
-                    painter.text(
-                        node.pos + egui::vec2(0.0, 20.0),
-                        egui::Align2::CENTER_TOP,
-                        &node.label,
-                        egui::FontId::proportional(12.0),
-                        egui::Color32::WHITE,
-                    );
+                    match self.current_scene {
+                        crate::Scene::Graph => {
+                            self.render_graph_scene(ui, &ctx, nodes, edges, init_snapshot);
+                        }
+                        crate::Scene::Analytics => {
+                            self.render_analytics_scene(ui, nodes, edges, raw_triples);
+                        }
+                        crate::Scene::NodeInspector => {
+                            self.render_inspector_scene(ui, nodes, edges);
+                        }
+                    }
                 }
-            } else if let AppState::Error(err_msg) = &*state_lock {
-                // Now the string is read and displayed on the screen!
-                ui.heading("Something went wrong:");
-                ui.label(
-                    egui::RichText::new(err_msg)
-                        .color(egui::Color32::RED)
-                        .strong()
-                );
-            } else {
-                ui.heading("Loading...");
+                AppState::Error(err_msg) => {
+                    ui.heading("Something went wrong:");
+                    ui.label(egui::RichText::new(err_msg.as_str()).color(self.theme.error_fg).strong());
+                }
+                AppState::Loading => {
+                    ui.heading("Loading Workspace and Fetching Dictionaries...");
+                    ui.add(egui::Spinner::new());
+                }
             }
         });
     }
 }
 
+// native entrypoint
+#[cfg(not(target_arch = "wasm32"))]
+fn main() -> eframe::Result<()> {
+    env_logger::init();
+
+    let native_options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
+        ..Default::default()
+    };
+
+    eframe::run_native("Standalone Test App", native_options, Box::new(|cc| Ok(Box::new(App::new(cc)))))
+}
+
+// wasm entrypoint
 #[cfg(target_arch = "wasm32")]
 fn main() {
     eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+
+    let _ = js_sys::eval(
+        r#"
+        const ogGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+            if (type === 'webgl' || type === 'webgl2') {
+                attrs = Object.assign({}, attrs || {}, { preserveDrawingBuffer: true });
+            }
+            return ogGetContext.call(this, type, attrs);
+        };
+    "#,
+    );
+
     let web_options = eframe::WebOptions::default();
 
     wasm_bindgen_futures::spawn_local(async {
+        use wasm_bindgen::JsCast;
+
+        let document = web_sys::window().unwrap().document().unwrap();
+        let canvas = document
+            .get_element_by_id("the_canvas_id")
+            .expect("Failed to find 'the_canvas_id' in DOM")
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .expect("Element was not a HtmlCanvasElement");
+
         eframe::WebRunner::new()
-            .start(
-                "the_canvas_id",
-                web_options,
-                Box::new(|cc| Box::new(RdfGraphApp::new(cc))),
-            )
+            .start(canvas, web_options, Box::new(|cc| Ok(Box::new(App::new(cc)))))
             .await
             .expect("failed to start eframe");
     });

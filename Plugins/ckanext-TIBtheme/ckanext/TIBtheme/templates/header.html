@@ -74,17 +74,18 @@
     <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}vdataset/">{{_('Imported')}}</a>
     <a class="dropdown-item tib_dropdown_item" href="{{h.url_for('home')}}service/">{{_('Services')}}</a>
   </div>
-</div>
+              </div>
           </li>
 
-            {% block header_site_navigation_tabs %}
-              {# ('dataset.search', _('Datasets')), #}
-		{{ h.build_nav_main(
-		    ('organization.index', _('Organizations')),
-		    ('group.index', _('Groups')),
-		    ('home.about', _('About')),
-            ('TIBtheme.demo_page', _('Demo')),
-            ('TIBtheme.api_page', _('API'))) }}
+          {% block header_site_navigation_tabs %}
+          {# ('dataset.search', _('Datasets')), #}
+		      {{ h.build_nav_main(
+		      ('organization.index', _('Organizations')),
+		      ('group.index', _('Groups')),
+		      ('home.about', _('About')),
+          ('TIBtheme.demo_page', _('Demo')),
+          ('graph_viewer.index', _('Graph')),
+          ('TIBtheme.api_page', _('API'))) }}
 	    {% endblock %}
         </ul>
       </nav>

@@ -4,13 +4,31 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-eframe = "0.27"
+image = "0.25"
+eframe = "0.34.1"
 ehttp = "0.6.0"
 log = "0.4.29"
 oxttl = "0.2.3"
+serde_json = "1.0"
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen-futures = "0.4.64"
 oxrdf = "0.3.3"
+env_logger = "0.11.10"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = { version = "0.3", features = ["Window", "Location", "UrlSearchParams"] }
+wasm-bindgen-futures = "0.4"
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Location",
+    "UrlSearchParams",
+    "Document",
+    "HtmlElement",
+    "Element",
+    "Blob",
+    "BlobPropertyBag",
+    "HtmlCanvasElement",
+    "CanvasRenderingContext2d",
+    "Url"
+] }
