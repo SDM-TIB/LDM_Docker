@@ -1,5 +1,4 @@
 * graphviewer
-
 - description
   this module handels the representation of a KG inside a html container
 
@@ -8,26 +7,22 @@
   https://github.com/emilk/egui/discussions/4516
 - the node inspector combobox does some magic for the height calculation resulting in wierd behaviour
 
-
 * data for query
-
 - author orcid
   https://orcid.org/0000-0003-1160-8727
-
 - author ldm id
   https://research.tib.eu/ldm/22
-
 - paper doi
   https://doi.org/10.1016/j.websem.2005.06.005
-
 - paper title
   not implemented
-
 - dataset doi
   http://data.europa.eu/88u/dataset/094cfd98-b5be-4134-8bfc-5126a8c68309
-
 - dataset title
   Measurement results for radioactivity in: Marzipan raw mass (10.11.2016)
-
 - dataset ldm id
   https://research.tib.eu/ldm/3424eec1-17da-4340-a33d-0932807e8425
+
+* TODO
+- fuzzy search in start point
+- update api to include type on orcid

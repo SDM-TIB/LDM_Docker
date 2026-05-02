@@ -112,7 +112,7 @@ impl App {
 
         // render legend
         egui::Window::new(egui::RichText::new("Legend").color(self.theme.text_fg))
-            .anchor(egui::Align2::LEFT_TOP, egui::vec2(15.0, 115.0))
+            .anchor(egui::Align2::LEFT_TOP, egui::vec2(12.0, 101.0)) // 6 pixel space from left and top
             .collapsible(true)
             .resizable(false)
             .frame(legend_outline)
@@ -138,7 +138,7 @@ impl App {
 
                             let (rect, _) = ui.allocate_exact_size(egui::vec2(12.0, 12.0), egui::Sense::hover());
                             ui.painter().circle_filled(rect.center(), 6.0, self.theme.default_node.normal);
-                            ui.label("Other / Unknown");
+                            ui.label("Other");
                             ui.end_row();
                         });
                     });
