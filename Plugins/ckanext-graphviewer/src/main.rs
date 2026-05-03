@@ -9,10 +9,38 @@ pub mod ui;
 
 use eframe::egui;
 use log::info;
+use serde::Deserialize;
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 
 use graph_processor::{Edge, Node};
 use theme::Theme;
+
+#[derive(Deserialize, Debug)]
+pub struct CkanResponse {
+    pub result: CkanResult,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CkanResult {
+    pub results: Vec<CkanDataset>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CkanDataset {
+    pub author: Option<String>,
+    pub title: Option<String>, // Added to capture dataset titles!
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
+pub struct FoundString {
+    pub name: String,
+}
+
+pub enum FetchMessage {
+    Success(Vec<FoundString>),
+    Error(String),
+}
 
 #[derive(PartialEq)]
 pub enum Scene {
@@ -118,28 +146,52 @@ pub enum AppState {
     },
 }
 
-struct App {
-    state: Arc<Mutex<AppState>>,
-    zoom: f32,
-    pan: egui::Vec2,
-    theme: Theme,
-    selected_node: Option<usize>,
-    show_menu: bool,
-    pending_click_node: Option<usize>,
-    pending_click_time: f64,
-    pub theme_mode: ThemeMode,
-    canvas_rect: Option<egui::Rect>,
-    current_scene: Scene,
-    inspector_selected_node: Option<String>,
-    inspector_search_text: String,
-    search_type: SearchType,
-    search_input: String,
-    api_url: String,
-    is_global_viewer: bool,
+pub struct AppConfig {
+    pub api_url: String,
+    pub is_global_viewer: bool,
+    pub rows_per_page: usize,
+}
+
+pub struct SearchState {
+    pub search_type: SearchType,
+    pub search_input: String,
+    pub highlighted_index: usize,
     pub is_fetching: Arc<Mutex<bool>>,
     pub search_failed: Arc<Mutex<bool>>,
-    pub highlighted_index: usize,
-    pub suggestions: Arc<Mutex<std::collections::HashMap<crate::SearchType, Vec<String>>>>,
+    pub autocomplete_rx: Receiver<FetchMessage>,
+    pub autocomplete_tx: Sender<FetchMessage>,
+    pub found_strings: Vec<FoundString>,
+    pub autocomplete_fetching: bool,
+    pub current_offset: usize,
+}
+
+pub struct UIState {
+    // Theme & Navigation
+    pub theme: Theme,
+    pub theme_mode: ThemeMode,
+    pub current_scene: Scene,
+
+    // Viewport / Camera
+    pub zoom: f32,
+    pub pan: egui::Vec2,
+    pub canvas_rect: Option<egui::Rect>,
+
+    // Graph Interaction
+    pub selected_node: Option<usize>,
+    pub show_menu: bool,
+    pub pending_click_node: Option<usize>,
+    pub pending_click_time: f64,
+
+    // Inspector Panel
+    pub inspector_selected_node: Option<String>,
+    pub inspector_search_text: String,
+}
+
+struct App {
+    pub config: AppConfig,
+    pub graph_data: Arc<Mutex<AppState>>,
+    pub search: SearchState,
+    pub ui: UIState,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -241,7 +293,7 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         let api_url = get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string());
         #[cfg(not(target_arch = "wasm32"))]
-        let api_url = "http://194.95.157.131:5742".to_string();
+        let api_url = "http://194.95.157.128:5742".to_string();
 
         #[cfg(target_arch = "wasm32")]
         let n3_target_url = get_n3_url_from_dom();
@@ -299,29 +351,86 @@ impl App {
             };
         }
 
+        let (autocomplete_tx, autocomplete_rx) = mpsc::channel();
+
         Self {
-            state,
-            zoom: 1.0,
-            pan: egui::vec2(0.0, 0.0),
-            theme: Theme::dark(),
-            selected_node: None,
-            show_menu: false,
-            pending_click_node: None,
-            pending_click_time: 0.0,
-            theme_mode: ThemeMode::Dark,
-            canvas_rect: None,
-            current_scene: Scene::Graph,
-            inspector_selected_node: None,
-            inspector_search_text: String::new(),
-            search_type: SearchType::AuthorName,
-            search_input: String::new(),
-            api_url,
-            is_global_viewer,
-            search_failed: Arc::new(Mutex::new(false)),
-            is_fetching: Arc::new(Mutex::new(false)),
-            highlighted_index: 0,
-            suggestions: Arc::new(Mutex::new(std::collections::HashMap::new())),
+            config: AppConfig {
+                api_url: api_url,
+                is_global_viewer: is_global_viewer,
+                rows_per_page: 100,
+            },
+            graph_data: state,
+            search: SearchState {
+                search_type: SearchType::AuthorName,
+                search_input: String::new(),
+                highlighted_index: 0,
+                is_fetching: Arc::new(Mutex::new(false)),
+                search_failed: Arc::new(Mutex::new(false)),
+                autocomplete_rx,
+                autocomplete_tx,
+                found_strings: Vec::new(),
+                autocomplete_fetching: false,
+                current_offset: 0,
+            },
+            ui: UIState {
+                theme: Theme::dark(),
+                theme_mode: ThemeMode::Dark,
+                current_scene: Scene::Graph,
+                zoom: 1.0,
+                pan: egui::vec2(0.0, 0.0),
+                canvas_rect: None,
+                selected_node: None,
+                show_menu: false,
+                pending_click_node: None,
+                pending_click_time: 0.0,
+                inspector_selected_node: None,
+                inspector_search_text: String::new(),
+            },
         }
+    }
+
+    pub fn trigger_autocomplete_fetch(&self) {
+        // 1. Determine which Solr field we are querying based on the dropdown
+        let (field, value) = match self.search.search_type {
+            SearchType::AuthorName => ("author", urlencoding::encode(&self.search.search_input).into_owned()),
+            SearchType::DatasetTitle => ("title", urlencoding::encode(&self.search.search_input).into_owned()),
+            _ => return, // Ignore auto-complete for other search types
+        };
+
+        let query_string = format!(
+            "?q={}:{}~&fl={}&rows={}&start={}",
+            field, value, field, self.config.rows_per_page, self.search.current_offset
+        );
+
+        // Hitting the CKAN endpoint directly for suggestions
+        let request = ehttp::Request::get(format!(
+            "https://service.tib.eu/ldmservice/api/3/action/package_search{}",
+            query_string
+        ));
+
+        let tx = self.search.autocomplete_tx.clone();
+        let search_type_clone = self.search.search_type.clone();
+
+        ehttp::fetch(request, move |result| {
+            if let Ok(message) = result {
+                if let Ok(parsed_data) = serde_json::from_slice::<CkanResponse>(&message.bytes) {
+                    let mut new_results = Vec::new();
+                    for dataset in parsed_data.result.results {
+                        // 2. Extract the correct field from the JSON response
+                        if search_type_clone == SearchType::AuthorName {
+                            if let Some(val) = dataset.author {
+                                new_results.push(FoundString { name: val });
+                            }
+                        } else if search_type_clone == SearchType::DatasetTitle {
+                            if let Some(val) = dataset.title {
+                                new_results.push(FoundString { name: val });
+                            }
+                        }
+                    }
+                    let _ = tx.send(FetchMessage::Success(new_results));
+                }
+            }
+        });
     }
 }
 
@@ -329,14 +438,14 @@ impl eframe::App for App {
     fn ui(&mut self, app_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = app_ui.ctx().clone();
 
-        ctx.set_visuals(self.theme.to_egui_visuals());
+        ctx.set_visuals(self.ui.theme.to_egui_visuals());
 
         let main_app_frame = egui::Frame::central_panel(&ctx.global_style())
-            .fill(self.theme.master_bg)
+            .fill(self.ui.theme.master_bg)
             .inner_margin(6.0);
 
         egui::CentralPanel::default().frame(main_app_frame).show_inside(app_ui, |ui| {
-            let state_arc = self.state.clone();
+            let state_arc = self.graph_data.clone();
             let mut state_lock = state_arc.lock().unwrap();
 
             if let AppState::Ready { .. } = &mut *state_lock {
@@ -354,36 +463,36 @@ impl eframe::App for App {
                     // scene select tabs
                     ui.add_space(1.0); // to ocd or not to ocd
                     ui.horizontal(|ui| {
-                        let graph_bg = if self.current_scene == crate::Scene::Graph {
-                            self.theme.menu_expand_bg
+                        let graph_bg = if self.ui.current_scene == crate::Scene::Graph {
+                            self.ui.theme.menu_expand_bg
                         } else {
-                            self.theme.button_bg
+                            self.ui.theme.button_bg
                         };
                         if ui.add(egui::Button::new("Graph View").fill(graph_bg)).clicked() {
-                            self.current_scene = crate::Scene::Graph;
+                            self.ui.current_scene = crate::Scene::Graph;
                         }
 
-                        let analytics_bg = if self.current_scene == crate::Scene::Analytics {
-                            self.theme.menu_expand_bg
+                        let analytics_bg = if self.ui.current_scene == crate::Scene::Analytics {
+                            self.ui.theme.menu_expand_bg
                         } else {
-                            self.theme.button_bg
+                            self.ui.theme.button_bg
                         };
                         if ui.add(egui::Button::new("Analytics View").fill(analytics_bg)).clicked() {
-                            self.current_scene = crate::Scene::Analytics;
+                            self.ui.current_scene = crate::Scene::Analytics;
                         }
 
-                        let inspector_bg = if self.current_scene == crate::Scene::NodeInspector {
-                            self.theme.menu_expand_bg
+                        let inspector_bg = if self.ui.current_scene == crate::Scene::NodeInspector {
+                            self.ui.theme.menu_expand_bg
                         } else {
-                            self.theme.button_bg
+                            self.ui.theme.button_bg
                         };
                         if ui.add(egui::Button::new("Node Inspector View").fill(inspector_bg)).clicked() {
-                            self.current_scene = crate::Scene::NodeInspector;
+                            self.ui.current_scene = crate::Scene::NodeInspector;
                         }
 
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             // theme button
-                            let theme_string = match self.theme_mode {
+                            let theme_string = match self.ui.theme_mode {
                                 ThemeMode::Dark => "Dark Mode",
                                 ThemeMode::Light => "Light Mode",
                                 ThemeMode::TestingRed => "Testing Red",
@@ -392,18 +501,18 @@ impl eframe::App for App {
                             let theme_button = egui::Button::new(theme_string);
 
                             if ui.add(theme_button).clicked() {
-                                match self.theme_mode {
+                                match self.ui.theme_mode {
                                     ThemeMode::Dark => {
-                                        self.theme_mode = ThemeMode::Light;
-                                        self.theme = Theme::light();
+                                        self.ui.theme_mode = ThemeMode::Light;
+                                        self.ui.theme = Theme::light();
                                     }
                                     ThemeMode::Light => {
-                                        self.theme_mode = ThemeMode::TestingRed;
-                                        self.theme = Theme::testing_red();
+                                        self.ui.theme_mode = ThemeMode::TestingRed;
+                                        self.ui.theme = Theme::testing_red();
                                     }
                                     ThemeMode::TestingRed => {
-                                        self.theme_mode = ThemeMode::Dark;
-                                        self.theme = Theme::dark();
+                                        self.ui.theme_mode = ThemeMode::Dark;
+                                        self.ui.theme = Theme::dark();
                                     }
                                 }
                             }
@@ -413,7 +522,7 @@ impl eframe::App for App {
                                 .selected_text("Export")
                                 .show_ui(ui, |ui| {
                                     if ui.selectable_value(&mut dummy, 1, "Export as SVG").clicked() {
-                                        let _svg_data = crate::export::generate_svg(nodes, edges, &self.theme);
+                                        let _svg_data = crate::export::generate_svg(&nodes, &edges, &self.ui.theme);
                                         log::info!("Generated SVG");
                                     }
                                     if ui.selectable_value(&mut dummy, 2, "Export as PNG").clicked() {
@@ -432,7 +541,7 @@ impl eframe::App for App {
                     });
                     ui.separator();
 
-                    match self.current_scene {
+                    match self.ui.current_scene {
                         crate::Scene::Graph => {
                             self.render_graph_scene(ui, &ctx, nodes, edges, init_snapshot);
                         }
@@ -446,7 +555,7 @@ impl eframe::App for App {
                 }
                 AppState::Error(err_msg) => {
                     ui.heading("Something went wrong:");
-                    ui.label(egui::RichText::new(err_msg.as_str()).color(self.theme.error_fg).strong());
+                    ui.label(egui::RichText::new(err_msg.as_str()).color(self.ui.theme.error_fg).strong());
                 }
                 AppState::Loading => {
                     ui.heading("Loading Workspace and Fetching Dictionaries...");

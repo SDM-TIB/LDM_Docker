@@ -46,7 +46,7 @@ fn extract_label(uri_or_literal: &str) -> String {
 
 pub fn build_ui_graph(triples: Vec<RawTriple>) -> (Vec<Node>, Vec<Edge>) {
     // build topology
-    let (mut nodes_map, mut edges_map) = build_topology(&triples);
+    let (mut nodes_map, edges_map) = build_topology(&triples);
 
     // figure out the center
     let start_node = determine_start_node(&nodes_map, &edges_map);

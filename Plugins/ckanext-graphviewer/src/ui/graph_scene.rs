@@ -14,14 +14,14 @@ impl App {
         // render graph
         ui.add_space(1.0);
         ui.horizontal(|ui| {
-            ui.label(egui::RichText::new("Graph Controls:").color(self.theme.text_fg));
+            ui.label(egui::RichText::new("Graph Controls:").color(self.ui.theme.text_fg));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 let reset_view_button =
-                    egui::Button::new(egui::RichText::new("Reset View").color(self.theme.text_fg)).fill(self.theme.button_bg);
+                    egui::Button::new(egui::RichText::new("Reset View").color(self.ui.theme.text_fg)).fill(self.ui.theme.button_bg);
                 if ui.add(reset_view_button).clicked() {
-                    self.zoom = 1.0;
-                    self.pan = egui::vec2(0.0, 0.0);
-                    self.selected_node = None;
+                    self.ui.zoom = 1.0;
+                    self.ui.pan = egui::vec2(0.0, 0.0);
+                    self.ui.selected_node = None;
 
                     for node in nodes.iter_mut() {
                         if let Some(&pos) = init_snapshot.node_positions.get(&node.id) {
@@ -105,27 +105,27 @@ impl App {
 
         // define a frame that houses the color config for the legend
         let legend_outline = egui::Frame::window(&ui.ctx().global_style())
-            .fill(self.theme.button_bg)
+            .fill(self.ui.theme.button_bg)
             .inner_margin(3.0)
             .corner_radius(5.0)
-            .stroke(egui::Stroke::new(2.0, self.theme.master_bg));
+            .stroke(egui::Stroke::new(2.0, self.ui.theme.master_bg));
 
         // render legend
-        egui::Window::new(egui::RichText::new("Legend").color(self.theme.text_fg))
+        egui::Window::new(egui::RichText::new("Legend").color(self.ui.theme.text_fg))
             .anchor(egui::Align2::LEFT_TOP, egui::vec2(12.0, 101.0)) // 6 pixel space from left and top
             .collapsible(true)
             .resizable(false)
             .frame(legend_outline)
             .show(ui.ctx(), |ui| {
-                ui.style_mut().visuals.override_text_color = Some(self.theme.text_fg);
+                ui.style_mut().visuals.override_text_color = Some(self.ui.theme.text_fg);
                 egui::Frame::NONE
                     .inner_margin(5.0)
                     .corner_radius(5.0)
-                    .stroke(egui::Stroke::new(1.0, self.theme.edge_fg))
-                    .fill(self.theme.master_bg)
+                    .stroke(egui::Stroke::new(1.0, self.ui.theme.edge_fg))
+                    .fill(self.ui.theme.master_bg)
                     .show(ui, |ui| {
                         egui::Grid::new("legend_grid").num_columns(2).spacing([10.0, 8.0]).show(ui, |ui| {
-                            for (uri, colors) in &self.theme.node_map {
+                            for (uri, colors) in &self.ui.theme.node_map {
                                 let display_name = uri.split('#').last().unwrap_or(uri);
                                 let display_name = display_name.split('/').last().unwrap_or(display_name);
 
@@ -137,7 +137,7 @@ impl App {
                             }
 
                             let (rect, _) = ui.allocate_exact_size(egui::vec2(12.0, 12.0), egui::Sense::hover());
-                            ui.painter().circle_filled(rect.center(), 6.0, self.theme.default_node.normal);
+                            ui.painter().circle_filled(rect.center(), 6.0, self.ui.theme.default_node.normal);
                             ui.label("Other");
                             ui.end_row();
                         });
@@ -147,16 +147,16 @@ impl App {
         let background_rect = ui.available_rect_before_wrap();
         let area_to_fill = ui.available_rect_before_wrap();
 
-        self.canvas_rect = Some(area_to_fill);
+        self.ui.canvas_rect = Some(area_to_fill);
 
         let screen_center = area_to_fill.center().to_vec2();
 
         let background_response = ui.interact(background_rect, ui.id().with("background"), egui::Sense::click_and_drag());
         if background_response.dragged() {
-            self.pan += background_response.drag_delta();
+            self.ui.pan += background_response.drag_delta();
         }
         if background_response.clicked() {
-            self.selected_node = None;
+            self.ui.selected_node = None;
         }
 
         let scroll_y = ui.input(|i| i.smooth_scroll_delta.y);
@@ -172,20 +172,20 @@ impl App {
             if let Some(pointer_pos) = ui.ctx().pointer_hover_pos() {
                 let pointer_vec = pointer_pos.to_vec2();
 
-                let graph_pos = (pointer_vec - screen_center - self.pan) / self.zoom;
+                let graph_pos = (pointer_vec - screen_center - self.ui.pan) / self.ui.zoom;
 
-                self.zoom *= zoom_multiplier;
-                self.zoom = self.zoom.clamp(0.1, 5.0);
+                self.ui.zoom *= zoom_multiplier;
+                self.ui.zoom = self.ui.zoom.clamp(0.1, 5.0);
 
-                self.pan = pointer_vec - screen_center - graph_pos * self.zoom;
+                self.ui.pan = pointer_vec - screen_center - graph_pos * self.ui.zoom;
             }
         }
 
-        let to_screen = |p: egui::Pos2| -> egui::Pos2 { (screen_center + self.pan + p.to_vec2() * self.zoom).to_pos2() };
+        let to_screen = |p: egui::Pos2| -> egui::Pos2 { (screen_center + self.ui.pan + p.to_vec2() * self.ui.zoom).to_pos2() };
 
         let painter = ui.painter().with_clip_rect(area_to_fill);
 
-        painter.rect_filled(area_to_fill, 0.0, self.theme.painter_bg);
+        painter.rect_filled(area_to_fill, 0.0, self.ui.theme.painter_bg);
 
         // draw edges and labels
         for edge in edges.iter() {
@@ -207,10 +207,10 @@ impl App {
             let dir = vector / length;
 
             // draw edge
-            painter.line_segment([p1, p2], egui::Stroke::new(1.5 * self.zoom, self.theme.edge_fg));
+            painter.line_segment([p1, p2], egui::Stroke::new(1.5 * self.ui.zoom, self.ui.theme.edge_fg));
 
-            let node_radius = 15.0 * self.zoom;
-            let arrow_len = 12.0 * self.zoom;
+            let node_radius = 15.0 * self.ui.zoom;
+            let arrow_len = 12.0 * self.ui.zoom;
             let arrow_angle = 0.4;
             let line_angle = dir.y.atan2(dir.x);
 
@@ -223,7 +223,7 @@ impl App {
 
             painter.add(egui::Shape::convex_polygon(
                 vec![tip, p_left, p_right],
-                self.theme.edge_fg,
+                self.ui.theme.edge_fg,
                 egui::Stroke::NONE,
             ));
 
@@ -240,7 +240,7 @@ impl App {
 
                 painter.add(egui::Shape::convex_polygon(
                     vec![tip_rev, p_left_rev, p_right_rev],
-                    self.theme.edge_fg,
+                    self.ui.theme.edge_fg,
                     egui::Stroke::NONE,
                 ));
             }
@@ -248,7 +248,7 @@ impl App {
             // draw label
             let center_point = p1 + (dir * length * 0.5);
 
-            let font_size = (10.0 * self.zoom).round();
+            let font_size = (10.0 * self.ui.zoom).round();
 
             if font_size > 4.0 {
                 let is_flipped = dir.x < 0.0;
@@ -273,18 +273,18 @@ impl App {
                     }
                 };
 
-                let galley = painter.layout_no_wrap(display_text, egui::FontId::proportional(font_size), self.theme.text_fg);
+                let galley = painter.layout_no_wrap(display_text, egui::FontId::proportional(font_size), self.ui.theme.text_fg);
 
                 let size = galley.size();
-                let padding = 3.0 * self.zoom;
+                let padding = 3.0 * self.ui.zoom;
 
                 let snapped_center = egui::pos2(center_point.x.round(), center_point.y.round());
                 let text_rect = egui::Rect::from_center_size(snapped_center, size);
 
                 // background box for label
-                painter.rect_filled(text_rect.expand(padding), 2.0 * self.zoom, self.theme.painter_bg);
+                painter.rect_filled(text_rect.expand(padding), 2.0 * self.ui.zoom, self.ui.theme.painter_bg);
 
-                painter.galley(text_rect.min, galley, self.theme.text_fg);
+                painter.galley(text_rect.min, galley, self.ui.theme.text_fg);
             }
         }
 
@@ -299,7 +299,7 @@ impl App {
             }
 
             let screen_pos = to_screen(node.pos);
-            let radius = 15.0 * self.zoom;
+            let radius = 15.0 * self.ui.zoom;
 
             let response = ui.interact(
                 egui::Rect::from_center_size(screen_pos, egui::vec2(radius * 2.0, radius * 2.0)),
@@ -311,49 +311,49 @@ impl App {
 
             // node it dragged
             if response.dragged() {
-                let delta = response.drag_delta() / self.zoom;
-                self.selected_node = None;
-                self.pending_click_node = None;
+                let delta = response.drag_delta() / self.ui.zoom;
+                self.ui.selected_node = None;
+                self.ui.pending_click_node = None;
                 dragged_node_delta = Some((index, delta));
             }
 
             // left double click / left click
             if response.double_clicked() {
                 clicked_to_expand = Some(index);
-                self.selected_node = None;
-                self.pending_click_node = None;
+                self.ui.selected_node = None;
+                self.ui.pending_click_node = None;
             } else if response.clicked() {
-                self.pending_click_node = Some(index);
-                self.pending_click_time = current_time;
+                self.ui.pending_click_node = Some(index);
+                self.ui.pending_click_time = current_time;
             }
 
             // right click
             if response.secondary_clicked() {
-                self.selected_node = Some(index);
-                self.show_menu = true;
-                self.pending_click_node = None;
+                self.ui.selected_node = Some(index);
+                self.ui.show_menu = true;
+                self.ui.pending_click_node = None;
             }
 
             // delay infobox till we are sure no double click happend
-            if self.pending_click_node == Some(index) {
-                if (current_time - self.pending_click_time) > 0.25 {
+            if self.ui.pending_click_node == Some(index) {
+                if (current_time - self.ui.pending_click_time) > 0.25 {
                     // 250 ms
-                    if self.selected_node == Some(index) && !self.show_menu {
-                        self.selected_node = None;
+                    if self.ui.selected_node == Some(index) && !self.ui.show_menu {
+                        self.ui.selected_node = None;
                     } else {
-                        self.selected_node = Some(index);
-                        self.show_menu = false;
+                        self.ui.selected_node = Some(index);
+                        self.ui.show_menu = false;
                     }
-                    self.pending_click_node = None; // Clear the timer
+                    self.ui.pending_click_node = None; // Clear the timer
                 } else {
                     ui.ctx().request_repaint();
                 }
             }
 
-            let is_pinned = self.selected_node == Some(index) && !self.show_menu;
+            let is_pinned = self.ui.selected_node == Some(index) && !self.ui.show_menu;
 
             if is_pinned {
-                let offset = egui::vec2(20.0 * self.zoom, 20.0 * self.zoom);
+                let offset = egui::vec2(20.0 * self.ui.zoom, 20.0 * self.ui.zoom);
 
                 egui::Window::new(format!("node_window_{}", node.id))
                     .fixed_pos(screen_pos + offset)
@@ -369,12 +369,12 @@ impl App {
 
                         ui.add_space(5.0);
                         if ui.button("Close").clicked() {
-                            self.selected_node = None;
+                            self.ui.selected_node = None;
                         }
                     });
             }
 
-            let node_theme = self.theme.get_node_colors(&node.rdf_type);
+            let node_theme = self.ui.theme.get_node_colors(&node.rdf_type);
 
             let color = if response.hovered() {
                 node_theme.hovered
@@ -384,7 +384,7 @@ impl App {
 
             painter.circle_filled(screen_pos, radius, color);
 
-            let font_size = 12.0 * self.zoom;
+            let font_size = 12.0 * self.ui.zoom;
             if font_size > 4.0 {
                 let display_text = if node.label.len() > 50 {
                     let pred_name = edges
@@ -405,20 +405,20 @@ impl App {
                     node.label.clone()
                 };
 
-                let galley = painter.layout_no_wrap(display_text.to_string(), egui::FontId::proportional(font_size), self.theme.text_fg);
+                let galley = painter.layout_no_wrap(display_text.to_string(), egui::FontId::proportional(font_size), self.ui.theme.text_fg);
 
-                let text_pos = screen_pos + egui::vec2(0.0, 20.0 * self.zoom);
+                let text_pos = screen_pos + egui::vec2(0.0, 20.0 * self.ui.zoom);
                 let text_rect = egui::Align2::CENTER_TOP.anchor_rect(egui::Rect::from_min_size(text_pos, galley.size()));
 
-                painter.rect_filled(text_rect.expand(2.0 * self.zoom), 2.0 * self.zoom, self.theme.painter_bg);
+                painter.rect_filled(text_rect.expand(2.0 * self.ui.zoom), 2.0 * self.ui.zoom, self.ui.theme.painter_bg);
 
-                painter.galley(text_rect.min, galley, self.theme.text_fg);
+                painter.galley(text_rect.min, galley, self.ui.theme.text_fg);
             }
         }
 
         // node menu
-        if let Some(menu_idx) = self.selected_node {
-            if self.show_menu {
+        if let Some(menu_idx) = self.ui.selected_node {
+            if self.ui.show_menu {
                 let screen_pos = to_screen(nodes[menu_idx].pos);
 
                 crate::node_menu::draw_radial_menu(
@@ -427,14 +427,14 @@ impl App {
                     &painter,
                     menu_idx,
                     screen_pos,
-                    self.zoom,
-                    &self.theme,
+                    self.ui.zoom,
+                    &self.ui.theme,
                     nodes,
                     edges,
-                    &self.api_url,
-                    self.state.clone(),
-                    &mut self.show_menu,
-                    &mut self.selected_node,
+                    &self.config.api_url,
+                    self.graph_data.clone(),
+                    &mut self.ui.show_menu,
+                    &mut self.ui.selected_node,
                     &mut clicked_to_expand,
                 );
             }

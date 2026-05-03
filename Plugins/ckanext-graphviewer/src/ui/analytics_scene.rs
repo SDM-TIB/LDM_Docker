@@ -95,32 +95,18 @@ impl App {
             // draw the 2x2 dashboard
             let card_height = 260.0;
 
-            let mut total_byte_size: f64 = 0.0;
-            let mut dataset_count = 0;
-            let mut author_count = 0;
-            let mut publication_count = 0;
-
-            for node in nodes.iter() {
-                let type_lower = node.rdf_type.to_lowercase();
-                if type_lower.contains("dataset") { dataset_count += 1; }
-                if type_lower.contains("author") || type_lower.contains("person") { author_count += 1; }
-                if type_lower.contains("publication") || type_lower.contains("article") || type_lower.contains("paper") { publication_count += 1; }
-
-                for (key, value) in &node.properties {
-                    if key.to_lowercase().contains("bytesize") {
-                        let clean_val = value.split('^').next().unwrap_or(value).trim_matches('"');
-                        if let Ok(size) = clean_val.parse::<f64>() {
-                            total_byte_size += size;
-                        }
-                    }
-                }
-            }
+            let total_byte_size: f64 = 0.0;
 
             let format_bytes = |bytes: f64| -> String {
-                if bytes > 1_073_741_824.0 { format!("{:.2} GB", bytes / 1_073_741_824.0) }
-                else if bytes > 1_048_576.0 { format!("{:.2} MB", bytes / 1_048_576.0) }
-                else if bytes > 1024.0 { format!("{:.2} KB", bytes / 1024.0) }
-                else { format!("{} B", bytes.round()) }
+                if bytes > 1_073_741_824.0 {
+                    format!("{:.2} GB", bytes / 1_073_741_824.0)
+                } else if bytes > 1_048_576.0 {
+                    format!("{:.2} MB", bytes / 1_048_576.0)
+                } else if bytes > 1024.0 {
+                    format!("{:.2} KB", bytes / 1024.0)
+                } else {
+                    format!("{} B", bytes.round())
+                }
             };
 
             // row 1
@@ -128,7 +114,7 @@ impl App {
                 // left
                 cols[0].group(|ui| {
                     ui.set_min_height(card_height);
-                    ui.heading(egui::RichText::new("Triple Composition").color(self.theme.text_fg));
+                    ui.heading(egui::RichText::new("Triple Composition").color(self.ui.theme.text_fg));
                     ui.add_space(10.0);
 
                     ui.horizontal(|ui| {
@@ -174,7 +160,7 @@ impl App {
                 // right
                 cols[1].group(|ui| {
                     ui.set_min_height(card_height);
-                    ui.heading(egui::RichText::new("Ontology Statistics").color(self.theme.text_fg));
+                    ui.heading(egui::RichText::new("Ontology Statistics").color(self.ui.theme.text_fg));
                     ui.add_space(10.0);
 
                     ui.horizontal(|ui| {
@@ -209,7 +195,7 @@ impl App {
                 // left
                 cols[0].group(|ui| {
                     ui.set_min_height(card_height);
-                    ui.heading(egui::RichText::new("Node Types Breakdown").color(self.theme.text_fg));
+                    ui.heading(egui::RichText::new("Node Types Breakdown").color(self.ui.theme.text_fg));
                     ui.add_space(10.0);
 
                     egui::ScrollArea::vertical()
@@ -221,8 +207,8 @@ impl App {
                                 .spacing([40.0, 8.0])
                                 .show(ui, |ui| {
                                     for (display_name, count) in sorted_types {
-                                        ui.label(egui::RichText::new(display_name).strong().color(self.theme.text_fg));
-                                        ui.label(egui::RichText::new(count.to_string()).color(self.theme.text_fg));
+                                        ui.label(egui::RichText::new(display_name).strong().color(self.ui.theme.text_fg));
+                                        ui.label(egui::RichText::new(count.to_string()).color(self.ui.theme.text_fg));
                                         ui.end_row();
                                     }
                                 });
@@ -232,7 +218,7 @@ impl App {
                 // right
                 cols[1].group(|ui| {
                     ui.set_min_height(card_height);
-                    ui.heading(egui::RichText::new("Knowledge Graph Information").color(self.theme.text_fg));
+                    ui.heading(egui::RichText::new("Knowledge Graph Information").color(self.ui.theme.text_fg));
                     ui.add_space(10.0);
 
                     // Data Size
@@ -248,7 +234,11 @@ impl App {
                     ui.add_space(5.0);
 
                     // Network Health
-                    let avg_degree = if total_nodes > 0 { (edges.len() * 2) as f32 / total_nodes as f32 } else { 0.0 };
+                    let avg_degree = if total_nodes > 0 {
+                        (edges.len() * 2) as f32 / total_nodes as f32
+                    } else {
+                        0.0
+                    };
                     ui.horizontal(|ui| {
                         ui.strong("Average Node Connectivity:");
                         ui.label(format!("{:.1} edges / node", avg_degree));

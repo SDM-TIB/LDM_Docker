@@ -1,23 +1,50 @@
 use crate::{App, SearchType};
 use eframe::egui;
 
+/* the search bar is on its own just one ui.horizontal element which
+  houses a label a combobox and a text edit and a button as well as the progressinfo label
+  when the uses inputs text in the author name or dataset name fiels a query against the ckan
+  instance is execute to show suggestions
+*/
+
 impl App {
     pub fn render_search_bar(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
-        if !self.is_global_viewer {
+        // disable search bar when opened from dataset
+        if !self.config.is_global_viewer {
             return;
         }
 
+        // process incoming background data
+        if let Ok(msg) = self.search.autocomplete_rx.try_recv() {
+            if let crate::FetchMessage::Success(mut new_strings) = msg {
+                let received_count = new_strings.len();
+
+                self.search.found_strings.append(&mut new_strings);
+                self.search.found_strings.sort();
+                self.search.found_strings.dedup();
+
+                if received_count < self.config.rows_per_page {
+                    self.search.autocomplete_fetching = false;
+                } else {
+                    self.search.current_offset += self.config.rows_per_page;
+                    self.trigger_autocomplete_fetch();
+                }
+            }
+        }
+
+        // main element
         ui.horizontal(|ui| {
+            // the element has a hight of 19 pixel from the top the seperator HACK for consitency
             ui.spacing_mut().interact_size.y = 19.0;
 
             ui.label("Select a start point:");
 
             let combo_response = egui::ComboBox::from_id_salt("fetch_dropdown")
-                .selected_text(self.search_type.as_str())
+                .selected_text(self.search.search_type.as_str())
                 .show_ui(ui, |ui| {
                     let mut changed = false;
                     for st in SearchType::all() {
-                        if ui.selectable_value(&mut self.search_type, st.clone(), st.as_str()).changed() {
+                        if ui.selectable_value(&mut self.search.search_type, st.clone(), st.as_str()).changed() {
                             changed = true;
                         }
                     }
@@ -25,108 +52,173 @@ impl App {
                 });
 
             if combo_response.inner.unwrap_or(false) {
-                self.search_input.clear();
-                self.highlighted_index = 0;
+                self.search.search_input.clear();
+                self.search.highlighted_index = 0;
             }
 
-            let is_failed = *self.search_failed.lock().unwrap();
+            let is_failed = *self.search.search_failed.lock().unwrap();
 
             if is_failed {
-                let error_stroke = egui::Stroke::new(1.5, self.theme.error_fg);
+                let error_stroke = egui::Stroke::new(1.5, self.ui.theme.error_fg);
                 ui.visuals_mut().widgets.inactive.bg_stroke = error_stroke;
                 ui.visuals_mut().widgets.hovered.bg_stroke = error_stroke;
                 ui.visuals_mut().widgets.active.bg_stroke = error_stroke;
             }
 
-            let text_response = ui.add(egui::TextEdit::singleline(&mut self.search_input).desired_width(300.0));
+            let text_response = ui.add(egui::TextEdit::singleline(&mut self.search.search_input).desired_width(300.0));
 
             if text_response.changed() && is_failed {
-                *self.search_failed.lock().unwrap() = false;
+                *self.search.search_failed.lock().unwrap() = false;
             }
-
-            let preloaded_suggestions: Vec<String> = {
-                let lock = self.suggestions.lock().unwrap();
-                lock.get(&self.search_type).cloned().unwrap_or_default()
-            };
-
-            let filtered_suggestions: Vec<_> = preloaded_suggestions
-                .iter()
-                .filter(|s| {
-                    let s_lower = s.to_lowercase();
-                    let input_lower = self.search_input.to_lowercase();
-                    s_lower.contains(&input_lower) && *s != &self.search_input
-                })
-                .collect();
 
             let popup_id = text_response.id.with("popup");
             let mut is_open = egui::Popup::is_id_open(ui.ctx(), popup_id);
 
+            // trigger a api call when more than equal to 3 character are present
             if text_response.changed() {
-                self.highlighted_index = 0;
-                if !self.search_input.is_empty() && !filtered_suggestions.is_empty() {
+                self.search.highlighted_index = 0;
+                if is_failed {
+                    *self.search.search_failed.lock().unwrap() = false;
+                }
+
+                if !self.search.search_input.is_empty() {
                     is_open = true;
+
+                    // limit search_type that support suggestions
+                    if self.search.search_type == SearchType::AuthorName || self.search.search_type == SearchType::DatasetTitle {
+                        if self.search.search_input.len() >= 3 {
+                            self.search.found_strings.clear();
+                            self.search.current_offset = 0;
+                            self.search.autocomplete_fetching = true;
+                            self.trigger_autocomplete_fetch();
+                        }
+                    }
+                } else {
+                    self.search.found_strings.clear();
+                    self.search.autocomplete_fetching = false;
                 }
             }
 
-            if is_open {
-                if ui.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
-                    self.highlighted_index = self
-                        .highlighted_index
-                        .saturating_add(1)
-                        .min(filtered_suggestions.len().saturating_sub(1));
-                }
-                if ui.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
-                    self.highlighted_index = self.highlighted_index.saturating_sub(1);
-                }
-                if text_response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
-                    if let Some(&suggestion) = filtered_suggestions.get(self.highlighted_index) {
-                        self.search_input = suggestion.to_string();
-                        is_open = false;
+            let mut filtered_suggestions: Vec<String> = self.search.found_strings
+                .iter()
+                .filter(|word| {
+                    let s_lower = word.name.to_lowercase();
+                    let input_lower = self.search.search_input.to_lowercase();
+                    s_lower.contains(&input_lower) && word.name != self.search.search_input
+                })
+                .map(|word| word.name.clone())
+                .collect();
+
+            if self.search.search_type == SearchType::AuthorName || self.search.search_type == SearchType::DatasetTitle {
+                for word in &self.search.found_strings {
+                    // deduplicate
+                    if !filtered_suggestions.contains(&word.name) && word.name != self.search.search_input {
+                        filtered_suggestions.push(word.name.clone());
                     }
                 }
             }
 
-            if self.search_input.is_empty() || filtered_suggestions.is_empty() || (!text_response.has_focus() && !is_open) {
+            if is_open {
+                // keyboard navigation
+                if ui.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
+                    self.search.highlighted_index = self
+                        .search.highlighted_index
+                        .saturating_add(1)
+                        .min(filtered_suggestions.len().saturating_sub(1));
+                }
+                if ui.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
+                    self.search.highlighted_index = self.search.highlighted_index.saturating_sub(1);
+                }
+                if text_response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                    if let Some(suggestion) = filtered_suggestions.get(self.search.highlighted_index) {
+                        self.search.search_input = suggestion.to_string();
+                        is_open = false;
+                    }
+                }
+                // close on esc key
+                if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                    is_open = false;
+                    text_response.surrender_focus();
+                }
+            }
+
+            // Critical change: Only force-close if we are NOT currently fetching
+            if self.search.search_input.is_empty()
+                || (filtered_suggestions.is_empty() && !self.search.autocomplete_fetching)
+                || (!text_response.has_focus() && !is_open)
+            {
                 is_open = false;
             }
 
+            // Sync state with egui memory
             if is_open {
                 egui::Popup::open_id(ui.ctx(), popup_id);
             } else {
                 egui::Popup::close_id(ui.ctx(), popup_id);
             }
 
-            egui::Popup::from_response(&text_response).id(popup_id).open(is_open).show(|ui| {
-                ui.set_min_width(text_response.rect.width());
-                egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
-                    for (i, suggestion) in filtered_suggestions.iter().enumerate() {
-                        let is_selected = i == self.highlighted_index;
-                        if ui.selectable_label(is_selected, suggestion.as_str()).clicked() {
-                            self.search_input = suggestion.to_string();
-                            egui::Popup::close_id(ui.ctx(), popup_id);
-                            text_response.surrender_focus();
-                        }
-                    }
-                });
-            });
+            // render the popup window
+            if is_open {
+                let screen_rect = ui.ctx().content_rect();
 
-            // Confirm Fetch Button
-            let is_currently_fetching = *self.is_fetching.lock().unwrap();
+                // TODO figure out why the height is magic
+                let pos_x = 0.0;
+                let pos_y = text_response.rect.bottom() + 6.0;
+                let target_width = screen_rect.width() - 14.0;
+                let target_height = screen_rect.width() - 244.0;
+
+                egui::Area::new("autocomplete_popup_area".into())
+                    .fixed_pos([pos_x, pos_y])
+                    .show(ui.ctx(), |ui| {
+                        egui::Frame::popup(ui.style()).show(ui, |ui| {
+                            ui.set_min_width(target_width);
+                            ui.set_max_width(target_width);
+                            ui.set_min_height(target_height);
+                            ui.set_max_height(target_height);
+
+                            egui::ScrollArea::vertical().show(ui, |ui| {
+                                if filtered_suggestions.is_empty() && !self.search.autocomplete_fetching {
+                                    ui.label(
+                                        egui::RichText::new("No matching results.")
+                                            .italics()
+                                            .color(self.ui.theme.dimmed_text_fg),
+                                    );
+                                } else {
+                                    for (i, suggestion) in filtered_suggestions.iter().enumerate() {
+                                        let is_selected = i == self.search.highlighted_index;
+
+                                        let row_response =
+                                            ui.add_sized([target_width, 0.0], egui::Button::selectable(is_selected, suggestion.as_str()));
+
+                                        if row_response.clicked() {
+                                            self.search.search_input = suggestion.to_string();
+                                            text_response.surrender_focus();
+                                            egui::Popup::close_id(ui.ctx(), popup_id);
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    });
+            }
+
+            // confirm fetch datasets from api button
+            let is_currently_fetching = *self.search.is_fetching.lock().unwrap();
 
             let start_point_confirm_button = egui::Button::new("Confirm");
 
             if ui.add_enabled(!is_currently_fetching, start_point_confirm_button).clicked() {
-                log::info!("Requested Fetch! Type: {}, Input: {}", self.search_type.as_str(), self.search_input);
-                *self.search_failed.lock().unwrap() = false;
-                *self.is_fetching.lock().unwrap() = true;
+                log::info!("Requested Fetch! Type: {}, Input: {}", self.search.search_type.as_str(), self.search.search_input);
+                *self.search.search_failed.lock().unwrap() = false;
+                *self.search.is_fetching.lock().unwrap() = true;
 
-                let state_clone = self.state.clone();
+                let state_clone = self.graph_data.clone();
                 let ctx_clone = ctx.clone();
-                let input = self.search_input.clone();
-                let search_type = self.search_type.clone();
-                let failed_clone = self.search_failed.clone();
-                let fetching_clone = self.is_fetching.clone();
-                let base_url = self.api_url.clone();
+                let input = self.search.search_input.clone();
+                let search_type = self.search.search_type.clone();
+                let failed_clone = self.search.search_failed.clone();
+                let fetching_clone = self.search.is_fetching.clone();
+                let base_url = self.config.api_url.clone();
 
                 let target_url = match search_type {
                     SearchType::AuthorName => format!("{}/get_dataset_information_by_author_name?author_name={}", base_url, input),
@@ -245,9 +337,15 @@ impl App {
                 });
             }
 
+            // fetching info text
+            if self.search.autocomplete_fetching {
+                ui.add(egui::Spinner::new());
+                ui.label("Fetching Suggestion data...");
+            }
+
             if is_currently_fetching {
                 ui.add(egui::Spinner::new());
-                ui.label("Fetching data...");
+                ui.label("Fetching Graph data...");
             }
         });
 

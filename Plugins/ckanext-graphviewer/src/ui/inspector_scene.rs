@@ -17,7 +17,7 @@ impl App {
             ui.horizontal(|ui| {
                 ui.label("Select a Node:");
 
-                let selected_label = if let Some(id) = &self.inspector_selected_node {
+                let selected_label = if let Some(id) = &self.ui.inspector_selected_node {
                     nodes
                         .iter()
                         .find(|n| n.id == *id)
@@ -33,10 +33,7 @@ impl App {
                 let target_width = ui.available_width() - 0.0;
                 let default_height = ui.spacing().interact_size.y;
 
-                let button_response = ui.add_sized(
-                    [target_width, default_height],
-                    egui::Button::new(selected_label)
-                );
+                let button_response = ui.add_sized([target_width, default_height], egui::Button::new(selected_label));
 
                 if button_response.clicked() {
                     is_open = !is_open;
@@ -60,13 +57,12 @@ impl App {
 
                     ui.add_sized(
                         [max_width, 0.0],
-                        egui::TextEdit::singleline(&mut self.inspector_search_text)
-                            .hint_text("Search nodes...")
+                        egui::TextEdit::singleline(&mut self.ui.inspector_search_text).hint_text("Search nodes..."),
                     );
 
                     ui.separator();
 
-                    let search_term = self.inspector_search_text.to_lowercase();
+                    let search_term = self.ui.inspector_search_text.to_lowercase();
                     let mut match_found = false;
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
@@ -77,23 +73,24 @@ impl App {
                             if search_term.is_empty() || display_text.to_lowercase().contains(&search_term) {
                                 match_found = true;
 
-                                let is_selected = self.inspector_selected_node == Some(node.id.clone());
+                                let is_selected = self.ui.inspector_selected_node == Some(node.id.clone());
 
-                                let row_response = ui.add_sized(
-                                    [max_width, 0.0],
-                                    egui::SelectableLabel::new(is_selected, display_text)
-                                );
+                                let row_response = ui.add_sized([max_width, 0.0], egui::Button::selectable(is_selected, display_text));
 
                                 if row_response.clicked() {
-                                    self.inspector_selected_node = Some(node.id.clone());
-                                    self.inspector_search_text.clear();
+                                    self.ui.inspector_selected_node = Some(node.id.clone());
+                                    self.ui.inspector_search_text.clear();
                                     egui::Popup::close_id(ui.ctx(), popup_id);
                                 }
                             }
                         }
 
                         if !match_found {
-                            ui.label(egui::RichText::new("No matching nodes found.").color(self.theme.dimmed_text_fg).italics());
+                            ui.label(
+                                egui::RichText::new("No matching nodes found.")
+                                    .color(self.ui.theme.dimmed_text_fg)
+                                    .italics(),
+                            );
                         }
                     });
                 });
@@ -101,13 +98,13 @@ impl App {
 
             ui.separator();
 
-            if let Some(selected_id) = self.inspector_selected_node.clone() {
+            if let Some(selected_id) = self.ui.inspector_selected_node.clone() {
                 if let Some(node_idx) = nodes.iter().position(|n| n.id == selected_id) {
                     let node = &nodes[node_idx];
 
                     // header
                     ui.heading(&node.label);
-                    ui.label(egui::RichText::new(format!("URI: {}", node.id)).color(self.theme.dimmed_text_fg));
+                    ui.label(egui::RichText::new(format!("URI: {}", node.id)).color(self.ui.theme.dimmed_text_fg));
                     ui.add_space(20.0);
 
                     // subject
@@ -115,7 +112,7 @@ impl App {
                     ui.add_space(5.0);
 
                     egui::Frame::NONE
-                        .fill(self.theme.painter_bg)
+                        .fill(self.ui.theme.painter_bg)
                         .corner_radius(5.0)
                         .inner_margin(8.0)
                         .show(ui, |ui| {
@@ -161,7 +158,7 @@ impl App {
                     ui.add_space(5.0);
 
                     egui::Frame::NONE
-                        .fill(self.theme.painter_bg)
+                        .fill(self.ui.theme.painter_bg)
                         .corner_radius(5.0)
                         .inner_margin(8.0)
                         .show(ui, |ui| {
@@ -177,8 +174,6 @@ impl App {
                                 .spacing([grid_spacing - 10.0, 15.0])
                                 .striped(true)
                                 .show(ui, |ui| {
-                                    let mut has_incoming = false;
-
                                     for edge in edges.iter() {
                                         let mut is_incoming = false;
                                         let mut source_id = "";
@@ -196,8 +191,6 @@ impl App {
                                         }
 
                                         if is_incoming {
-                                            has_incoming = true;
-
                                             ui.vertical(|ui| {
                                                 ui.set_min_width(col2_width);
                                                 ui.set_max_width(col2_width);
@@ -219,7 +212,7 @@ impl App {
                 } else {
                     ui.label(
                         egui::RichText::new("Please select a node from the dropdown above to view its properties.")
-                            .color(self.theme.dimmed_text_fg)
+                            .color(self.ui.theme.dimmed_text_fg)
                             .italics(),
                     );
                 }
