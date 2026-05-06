@@ -152,6 +152,8 @@ ARG VER_CKANEXT_SHOWCASE="1.6.1"
 ARG VER_CKANEXT_DOWNLOADALL="0.3.0"
 ARG VER_CKANEXT_PDFVIEW="0.0.7"
 ARG VER_CKANEXT_OFFICEDOCS="1.1.1"
+ARG VER_CKANEXT_SCHEMING="release-3.0.0"
+ARG VER_CKANEXT_LDMSCHEMA="1.0.1"
 
 # TEXTVIEW
 # ********
@@ -240,9 +242,9 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-jupyternotebook@$
 
 # Scheming Plugin:
 # ****************
-COPY ./Plugins/ckanext-scheming $CKAN_HOME_L/src/ckanext-scheming
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-scheming
-RUN cp $CKAN_HOME_L/src/ckanext-scheming/ckanext/scheming/supervisor-ckan-worker.conf /etc/supervisor/conf.d
+RUN ckan-pip install -e git+https://github.com/ckan/ckanext-scheming@${VER_CKANEXT_SCHEMING}#egg=ckanext-scheming --src $CKAN_HOME_L/src/
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-ldm_schema@v${VER_CKANEXT_LDMSCHEMA}#egg=ckanext-ldm_schema --src $CKAN_HOME_L/src/
+RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-worker.conf /etc/supervisor/conf.d
 
 # TIBimport Plugin:
 # *****************
