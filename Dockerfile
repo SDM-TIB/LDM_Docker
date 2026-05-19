@@ -76,18 +76,14 @@ RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/TIB-dev-r
 # Reactivate your virtualenv to ensure taking changes
 RUN . /usr/lib/ckan/default/bin/activate
 
-# Replace distribution ckan-entrypoint.sh with a custom one.
-COPY ./ckan-entrypoint.sh /ckan-entrypoint.sh
-
 # Create a directory to contain the site's config files and set access permission to them.
 # Also we give current user permission to access and execute files and folders
 RUN mkdir -p /etc/ckan &&\
     mkdir -p $CKAN_CONFIG_L &&\
     mkdir -p $CKAN_STORAGE_PATH_L &&\
     mkdir -p $CKAN_STORAGE_PATH_L/resources
-	
-RUN chmod +x /ckan-entrypoint.sh &&\
-    chown -R `whoami` $CKAN_HOME_L $CKAN_CONFIG_L &&\ 
+
+RUN chown -R `whoami` $CKAN_HOME_L $CKAN_CONFIG_L &&\
     chown -R `whoami` /etc/ckan &&\
     chown -R `whoami` $CKAN_STORAGE_PATH_L &&\
     chown -R `whoami` $CKAN_STORAGE_PATH_L/resources
@@ -109,9 +105,6 @@ COPY ./reload_database.sh /reload_database.sh
 
 # Add script file for cleaning the Databases (Consult User Manual)
 COPY ./clean_database.sh /clean_database.sh
-
-# Define entry point file
-ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
 # ******************************************************************
 
 # Setup examples
@@ -132,9 +125,6 @@ RUN mkdir -p /var/log/ckan && \
 
 # Expose port for ckan
 EXPOSE 5000
-
-# Run command for running CKAN 
-CMD ["ckan","-c","/etc/ckan/default/ckan.ini", "run", "--host", "0.0.0.0"]
 
 # Stage 2: Install plugins
 FROM base AS final
@@ -278,3 +268,12 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-Code2NB/${VER_CKANEXT_CODE2NB}/requirements.txt
 
+# Replace distribution ckan-entrypoint.sh with a custom one.
+COPY ./ckan-entrypoint.sh /ckan-entrypoint.sh
+RUN chmod +x /ckan-entrypoint.sh
+
+# Define entry point file
+ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
+
+# Run command for running CKAN
+CMD ["ckan","-c","/etc/ckan/default/ckan.ini", "run", "--host", "0.0.0.0"]
