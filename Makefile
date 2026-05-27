@@ -50,10 +50,10 @@ init:
 	         docker_volumes/kg_data
 
 chown-volumes:
-	$(SUDO) chown -R $(shell whoami):$(shell id -gn) docker_volumes
+	$(SUDO) chown -Rf $(shell whoami):$(shell id -gn) docker_volumes || true
 
 chown-volume-src:
-	$(SUDO) chown -R $(shell whoami):$(shell id -gn) docker_volumes/ckan_home
+	$(SUDO) chown -Rf $(shell whoami):$(shell id -gn) docker_volumes/ckan_home || true
 
 # ── Production ────────────────────────────────────────────────────────────────
 
