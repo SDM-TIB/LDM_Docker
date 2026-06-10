@@ -135,7 +135,7 @@ ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
 ARG VER_CKANEXT_FEDORKG="0.10.1"
 ARG VER_CKANEXT_ADVANCEDSTATS="0.7.0"
 ARG VER_CKANEXT_FALCON="2cb86e0"
-ARG VER_CKANEXT_KGCREATION="4ae50fa"
+ARG VER_CKANEXT_KGCREATION="f15b8da"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="628a18e"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
 ARG VER_CKANEXT_SHOWCASE="1.6.1"
@@ -220,11 +220,8 @@ RUN ckan-pip install -e git+https://github.com/jqnatividad/ckanext-officedocs@v$
 
 # KG Creation Plugin:
 # ******************
-COPY ./Plugins/ckanext-LDM_SPARQL $CKAN_HOME_L/src/ckanext-LDM_SPARQL
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDM_SPARQL
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDM_SPARQL/requirements.txt
-#RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_CKANEXT_KGCREATION}#egg=ckanext-kgcreation --src $CKAN_HOME_L/src/ &&\
-#    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-kgcreation/${VER_CKANEXT_KGCREATION}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_CKANEXT_KGCREATION}#egg=ckanext-kgcreation --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-kgcreation/${VER_CKANEXT_KGCREATION}/requirements.txt
 
 # Install Jupyternotebooks Plugin requirements
 # ********************************************
