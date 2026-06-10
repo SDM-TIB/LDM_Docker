@@ -3,3 +3,5 @@
 
 docker_volumes/
 
+*~undo-tree~
+*.pdf-view-restore
