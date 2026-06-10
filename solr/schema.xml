@@ -176,6 +176,10 @@ attribute with the form `ckan-X.Y` -->
     <dynamicField name="res_extras_*" type="text" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="vocab_*" type="string" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="*" type="string" indexed="true"  stored="false"/>
+
+    <field name="github_contributors" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="github_authors" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="github_topics" type="string" indexed="true" stored="true" multiValued="true"/>
 </fields>
 
 <uniqueKey>index_id</uniqueKey>

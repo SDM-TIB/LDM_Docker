@@ -144,6 +144,7 @@ ARG VER_CKANEXT_PDFVIEW="0.0.7"
 ARG VER_CKANEXT_OFFICEDOCS="1.1.1"
 ARG VER_CKANEXT_SCHEMING="release-3.0.0"
 ARG VER_CKANEXT_LDMSCHEMA="1.0.2"
+ARG VER_CKANEXT_GITIMPORT="5adb792"
 
 # TEXTVIEW
 # ********
@@ -267,6 +268,10 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
 # ********************************************
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-Code2NB/${VER_CKANEXT_CODE2NB}/requirements.txt
+
+# GitHub Import Plugin:
+# ******************
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-gitimport@${VER_CKANEXT_GITIMPORT}#egg=ckanext-gitimport --src $CKAN_HOME_L/src/
 
 # Replace distribution ckan-entrypoint.sh with a custom one.
 COPY ./ckan-entrypoint.sh /ckan-entrypoint.sh

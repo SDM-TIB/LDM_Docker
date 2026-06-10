@@ -62,7 +62,7 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme TIBdcat pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer ldm_sparql falcon tib_matomo tibnotify Code2NB" \
+    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme TIBdcat pdf_view scheming_datasets tibimport jupyternotebook doi tibvocparser scheming_tibupdateresources tib_cadviewer ldm_sparql falcon tib_matomo tibnotify Code2NB " \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
@@ -87,7 +87,7 @@ write_config () {
 
   echo "CONFIG scheming vars"
   ckan config-tool -s app:main $CONFIG \
-    "scheming.dataset_schemas = ckanext.ldm_schema:schemas/ckan_dataset.yaml ckanext.ldm_schema:schemas/ckan_vdataset.yaml ckanext.ldm_schema:schemas/service.yaml" \
+    "scheming.dataset_schemas = ckanext.ldm_schema:schemas/ckan_dataset.yaml ckanext.ldm_schema:schemas/ckan_vdataset.yaml ckanext.ldm_schema:schemas/service.yaml ckanext.gitimport:ckan_github.yaml" \
     "scheming.presets = ckanext.scheming:presets.json ckanext.ldm_schema:presets/presets.json"
   echo "CONFIG scheming vars DONE"
 
@@ -107,6 +107,10 @@ write_config () {
     "ckan.extra_resource_fields = auto_update"
   echo "CONFIG AutoUpdate Resources plugin DONE"
 
+  echo "CONFIG GitImport plugin"
+  ckan config-tool -s app:main $CONFIG \
+    "ckanext.gitimport.add_header_link = false"
+  echo "CONFIG GitImport plugin DONE"
 
   echo "CONFIG TIBtheme plugin"
   ckan config-tool -s app:main $CONFIG \
