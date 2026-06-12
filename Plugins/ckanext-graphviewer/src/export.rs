@@ -152,7 +152,7 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
         };
 
         // Helper closure to stack multiple labels vertically using <tspan>
-        let mut draw_label = |label_str: &str, base_y: f32, svg_out: &mut String| {
+        let draw_label = |label_str: &str, base_y: f32, svg_out: &mut String| {
             let labels: Vec<&str> = label_str.split(", ").collect();
             let is_top = base_y < 0.0;
             let line_height = 10.0;
