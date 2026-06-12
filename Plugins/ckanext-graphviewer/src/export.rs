@@ -174,13 +174,142 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
 }
 
 // ---------------------------------------------------------
-// Placeholders for future implementations
+// New Data Generation Implementations
 // ---------------------------------------------------------
 
-pub fn generate_n3(_nodes: &[Node], _edges: &[Edge]) -> String {
-    String::from("# N3 Export not yet implemented.\n")
+/// Reconstructs the N3 structure using the pure backend dataset rather than UI nodes
+pub fn generate_n3(triples: &[crate::parser::RawTriple]) -> String {
+    let mut n3 = String::new();
+    for t in triples {
+        n3.push_str(&format!("{} {} {} .\n", t.subject, t.predicate, t.object));
+    }
+    n3
 }
 
-pub fn generate_json(_nodes: &[Node], _edges: &[Edge]) -> String {
-    String::from("{\n  \"status\": \"JSON Export not yet implemented\"\n}")
+/// Generates a comprehensive JSON mapping of the active Graph state
+pub fn generate_json(nodes: &[Node], edges: &[Edge]) -> String {
+    let export_obj = serde_json::json!({
+        "nodes": nodes.iter().filter(|n| n.visible).map(|n| {
+            serde_json::json!({
+                "id": n.id,
+                "label": n.label,
+                "rdf_type": n.rdf_type,
+                "x": n.pos.x,
+                "y": n.pos.y,
+                "properties": n.properties.iter().map(|(k, v)| {
+                    serde_json::json!({"predicate": k, "object": v})
+                }).collect::<Vec<_>>()
+            })
+        }).collect::<Vec<_>>(),
+        "edges": edges.iter().filter(|e| e.visible).map(|e| {
+            serde_json::json!({
+                "source": nodes[e.source].id,
+                "target": nodes[e.target].id,
+                "label": e.label,
+                "reverse_label": e.reverse_label,
+                "bidirectional": e.bidirectional
+            })
+        }).collect::<Vec<_>>()
+    });
+
+    serde_json::to_string_pretty(&export_obj).unwrap_or_else(|_| "{}".to_string())
+}
+
+// ---------------------------------------------------------
+// I/O File Trigger Handlers
+// ---------------------------------------------------------
+
+#[cfg(target_arch = "wasm32")]
+pub fn save_file(filename: &str, content: &str, mime_type: &str) {
+    use wasm_bindgen::JsCast;
+    if let Some(window) = web_sys::window() {
+        if let Some(document) = window.document() {
+            let array = js_sys::Array::new();
+            array.push(&wasm_bindgen::JsValue::from_str(content));
+            let mut options = web_sys::BlobPropertyBag::new();
+            options.type_(mime_type);
+            if let Ok(blob) = web_sys::Blob::new_with_str_sequence_and_options(&array, &options) {
+                if let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) {
+                    if let Ok(a) = document.create_element("a") {
+                        let _ = a.set_attribute("href", &url);
+                        let _ = a.set_attribute("download", filename);
+                        if let Ok(html_a) = a.dyn_into::<web_sys::HtmlElement>() {
+                            html_a.click();
+                        }
+                    }
+                    let _ = web_sys::Url::revoke_object_url(&url);
+                }
+            }
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_file(filename: &str, content: &str, _mime_type: &str) {
+    // 1. Explicitly grab the Current Working Directory
+    let cwd = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+
+    // 2. Append the filename to the CWD
+    let full_path = cwd.join(filename);
+
+    // 3. Write directly to that absolute path
+    if let Err(e) = std::fs::write(&full_path, content) {
+        log::error!("Failed to save to {:?}: {}", full_path, e);
+    } else {
+        log::info!("Successfully exported file to: {:?}", full_path);
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_png_from_svg(svg_data: &str, filename: &str) {
+    // resvg re-exports usvg and tiny_skia to prevent version conflicts
+    use resvg::usvg::{Options, Tree, fontdb};
+    use resvg::tiny_skia::{Pixmap, Transform};
+
+    // 1. Load system fonts so the text in the SVG renders correctly
+    let mut font_db = fontdb::Database::new();
+    font_db.load_system_fonts();
+
+    // 1. Extract the name as an owned String to release the immutable borrow immediately
+    let fallback_family = font_db.faces().next()
+        .and_then(|face| face.families.first())
+        .map(|(name, _)| name.clone());
+
+    // 2. Now it is safe to mutably borrow font_db
+    if let Some(family_name) = fallback_family {
+        font_db.set_sans_serif_family(family_name.as_str());
+    } else {
+        log::warn!("No system fonts were found! Text will not render. Please install a font package.");
+    }
+
+    let mut opt = Options::default();
+    opt.fontdb = std::sync::Arc::new(font_db); // Attach our loaded fonts to the options!
+
+    // 2. Parse the SVG string into a render tree
+    match Tree::from_str(svg_data, &opt) {
+        Ok(tree) => {
+            // 3. Create a pixel buffer matching the SVG's exact dimensions
+            let size = tree.size().to_int_size();
+            if let Some(mut pixmap) = Pixmap::new(size.width(), size.height()) {
+
+                // 4. Render the SVG mathematically into the pixel buffer
+                resvg::render(&tree, Transform::default(), &mut pixmap.as_mut());
+
+                // 5. Save to Current Working Directory
+                let cwd = std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+                let full_path = cwd.join(filename);
+
+                if let Err(e) = pixmap.save_png(&full_path) {
+                    log::error!("Failed to save PNG from SVG: {}", e);
+                } else {
+                    log::info!("Successfully rendered and exported PNG to: {:?}", full_path);
+                }
+            } else {
+                log::error!("Failed to allocate pixel buffer for PNG.");
+            }
+        }
+        Err(e) => {
+            log::error!("Failed to parse SVG for PNG rendering: {}", e);
+        }
+    }
 }

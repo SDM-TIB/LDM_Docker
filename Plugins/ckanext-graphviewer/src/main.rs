@@ -293,7 +293,7 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         let api_url = get_api_url_from_dom().unwrap_or_else(|| "http://0.0.0.0:5742".to_string());
         #[cfg(not(target_arch = "wasm32"))]
-        let api_url = "http://194.95.157.128:5742".to_string();
+        let api_url = "http://0.0.0.0:5742".to_string();
 
         #[cfg(target_arch = "wasm32")]
         let n3_target_url = get_n3_url_from_dom();
@@ -517,26 +517,45 @@ impl eframe::App for App {
                                 }
                             }
 
-                            let mut dummy = 0;
-                            egui::ComboBox::from_id_salt("export_menu")
-                                .selected_text("Export")
-                                .show_ui(ui, |ui| {
-                                    if ui.selectable_value(&mut dummy, 1, "Export as SVG").clicked() {
-                                        let _svg_data = crate::export::generate_svg(&nodes, &edges, &self.ui.theme);
-                                        log::info!("Generated SVG");
+                            ui.menu_button("Export", |ui| {
+                                if ui.button("Export as SVG").clicked() {
+                                    let svg_data = crate::export::generate_svg(nodes, edges, &self.ui.theme);
+                                    crate::export::save_file("graph_export.svg", &svg_data, "image/svg+xml");
+                                    ui.close_menu();
+                                }
+
+                                if ui.button("Export as PNG").clicked() {
+                                    #[cfg(target_arch = "wasm32")]
+                                    if let Some(rect) = self.ui.canvas_rect {
+                                        // Keeping WASM intact if you still use it
+                                        crate::trigger_wasm_canvas_download(rect, ctx.pixels_per_point(), "graph_export.png");
+                                        log::info!("Triggered WASM PNG download");
                                     }
-                                    if ui.selectable_value(&mut dummy, 2, "Export as PNG").clicked() {
-                                        log::info!("PNG export requested");
+
+                                    #[cfg(not(target_arch = "wasm32"))]
+                                    {
+                                        // 1. Generate the perfect SVG layout
+                                        let svg_data = crate::export::generate_svg(nodes, edges, &self.ui.theme);
+
+                                        // 2. Immediately render it to a PNG
+                                        crate::export::save_png_from_svg(&svg_data, "graph_export.png");
                                     }
-                                    if ui.selectable_value(&mut dummy, 3, "Export as N3").clicked() {
-                                        let _n3_data = crate::export::generate_n3(nodes, edges);
-                                        log::info!("Generated N3");
-                                    }
-                                    if ui.selectable_value(&mut dummy, 4, "Export as JSON").clicked() {
-                                        let _json_data = crate::export::generate_json(nodes, edges);
-                                        log::info!("Generated JSON");
-                                    }
-                                });
+
+                                    ui.close_menu();
+                                }
+
+                                if ui.button("Export as N3").clicked() {
+                                    let n3_data = crate::export::generate_n3(raw_triples);
+                                    crate::export::save_file("graph_export.n3", &n3_data, "text/n3");
+                                    ui.close_menu();
+                                }
+
+                                if ui.button("Export as JSON").clicked() {
+                                    let json_data = crate::export::generate_json(nodes, edges);
+                                    crate::export::save_file("graph_export.json", &json_data, "application/json");
+                                    ui.close_menu();
+                                }
+                            });
                         });
                     });
                     ui.separator();
