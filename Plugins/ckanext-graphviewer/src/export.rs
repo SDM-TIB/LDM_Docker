@@ -44,9 +44,12 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
     }
 
     // 2. Define Canvas Dimensions
-    let padding = 60.0;
-    let graph_width = (max_x - min_x) + (padding * 2.0);
-    let graph_height = (max_y - min_y) + (padding * 2.0);
+    // We increase horizontal padding significantly to protect long text labels from bleeding off the edges
+    let padding_x = 180.0;
+    let padding_y = 80.0;
+
+    let graph_width = (max_x - min_x) + (padding_x * 2.0);
+    let graph_height = (max_y - min_y) + (padding_y * 2.0);
 
     let panel_width = 300.0;
     let total_width = graph_width + panel_width;
@@ -58,8 +61,27 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
 
     let mut svg = String::new();
     svg.push_str(&format!(
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {} {}\" width=\"{}\" height=\"{}\" style=\"background-color: {}; font-family: sans-serif;\">\n",
-        total_width, total_height, total_width, total_height, bg_color
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {} {}\" width=\"{}\" height=\"{}\" style=\"font-family: sans-serif;\">\n",
+        total_width, total_height, total_width, total_height
+    ));
+
+    // --- Define Half-Arrow Markers ---
+    svg.push_str("  <defs>\n");
+    // Right-pointing half arrow (Inverted to M 0 10 so it always pairs correctly)
+    svg.push_str("    <marker id=\"arrow-end\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"8\" markerHeight=\"8\" orient=\"auto\">\n");
+    svg.push_str(&format!("      <path d=\"M 0 10 L 10 5 L 0 5 z\" fill=\"{}\" />\n", edge_color));
+    svg.push_str("    </marker>\n");
+
+    // Left-pointing half arrow
+    svg.push_str("    <marker id=\"arrow-start\" viewBox=\"0 0 10 10\" refX=\"2\" refY=\"5\" markerWidth=\"8\" markerHeight=\"8\" orient=\"auto\">\n");
+    svg.push_str(&format!("      <path d=\"M 10 0 L 0 5 L 10 5 z\" fill=\"{}\" />\n", edge_color));
+    svg.push_str("    </marker>\n");
+    svg.push_str("  </defs>\n");
+
+    // Explicitly draw a solid background rectangle
+    svg.push_str(&format!(
+        "  <rect width=\"100%\" height=\"100%\" fill=\"{}\" />\n",
+        bg_color
     ));
 
     // ==========================================
@@ -75,16 +97,98 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
         let source_pos = nodes[edge.source].pos;
         let target_pos = nodes[edge.target].pos;
 
-        // Shift positions by min bounds + padding so everything is strictly positive in the SVG
-        let x1 = source_pos.x - min_x + padding;
-        let y1 = source_pos.y - min_y + padding;
-        let x2 = target_pos.x - min_x + padding;
-        let y2 = target_pos.y - min_y + padding;
+        // Use padding_x and padding_y
+        let x1 = source_pos.x - min_x + padding_x;
+        let y1 = source_pos.y - min_y + padding_y;
+        let x2 = target_pos.x - min_x + padding_x;
+        let y2 = target_pos.y - min_y + padding_y;
 
+        // Calculate distance and angles to offset arrowheads so they don't hide under the nodes
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+        let dist = (dx * dx + dy * dy).sqrt();
+
+        if dist < 0.1 { continue; }
+
+        let ux = dx / dist;
+        let uy = dy / dist;
+
+        // Pull the line back by 16px (14px node radius + 2px gap)
+        let offset = 16.0;
+        let start_x = if edge.bidirectional { x1 + ux * offset } else { x1 };
+        let start_y = if edge.bidirectional { y1 + uy * offset } else { y1 };
+        let end_x = x2 - ux * offset;
+        let end_y = y2 - uy * offset;
+
+        let marker_start = if edge.bidirectional { " marker-start=\"url(#arrow-start)\"" } else { "" };
+        let marker_end = " marker-end=\"url(#arrow-end)\"";
+
+        // Wrap the line in a transparency group to prevent overlap seams with the markers
+        svg.push_str("    <g opacity=\"0.6\">\n");
         svg.push_str(&format!(
-            "    <line x1=\"{:.1}\" y1=\"{:.1}\" x2=\"{:.1}\" y2=\"{:.1}\" stroke=\"{}\" stroke-width=\"1.5\" opacity=\"0.6\" />\n",
-            x1, y1, x2, y2, edge_color
+            "      <line x1=\"{:.1}\" y1=\"{:.1}\" x2=\"{:.1}\" y2=\"{:.1}\" stroke=\"{}\" stroke-width=\"1.5\"{}{} />\n",
+            start_x, start_y, end_x, end_y, edge_color, marker_start, marker_end
         ));
+        svg.push_str("    </g>\n");
+
+        // Draw the Edge Label
+        let mid_x = (x1 + x2) / 2.0;
+        let mid_y = (y1 + y2) / 2.0;
+
+        let mut angle_deg = dy.atan2(dx).to_degrees();
+        let mut is_flipped = false;
+
+        // Flip the angle if the line is pointing backwards to keep text readable
+        if angle_deg > 90.0 || angle_deg < -90.0 {
+            angle_deg += 180.0;
+            is_flipped = true;
+        }
+
+        // Dynamically swap the Y-offsets so labels always stick to their correct arrows
+        let (fwd_y, rev_y) = if is_flipped {
+            (-6.0, 14.0) // Pointing left: Forward arrow is on Top
+        } else {
+            (14.0, -6.0) // Pointing right: Forward arrow is on Bottom
+        };
+
+        // Helper closure to stack multiple labels vertically using <tspan>
+        let mut draw_label = |label_str: &str, base_y: f32, svg_out: &mut String| {
+            let labels: Vec<&str> = label_str.split(", ").collect();
+            let is_top = base_y < 0.0;
+            let line_height = 10.0;
+
+            let start_y = if is_top {
+                base_y - ((labels.len() - 1) as f32 * line_height)
+            } else {
+                base_y
+            };
+
+            svg_out.push_str(&format!(
+                "    <text transform=\"translate({:.1}, {:.1}) rotate({:.1})\" fill=\"{}\" font-size=\"10\" text-anchor=\"middle\" stroke=\"{}\" stroke-width=\"3\" paint-order=\"stroke\" opacity=\"0.9\">\n",
+                mid_x, mid_y, angle_deg, text_color, bg_color
+            ));
+
+            for (i, lbl) in labels.iter().enumerate() {
+                if i == 0 {
+                    svg_out.push_str(&format!(
+                        "      <tspan x=\"0\" y=\"{:.1}\">{}</tspan>\n",
+                        start_y, lbl
+                    ));
+                } else {
+                    svg_out.push_str(&format!(
+                        "      <tspan x=\"0\" dy=\"{:.1}\">{}</tspan>\n",
+                        line_height, lbl
+                    ));
+                }
+            }
+            svg_out.push_str("    </text>\n");
+        };
+
+        draw_label(&edge.label, fwd_y, &mut svg);
+
+        if let Some(rev_label) = &edge.reverse_label {
+            draw_label(rev_label, rev_y, &mut svg);
+        }
     }
 
     // Draw Nodes
@@ -92,12 +196,14 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
         if !node.visible {
             continue;
         }
-        let x = node.pos.x - min_x + padding;
-        let y = node.pos.y - min_y + padding;
+
+        // Use padding_x and padding_y
+        let x = node.pos.x - min_x + padding_x;
+        let y = node.pos.y - min_y + padding_y;
 
         let node_color = theme.get_node_colors(&node.rdf_type).normal;
         let fill_hex = color_to_hex(node_color);
-        let radius = if node.is_root { 18.0 } else { 12.0 };
+        let radius = 14.0; // Uniform size
 
         svg.push_str(&format!(
             "    <circle cx=\"{:.1}\" cy=\"{:.1}\" r=\"{:.1}\" fill=\"{}\" stroke=\"{}\" stroke-width=\"2\" />\n",
@@ -125,23 +231,6 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
     svg.push_str(&format!(
         "    <rect x=\"0\" y=\"0\" width=\"{}\" height=\"{}\" fill=\"{}\" />\n",
         panel_width, total_height, panel_bg
-    ));
-
-    // Panel Title
-    svg.push_str(&format!(
-        "    <text x=\"20\" y=\"40\" fill=\"{}\" font-size=\"22\" font-weight=\"bold\">Graph Analytics</text>\n",
-        text_color
-    ));
-
-    // Stats
-    svg.push_str(&format!(
-        "    <text x=\"20\" y=\"80\" fill=\"{}\" font-size=\"14\">Total Nodes Loaded: {}</text>\n",
-        text_color,
-        nodes.len()
-    ));
-    svg.push_str(&format!(
-        "    <text x=\"20\" y=\"105\" fill=\"{}\" font-size=\"14\">Visible Nodes: {}</text>\n",
-        text_color, visible_node_count
     ));
 
     // Legend Header
@@ -270,12 +359,12 @@ pub fn save_png_from_svg(svg_data: &str, filename: &str) {
     let mut font_db = fontdb::Database::new();
     font_db.load_system_fonts();
 
-    // 1. Extract the name as an owned String to release the immutable borrow immediately
+    // Extract the name as an owned String to release the immutable borrow immediately
     let fallback_family = font_db.faces().next()
         .and_then(|face| face.families.first())
         .map(|(name, _)| name.clone());
 
-    // 2. Now it is safe to mutably borrow font_db
+    // Now it is safe to mutably borrow font_db
     if let Some(family_name) = fallback_family {
         font_db.set_sans_serif_family(family_name.as_str());
     } else {
@@ -283,7 +372,9 @@ pub fn save_png_from_svg(svg_data: &str, filename: &str) {
     }
 
     let mut opt = Options::default();
-    opt.fontdb = std::sync::Arc::new(font_db); // Attach our loaded fonts to the options!
+
+    // Attach our loaded fonts to the options so resvg uses them!
+    opt.fontdb = std::sync::Arc::new(font_db);
 
     // 2. Parse the SVG string into a render tree
     match Tree::from_str(svg_data, &opt) {
