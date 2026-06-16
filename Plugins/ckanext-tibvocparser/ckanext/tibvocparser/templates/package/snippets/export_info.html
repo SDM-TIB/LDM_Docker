@@ -1,20 +1,8 @@
 {% set url = h.url_for('home') + pkg.type + '/' %}
-{% set url2 = url + pkg.name %}
 
     <section class="module module-narrow module-shallow export">
-      <h2 class="module-heading"><i class="fa fa-share-square-o"></i> {{_('Export')}}</h2>
+      <h2 class="module-heading"><i class="fa fa-quote-right"></i> {{_('Citation')}}</h2>
       <p class="module-content">
-
-        <a href="{{ url2 }}.xml">RDF/XML</a>
-        <a href="{{ url2 }}.n3">Notation3 (N3)</a>
-        <a href="{{ url2 }}.ttl">Turtle (TTL)</a>
-        <a href="{{ url2 }}.jsonld">JSON-LD</a>
-        <a href="{{ url2 }}/graph">Graph</a>
-
-        <a href="{{ url }}datacite/{{ pkg.name }}.xml">DataCite</a>
-        <a href="{{ url }}csl/{{ pkg.name }}.json">CSL</a>
-        <a href="{{ url }}dublincore/{{ pkg.name }}.xml">DublinCore</a>
         <a href="{{ url }}bibtex/{{ pkg.name }}">BibTex</a>
-
       </p>
     </section>
