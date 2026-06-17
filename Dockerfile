@@ -166,13 +166,6 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
 COPY ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
 
-# TIB dcat
-# ****
-COPY ./Plugins/ckanext-TIBdcat $CKAN_HOME_L/src/ckanext-TIBdcat
-COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBdcat
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-TIBdcat/requirements.txt
-
 # PDF viewer Plugin:
 # ******************
 RUN ckan-pip install -e git+https://github.com/ckan/ckanext-pdfview@${VER_CKANEXT_PDFVIEW}#egg=ckanext-pdfview --src $CKAN_HOME_L/src/
