@@ -208,12 +208,6 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-downloadall@v${VE
 RUN ckan-pip install -e git+https://github.com/ckan/ckanext-showcase@v${VER_CKANEXT_SHOWCASE}#egg=ckanext-showcase --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/ckan/ckanext-showcase/refs/tags/v${VER_CKANEXT_SHOWCASE}/requirements.txt
 
-# LDMoAuth Plugin:
-# ******************
-COPY ./Plugins/ckanext-LDMoauth2 $CKAN_HOME_L/src/ckanext-LDMoauth2
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-LDMoauth2
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-LDMoauth2/requirements.txt
-
 # MS and OpenOffice docs viewer
 # ***************************** 
 RUN ckan-pip install -e git+https://github.com/jqnatividad/ckanext-officedocs@v${VER_CKANEXT_OFFICEDOCS}#egg=ckanext-officedocs --src $CKAN_HOME_L/src/
