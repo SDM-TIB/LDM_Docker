@@ -31,8 +31,7 @@
 <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/6ef14c56-8de5-41f8-8333-e6428cc561ef/download/gtem_1250.jpg> .
 <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#byteSize> "2437112" .
 <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/6ef14c56-8de5-41f8-8333-e6428cc561ef/download/gtem_1250.jpg> .
-<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/description> "Picture of the GTEM 1250 cell.
-Image published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/description> "Picture of the GTEM 1250 cell. Image published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/issued> "2022-06-13T06:36:24.912114" .
 <https://research.tib.eu/ldm/6ef14c56-8de5-41f8-8333-e6428cc561ef> <http://purl.org/dc/terms/title> "JPG Image example" .
 <https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/998f246f-2e3e-42c8-87cd-dc9241148e83> .
@@ -52,8 +51,7 @@ Image published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/ad15ee0f-8501-43ca-8188-798550b60dec/download/data_description.pdf> .
 <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#byteSize> "962808" .
 <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/ad15ee0f-8501-43ca-8188-798550b60dec/download/data_description.pdf> .
-<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/description> "To analyse the stochastic properties of the laser tracker Leica AT960-LR, five fix points spatially distributed were continuously observed from three different positions in the 3D.
-Published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/description> "To analyse the stochastic properties of the laser tracker Leica AT960-LR, five fix points spatially distributed were continuously observed from three different positions in the 3D. Published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/issued> "2022-06-13T06:33:54.472815" .
 <https://research.tib.eu/ldm/ad15ee0f-8501-43ca-8188-798550b60dec> <http://purl.org/dc/terms/title> "Data Description (PDF)" .
 <https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> .
@@ -63,8 +61,7 @@ Published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/e3bf9e67-3bec-4696-ab04-86c2bcc64355/download/junctiona.png> .
 <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#byteSize> "2085108" .
 <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/416b1441-cac9-4f9a-bb30-db1fb160ea65/resource/e3bf9e67-3bec-4696-ab04-86c2bcc64355/download/junctiona.png> .
-<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/description> "Intersection A with overlaid trajectory samples and background image.
-Image published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/description> "Intersection A with overlaid trajectory samples and background image. Image published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/issued> "2022-06-13T06:35:37.874536" .
 <https://research.tib.eu/ldm/e3bf9e67-3bec-4696-ab04-86c2bcc64355> <http://purl.org/dc/terms/title> "PNG image example" .
 <https://research.tib.eu/ldm/416b1441-cac9-4f9a-bb30-db1fb160ea65> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/f30297a2-6127-4f32-b83e-45abd460bf10> .
