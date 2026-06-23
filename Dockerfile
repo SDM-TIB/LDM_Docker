@@ -143,11 +143,6 @@ ARG VER_CKANEXT_LDMSCHEMA="1.0.2"
 ARG VER_CKANEXT_GITIMPORT="5adb792"
 ARG VER_CKANEXT_CITATION="bb1e175"
 
-# TEXTVIEW
-# ********
-# Patch for message in case of big files error
-COPY ./Plugins/ckanext-textview/text_view_patched.js $CKAN_HOME_L/src/ckan/ckanext/textview/theme/public/text_view.js
-
 # CADVIEWER
 # ***********
 COPY ./Plugins/ckanext-tib_cadviewer $CKAN_HOME_L/src/ckanext-tib_cadviewer
