@@ -145,6 +145,7 @@ ARG VER_CKANEXT_OFFICEDOCS="1.1.1"
 ARG VER_CKANEXT_SCHEMING="release-3.0.0"
 ARG VER_CKANEXT_LDMSCHEMA="1.0.2"
 ARG VER_CKANEXT_GITIMPORT="5adb792"
+ARG VER_CKANEXT_CITATION="bb1e175"
 
 # TEXTVIEW
 # ********
@@ -237,11 +238,9 @@ COPY ./Plugins/ckanext-doi $CKAN_HOME_L/src/ckanext-doi
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-doi
 RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-doi/requirements.txt
 
-# TIBvocparser Plugin:
-# ********************
-COPY ./Plugins/ckanext-tibvocparser $CKAN_HOME_L/src/ckanext-tibvocparser
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tibvocparser
-RUN ckan-pip install -r $CKAN_HOME_L/src/ckanext-tibvocparser/requirements.txt
+# citation Plugin:
+# ****************
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-citation@${VER_CKANEXT_CITATION}#egg=ckanext-citation --src $CKAN_HOME_L/src/
 
 # RDF Graph Visualisation Plugin:
 # ********************
