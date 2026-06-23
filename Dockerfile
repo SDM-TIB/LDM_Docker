@@ -208,6 +208,7 @@ RUN ckan-pip install -e git+https://github.com/jqnatividad/ckanext-officedocs@v$
 
 # KG Creation Plugin:
 # ******************
+COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_CKANEXT_KGCREATION}#egg=ckanext-kgcreation --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-kgcreation/${VER_CKANEXT_KGCREATION}/requirements.txt
 
