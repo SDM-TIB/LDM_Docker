@@ -1,0 +1,22 @@
+diff --git a/ckan/logic/action/create.py b/ckan/logic/action/create.py
+index 17e9cb6968..674253b6a7 100644
+--- a/ckan/logic/action/create.py
++++ b/ckan/logic/action/create.py
+@@ -1042,6 +1042,17 @@ def user_create(context, data_dict):
+                             'image_upload', 'clear_upload')
+     data, errors = _validate(data_dict, schema, context)
+ 
++    # Patch image file type bug
++    ALLOWED_EXTENSIONS = ['gif', 'png', 'jpg', 'jpeg']
++    WRONG_EXTENSION_MSG = _("Invalid image file, only gif, png, jpg, and jpeg allowed.")
++    def _get_extension(filename):
++        return filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
++
++    if upload.filename and _get_extension(upload.filename) not in ALLOWED_EXTENSIONS:
++        errors.update({_('Profile picture'): [WRONG_EXTENSION_MSG]})
++    elif data_dict['image_url'] and _get_extension(data_dict['image_url']) not in ALLOWED_EXTENSIONS:
++        errors.update({_('Profile picture'): [WRONG_EXTENSION_MSG]})
++
+     if errors:
+         session.rollback()
+         raise ValidationError(errors)

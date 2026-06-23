@@ -95,10 +95,6 @@ RUN ln -s /usr/lib/ckan/default/src/ckan/ckan/config/who.ini $CKAN_CONFIG_L/who.
 
 # Note: config file ($CKAN_CONFIG_L/ckan.ini) is generated in ./ckan-entrypoint.sh
 
-# Replace fixed files solving User images uploads bug
-COPY ./user_img_bug/create.py $CKAN_HOME_L/src/ckan/ckan/logic/action/create.py
-COPY ./user_img_bug/update.py $CKAN_HOME_L/src/ckan/ckan/logic/action/update.py
-
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
 COPY ./reload_database.sh /reload_database.sh
@@ -256,6 +252,20 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKA
 # GitHub Import Plugin:
 # ******************
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-gitimport@${VER_CKANEXT_GITIMPORT}#egg=ckanext-gitimport --src $CKAN_HOME_L/src/
+
+# Apply any patches
+COPY patches ${CKAN_HOME_L}/patches
+RUN . /usr/lib/ckan/default/bin/activate && \
+    for d in $CKAN_HOME_L/patches/*; do \
+      if [ -d $d ]; then \
+        for f in $d/*.patch; do \
+          if [ -f $f ]; then \
+            cd $(python -c "import ${d##*/}; import os; print(os.path.dirname(os.path.dirname(${d##*/}.__file__)))") && \
+            patch -p1 < $f ; \
+          fi ; \
+        done ; \
+      fi ; \
+    done
 
 # Replace distribution ckan-entrypoint.sh with a custom one.
 COPY ./ckan-entrypoint.sh /ckan-entrypoint.sh

@@ -1,0 +1,42 @@
+diff --git a/ckan/logic/action/update.py b/ckan/logic/action/update.py
+index 0fbb183a27..178db8d13f 100644
+--- a/ckan/logic/action/update.py
++++ b/ckan/logic/action/update.py
+@@ -6,6 +6,7 @@ import logging
+ import datetime
+ import time
+ import json
++import os
+ 
+ from ckan.common import config
+ import ckan.common as converters
+@@ -847,6 +848,16 @@ def user_update(context, data_dict):
+                             'image_upload', 'clear_upload')
+ 
+     data, errors = _validate(data_dict, schema, context)
++
++    # Patch image file tipe bug
++    if upload.filename and upload.filename[-3:].lower() not in ['gif', 'png', 'jpg']:
++        errors.update({_('Profile picture'): [_("Invalid image file")]})
++        data_dict['image_url'] = data_dict['old_image_url']
++    elif data_dict['image_url'] and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg']:
++        errors.update({_('Profile picture'): [_("Invalid image file")]})
++        data_dict['image_url'] = data_dict['old_image_url']
++    
++
+     if errors:
+         session.rollback()
+         raise ValidationError(errors)
+@@ -873,6 +884,12 @@ def user_update(context, data_dict):
+     # TODO: Also create an activity detail recording what exactly changed in
+     # the user.
+ 
++    # Delete previous image file
++    if data_dict.get('old_image_url', False):
++        img_path = config.get('ckan.storage_path')+'/storage/uploads/user/'+data_dict['old_image_url']
++        if os.path.exists(img_path):
++            os.remove(img_path)
++
+     upload.upload(uploader.get_max_image_size())
+ 
+     if not context.get('defer_commit'):
