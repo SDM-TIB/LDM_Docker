@@ -11,8 +11,7 @@
 <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#accessURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96/download/1-laurenz_meyhoefer_a.-proletella-performance.csv> .
 <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#byteSize> "2017" .
 <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://www.w3.org/ns/dcat#downloadURL> <https://service.tib.eu/ldmservice/dataset/abe34d5b-89dc-45a6-ace3-edef03a98e25/resource/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96/download/1-laurenz_meyhoefer_a.-proletella-performance.csv> .
-<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/description> "All data are analysed and published 2020 under the title \'Banker plants promote functional biodiversity and decrease populations of the cabbage whitefly Aleyrodes proletella\'.
-This dataset was published by Leibniz University Hannover." .
+<https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/description> "All data are analysed and published 2020 under the title \'Banker plants promote functional biodiversity and decrease populations of the cabbage whitefly Aleyrodes proletella\'. This dataset was published by Leibniz University Hannover." .
 <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/issued> "2022-06-13T06:42:45.477082" .
 <https://research.tib.eu/ldm/0e5f5646-65a4-42af-a4e5-92f5dbbf4f96> <http://purl.org/dc/terms/title> "CSV Data Example" .
 <https://research.tib.eu/ldm/abe34d5b-89dc-45a6-ace3-edef03a98e25> <http://www.w3.org/ns/dcat#distribution> <https://research.tib.eu/ldm/4a8809e3-7452-4e4a-9108-223c6bdb7102> .
