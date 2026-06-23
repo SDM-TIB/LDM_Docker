@@ -1,7 +1,6 @@
 
-
 {% if h.tibtheme_legal_notices_enabled(): %}
-<h5>{{_('Legal Notices')}}</h5>
+<p><strong>{{_('Legal Notices')}}</strong></p>
 <ul class="list-unstyled">
     {% set link_terms_of_use= h.tibtheme_get_legal_notice_link(current_lang, 'terms_of_use_link') %}
 
