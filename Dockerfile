@@ -143,11 +143,11 @@ ARG VER_CKANEXT_LDMSCHEMA="1.0.3"
 ARG VER_CKANEXT_GITIMPORT="5adb792"
 ARG VER_CKANEXT_CITATION="2387fca"
 ARG VER_CKANEXT_DOI="7fb02c9"
+ARG VER_CKANEXT_CADVIEWER="82fd9ad"
 
 # CADVIEWER
 # ***********
-COPY ./Plugins/ckanext-tib_cadviewer $CKAN_HOME_L/src/ckanext-tib_cadviewer
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_cadviewer
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_CKANEXT_CADVIEWER}#egg=ckanext-cadviewer --src $CKAN_HOME_L/src/
 
 # ckanext-tib_matomo
 # ***********

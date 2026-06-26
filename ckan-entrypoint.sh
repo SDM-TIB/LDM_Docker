@@ -62,13 +62,13 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook doi citation scheming_tibupdateresources tib_cadviewer kgcreation falcon tib_matomo tibnotify Code2NB " \
+    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view recline_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook doi citation scheming_tibupdateresources cadviewer kgcreation falcon tib_matomo tibnotify Code2NB " \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
     "ckan.site_logo = /images/TIB_logo.png" \
     "ckan.favicon = /images/TIB_logo.png" \
-    "ckan.views.default_views = image_view text_view datacomparison_view video_view officedocs_view pdf_view tib_cadviewer jupyternotebook" \
+    "ckan.views.default_views = image_view text_view datacomparison_view video_view officedocs_view pdf_view cadviewer jupyternotebook" \
     "ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json ipynb"
 
   echo "CONFIG downloadall"
