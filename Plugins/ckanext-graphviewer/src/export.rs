@@ -7,6 +7,16 @@ fn color_to_hex(color: Color32) -> String {
     format!("#{:02X}{:02X}{:02X}", color.r(), color.g(), color.b())
 }
 
+// Helper to safely truncate strings with an ellipsis if they are too long
+fn truncate_text(text: &str, max_chars: usize) -> String {
+    if text.chars().count() > max_chars {
+        let truncated: String = text.chars().take(max_chars).collect();
+        format!("{}...", truncated)
+    } else {
+        text.to_string()
+    }
+}
+
 /// Generates an SVG string containing the graph and an external information panel
 pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
     // 1. Calculate the bounding box of the visible graph
@@ -211,12 +221,15 @@ pub fn generate_svg(nodes: &[Node], edges: &[Edge], theme: &Theme) -> String {
         ));
 
         // Node Label
+        // Node Label
+        let display_label = truncate_text(&node.label, 30);
+
         svg.push_str(&format!(
             "    <text x=\"{:.1}\" y=\"{:.1}\" fill=\"{}\" font-size=\"12\" text-anchor=\"middle\">{}</text>\n",
             x,
             y + radius + 14.0,
             text_color,
-            node.label
+            display_label
         ));
     }
     svg.push_str("  </g>\n");

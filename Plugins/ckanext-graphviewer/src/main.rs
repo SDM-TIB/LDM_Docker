@@ -507,49 +507,57 @@ impl eframe::App for App {
                                         self.ui.theme = Theme::light();
                                     }
                                     ThemeMode::Light => {
-                                        self.ui.theme_mode = ThemeMode::TestingRed;
-                                        self.ui.theme = Theme::testing_red();
-                                    }
-                                    ThemeMode::TestingRed => {
                                         self.ui.theme_mode = ThemeMode::Dark;
                                         self.ui.theme = Theme::dark();
+                                    }
+                                    ThemeMode::TestingRed => {
+                                        self.ui.theme_mode = ThemeMode::TestingRed;
+                                        self.ui.theme = Theme::testing_red();
                                     }
                                 }
                             }
 
                             ui.menu_button("Export", |ui| {
+                                // Generate the ISO-like timestamp string
+                                let timestamp = chrono::Local::now().format("%Y-%m-%d_%H-%M").to_string();
+
                                 if ui.button("Export as SVG").clicked() {
+                                    let filename = format!("LDM_graph_export_{}.svg", timestamp);
                                     let svg_data = crate::export::generate_svg(nodes, edges, &self.ui.theme);
-                                    crate::export::save_file("graph_export.svg", &svg_data, "image/svg+xml");
-                                    ui.close();
+                                    crate::export::save_file(&filename, &svg_data, "image/svg+xml");
+                                    ui.close_menu();
                                 }
 
                                 if ui.button("Export as PNG").clicked() {
+                                    let filename = format!("LDM_graph_export_{}.png", timestamp);
+
                                     #[cfg(target_arch = "wasm32")]
                                     if let Some(rect) = self.ui.canvas_rect {
-                                        crate::trigger_wasm_canvas_download(rect, ctx.pixels_per_point(), "graph_export.png");
+                                        crate::trigger_wasm_canvas_download(rect, ctx.pixels_per_point(), &filename);
                                         log::info!("Triggered WASM PNG download");
                                     }
 
                                     #[cfg(not(target_arch = "wasm32"))]
                                     {
                                         let svg_data = crate::export::generate_svg(nodes, edges, &self.ui.theme);
-                                        crate::export::save_png_from_svg(&svg_data, "graph_export.png");
+                                        crate::export::save_png_from_svg(&svg_data, &filename);
                                     }
 
-                                    ui.close();
+                                    ui.close_menu();
                                 }
 
                                 if ui.button("Export as N3").clicked() {
+                                    let filename = format!("LDM_graph_export_{}.n3", timestamp);
                                     let n3_data = crate::export::generate_n3(raw_triples);
-                                    crate::export::save_file("graph_export.n3", &n3_data, "text/n3");
-                                    ui.close();
+                                    crate::export::save_file(&filename, &n3_data, "text/n3");
+                                    ui.close_menu();
                                 }
 
                                 if ui.button("Export as JSON").clicked() {
+                                    let filename = format!("LDM_graph_export_{}.json", timestamp);
                                     let json_data = crate::export::generate_json(nodes, edges);
-                                    crate::export::save_file("graph_export.json", &json_data, "application/json");
-                                    ui.close();
+                                    crate::export::save_file(&filename, &json_data, "application/json");
+                                    ui.close_menu();
                                 }
                             });
                         });
