@@ -142,7 +142,7 @@ ARG VER_CKANEXT_SCHEMING="release-3.0.0"
 ARG VER_CKANEXT_LDMSCHEMA="1.0.3"
 ARG VER_CKANEXT_GITIMPORT="5adb792"
 ARG VER_CKANEXT_CITATION="2387fca"
-ARG VER_CKANEXT_DOI="7fb02c9"
+ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
 
 # CADVIEWER
@@ -227,7 +227,9 @@ RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBnotify
 
 # DOI Plugin:
 # ***********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-doi@${VER_CKANEXT_DOI}#egg=ckanext-doi --src $CKAN_HOME_L/src/
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-doi@${VER_CKANEXT_DOI}#egg=ckanext-doi --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-doi/${VER_CKANEXT_DOI}/requirements.txt
+
 
 # citation Plugin:
 # ****************
