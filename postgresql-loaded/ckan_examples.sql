@@ -1416,8 +1416,8 @@ d9c34cef-7daa-46f4-a67d-32054d97662e	036bcac0-c857-4bf0-bc71-1c78ed35d93a	view		
 c0442c6b-9d26-4f1d-9337-75b9fecb1f14	1e335b61-123e-4ba4-9c5b-9d1d6309dba9	view		webpage_view	0	{"page_url": "http://vocol.kbs.uni-hannover.de:8000/user/auer/notebooks/ckan22012018/ckan_tib/files/Example%20Machine%20Learning%20Notebook.ipynb"}
 3ca5593a-c5f5-403b-bbab-1c6a03ca66f6	0ce74f0d-bf35-4627-9f69-92d5c1150dff	Example CAD		webpage_view	0	{"page_url": "https://myhub.autodesk360.com/ue2a46308/shares/public/SH7f1edQT22b515c761ee0288183ac670a79?mode=embed"}
 7d6f355f-ea2e-4f93-900f-abad36d4c10f	8649545f-f1d0-49d2-b9cd-88f2593ec059	Video		video_view	0	\N
-e89ce4cd-f3a2-47a9-88be-b3867f2eda61	cc05a1c2-948b-4965-aea7-de09abdad953	Data Explorer		recline_view	0	\N
-9cc3c0d7-3b0b-44d3-9811-8e4a41ac5267	aad9e24e-1046-4b70-9bb8-7d17a8371969	Data Explorer		recline_view	0	\N
+e89ce4cd-f3a2-47a9-88be-b3867f2eda61	cc05a1c2-948b-4965-aea7-de09abdad953	Data Explorer		datacomparison_view	0	\N
+9cc3c0d7-3b0b-44d3-9811-8e4a41ac5267	aad9e24e-1046-4b70-9bb8-7d17a8371969	Data Explorer		datacomparison_view	0	\N
 5c21c0f1-637e-4898-814b-33df383bd92a	849a62dc-45fe-4f7e-9687-09543b7f8512	Video		video_view	0	\N
 9f7bdf2b-e420-4c4a-9e9a-6cc14aad5516	a86b71e3-c68a-421e-b995-b172d603df62	Video		video_view	0	\N
 44f9c2f8-439e-4b80-931f-13f4e4b86fff	ce24e635-7fef-47e2-9f70-a0b214805867	Text		text_view	0	\N
@@ -1427,11 +1427,11 @@ ffaab2d6-258c-4dbb-b7d6-de593c4ef1ae	9fc8ae68-7b34-4a48-a083-1ed4f71ad5ac	Image	
 e97ef89d-d9ff-4521-9668-05ae9d6591b7	3486d220-0c38-4449-96df-7d4d18b916a7	Image		image_view	0	\N
 c0ec4663-0696-49a5-808d-e6296f30ac3f	95a1ebf6-d481-4940-923c-59b21921dfda	Preview		officedocs_view	0	\N
 53c0a30e-ce17-4151-bf04-45a12068789b	966e73d8-654f-4396-ad35-c2bd212e9afd	Preview		officedocs_view	0	\N
-eaee70c2-3bcb-4aaf-9cbd-1a7102c875bb	fece58b1-1505-4ef0-befb-3f0edf59335d	Data Explorer		recline_view	0	\N
+eaee70c2-3bcb-4aaf-9cbd-1a7102c875bb	fece58b1-1505-4ef0-befb-3f0edf59335d	Data Explorer		datacomparison_view	0	\N
 46aa5576-ee87-4924-b01c-851a5898c317	5a139ebc-3076-47a5-a7d5-9b3c6505dd9e	Text		text_view	0	\N
 581c22b2-016b-4438-ab7b-4edcd422a91f	05fcf73d-3fbf-4dec-9ea4-3fc9537ffa43	Preview		officedocs_view	1	\N
 597a700c-ad5c-4930-b3ac-56c0b23148d6	047da174-2caa-45db-bc43-36fd3523ee30	Preview		officedocs_view	1	\N
-c75144bc-11d0-4020-82da-ad8e9d7bf995	4d288ebb-9f2f-40fb-9feb-d0dbffa2f4b7	Data Explorer		recline_view	0	\N
+c75144bc-11d0-4020-82da-ad8e9d7bf995	4d288ebb-9f2f-40fb-9feb-d0dbffa2f4b7	Data Explorer		datacomparison_view	0	\N
 6ab2a1bd-f823-4025-9bf0-1874de43ef1e	5c653296-8877-42f4-9dee-84de4784dcca	Jupyter Notebook		jupyternotebook	0	\N
 ffd67852-5c8a-4219-b696-925cc7f6459e	1fb543eb-9980-494e-bd3b-26aa99bc06ef	Text		text_view	0	\N
 320795c3-6441-4629-8216-5b16002e46f3	e3e6e6ef-e356-4005-af2e-2e8538ed3f58	Text		text_view	0	\N
