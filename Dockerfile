@@ -144,6 +144,7 @@ ARG VER_CKANEXT_GITIMPORT="5adb792"
 ARG VER_CKANEXT_CITATION="2387fca"
 ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
+ARG VER_CKANEXT_GRAPHVIEWER="821ae1e"
 
 # CADVIEWER
 # ***********
@@ -237,8 +238,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-citation@${VER_CK
 
 # RDF Graph Visualisation Plugin:
 # ********************
-COPY ./Plugins/ckanext-graphviewer $CKAN_HOME_L/src/ckanext-graphviewer
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-graphviewer
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-graphviewer@${VER_CKANEXT_GRAPHVIEWER}#egg=ckanext-graphviewer --src $CKAN_HOME_L/src/
 
 # Code2NB Plugin (R and Py to Notebook Converter)
 # ********************************************
