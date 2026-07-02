@@ -170,6 +170,12 @@ if [ ! -e "$CONFIG" ]; then
   
   echo "CREATE Services TABLE IN DB"
 #  ckan -c $CONFIG scheming initdb
+
+  echo "INITIALIZE FedORKG DB"
+  ckan -c $CONFIG fedorkg initdb
+
+  echo "START FedORKG Metdata Endpoint"
+  ckan -c $CONFIG fedorkg start &> $CKAN_STORAGE_PATH/fedorkg/fedorkg-metadata.log &
   
   echo "REBUILD SEARCH-INDEX"
   ckan -c $CONFIG search-index rebuild
