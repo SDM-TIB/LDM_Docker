@@ -158,6 +158,7 @@ services:
       - "8890:8890"
     volumes:
       - kg_data:/data
+      - ./rdf_metadata:/data/toLoad
     networks:
       - ldmnetwork
 
