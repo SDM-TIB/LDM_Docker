@@ -77,6 +77,12 @@ write_config () {
     "ckanext.downloadall.job_queue_name = tib_ur"
   echo "CONFIG downloadall DONE"
 
+  echo "CONFIG FedORKG"
+  ckan config-tool -s app:main $CONFIG \
+    "ckanext.fedorkg.llm.model = o4-mini" \
+    "ckanext.fedorkg.llm.api_key = ${OPENAI_API_KEY}"
+  echo "CONFIG FedORKG DONE"
+
   echo "CONFIG tibimport vars"
   ckan config-tool -s app:main $CONFIG \
 	"tibimport.show_vdatasets_virtual_ribbon = true" \
@@ -170,6 +176,12 @@ if [ ! -e "$CONFIG" ]; then
   
   echo "CREATE Services TABLE IN DB"
 #  ckan -c $CONFIG scheming initdb
+
+  echo "INITIALIZE FedORKG DB"
+  ckan -c $CONFIG fedorkg initdb
+
+  echo "START FedORKG Metdata Endpoint"
+  ckan -c $CONFIG fedorkg start &> $CKAN_STORAGE_PATH/fedorkg/fedorkg-metadata.log &
   
   echo "REBUILD SEARCH-INDEX"
   ckan -c $CONFIG search-index rebuild
