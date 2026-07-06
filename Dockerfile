@@ -145,6 +145,7 @@ ARG VER_CKANEXT_CITATION="2387fca"
 ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
 ARG VER_CKANEXT_GRAPHVIEWER="821ae1e"
+ARG VER_CKANEXT_THEMELDMTIB="1.0.0"
 
 # CADVIEWER
 # ***********
@@ -155,10 +156,9 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_C
 COPY ./Plugins/ckanext-tib_matomo $CKAN_HOME_L/src/ckanext-tib_matomo
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
 
-# TIBtheme
+# TIB Theme
 # ********
-COPY ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-theme_ldm_tib@v${VER_CKANEXT_THEMELDMTIB}#egg=ckanext-theme_ldm_tib --src $CKAN_HOME_L/src/
 
 # PDF viewer Plugin:
 # ******************

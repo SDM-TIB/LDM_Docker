@@ -132,7 +132,7 @@ write_config () {
 
   echo "CONFIG GERMAN TRANSLATIONS"
   ckan config-tool -s app:main $CONFIG \
-	"ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-TIBtheme/ckanext/TIBtheme/i18n/" \
+	"ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-theme-ldm-tib/ckanext/theme_ldm_tib/i18n/" \
 	"ckan.i18n.extra_locales = de"
   echo "CONFIG GERMAN TRANLATIONS DONE"
 
