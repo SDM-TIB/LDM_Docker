@@ -7,6 +7,9 @@
 PROD = docker compose -f docker-compose.yml
 DEV  = docker compose
 
+FORCE_RECREATE  ?=
+RECREATE_FLAG   := $(if $(FORCE_RECREATE),--force-recreate ckan,)
+
 SUDO := $(shell [ "$$(id -u)" -eq 0 ] || echo sudo)
 
 # ── Help Text ─────────────────────────────────────────────────────────────────
@@ -19,6 +22,9 @@ help:
 	@echo "  init                 Create the docker_volumes directory structure"
 	@echo "  chown-volumes        Fix ownership of docker_volumes (uses sudo if needed)"
 	@echo "  chown-volume-src     Fix ownership of CKAN_HOME volume (uses sudo if needed)"
+	@echo ""
+	@echo "Options"
+	@echo "  FORCE_RECREATE=1     Add --force-recreate to 'up' / 'dev-up'  (e.g. make up FORCE_RECREATE=1)"
 	@echo ""
 	@echo "Production"
 	@echo "  up                   Start all production containers (detached)"
@@ -58,7 +64,7 @@ chown-volume-src:
 # ── Production ────────────────────────────────────────────────────────────────
 
 up: init
-	$(PROD) up -d
+	$(PROD) up -d $(RECREATE_FLAG)
 
 down:
 	$(PROD) down
@@ -68,16 +74,16 @@ down-v:
 
 rebuild:
 	bash build.sh
-	$(PROD) up -d --force-recreate ckan
+	$(MAKE) up FORCE_RECREATE=1
 
 rebuild-all:
 	bash build.sh --all
-	$(PROD) up -d --force-recreate ckan
+	$(MAKE) up FORCE_RECREATE=1
 
 # ── Development ───────────────────────────────────────────────────────────────
 
 dev-up: init
-	$(DEV) up -d
+	$(DEV) up -d $(RECREATE_FLAG)
 
 dev-down:
 	$(DEV) down
@@ -90,9 +96,8 @@ dev-clean: chown-volumes dev-down-v
 
 dev-rebuild: chown-volume-src
 	rm -rf docker_volumes/ckan_home
-	$(MAKE) init
 	bash build.sh
-	$(DEV) up -d --force-recreate ckan
+	$(MAKE) dev-up FORCE_RECREATE=1
 
 dev-rebuild-clean: dev-clean
 	bash build.sh
@@ -100,11 +105,9 @@ dev-rebuild-clean: dev-clean
 
 dev-rebuild-all: chown-volume-src
 	rm -rf docker_volumes/ckan_home
-	$(MAKE) init
 	bash build.sh --all
-	$(DEV) up -d --force-recreate ckan
+	$(MAKE) dev-up FORCE_RECREATE=1
 
-dev-full-rebuild: dev-clean init
+dev-full-rebuild: dev-clean
 	bash build.sh --all
-	$(DEV) up -d
-
+	$(MAKE) dev-up
