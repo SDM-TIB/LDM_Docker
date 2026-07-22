@@ -146,6 +146,7 @@ ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
 ARG VER_CKANEXT_GRAPHVIEWER="821ae1e"
 ARG VER_CKANEXT_THEMELDMTIB="1.0.1"
+ARG VER_CKANEXT_EMAILNOTIFY="0.1.0"
 
 # CADVIEWER
 # ***********
@@ -221,10 +222,10 @@ RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-wo
 COPY ./Plugins/ckanext-TIBimport $CKAN_HOME_L/src/ckanext-TIBimport
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBimport
 
-# ckanext-TIBnotify Plugin:
-# *****************
-COPY ./Plugins/ckanext-TIBnotify $CKAN_HOME_L/src/ckanext-TIBnotify
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBnotify
+# ckanext-email_notify Plugin:
+# ****************************
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-email_notify@v${VER_CKANEXT_EMAILNOTIFY}#egg=ckanext-email_notify --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-email_notify/refs/tags/v${VER_CKANEXT_EMAILNOTIFY}/requirements.txt
 
 # DOI Plugin:
 # ***********

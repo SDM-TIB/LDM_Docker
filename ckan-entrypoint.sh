@@ -62,7 +62,7 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook doi citation scheming_tibupdateresources cadviewer kgcreation falcon tib_matomo tibnotify Code2NB " \
+    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook doi citation scheming_tibupdateresources cadviewer kgcreation falcon tib_matomo email_notify Code2NB " \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
@@ -130,6 +130,18 @@ write_config () {
 	"tibtheme.accessibility_statement_enabled = true"
   echo "CONFIG TIBtheme plugin DONE"
 
+  echo "CONFIG email_notify plugin"
+  ckan config-tool -s app:main $CONFIG \
+    "email_notify.recipients = your.admin@domain.tld" \
+    "email_notify.sender_name = LDM Notifcation" \
+    "email_notify.sender_email = ldm_notify@domain.tld" \
+    "email_notify.new_users_notify_enabled = true" \
+    "email_notify.users_without_org_notify_enabled = true" \
+    "email_notify.users_without_org_notify_recurrence = 0 0 * * *" \
+    "email_notify.new_users_deltatime = 15" \
+    "email_notify.api_key = changethistoken"
+  echo "CONFIG email_notify plugin DONE"
+
   echo "CONFIG GERMAN TRANSLATIONS"
   ckan config-tool -s app:main $CONFIG \
 	"ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-theme-ldm-tib/ckanext/theme_ldm_tib/i18n/" \
@@ -194,7 +206,8 @@ fi
 #  . /usr/lib/ckan/default/bin/activate
 #  supervisord
 #  supervisorctl restart ckan-worker:*
-#  service cron start
+  echo "STARTING cron"
+  service cron start
 
 # Get or create CKAN_SQLALCHEMY_URL
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
