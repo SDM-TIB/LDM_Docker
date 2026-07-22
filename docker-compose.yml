@@ -40,6 +40,15 @@ volumes:
       device: './docker_volumes/kg_data'
 
 services:
+  kg_exploration:
+    container_name: kg_exploration
+    restart: unless-stopped
+    image: ghcr.io/sdm-tib/fair_rdm_kg_exploration:b8a0002
+    ports:
+      - "5742:5742"
+    networks:
+      - ldmnetwork
+
   ckan:
     container_name: ckan
     restart: unless-stopped
