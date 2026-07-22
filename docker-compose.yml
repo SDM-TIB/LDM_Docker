@@ -40,6 +40,20 @@ volumes:
       device: './docker_volumes/kg_data'
 
 services:
+  traefik:
+    image: traefik:v3.7
+    container_name: traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ldmnetwork
+
   kg_exploration:
     container_name: kg_exploration
     restart: unless-stopped
@@ -48,6 +62,11 @@ services:
       - "5742:5742"
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kge.rule=PathPrefix(`/kg_exploration`)"
+      - "traefik.http.routers.kge.priority=10"         # higher than catch-all
+      - "traefik.http.services.kge.loadbalancer.server.port=5742"
 
   ckan:
     container_name: ckan
@@ -85,6 +104,13 @@ services:
       - ckan_storage:${CKAN_STORAGE_PATH}
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ldmservice.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.ldmservice.priority=1"          # lowest priority — catch-all
+      - "traefik.http.routers.ldmservice.middlewares=ldmservice-cors"
+      - "traefik.http.middlewares.ldmservice-cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.services.ldmservice.loadbalancer.server.port=5000"
 
   db:
     build: ./postgresql-loaded/
@@ -158,6 +184,11 @@ services:
       - .env
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ldmjupyter.rule=PathPrefix(`/ldmjupyter`)"
+      - "traefik.http.routers.ldmjupyter.priority=10"         # higher than catch-all
+      - "traefik.http.services.ldmjupyter.loadbalancer.server.port=8000"
 
   ldm_kg:
     container_name: ldm_kg
@@ -170,6 +201,20 @@ services:
       - ./rdf_metadata:/data/toLoad
     networks:
       - ldmnetwork
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ldmkg.rule=Path(`/ldmkg/sparql`)"
+      - "traefik.http.routers.ldmkg.priority=10"              # higher than catch-all
+      - "traefik.http.routers.ldmkg.middlewares=ldmkg-rewrite"
+      - "traefik.http.middlewares.ldmkg-rewrite.replacepathregex.regex=^/ldmkg/sparql(.*)"
+      - "traefik.http.middlewares.ldmkg-rewrite.replacepathregex.replacement=/sparql$$1"
+      - "traefik.http.services.ldmkg.loadbalancer.server.port=8890"
+      - "traefik.http.routers.ldmkg-redirect.rule=Path(`/ldmkg`)"
+      - "traefik.http.routers.ldmkg-redirect.priority=10"
+      - "traefik.http.routers.ldmkg-redirect.middlewares=ldmkg-redirect-to-sparql"
+      - "traefik.http.middlewares.ldmkg-redirect-to-sparql.redirectregex.regex=^(.*)/ldmkg$$"
+      - "traefik.http.middlewares.ldmkg-redirect-to-sparql.redirectregex.replacement=$${1}/ldmkg/sparql"
+      - "traefik.http.middlewares.ldmkg-redirect-to-sparql.redirectregex.permanent=true"
 
 networks:
   ldmnetwork:  
