@@ -131,7 +131,7 @@ ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
 ARG VER_CKANEXT_FEDORKG="0.11.0"
 ARG VER_CKANEXT_ADVANCEDSTATS="0.7.0"
 ARG VER_CKANEXT_FALCON="2cb86e0"
-ARG VER_CKANEXT_KGCREATION="21d13c6"
+ARG VER_CKANEXT_KGCREATION="4da790c"
 ARG VER_CKANEXT_JUPYTERNOTEBOOK="628a18e"
 ARG VER_CKANEXT_CODE2NB="7a217a9"
 ARG VER_CKANEXT_SHOWCASE="1.6.1"
@@ -145,6 +145,8 @@ ARG VER_CKANEXT_CITATION="2387fca"
 ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
 ARG VER_CKANEXT_GRAPHVIEWER="fad181e"
+ARG VER_CKANEXT_THEMELDMTIB="1.0.1"
+ARG VER_CKANEXT_EMAILNOTIFY="0.1.0"
 
 # CADVIEWER
 # ***********
@@ -155,10 +157,9 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_C
 COPY ./Plugins/ckanext-tib_matomo $CKAN_HOME_L/src/ckanext-tib_matomo
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
 
-# TIBtheme
+# TIB Theme
 # ********
-COPY ./Plugins/ckanext-TIBtheme $CKAN_HOME_L/src/ckanext-TIBtheme
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBtheme
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-theme_ldm_tib@v${VER_CKANEXT_THEMELDMTIB}#egg=ckanext-theme_ldm_tib --src $CKAN_HOME_L/src/
 
 # PDF viewer Plugin:
 # ******************
@@ -221,10 +222,10 @@ RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-wo
 COPY ./Plugins/ckanext-TIBimport $CKAN_HOME_L/src/ckanext-TIBimport
 RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBimport
 
-# ckanext-TIBnotify Plugin:
-# *****************
-COPY ./Plugins/ckanext-TIBnotify $CKAN_HOME_L/src/ckanext-TIBnotify
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBnotify
+# ckanext-email_notify Plugin:
+# ****************************
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-email_notify@v${VER_CKANEXT_EMAILNOTIFY}#egg=ckanext-email_notify --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-email_notify/refs/tags/v${VER_CKANEXT_EMAILNOTIFY}/requirements.txt
 
 # DOI Plugin:
 # ***********
