@@ -67,6 +67,8 @@ services:
       - "traefik.http.routers.kge.rule=PathPrefix(`/kg_exploration`)"
       - "traefik.http.routers.kge.priority=10"         # higher than catch-all
       - "traefik.http.services.kge.loadbalancer.server.port=5742"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
 
   ckan:
     container_name: ckan
@@ -106,9 +108,10 @@ services:
       - ldmnetwork
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ldmservice.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.ldmservice.priority=1"          # lowest priority — catch-all
-      - "traefik.http.routers.ldmservice.middlewares=ldmservice-cors"
+      - "traefik.http.routers.ldmservice.rule=PathPrefix(`/ldmservice`)"
+      - "traefik.http.routers.ldmservice.priority=1"
+      - "traefik.http.middlewares.ldmservice-stripprefix.stripprefix.prefixes=/ldmservice"
+      - "traefik.http.routers.ldmservice.middlewares=ldmservice-stripprefix,ldmservice-cors"
       - "traefik.http.middlewares.ldmservice-cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.services.ldmservice.loadbalancer.server.port=5000"
 
@@ -118,6 +121,7 @@ services:
     restart: unless-stopped
     image: postgresql:loaded
     environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 #    ports:
