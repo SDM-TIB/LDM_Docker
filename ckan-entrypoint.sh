@@ -159,9 +159,9 @@ write_config () {
   "tib_matomo.id = 39"
   echo "CONFIG Matomo plugin DONE"
 
-#  echo "CONFIG root_path"
-#  ckan config-tool -s app:main $CONFIG "ckan.root_path = /{{LANG}}"
-#  echo "CONFIG root_path DONE"
+  echo "CONFIG root_path"
+  ckan config-tool -s app:main $CONFIG "ckan.root_path = ${ROOT_PATH}/{{LANG}}"
+  echo "CONFIG root_path DONE"
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
 
@@ -178,16 +178,19 @@ done
 # If we don't already have a config file (first time execution), bootstrap
 if [ ! -e "$CONFIG" ]; then
   . /usr/lib/ckan/default/bin/activate
-  
+
+  echo "creating who.ini symlink"
+  ln -sf /usr/lib/ckan/default/src/ckan/ckan/config/who.ini ${CKAN_CONFIG}/who.ini
+
   write_config
   echo "INITIALIZE DB"  
-#  ckan -c $CONFIG db init  
+  ckan -c $CONFIG db init  
    
   echo "CREATE DOI TABLE IN DB"
-#  ckan -c $CONFIG doi initdb
+  ckan -c $CONFIG doi initdb
   
   echo "CREATE Services TABLE IN DB"
-#  ckan -c $CONFIG scheming initdb
+  ckan -c $CONFIG scheming initdb
 
   echo "INITIALIZE FedORKG DB"
   ckan -c $CONFIG fedorkg initdb

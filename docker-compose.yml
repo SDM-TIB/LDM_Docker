@@ -1,4 +1,3 @@
-
 version: "3"
 
 volumes:
@@ -64,11 +63,11 @@ services:
       - ldmnetwork
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.kge.rule=PathPrefix(`/kg_exploration`)"
-      - "traefik.http.routers.kge.priority=10"         # higher than catch-all
+      - "traefik.http.routers.kge.rule=PathPrefix(`${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}`)"
+      - "traefik.http.routers.kge.priority=10"
+      - "traefik.http.middlewares.kge-stripprefix.stripprefix.prefixes=${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}"
+      - "traefik.http.routers.kge.middlewares=kge-stripprefix"
       - "traefik.http.services.kge.loadbalancer.server.port=5742"
-      - "--log.level=DEBUG"
-      - "--accesslog=true"
 
   ckan:
     container_name: ckan
@@ -88,7 +87,7 @@ services:
 #      - pusher
 #      - postfix
       - jupyterhub
-      
+
     depends_on:
       - db
       - solr
@@ -108,7 +107,7 @@ services:
       - ldmnetwork
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ldmservice.rule=PathPrefix(`/ldmservice`)"
+      - "traefik.http.routers.ldmservice.rule=PathPrefix(`${ROOT_PATH}`)"
       - "traefik.http.routers.ldmservice.priority=1"
       - "traefik.http.middlewares.ldmservice-stripprefix.stripprefix.prefixes=/ldmservice"
       - "traefik.http.routers.ldmservice.middlewares=ldmservice-stripprefix,ldmservice-cors"
@@ -130,11 +129,11 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - ldmnetwork
-      
+
   solr:
     container_name: solr
     restart: unless-stopped
-    build: 
+    build:
       context: ./solr/
     image: ckan/ckan-solr:2.10
 #    ports:
@@ -150,13 +149,13 @@ services:
     restart: unless-stopped
     networks:
       - ldmnetwork
- 
+
  # pusher:
  #   container_name: datapusher
  #   image: clementmouchet/datapusher
  #   ports:
  #     - "8800:8800"
- 
+
 #  postfix:
 #    container_name: postfix
 #    image: tozd/postfix:ubuntu-trusty
@@ -165,12 +164,12 @@ services:
 #    environment:
 #       MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"
 #    networks:
-#      - ldmnetwork    
+#      - ldmnetwork
 
   jupyterhub:
     container_name: jupyterhub
     restart: unless-stopped
-    build: 
+    build:
       context: ./jupyterhub/
       args:
           - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
@@ -221,6 +220,5 @@ services:
       - "traefik.http.middlewares.ldmkg-redirect-to-sparql.redirectregex.permanent=true"
 
 networks:
-  ldmnetwork:  
+  ldmnetwork:
     external: true
-
