@@ -155,8 +155,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_C
 
 # ckanext-tib_matomo
 # ***********
-COPY ./Plugins/ckanext-tib_matomo $CKAN_HOME_L/src/ckanext-tib_matomo
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-matomo@feature/opt-out#egg=ckanext-matomo --src $CKAN_HOME_L/src/
 
 # TIB Theme
 # ********

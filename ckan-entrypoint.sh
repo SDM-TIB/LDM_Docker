@@ -62,7 +62,7 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook doi citation scheming_tibupdateresources cadviewer kgcreation falcon tib_matomo email_notify Code2NB " \
+    "ckan.plugins = gitImport ldm_schema downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook citation cadviewer kgcreation falcon matomo email_notify Code2NB " \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
@@ -154,9 +154,11 @@ write_config () {
 
   echo "CONFIG Matomo plugin"
   ckan config-tool -s app:main $CONFIG \
-  "tib_matomo.enabled = true" \
-  "tib_matomo.url = https://support.tib.eu/piwik/" \
-  "tib_matomo.id = 39"
+      "ckanext.matomo.domain = https://matomo.domain.tld/" \
+      "ckanext.matomo.site_id = XX" \
+      "ckanext.matomo.track_api = true" \
+      "ckanext.matomo.track_downloads = true" \
+      "ckanext.matomo.token_auth = XXX"
   echo "CONFIG Matomo plugin DONE"
 
 #  echo "CONFIG root_path"
