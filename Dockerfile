@@ -41,8 +41,9 @@ RUN mkdir -p /usr/lib/ckan/default && \
     . /usr/lib/ckan/default/bin/activate
 
 # Create links to the CKAN and pip commands inside the virtual environment
-RUN ln -s /usr/lib/ckan/default/bin/pip /usr/local/bin/ckan-pip && \
-    ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan
+RUN ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan && \
+    printf '#!/bin/sh\nexec env GIT_TERMINAL_PROMPT=0 /usr/lib/ckan/default/bin/pip "$@"\n' > /usr/local/bin/ckan-pip && \
+    chmod +x /usr/local/bin/ckan-pip
 
 # Install the recommended setuptools version and up-to-date pip:
 RUN ckan-pip install --no-cache-dir --upgrade pip && \
