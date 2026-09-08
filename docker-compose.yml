@@ -1,5 +1,4 @@
-
-version: "3"
+#version: "3"
 
 volumes:
   ckan_config:
@@ -47,6 +46,10 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--log.level=DEBUG"
+
     ports:
       - "80:80"
     volumes:
@@ -57,15 +60,19 @@ services:
   kg_exploration:
     container_name: kg_exploration
     restart: unless-stopped
-    image: ghcr.io/sdm-tib/fair_rdm_kg_exploration:b8a0002
+    image: ghcr.io/sdm-tib/fair_rdm_kg_exploration:054f336
     ports:
       - "5742:5742"
     networks:
       - ldmnetwork
+    env_file:
+      - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.kge.rule=PathPrefix(`/kg_exploration`)"
-      - "traefik.http.routers.kge.priority=10"         # higher than catch-all
+      - "traefik.http.routers.kge.rule=PathPrefix(`${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}`)"
+      - "traefik.http.routers.kge.priority=10"
+      - "traefik.http.middlewares.kge-stripprefix.stripprefix.prefixes=${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}"
+      - "traefik.http.routers.kge.middlewares=kge-stripprefix"
       - "traefik.http.services.kge.loadbalancer.server.port=5742"
 
   ckan:
@@ -86,7 +93,7 @@ services:
 #      - pusher
 #      - postfix
       - jupyterhub
-      
+
     depends_on:
       - db
       - solr
@@ -106,9 +113,10 @@ services:
       - ldmnetwork
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ldmservice.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.ldmservice.priority=1"          # lowest priority — catch-all
-      - "traefik.http.routers.ldmservice.middlewares=ldmservice-cors"
+      - "traefik.http.routers.ldmservice.rule=PathPrefix(`${ROOT_PATH}`)"
+      - "traefik.http.routers.ldmservice.priority=1"
+      - "traefik.http.middlewares.ldmservice-stripprefix.stripprefix.prefixes=${ROOT_PATH}"
+      - "traefik.http.routers.ldmservice.middlewares=ldmservice-stripprefix,ldmservice-cors"
       - "traefik.http.middlewares.ldmservice-cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.services.ldmservice.loadbalancer.server.port=5000"
 
@@ -118,6 +126,7 @@ services:
     restart: unless-stopped
     image: postgresql:loaded
     environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 #    ports:
@@ -126,11 +135,11 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - ldmnetwork
-      
+
   solr:
     container_name: solr
     restart: unless-stopped
-    build: 
+    build:
       context: ./solr/
     image: ckan/ckan-solr:2.10
 #    ports:
@@ -146,13 +155,13 @@ services:
     restart: unless-stopped
     networks:
       - ldmnetwork
- 
+
  # pusher:
  #   container_name: datapusher
  #   image: clementmouchet/datapusher
  #   ports:
  #     - "8800:8800"
- 
+
 #  postfix:
 #    container_name: postfix
 #    image: tozd/postfix:ubuntu-trusty
@@ -161,12 +170,12 @@ services:
 #    environment:
 #       MY_NETWORKS: "172.18.0.0/16 127.0.0.0/8"
 #    networks:
-#      - ldmnetwork    
+#      - ldmnetwork
 
   jupyterhub:
     container_name: jupyterhub
     restart: unless-stopped
-    build: 
+    build:
       context: ./jupyterhub/
       args:
           - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
@@ -217,6 +226,5 @@ services:
       - "traefik.http.middlewares.ldmkg-redirect-to-sparql.redirectregex.permanent=true"
 
 networks:
-  ldmnetwork:  
+  ldmnetwork:
     external: true
-

@@ -38,15 +38,15 @@ set_environment () {
   export CKAN_MAX_RESOURCE_SIZE=${CKAN_MAX_RESOURCE_SIZE}
 }
 
-  
+
 write_config () {
 
   echo "GENERATE CONFIG"
   ckan generate config "$CONFIG"
-  
+
   echo "CONFIG GENEREATED"
   ckan config-tool "$CONFIG" -s DEFAULT -e "debug = false"
-  
+
   # The variables above will be used by CKAN, but
   # in case want to use the config from ckan.ini use this
   echo "CONFIG PLUGINS"
@@ -85,10 +85,10 @@ write_config () {
 
   echo "CONFIG tibimport vars"
   ckan config-tool -s app:main $CONFIG \
-	"tibimport.show_vdatasets_virtual_ribbon = true" \
-	"tibimport.show_vdatasets_virtual_source_ribbon = true" \
+  "tibimport.show_vdatasets_virtual_ribbon = true" \
+  "tibimport.show_vdatasets_virtual_source_ribbon = true" \
     "tibimport.updatedatasets_enabled = false" \
-	"tibimport.updatedatasets_crontab_user = root"
+  "tibimport.updatedatasets_crontab_user = root"
   echo "CONFIG tibimport vars DONE"
 
   echo "CONFIG scheming vars"
@@ -120,14 +120,14 @@ write_config () {
 
   echo "CONFIG TIBtheme plugin"
   ckan config-tool -s app:main $CONFIG \
-	"tibtheme.legal_notices_enabled = true" \
-	"tibtheme.show_cookies_alert = true" \
-	"tibtheme.legal_notices_TIB_terms_use_enabled = true" \
-	"tibtheme.special_conditions_LDM_enabled = true" \
-	"tibtheme.special_conditions_label = Special conditions TIB LDM" \
-	"tibtheme.data_privacy_enabled = true" \
-	"tibtheme.imprint_enabled = true" \
-	"tibtheme.accessibility_statement_enabled = true"
+  "tibtheme.legal_notices_enabled = true" \
+  "tibtheme.show_cookies_alert = true" \
+  "tibtheme.legal_notices_TIB_terms_use_enabled = true" \
+  "tibtheme.special_conditions_LDM_enabled = true" \
+  "tibtheme.special_conditions_label = Special conditions TIB LDM" \
+  "tibtheme.data_privacy_enabled = true" \
+  "tibtheme.imprint_enabled = true" \
+  "tibtheme.accessibility_statement_enabled = true"
   echo "CONFIG TIBtheme plugin DONE"
 
   echo "CONFIG email_notify plugin"
@@ -144,8 +144,8 @@ write_config () {
 
   echo "CONFIG GERMAN TRANSLATIONS"
   ckan config-tool -s app:main $CONFIG \
-	"ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-theme-ldm-tib/ckanext/theme_ldm_tib/i18n/" \
-	"ckan.i18n.extra_locales = de"
+  "ckan.i18n_directory = ${CKAN_HOME}/src/ckanext-theme-ldm-tib/ckanext/theme_ldm_tib/i18n/" \
+  "ckan.i18n.extra_locales = de"
   echo "CONFIG GERMAN TRANLATIONS DONE"
 
   # echo "CONFIG jupyternotebook vars"
@@ -161,9 +161,9 @@ write_config () {
       "ckanext.matomo.token_auth = XXX"
   echo "CONFIG Matomo plugin DONE"
 
-#  echo "CONFIG root_path"
-#  ckan config-tool -s app:main $CONFIG "ckan.root_path = /{{LANG}}"
-#  echo "CONFIG root_path DONE"
+  echo "CONFIG root_path"
+  ckan config-tool -s app:main $CONFIG "ckan.root_path = ${ROOT_PATH}/{{LANG}}"
+  echo "CONFIG root_path DONE"
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
 
@@ -180,27 +180,30 @@ done
 # If we don't already have a config file (first time execution), bootstrap
 if [ ! -e "$CONFIG" ]; then
   . /usr/lib/ckan/default/bin/activate
-  
+
+  echo "creating who.ini symlink"
+  ln -sf /usr/lib/ckan/default/src/ckan/ckan/config/who.ini ${CKAN_CONFIG}/who.ini
+
   write_config
-  echo "INITIALIZE DB"  
-#  ckan -c $CONFIG db init  
-   
-  echo "CREATE DOI TABLE IN DB"
-#  ckan -c $CONFIG doi initdb
-  
-  echo "CREATE Services TABLE IN DB"
-#  ckan -c $CONFIG scheming initdb
+  # echo "INITIALIZE DB"
+  # ckan -c $CONFIG db init
+
+  # echo "CREATE DOI TABLE IN DB"
+  # ckan -c $CONFIG doi initdb
+
+  # echo "CREATE Services TABLE IN DB"
+  # ckan -c $CONFIG scheming initdb
 
   echo "INITIALIZE FedORKG DB"
   ckan -c $CONFIG fedorkg initdb
 
   echo "START FedORKG Metdata Endpoint"
   ckan -c $CONFIG fedorkg start &> $CKAN_STORAGE_PATH/fedorkg/fedorkg-metadata.log &
-  
+
   echo "REBUILD SEARCH-INDEX"
   ckan -c $CONFIG search-index rebuild
-  
-  echo "DONE"  
+
+  echo "DONE"
 fi
 
 # Restart supervisor (CKAN WORKER)
