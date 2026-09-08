@@ -41,8 +41,9 @@ RUN mkdir -p /usr/lib/ckan/default && \
     . /usr/lib/ckan/default/bin/activate
 
 # Create links to the CKAN and pip commands inside the virtual environment
-RUN ln -s /usr/lib/ckan/default/bin/pip /usr/local/bin/ckan-pip && \
-    ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan
+RUN ln -s /usr/lib/ckan/default/bin/ckan /usr/local/bin/ckan && \
+    printf '#!/bin/sh\nexec env GIT_TERMINAL_PROMPT=0 /usr/lib/ckan/default/bin/pip "$@"\n' > /usr/local/bin/ckan-pip && \
+    chmod +x /usr/local/bin/ckan-pip
 
 # Install the recommended setuptools version and up-to-date pip:
 RUN ckan-pip install --no-cache-dir --upgrade pip && \
@@ -127,7 +128,7 @@ FROM base AS final
 
 ARG CKAN_HOME_L
 
-ARG VER_CKANEXT_DATACOMPARISON="0.6.2"
+ARG VER_CKANEXT_DATACOMPARISON="0.8.0"
 ARG VER_CKANEXT_FEDORKG="0.11.0"
 ARG VER_CKANEXT_ADVANCEDSTATS="0.7.0"
 ARG VER_CKANEXT_FALCON="2cb86e0"
@@ -144,9 +145,10 @@ ARG VER_CKANEXT_GITIMPORT="5adb792"
 ARG VER_CKANEXT_CITATION="2387fca"
 ARG VER_CKANEXT_DOI="6fda79a"
 ARG VER_CKANEXT_CADVIEWER="82fd9ad"
-ARG VER_CKANEXT_GRAPHVIEWER="fad181e"
-ARG VER_CKANEXT_THEMELDMTIB="1.0.1"
+ARG VER_CKANEXT_GRAPHVIEWER="c1f483b"
+ARG VER_CKANEXT_THEMELDMTIB="1.1.1"
 ARG VER_CKANEXT_EMAILNOTIFY="0.1.0"
+ARG VER_CKANEXT_TIBIMPORT="5aa8adf"
 
 # CADVIEWER
 # ***********
@@ -154,8 +156,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_C
 
 # ckanext-tib_matomo
 # ***********
-COPY ./Plugins/ckanext-tib_matomo $CKAN_HOME_L/src/ckanext-tib_matomo
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-tib_matomo
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-matomo@feature/opt-out#egg=ckanext-matomo --src $CKAN_HOME_L/src/
 
 # TIB Theme
 # ********
@@ -219,8 +220,9 @@ RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-wo
 
 # TIBimport Plugin:
 # *****************
-COPY ./Plugins/ckanext-TIBimport $CKAN_HOME_L/src/ckanext-TIBimport
-RUN ckan-pip install -e $CKAN_HOME_L/src/ckanext-TIBimport
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-TIBimport@${VER_CKANEXT_TIBIMPORT}#egg=ckanext-tibimport --src $CKAN_HOME_L/src/ &&\
+    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-TIBimport/${VER_CKANEXT_TIBIMPORT}/requirements.txt
+
 
 # ckanext-email_notify Plugin:
 # ****************************
