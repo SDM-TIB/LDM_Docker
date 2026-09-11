@@ -65,8 +65,8 @@ services:
       - "5742:5742"
     networks:
       - ldmnetwork
-    env_file:
-      - .env
+    environment:
+      - CKANEXT__KG_EXPLORATION__ENDPOINT
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.kge.rule=PathPrefix(`${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}`)"
