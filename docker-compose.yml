@@ -69,9 +69,9 @@ services:
       - CKANEXT__KG_EXPLORATION__ENDPOINT
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.kge.rule=PathPrefix(`${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}`)"
+      - "traefik.http.routers.kge.rule=PathPrefix(`${ROOT_PATH:-}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}`)"
       - "traefik.http.routers.kge.priority=10"
-      - "traefik.http.middlewares.kge-stripprefix.stripprefix.prefixes=${ROOT_PATH}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}"
+      - "traefik.http.middlewares.kge-stripprefix.stripprefix.prefixes=${ROOT_PATH:-}${CKANEXT__GRAPHVIEWER__APIIP__SUBPATH}"
       - "traefik.http.routers.kge.middlewares=kge-stripprefix"
       - "traefik.http.services.kge.loadbalancer.server.port=5742"
 
@@ -113,9 +113,9 @@ services:
       - ldmnetwork
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ldmservice.rule=PathPrefix(`${ROOT_PATH}`)"
+      - "traefik.http.routers.ldmservice.rule=PathPrefix(`${ROOT_PATH:-/}`)"
       - "traefik.http.routers.ldmservice.priority=1"
-      - "traefik.http.middlewares.ldmservice-stripprefix.stripprefix.prefixes=${ROOT_PATH}"
+      - "traefik.http.middlewares.ldmservice-stripprefix.stripprefix.prefixes=${ROOT_PATH:-/}"
       - "traefik.http.routers.ldmservice.middlewares=ldmservice-stripprefix,ldmservice-cors"
       - "traefik.http.middlewares.ldmservice-cors.headers.accesscontrolalloworiginlist=*"
       - "traefik.http.services.ldmservice.loadbalancer.server.port=5000"

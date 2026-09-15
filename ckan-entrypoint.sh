@@ -161,9 +161,11 @@ write_config () {
       "ckanext.matomo.token_auth = XXX"
   echo "CONFIG Matomo plugin DONE"
 
-  echo "CONFIG root_path"
-  ckan config-tool -s app:main $CONFIG "ckan.root_path = ${ROOT_PATH}/{{LANG}}"
-  echo "CONFIG root_path DONE"
+  if [ -n "$ROOT_PATH" ]; then
+      echo "CONFIG root_path"
+      ckan config-tool -s app:main $CONFIG "ckan.root_path = ${ROOT_PATH}/{{LANG}}"
+      echo "CONFIG root_path DONE"
+  fi
 
 #     "ckan.views.default_views = image_view text_view recline_view videoviewer" \
 
