@@ -1,0 +1,22 @@
+diff --git a/ckan/views/user.py b/ckan/views/user.py
+index 240101deb1..9614715d30 100644
+--- a/ckan/views/user.py
++++ b/ckan/views/user.py
+@@ -402,7 +402,7 @@ class RegisterView(MethodView):
+             return self.get(data_dict)
+ 
+         try:
+-            logic.get_action(u'user_create')(context, data_dict)
++            user_dict = logic.get_action(u'user_create')(context, data_dict)
+         except logic.NotAuthorized:
+             base.abort(403, _(u'Unauthorized to create user %s') % u'')
+         except logic.NotFound:
+@@ -428,7 +428,7 @@ class RegisterView(MethodView):
+ 
+         # log the user in programatically
+         resp = h.redirect_to(u'user.me')
+-        set_repoze_user(data_dict[u'name'], resp)
++        set_repoze_user(u'{},1'.format(user_dict[u'id']), resp)
+         return resp
+ 
+     def get(self, data=None, errors=None, error_summary=None):
