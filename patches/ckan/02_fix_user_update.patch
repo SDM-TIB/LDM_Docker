@@ -10,7 +10,7 @@ index 0fbb183a27..178db8d13f 100644
  
  from ckan.common import config
  import ckan.common as converters
-@@ -847,6 +848,16 @@ def user_update(context, data_dict):
+@@ -847,6 +848,15 @@ def user_update(context, data_dict):
                              'image_upload', 'clear_upload')
  
      data, errors = _validate(data_dict, schema, context)
@@ -22,7 +22,6 @@ index 0fbb183a27..178db8d13f 100644
 +    elif 'image_url' in data_dict.keys() and data_dict['image_url'] and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg']:
 +        errors.update({_('Profile picture'): [_("Invalid image file")]})
 +        data_dict['image_url'] = data_dict['old_image_url']
-+    
 +
      if errors:
          session.rollback()
