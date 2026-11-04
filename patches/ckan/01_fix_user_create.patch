@@ -14,7 +14,7 @@ index 17e9cb6968..674253b6a7 100644
 +
 +    if upload.filename and _get_extension(upload.filename) not in ALLOWED_EXTENSIONS:
 +        errors.update({_('Profile picture'): [WRONG_EXTENSION_MSG]})
-+    elif data_dict['image_url'] and _get_extension(data_dict['image_url']) not in ALLOWED_EXTENSIONS:
++    elif 'image_url' in data_dict.keys() and data_dict['image_url'] and _get_extension(data_dict['image_url']) not in ALLOWED_EXTENSIONS:
 +        errors.update({_('Profile picture'): [WRONG_EXTENSION_MSG]})
 +
      if errors:

@@ -19,7 +19,7 @@ index 0fbb183a27..178db8d13f 100644
 +    if upload.filename and upload.filename[-3:].lower() not in ['gif', 'png', 'jpg']:
 +        errors.update({_('Profile picture'): [_("Invalid image file")]})
 +        data_dict['image_url'] = data_dict['old_image_url']
-+    elif data_dict['image_url'] and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg']:
++    elif 'image_url' in data_dict.keys() and data_dict['image_url'] and data_dict['image_url'][-3:] not in ['gif', 'png', 'jpg']:
 +        errors.update({_('Profile picture'): [_("Invalid image file")]})
 +        data_dict['image_url'] = data_dict['old_image_url']
 +    
