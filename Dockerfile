@@ -149,6 +149,7 @@ ARG VER_CKANEXT_GRAPHVIEWER="aa4eec6"
 ARG VER_CKANEXT_THEMELDMTIB="1.1.1"
 ARG VER_CKANEXT_EMAILNOTIFY="0.1.0"
 ARG VER_CKANEXT_TIBIMPORT="5aa8adf"
+ARG VER_CKANEXT_MCPASSISTANT="c3c1d61"
 
 # CADVIEWER
 # ***********
@@ -228,6 +229,10 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-TIBimport@${VER_C
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-email_notify@v${VER_CKANEXT_EMAILNOTIFY}#egg=ckanext-email_notify --src $CKAN_HOME_L/src/ &&\
     ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-email_notify/refs/tags/v${VER_CKANEXT_EMAILNOTIFY}/requirements.txt
 
+# LDM Assistant Plugin (natural-language questions via LLM + CKAN MCP server):
+# ***********
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-mcp_assistant@${VER_CKANEXT_MCPASSISTANT}#egg=ckanext-mcp_assistant --src $CKAN_HOME_L/src/ 
+
 # DOI Plugin:
 # ***********
 RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-doi@${VER_CKANEXT_DOI}#egg=ckanext-doi --src $CKAN_HOME_L/src/ &&\
@@ -273,4 +278,5 @@ RUN chmod +x /ckan-entrypoint.sh
 ENTRYPOINT ["sh", "/ckan-entrypoint.sh"]
 
 # Run command for running CKAN
-CMD ["ckan","-c","/etc/ckan/default/ckan.ini", "run", "--host", "0.0.0.0"]
+# --threaded: one slow request (e.g. an LDM Assistant answer, 10-60 s) must not block the whole site
+CMD ["ckan","-c","/etc/ckan/default/ckan.ini", "run", "--host", "0.0.0.0", "--threaded"]
