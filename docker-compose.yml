@@ -93,7 +93,7 @@ services:
 #      - pusher
 #      - postfix
       - jupyterhub
-
+      - ldm_mcp
     depends_on:
       - db
       - solr
@@ -198,6 +198,27 @@ services:
       - "traefik.http.routers.ldmjupyter.rule=PathPrefix(`/ldmjupyter`)"
       - "traefik.http.routers.ldmjupyter.priority=10"         # higher than catch-all
       - "traefik.http.services.ldmjupyter.loadbalancer.server.port=8000"
+
+  # CKAN MCP server (ondata/ckan-mcp-server) used by the LDM Assistant plugin.
+  # No published ports and no Traefik labels: only CKAN reaches it, on ldmnetwork.
+  ldm_mcp:
+    container_name: ldm_mcp
+    restart: unless-stopped
+    build:
+      context: ./ckan-mcp-server/
+      args:
+        - CKAN_MCP_SERVER_VERSION=${LDM_MCP_SERVER_VERSION:-0.4.134}
+    image: ldm_mcp
+    environment:
+      - TRANSPORT=http
+      - PORT=3000
+      - CKAN_HTTP_HOST=0.0.0.0
+      # the server rejects other Host headers (DNS-rebinding protection)
+      - CKAN_HTTP_ALLOWED_HOSTS=ldm_mcp:3000
+      # CKAN portals the tools may query
+      - CKAN_ALLOWED_DOMAINS=${LDM_MCP_ALLOWED_DOMAINS:-service.tib.eu}
+    networks:
+      - ldmnetwork
 
   ldm_kg:
     container_name: ldm_kg
