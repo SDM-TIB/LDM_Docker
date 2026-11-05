@@ -209,8 +209,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_
 
 # Install Jupyternotebooks Plugin requirements
 # ********************************************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-jupyternotebook@${VER_CKANEXT_JUPYTERNOTEBOOK}#egg=ckanext-jupyternotebook --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-jupyternotebook/${VER_CKANEXT_JUPYTERNOTEBOOK}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-jupyternotebook@${VER_CKANEXT_JUPYTERNOTEBOOK}#egg=ckanext-jupyternotebook --src $CKAN_HOME_L/src/
 
 # Scheming Plugin:
 # ****************
