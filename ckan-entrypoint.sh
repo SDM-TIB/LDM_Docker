@@ -79,7 +79,7 @@ write_config () {
 
   echo "CONFIG FedORKG"
   ckan config-tool -s app:main $CONFIG \
-    "ckanext.fedorkg.llm.model = o4-mini" \
+    "ckanext.fedorkg.llm.model = gpt-5.4-mini-2026-03-17" \
     "ckanext.fedorkg.llm.api_key = ${OPENAI_API_KEY}"
   echo "CONFIG FedORKG DONE"
 
