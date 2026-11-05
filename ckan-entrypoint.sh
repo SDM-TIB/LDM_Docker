@@ -62,7 +62,7 @@ write_config () {
     "smtp.server = postfix" \
     "ckan.views.default_views = image_view text_view video_view officedocs_view pdf_view tib_cadviewer" \
     "smtp.mail_from = admin@datahub.com" \
-    "ckan.plugins = gitImport ldm_schema scheming_tibupdateresources downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook citation cadviewer kgcreation falcon matomo email_notify Code2NB " \
+    "ckan.plugins = mcp_assistant gitImport ldm_schema scheming_tibupdateresources downloadall graph_viewer fedorkg advancedstats stats text_view image_view datacomparison_view datacomparison_explorer_view resource_proxy officedocs_view webpage_view video_view TIBtheme pdf_view scheming_datasets tibimport jupyternotebook citation cadviewer kgcreation falcon matomo email_notify Code2NB " \
     "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
     "ckan.max_resource_size = CKAN_MAX_RESOURCE_SIZE" \
     "ckan.site_title = LDM" \
@@ -206,6 +206,13 @@ if [ ! -e "$CONFIG" ]; then
   ckan -c $CONFIG search-index rebuild
 
   echo "DONE"
+fi
+
+# LDM Assistant: ckan.ini is only generated on the first start, so enable the plugin
+# in an existing ckan.ini too.
+if ! grep -qE '^ckan\.plugins *=.*(^|[ =])mcp_assistant( |$)' "$CONFIG"; then
+  echo "ENABLE mcp_assistant PLUGIN IN EXISTING CONFIG"
+  sed -i -E 's/^(ckan\.plugins *= *)/\1mcp_assistant /' "$CONFIG"
 fi
 
 # Restart supervisor (CKAN WORKER)
