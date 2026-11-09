@@ -208,13 +208,6 @@ if [ ! -e "$CONFIG" ]; then
   echo "DONE"
 fi
 
-# LDM Assistant: ckan.ini is only generated on the first start, so enable the plugin
-# in an existing ckan.ini too.
-if ! grep -qE '^ckan\.plugins *=.*(^|[ =])mcp_assistant( |$)' "$CONFIG"; then
-  echo "ENABLE mcp_assistant PLUGIN IN EXISTING CONFIG"
-  sed -i -E 's/^(ckan\.plugins *= *)/\1mcp_assistant /' "$CONFIG"
-fi
-
 # Restart supervisor (CKAN WORKER)
   echo "RESTART SUPERVISOR SERVICE - CKAN WORKER"
 #  . /usr/lib/ckan/default/bin/activate
