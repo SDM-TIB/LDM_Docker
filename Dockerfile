@@ -169,8 +169,7 @@ RUN ckan-pip install -e git+https://github.com/ckan/ckanext-pdfview@${VER_CKANEX
 
 # Falcon Plugin:
 # ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-falcon@${VER_CKANEXT_FALCON}#egg=ckanext-falcon --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-falcon/${VER_CKANEXT_FALCON}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-falcon@${VER_CKANEXT_FALCON}#egg=ckanext-falcon --src $CKAN_HOME_L/src/
 
 # advancedstats Plugin:
 # ******************
@@ -179,8 +178,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-advancedstats@v${
 
 # datacomparison Plugin:
 # ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-datacomparison@v${VER_CKANEXT_DATACOMPARISON}#egg=ckanext-datacomparison --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-datacomparison/refs/tags/v${VER_CKANEXT_DATACOMPARISON}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-datacomparison@v${VER_CKANEXT_DATACOMPARISON}#egg=ckanext-datacomparison --src $CKAN_HOME_L/src/
 
 # FedORKG Plugin:
 # ******************
@@ -195,8 +193,7 @@ RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-downloadall@v${VE
 
 # Showcase Plugin:
 # ******************
-RUN ckan-pip install -e git+https://github.com/ckan/ckanext-showcase@v${VER_CKANEXT_SHOWCASE}#egg=ckanext-showcase --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/ckan/ckanext-showcase/refs/tags/v${VER_CKANEXT_SHOWCASE}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/ckan/ckanext-showcase@v${VER_CKANEXT_SHOWCASE}#egg=ckanext-showcase --src $CKAN_HOME_L/src/
 
 # MS and OpenOffice docs viewer
 # ***************************** 
@@ -220,8 +217,7 @@ RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-wo
 
 # TIBimport Plugin:
 # *****************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-TIBimport@${VER_CKANEXT_TIBIMPORT}#egg=ckanext-tibimport --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-TIBimport/${VER_CKANEXT_TIBIMPORT}/requirements.txt
+RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-TIBimport@${VER_CKANEXT_TIBIMPORT}#egg=ckanext-tibimport --src $CKAN_HOME_L/src/
 
 
 # ckanext-email_notify Plugin:
