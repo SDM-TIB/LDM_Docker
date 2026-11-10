@@ -68,6 +68,7 @@ write_config () {
     "ckan.site_title = LDM" \
     "ckan.site_logo = /images/TIB_logo.png" \
     "ckan.favicon = /images/TIB_logo.png" \
+    "ckan.locales_offered = en de" \
     "ckan.views.default_views = image_view text_view datacomparison_view video_view officedocs_view pdf_view cadviewer jupyternotebook" \
     "ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json ipynb"
 
