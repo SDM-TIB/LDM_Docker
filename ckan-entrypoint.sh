@@ -200,9 +200,6 @@ if [ ! -e "$CONFIG" ]; then
   echo "INITIALIZE FedORKG DB"
   ckan -c $CONFIG fedorkg initdb
 
-  echo "START FedORKG Metdata Endpoint"
-  ckan -c $CONFIG fedorkg start &> $CKAN_STORAGE_PATH/fedorkg/fedorkg-metadata.log &
-
   echo "REBUILD SEARCH-INDEX"
   ckan -c $CONFIG search-index rebuild
 
@@ -216,6 +213,9 @@ fi
 #  supervisorctl restart ckan-worker:*
   echo "STARTING cron"
   service cron start
+
+  echo "START FedORKG Metdata Endpoint"
+  ckan -c $CONFIG fedorkg start &> $CKAN_STORAGE_PATH/fedorkg/fedorkg-metadata.log &
 
 # Get or create CKAN_SQLALCHEMY_URL
 if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
