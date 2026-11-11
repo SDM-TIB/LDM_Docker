@@ -51,27 +51,28 @@ RUN ckan-pip install --no-cache-dir --upgrade pip && \
 
 # Install the CKAN source code into your virtualenv.
 COPY requirements.txt $CKAN_HOME_L/requirements.txt
+COPY patch_and_install.py $CKAN_HOME_L/patch_and_install.py
 RUN git clone --branch $CKAN_VER https://github.com/ckan/ckan.git $CKAN_HOME_L/src/ckan && \
-    ckan-pip install -e $CKAN_HOME_L/src/ckan/ && \
-    ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/requirements.txt
+    python3 $CKAN_HOME_L/patch_and_install.py -c $CKAN_HOME_L/requirements.txt -r $CKAN_HOME_L/src/ckan/requirements.txt && \
+    ckan-pip install -e $CKAN_HOME_L/src/ckan/
 
 # Add customized TIB requirements files
 # ONLY FOR PRODUCTION MODE: "Only for Development/Debug mode" area in this document must be commented
 # and in ./ckan-entrypoint.sh SET "debug" to false: 
 # Line: ckan config-tool "$CONFIG" -s DEFAULT -e "debug = false"
 # ***********************************************************************************************
-#COPY ./TIB-requirements.txt $CKAN_HOME_L/src/ckan/TIB-requirements.txt
-#RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/TIB-requirements.txt
+# COPY ./TIB-requirements.txt $CKAN_HOME_L/src/ckan/TIB-requirements.txt
+# RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/TIB-requirements.txt
 # ***********************************************************************************************
 
 # ONLY FOR DEVELOPMENT/DEBUG MODE: "Only for Production mode" area in this document must be commented
 # and in ./ckan-entrypoint.sh SET "debug" to true 
 # Line: ckan config-tool "$CONFIG" -s DEFAULT -e "debug = true"
 # ***********************************************************************************************
-COPY ./TIB-dev-requirements.txt $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
-COPY ./TIB-requirements.txt $CKAN_HOME_L/src/ckan/TIB-requirements.txt
-RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/dev-requirements.txt
-RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
+# COPY ./TIB-dev-requirements.txt $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
+# COPY ./TIB-requirements.txt $CKAN_HOME_L/src/ckan/TIB-requirements.txt
+# RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/dev-requirements.txt
+# RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/TIB-dev-requirements.txt
 # ***********************************************************************************************
 
 # Reactivate your virtualenv to ensure taking changes
