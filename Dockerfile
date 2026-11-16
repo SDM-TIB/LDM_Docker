@@ -116,6 +116,7 @@ EXPOSE 5000
 FROM base AS final
 
 ARG CKAN_HOME_L
+ARG CKAN_STORAGE_PATH_L
 
 COPY ckan-plugins.txt ${CKAN_HOME_L}/ckan-plugins.txt
 RUN <<'EOF'
