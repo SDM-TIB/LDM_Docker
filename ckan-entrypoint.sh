@@ -45,7 +45,7 @@ write_config () {
   ckan generate config "$CONFIG"
 
   echo "CONFIG GENEREATED"
-  ckan config-tool "$CONFIG" -s DEFAULT -e "debug = false"
+  ckan config-tool "$CONFIG" -s DEFAULT -e "debug = $CKAN_DEBUG"
 
   # The variables above will be used by CKAN, but
   # in case want to use the config from ckan.ini use this

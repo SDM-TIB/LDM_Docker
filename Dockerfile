@@ -27,6 +27,7 @@ ARG CKAN_HOME_L
 ARG CKAN_CONFIG_L
 ARG CKAN_STORAGE_PATH_L
 ARG CKAN_VER
+ARG CKAN_DEBUG_L
 
 # Symlink CKAN lib and etc directories to root's home directory
 RUN mkdir -p ~/ckan/lib && \
@@ -56,12 +57,14 @@ RUN git clone --branch $CKAN_VER https://github.com/ckan/ckan.git $CKAN_HOME_L/s
     python3 $CKAN_HOME_L/patch_and_install.py -c $CKAN_HOME_L/requirements.txt -r $CKAN_HOME_L/src/ckan/requirements.txt && \
     ckan-pip install -e $CKAN_HOME_L/src/ckan/
 
-# ONLY FOR DEVELOPMENT/DEBUG MODE: "Only for Production mode" area in this document must be commented
-# and in ./ckan-entrypoint.sh SET "debug" to true 
-# Line: ckan config-tool "$CONFIG" -s DEFAULT -e "debug = true"
-# ***********************************************************************************************
-# RUN ckan-pip install --no-cache-dir --upgrade -r $CKAN_HOME_L/src/ckan/dev-requirements.txt
-# ***********************************************************************************************
+# Install dev/debug requirements when CKAN_DEBUG=true (set via .env / docker-compose build arg).
+RUN if [ "$CKAN_DEBUG_L" = "true" ]; then \
+        echo ">>> CKAN_DEBUG=true: installing dev-requirements" && \
+        ckan-pip install --no-cache-dir --upgrade \
+            -r $CKAN_HOME_L/src/ckan/dev-requirements.txt; \
+    else \
+        echo ">>> CKAN_DEBUG=false: skipping dev-requirements"; \
+    fi
 
 # Reactivate your virtualenv to ensure taking changes
 RUN . /usr/lib/ckan/default/bin/activate

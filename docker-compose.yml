@@ -86,6 +86,7 @@ services:
           - CKAN_HOME_L=${CKAN_HOME}
           - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
           - CKAN_VER=${CKAN_VERSION}
+          - CKAN_DEBUG_L=${CKAN_DEBUG}
     links:
       - db
       - solr
