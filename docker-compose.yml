@@ -82,11 +82,11 @@ services:
     build:
       context: .
       args:
-          - CKAN_CONFIG_L=${CKAN_CONFIG}
-          - CKAN_HOME_L=${CKAN_HOME}
-          - CKAN_STORAGE_PATH_L=${CKAN_STORAGE_PATH}
-          - CKAN_VER=${CKAN_VERSION}
-          - CKAN_DEBUG_L=${CKAN_DEBUG}
+          - CKAN_CONFIG=${CKAN_CONFIG}
+          - CKAN_HOME=${CKAN_HOME}
+          - CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
+          - CKAN_VERSION=${CKAN_VERSION}
+          - CKAN_DEBUG=${CKAN_DEBUG}
     links:
       - db
       - solr

@@ -23,11 +23,11 @@ RUN echo 'Install required system packages' && \
     rm -rf /var/lib/apt/lists/*
 
 # Build-time variables specified by docker-compose.yml / .env
-ARG CKAN_HOME_L
-ARG CKAN_CONFIG_L
-ARG CKAN_STORAGE_PATH_L
-ARG CKAN_VER
-ARG CKAN_DEBUG_L
+ARG CKAN_HOME
+ARG CKAN_CONFIG
+ARG CKAN_STORAGE_PATH
+ARG CKAN_VERSION
+ARG CKAN_DEBUG
 
 # Symlink CKAN lib and etc directories to root's home directory
 RUN mkdir -p ~/ckan/lib && \
@@ -51,17 +51,17 @@ RUN ckan-pip install --no-cache-dir --upgrade pip && \
     ckan-pip install --no-cache-dir setuptools==44.1.0
 
 # Install the CKAN source code into your virtualenv.
-COPY requirements.txt $CKAN_HOME_L/requirements.txt
-COPY patch_and_install.py $CKAN_HOME_L/patch_and_install.py
-RUN git clone --branch $CKAN_VER https://github.com/ckan/ckan.git $CKAN_HOME_L/src/ckan && \
-    python3 $CKAN_HOME_L/patch_and_install.py -c $CKAN_HOME_L/requirements.txt -r $CKAN_HOME_L/src/ckan/requirements.txt && \
-    ckan-pip install -e $CKAN_HOME_L/src/ckan/
+COPY requirements.txt $CKAN_HOME/requirements.txt
+COPY patch_and_install.py $CKAN_HOME/patch_and_install.py
+RUN git clone --branch $CKAN_VERSION https://github.com/ckan/ckan.git $CKAN_HOME/src/ckan && \
+    python3 $CKAN_HOME/patch_and_install.py -c $CKAN_HOME/requirements.txt -r $CKAN_HOME/src/ckan/requirements.txt && \
+    ckan-pip install -e $CKAN_HOME/src/ckan/
 
 # Install dev/debug requirements when CKAN_DEBUG=true (set via .env / docker-compose build arg).
-RUN if [ "$CKAN_DEBUG_L" = "true" ]; then \
+RUN if [ "$CKAN_DEBUG" = "true" ]; then \
         echo ">>> CKAN_DEBUG=true: installing dev-requirements" && \
         ckan-pip install --no-cache-dir --upgrade \
-            -r $CKAN_HOME_L/src/ckan/dev-requirements.txt; \
+            -r $CKAN_HOME/src/ckan/dev-requirements.txt; \
     else \
         echo ">>> CKAN_DEBUG=false: skipping dev-requirements"; \
     fi
@@ -72,21 +72,21 @@ RUN . /usr/lib/ckan/default/bin/activate
 # Create a directory to contain the site's config files and set access permission to them.
 # Also we give current user permission to access and execute files and folders
 RUN mkdir -p /etc/ckan &&\
-    mkdir -p $CKAN_CONFIG_L &&\
-    mkdir -p $CKAN_STORAGE_PATH_L &&\
-    mkdir -p $CKAN_STORAGE_PATH_L/resources
+    mkdir -p $CKAN_CONFIG &&\
+    mkdir -p $CKAN_STORAGE_PATH &&\
+    mkdir -p $CKAN_STORAGE_PATH/resources
 
-RUN chown -R `whoami` $CKAN_HOME_L $CKAN_CONFIG_L &&\
+RUN chown -R `whoami` $CKAN_HOME $CKAN_CONFIG &&\
     chown -R `whoami` /etc/ckan &&\
-    chown -R `whoami` $CKAN_STORAGE_PATH_L &&\
-    chown -R `whoami` $CKAN_STORAGE_PATH_L/resources
+    chown -R `whoami` $CKAN_STORAGE_PATH &&\
+    chown -R `whoami` $CKAN_STORAGE_PATH/resources
 
 # Link to who.ini
 # who.ini (the Repoze.who configuration file) needs to be accessible in the same directory as 
 # your CKAN config file, so create a symlink to it:
-RUN ln -s /usr/lib/ckan/default/src/ckan/ckan/config/who.ini $CKAN_CONFIG_L/who.ini
+RUN ln -s /usr/lib/ckan/default/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
-# Note: config file ($CKAN_CONFIG_L/ckan.ini) is generated in ./ckan-entrypoint.sh
+# Note: config file ($CKAN_CONFIG/ckan.ini) is generated in ./ckan-entrypoint.sh
 
 # *****************************************************************
 # Add script file for fixing bug if necessary (Consult User Manual)
@@ -97,9 +97,9 @@ COPY ./clean_database.sh /clean_database.sh
 # ******************************************************************
 
 # Setup examples
-COPY ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH_L/resources
-COPY ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH_L/notebook
-COPY ./LDM_examples_files/RESOURCES/storage $CKAN_STORAGE_PATH_L/storage
+COPY ./LDM_examples_files/RESOURCES/resources/resources $CKAN_STORAGE_PATH/resources
+COPY ./LDM_examples_files/RESOURCES/jupyternotebooks/notebook $CKAN_STORAGE_PATH/notebook
+COPY ./LDM_examples_files/RESOURCES/storage $CKAN_STORAGE_PATH/storage
 
 # Install Resources Updates Plugin requirements
 # *********************************************
@@ -118,10 +118,10 @@ EXPOSE 5000
 # Stage 2: Install plugins
 FROM base AS final
 
-ARG CKAN_HOME_L
-ARG CKAN_STORAGE_PATH_L
+ARG CKAN_HOME
+ARG CKAN_STORAGE_PATH
 
-COPY ckan-plugins.txt ${CKAN_HOME_L}/ckan-plugins.txt
+COPY ckan-plugins.txt ${CKAN_HOME}/ckan-plugins.txt
 RUN <<'EOF'
 #!/bin/bash
 set -euo pipefail
@@ -135,16 +135,16 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     repo_name="${org_repo##*/}"
 
     dir_name="$(echo "$repo_name" | sed -E 's/[-_.]+/-/g' | tr '[:upper:]' '[:lower:]')"
-    src_dir="$CKAN_HOME_L/src/${dir_name}"
+    src_dir="$CKAN_HOME/src/${dir_name}"
 
     echo ">>> Installing ${repo_name}@${ref}"
     ckan-pip install -e \
         "git+https://github.com/${org_repo}@${ref}#egg=${repo_name}" \
-        --src "$CKAN_HOME_L/src/"
+        --src "$CKAN_HOME/src/"
 
     if [[ ! -d "$src_dir" ]]; then
         echo "ERROR: expected clone at ${src_dir} not found" >&2
-        ls -1 "$CKAN_HOME_L/src/" >&2
+        ls -1 "$CKAN_HOME/src/" >&2
         exit 1
     fi
 
@@ -154,22 +154,22 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     else
         echo "    (no requirements.txt, or file is empty; skipping)"
     fi
-done < ${CKAN_HOME_L}/ckan-plugins.txt
+done < ${CKAN_HOME}/ckan-plugins.txt
 EOF
 
 # Copy federation metadata
-COPY ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
+COPY ./fedorkg $CKAN_STORAGE_PATH/fedorkg
 
 # Copy metadata of datasets
-COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
+COPY ./rdf_metadata $CKAN_STORAGE_PATH/rdf_metadata
 
 # Copy CKAN worker config from LDM schema
-RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-worker.conf /etc/supervisor/conf.d
+RUN cp $CKAN_HOME/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-worker.conf /etc/supervisor/conf.d
 
 # Apply any patches
-COPY patches ${CKAN_HOME_L}/patches
+COPY patches ${CKAN_HOME}/patches
 RUN . /usr/lib/ckan/default/bin/activate && \
-    for d in $CKAN_HOME_L/patches/*; do \
+    for d in $CKAN_HOME/patches/*; do \
       if [ -d $d ]; then \
         for f in $d/*.patch; do \
           if [ -f $f ]; then \
