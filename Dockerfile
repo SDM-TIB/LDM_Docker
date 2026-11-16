@@ -117,129 +117,50 @@ FROM base AS final
 
 ARG CKAN_HOME_L
 
-ARG VER_CKANEXT_DATACOMPARISON="0.8.0"
-ARG VER_CKANEXT_FEDORKG="0.11.0"
-ARG VER_CKANEXT_ADVANCEDSTATS="0.7.0"
-ARG VER_CKANEXT_FALCON="2cb86e0"
-ARG VER_CKANEXT_KGCREATION="78e3319"
-ARG VER_CKANEXT_JUPYTERNOTEBOOK="628a18e"
-ARG VER_CKANEXT_CODE2NB="7a217a9"
-ARG VER_CKANEXT_SHOWCASE="1.6.1"
-ARG VER_CKANEXT_DOWNLOADALL="0.3.0"
-ARG VER_CKANEXT_PDFVIEW="0.0.7"
-ARG VER_CKANEXT_OFFICEDOCS="1.1.1"
-ARG VER_CKANEXT_SCHEMING="release-3.0.0"
-ARG VER_CKANEXT_LDMSCHEMA="1.1.0"
-ARG VER_CKANEXT_GITIMPORT="5adb792"
-ARG VER_CKANEXT_CITATION="2387fca"
-ARG VER_CKANEXT_DOI="6fda79a"
-ARG VER_CKANEXT_CADVIEWER="82fd9ad"
-ARG VER_CKANEXT_GRAPHVIEWER="aa4eec6"
-ARG VER_CKANEXT_THEMELDMTIB="2.0.0"
-ARG VER_CKANEXT_EMAILNOTIFY="0.1.0"
-ARG VER_CKANEXT_TIBIMPORT="5aa8adf"
-ARG VER_CKANEXT_MCPASSISTANT="c89be5f"
+COPY ckan-plugins.txt ${CKAN_HOME_L}/ckan-plugins.txt
+RUN <<'EOF'
+#!/bin/bash
+set -euo pipefail
+while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%#*}"
+    line="$(echo "$line" | xargs)"
+    [[ -z "$line" ]] && continue
 
-# CADVIEWER
-# ***********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-cadviewer@${VER_CKANEXT_CADVIEWER}#egg=ckanext-cadviewer --src $CKAN_HOME_L/src/
+    org_repo="${line%@*}"
+    ref="${line##*@}"
+    repo_name="${org_repo##*/}"
 
-# ckanext-tib_matomo
-# ***********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-matomo@feature/opt-out#egg=ckanext-matomo --src $CKAN_HOME_L/src/
+    dir_name="$(echo "$repo_name" | sed -E 's/[-_.]+/-/g' | tr '[:upper:]' '[:lower:]')"
+    src_dir="$CKAN_HOME_L/src/${dir_name}"
 
-# TIB Theme
-# ********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-theme_ldm_tib@v${VER_CKANEXT_THEMELDMTIB}#egg=ckanext-theme_ldm_tib --src $CKAN_HOME_L/src/
+    echo ">>> Installing ${repo_name}@${ref}"
+    ckan-pip install -e \
+        "git+https://github.com/${org_repo}@${ref}#egg=${repo_name}" \
+        --src "$CKAN_HOME_L/src/"
 
-# PDF viewer Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/ckan/ckanext-pdfview@${VER_CKANEXT_PDFVIEW}#egg=ckanext-pdfview --src $CKAN_HOME_L/src/
+    if [[ ! -d "$src_dir" ]]; then
+        echo "ERROR: expected clone at ${src_dir} not found" >&2
+        ls -1 "$CKAN_HOME_L/src/" >&2
+        exit 1
+    fi
 
-# Falcon Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-falcon@${VER_CKANEXT_FALCON}#egg=ckanext-falcon --src $CKAN_HOME_L/src/
+    req_file="${src_dir}/requirements.txt"
+    if [[ -s "$req_file" ]]; then
+        ckan-pip install --no-cache-dir -r "$req_file"
+    else
+        echo "    (no requirements.txt, or file is empty; skipping)"
+    fi
+done < ${CKAN_HOME_L}/ckan-plugins.txt
+EOF
 
-# advancedstats Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-advancedstats@v${VER_CKANEXT_ADVANCEDSTATS}#egg=ckanext-advancedstats --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-advancedstats/refs/tags/v${VER_CKANEXT_ADVANCEDSTATS}/requirements.txt
-
-# datacomparison Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-datacomparison@v${VER_CKANEXT_DATACOMPARISON}#egg=ckanext-datacomparison --src $CKAN_HOME_L/src/
-
-# FedORKG Plugin:
-# ******************
+# Copy federation metadata
 COPY ./fedorkg $CKAN_STORAGE_PATH_L/fedorkg
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-fedorkg@v${VER_CKANEXT_FEDORKG}#egg=ckanext-fedorkg --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-fedorkg/refs/tags/v${VER_CKANEXT_FEDORKG}/requirements.txt
 
-# downloadall Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-downloadall@v${VER_CKANEXT_DOWNLOADALL}#egg=ckanext-downloadall --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-downloadall/refs/tags/v${VER_CKANEXT_DOWNLOADALL}/requirements.txt
-
-# Showcase Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/ckan/ckanext-showcase@v${VER_CKANEXT_SHOWCASE}#egg=ckanext-showcase --src $CKAN_HOME_L/src/
-
-# MS and OpenOffice docs viewer
-# ***************************** 
-RUN ckan-pip install -e git+https://github.com/jqnatividad/ckanext-officedocs@v${VER_CKANEXT_OFFICEDOCS}#egg=ckanext-officedocs --src $CKAN_HOME_L/src/
-
-# KG Creation Plugin:
-# ******************
+# Copy metadata of datasets
 COPY ./rdf_metadata $CKAN_STORAGE_PATH_L/rdf_metadata
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-kgcreation@${VER_CKANEXT_KGCREATION}#egg=ckanext-kgcreation --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-kgcreation/${VER_CKANEXT_KGCREATION}/requirements.txt
 
-# Install Jupyternotebooks Plugin requirements
-# ********************************************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-jupyternotebook@${VER_CKANEXT_JUPYTERNOTEBOOK}#egg=ckanext-jupyternotebook --src $CKAN_HOME_L/src/
-
-# Scheming Plugin:
-# ****************
-RUN ckan-pip install -e git+https://github.com/ckan/ckanext-scheming@${VER_CKANEXT_SCHEMING}#egg=ckanext-scheming --src $CKAN_HOME_L/src/
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-ldm_schema@v${VER_CKANEXT_LDMSCHEMA}#egg=ckanext-ldm_schema --src $CKAN_HOME_L/src/
+# Copy CKAN worker config from LDM schema
 RUN cp $CKAN_HOME_L/src/ckanext-ldm-schema/ckanext/ldm_schema/supervisor-ckan-worker.conf /etc/supervisor/conf.d
-
-# TIBimport Plugin:
-# *****************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-TIBimport@${VER_CKANEXT_TIBIMPORT}#egg=ckanext-tibimport --src $CKAN_HOME_L/src/
-
-
-# ckanext-email_notify Plugin:
-# ****************************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-email_notify@v${VER_CKANEXT_EMAILNOTIFY}#egg=ckanext-email_notify --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-email_notify/refs/tags/v${VER_CKANEXT_EMAILNOTIFY}/requirements.txt
-
-# LDM Assistant Plugin (natural-language questions via LLM + CKAN MCP server):
-# ***********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-mcp_assistant@${VER_CKANEXT_MCPASSISTANT}#egg=ckanext-mcp_assistant --src $CKAN_HOME_L/src/ 
-
-# DOI Plugin:
-# ***********
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-doi@${VER_CKANEXT_DOI}#egg=ckanext-doi --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-doi/${VER_CKANEXT_DOI}/requirements.txt
-
-
-# citation Plugin:
-# ****************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-citation@${VER_CKANEXT_CITATION}#egg=ckanext-citation --src $CKAN_HOME_L/src/
-
-# RDF Graph Visualisation Plugin:
-# ********************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-graphviewer@${VER_CKANEXT_GRAPHVIEWER}#egg=ckanext-graphviewer --src $CKAN_HOME_L/src/
-
-# Code2NB Plugin (R and Py to Notebook Converter)
-# ********************************************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-Code2NB@${VER_CKANEXT_CODE2NB}#egg=ckanext-Code2NB --src $CKAN_HOME_L/src/ &&\
-    ckan-pip install -r https://raw.githubusercontent.com/SDM-TIB/ckanext-Code2NB/${VER_CKANEXT_CODE2NB}/requirements.txt
-
-# GitHub Import Plugin:
-# ******************
-RUN ckan-pip install -e git+https://github.com/SDM-TIB/ckanext-gitimport@${VER_CKANEXT_GITIMPORT}#egg=ckanext-gitimport --src $CKAN_HOME_L/src/
 
 # Apply any patches
 COPY patches ${CKAN_HOME_L}/patches

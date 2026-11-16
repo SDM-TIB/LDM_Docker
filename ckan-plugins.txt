@@ -1,0 +1,27 @@
+# format: <org>/<repo>@<tag-branch-or-commit>
+# Install order matters where plugins depend on each other.
+
+SDM-TIB/ckanext-cadviewer@82fd9ad
+SDM-TIB/ckanext-matomo@feature/opt-out
+SDM-TIB/ckanext-theme_ldm_tib@v2.0.0
+ckan/ckanext-pdfview@0.0.7
+SDM-TIB/ckanext-falcon@2cb86e0
+SDM-TIB/ckanext-advancedstats@v0.7.0
+SDM-TIB/ckanext-datacomparison@v0.8.0
+SDM-TIB/ckanext-fedorkg@v0.11.0
+SDM-TIB/ckanext-downloadall@v0.3.0
+ckan/ckanext-showcase@v1.6.1
+jqnatividad/ckanext-officedocs@v1.1.1
+SDM-TIB/ckanext-kgcreation@78e3319
+SDM-TIB/ckanext-jupyternotebook@628a18e
+ckan/ckanext-scheming@release-3.0.0
+SDM-TIB/ckanext-ldm_schema@v1.1.0
+SDM-TIB/ckanext-TIBimport@5aa8adf
+SDM-TIB/ckanext-email_notify@v0.1.0
+SDM-TIB/ckanext-mcp_assistant@c89be5f
+SDM-TIB/ckanext-doi@6fda79a
+SDM-TIB/ckanext-citation@2387fca
+SDM-TIB/ckanext-graphviewer@aa4eec6
+SDM-TIB/ckanext-Code2NB@7a217a9
+SDM-TIB/ckanext-gitimport@5adb792
+
