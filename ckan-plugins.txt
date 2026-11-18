@@ -7,7 +7,7 @@ SDM-TIB/ckanext-theme_ldm_tib@v2.0.0
 ckan/ckanext-pdfview@0.0.7
 SDM-TIB/ckanext-falcon@2cb86e0
 SDM-TIB/ckanext-advancedstats@v0.7.0
-SDM-TIB/ckanext-datacomparison@v0.8.0
+SDM-TIB/ckanext-datacomparison@v0.8.1
 SDM-TIB/ckanext-fedorkg@v0.11.0
 SDM-TIB/ckanext-downloadall@v0.3.0
 ckan/ckanext-showcase@v1.6.1
