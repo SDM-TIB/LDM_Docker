@@ -49,7 +49,6 @@ services:
       - "--accesslog=true"
       - "--accesslog.format=json"
       - "--log.level=DEBUG"
-
     ports:
       - "80:80"
     volumes:
