@@ -207,7 +207,7 @@ services:
     build:
       context: ./ckan-mcp-server/
       args:
-        - CKAN_MCP_SERVER_VERSION=${LDM_MCP_SERVER_VERSION:-0.4.134}
+        - CKAN_MCP_SERVER_VERSION=${LDM_MCP_SERVER_VERSION:-0.4.144}
     image: ldm_mcp
     environment:
       - TRANSPORT=http
@@ -217,6 +217,7 @@ services:
       - CKAN_HTTP_ALLOWED_HOSTS=ldm_mcp:3000
       # CKAN portals the tools may query
       - CKAN_ALLOWED_DOMAINS=${LDM_MCP_ALLOWED_DOMAINS:-service.tib.eu}
+      - CKAN_PRIVATE_HOSTS=${LDM_MCP_PRIVATE_HOSTS:-}
     networks:
       - ldmnetwork
 
