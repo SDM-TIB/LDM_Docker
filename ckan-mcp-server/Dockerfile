@@ -2,7 +2,7 @@
 # Runs the Streamable HTTP transport on port 3000, inside the Docker network only.
 FROM node:22-alpine
 
-ARG CKAN_MCP_SERVER_VERSION=0.4.134
+ARG CKAN_MCP_SERVER_VERSION=0.4.144
 RUN npm install -g @aborruso/ckan-mcp-server@${CKAN_MCP_SERVER_VERSION} \
     && npm cache clean --force
 
